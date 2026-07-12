@@ -1,0 +1,2965 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>4th Grade GT Math Lab - Teach Me</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css?v=20260712-unit1-practice">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">4th Grade GT Math Lab</p>
+          <h1 id="topicTitle">Volume</h1>
+        </div>
+        <nav class="mode-tabs" aria-label="Topic mode">
+          <button class="mode-tab is-active" type="button" data-mode="teach" aria-pressed="true">Teach Me</button>
+          <button class="mode-tab" type="button" data-mode="practice" aria-pressed="false">Practice</button>
+        </nav>
+      </header>
+
+      <section class="unit-focus-bar" aria-label="Unit focus">
+        <div class="unit-focus-title">
+          <span>Focus</span>
+          <strong id="unitFocusLabel">All Units</strong>
+        </div>
+        <div class="unit-focus-buttons" aria-label="Choose a unit focus">
+          <button class="unit-focus-chip is-active" type="button" data-unit-focus="all" aria-pressed="true">All Units</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit1" aria-pressed="false">Unit 1</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit2" aria-pressed="false">Unit 2</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit3" aria-pressed="false">Unit 3</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit4" aria-pressed="false">Unit 4</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit5" aria-pressed="false">Unit 5</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit6" aria-pressed="false">Unit 6</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit7" aria-pressed="false">Unit 7</button>
+          <button class="unit-focus-chip" type="button" data-unit-focus="unit8" aria-pressed="false">Unit 8</button>
+        </div>
+        <div class="unit-learning-path" id="unit6LearningPath" hidden>
+          <div>
+            <span>Unit 6 Path</span>
+            <strong>More Decimal and Fraction Computation</strong>
+          </div>
+          <button type="button" data-unit-path-topic="expressionsPowers">1. Powers of 10</button>
+          <button type="button" data-unit-path-topic="addSubtractFractions">2. Unlike Denominators</button>
+          <button type="button" data-unit-path-topic="fractionWordProblems">3. Fraction Line Plots</button>
+          <button type="button" data-unit-path-topic="multiplyingFractions">4. Scaling Products</button>
+          <button type="button" data-unit-path-topic="mixedReview">5. Mixed Review</button>
+        </div>
+      </section>
+
+      <main class="app-layout">
+        <aside class="topic-rail" aria-label="Math topics">
+          <p class="rail-title">Topics</p>
+          <button class="topic-link is-active" type="button" data-topic="volume" data-units="unit1 unit4 unit8" aria-controls="volumeTopic">
+            <span class="topic-mark"></span>
+            Volume
+          </button>
+          <button class="topic-link" type="button" data-topic="fractionFoundations" data-units="unit2" aria-controls="fractionFoundationsTopic">
+            <span class="topic-mark"></span>
+            Fraction Foundations
+          </button>
+          <button class="topic-link" type="button" data-topic="multiplyingFractions" data-units="unit2 unit3 unit6 unit8" aria-controls="multiplyingFractionsTopic">
+            <span class="topic-mark"></span>
+            Multiplying Fractions
+          </button>
+          <button class="topic-link" type="button" data-topic="dividingFractions" data-units="unit3" aria-controls="dividingFractionsTopic">
+            <span class="topic-mark"></span>
+            Dividing Fractions
+          </button>
+          <button class="topic-link" type="button" data-topic="fractionWordProblems" data-units="unit3 unit6" aria-controls="fractionWordProblemsTopic">
+            <span class="topic-mark"></span>
+            Fraction Word Problems
+          </button>
+          <button class="topic-link" type="button" data-topic="multiDigit" data-units="unit1 unit4 unit8" aria-controls="multiDigitTopic">
+            <span class="topic-mark"></span>
+            Multi-Digit Multiplication & Division
+          </button>
+          <button class="topic-link" type="button" data-topic="decimals" data-units="unit5" aria-controls="decimalsTopic">
+            <span class="topic-mark"></span>
+            Decimals
+          </button>
+          <button class="topic-link" type="button" data-topic="decimalOperations" data-units="unit5 unit8" aria-controls="decimalOperationsTopic">
+            <span class="topic-mark"></span>
+            Decimal Operations
+          </button>
+          <button class="topic-link" type="button" data-topic="expressionsPowers" data-units="unit5 unit6" aria-controls="expressionsPowersTopic">
+            <span class="topic-mark"></span>
+            Expressions & Powers of Ten
+          </button>
+          <button class="topic-link" type="button" data-topic="addSubtractFractions" data-units="unit6 unit8" aria-controls="addSubtractFractionsTopic">
+            <span class="topic-mark"></span>
+            Add & Subtract Fractions
+          </button>
+          <button class="topic-link" type="button" data-topic="coordinateGeometry" data-units="unit7" aria-controls="coordinateGeometryTopic">
+            <span class="topic-mark"></span>
+            Coordinate Plane & Geometry
+          </button>
+          <button class="topic-link" type="button" data-topic="mixedReview" data-units="unit4 unit5 unit6 unit7 unit8" aria-controls="mixedReviewTopic">
+            <span class="topic-mark"></span>
+            Mixed Review
+          </button>
+          <button class="topic-link" type="button" data-topic="vocabulary" data-units="unit1 unit2 unit3 unit4 unit5 unit6 unit7 unit8" aria-controls="vocabularyTopic">
+            <span class="topic-mark"></span>
+            Vocabulary
+          </button>
+        </aside>
+
+        <section class="lesson-pane" id="volumeTopic" data-topic-pane="volume" data-units="unit1 unit8" aria-label="Volume Teach Me flow">
+          <div class="lesson-summary" data-units="unit1">
+            <div>
+              <p class="eyebrow">Unit 1</p>
+              <h2>Volume measures how much space a solid object fills.</h2>
+            </div>
+            <p>
+              This topic will build cubic units, count unit cubes, use length x width x height,
+              and split composite solids into parts.
+            </p>
+          </div>
+
+          <div class="topic-roadmap" data-units="unit1">
+            <article>
+              <span>5.MD.3</span>
+              <h3>Understand Volume</h3>
+              <p>See volume as space filled by same-size unit cubes.</p>
+            </article>
+            <article>
+              <span>5.MD.4</span>
+              <h3>Count Cubic Units</h3>
+              <p>Build layers of cubes and count them efficiently.</p>
+            </article>
+            <article>
+              <span>5.MD.5</span>
+              <h3>Use Formulas</h3>
+              <p>Connect counting cubes to length x width x height and additive volume.</p>
+            </article>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Volume Teach Me scenes" data-units="unit1">
+            <a href="#volume-cubic-units">1. Cubes</a>
+            <a href="#volume-rows-layers">2. Rows & layers</a>
+            <a href="#volume-base-height">3. Base x height</a>
+            <a href="#volume-expression-names">4. Expressions</a>
+            <a href="#volume-missing-dimension">5. Missing side</a>
+            <a href="#volume-composed-solids">6. Split solids</a>
+          </nav>
+
+          <section class="scene" id="volume-cubic-units" data-units="unit1">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 1)</p>
+              <h2>Volume counts cubic units, not just flat squares.</h2>
+              <p>
+                A face can show square units, but a solid has depth. To measure volume, every
+                hidden and visible unit cube has to be counted.
+              </p>
+              <div class="math-line" id="unit1CubeEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare area units and volume units">
+              <div class="control-row" aria-label="Choose a volume unit view">
+                <button class="choice-button is-active" type="button" data-unit1-cube="face">Flat face</button>
+                <button class="choice-button" type="button" data-unit1-cube="solid">Solid volume</button>
+              </div>
+              <div class="unit1-board" id="unit1CubeBoard"></div>
+              <p class="teacher-note" id="unit1CubeMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="volume-rows-layers" data-units="unit1">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 1)</p>
+              <h2>Rows, columns, and layers build a rectangular prism.</h2>
+              <p>
+                Change the dimensions to see one layer form first. Then stack identical layers to
+                fill the prism.
+              </p>
+              <div class="math-line" id="unit1PrismEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Build a rectangular prism">
+              <div class="control-row" aria-label="Choose prism dimensions">
+                <label class="custom-number-control">
+                  Length
+                  <input id="unit1LengthInput" type="number" min="1" max="8" value="4" inputmode="numeric">
+                  <small>cubes</small>
+                </label>
+                <label class="custom-number-control">
+                  Width
+                  <input id="unit1WidthInput" type="number" min="1" max="6" value="3" inputmode="numeric">
+                  <small>cubes</small>
+                </label>
+                <label class="custom-number-control">
+                  Height
+                  <input id="unit1HeightInput" type="number" min="1" max="6" value="2" inputmode="numeric">
+                  <small>layers</small>
+                </label>
+              </div>
+              <div class="unit1-board" id="unit1PrismBoard"></div>
+              <p class="teacher-note" id="unit1PrismMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="volume-base-height" data-units="unit1">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 1)</p>
+              <h2>Base area times height means repeated layers.</h2>
+              <p>
+                First count the cubes in one base layer. The height tells how many equal layers are
+                stacked.
+              </p>
+              <div class="math-line" id="unit1LayerEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Connect base area and height">
+              <div class="control-row" aria-label="Choose a prism">
+                <button class="choice-button is-active" type="button" data-unit1-layer="twoByThreeByFour">2 x 3 x 4</button>
+                <button class="choice-button" type="button" data-unit1-layer="fourByThreeByTwo">4 x 3 x 2</button>
+                <button class="choice-button" type="button" data-unit1-layer="fiveByTwoByThree">5 x 2 x 3</button>
+              </div>
+              <div class="unit1-board" id="unit1LayerBoard"></div>
+              <p class="teacher-note" id="unit1LayerMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="volume-expression-names" data-units="unit1">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 1)</p>
+              <h2>Different expressions can describe the same prism.</h2>
+              <p>
+                A product can name dimensions, one layer repeated, or a different grouping of the
+                same cubes. The amount stays fixed.
+              </p>
+              <div class="math-line" id="unit1ExpressionEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Match expressions to a prism">
+              <div class="control-row" aria-label="Choose an expression view">
+                <button class="choice-button is-active" type="button" data-unit1-expression="dimensions">4 x 3 x 2</button>
+                <button class="choice-button" type="button" data-unit1-expression="baseLayer">(4 x 3) x 2</button>
+                <button class="choice-button" type="button" data-unit1-expression="layers">12 x 2</button>
+                <button class="choice-button" type="button" data-unit1-expression="frontSlices">4 x (3 x 2)</button>
+              </div>
+              <div class="unit1-board" id="unit1ExpressionBoard"></div>
+              <p class="teacher-note" id="unit1ExpressionMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="volume-missing-dimension" data-units="unit1">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 1)</p>
+              <h2>A missing dimension is a missing factor.</h2>
+              <p>
+                When the volume is known, divide by the part you can see: one layer, one side
+                length, or a base area.
+              </p>
+              <div class="math-line" id="unit1MissingEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Find missing prism dimensions">
+              <div class="control-row" aria-label="Choose a missing dimension problem">
+                <button class="choice-button is-active" type="button" data-unit1-missing="height">Missing height</button>
+                <button class="choice-button" type="button" data-unit1-missing="length">Missing length</button>
+                <button class="choice-button" type="button" data-unit1-missing="width">Missing width</button>
+              </div>
+              <div class="unit1-board" id="unit1MissingBoard"></div>
+              <p class="teacher-note" id="unit1MissingMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="volume-composed-solids" data-units="unit1">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 1)</p>
+              <h2>Composed solids can be split into rectangular prisms.</h2>
+              <p>
+                Split the shape into prisms that do not overlap, find each volume, then add the
+                parts back together.
+              </p>
+              <div class="math-line" id="unit1CompositeEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Split and add composed solids">
+              <div class="control-row" aria-label="Choose a composed solid">
+                <button class="choice-button is-active" type="button" data-unit1-composite="lShape">L-shape</button>
+                <button class="choice-button" type="button" data-unit1-composite="stepSolid">Step solid</button>
+                <button class="choice-button" type="button" data-unit1-composite="missingCorner">Missing corner</button>
+              </div>
+              <div class="unit1-board" id="unit1CompositeBoard"></div>
+              <p class="teacher-note" id="unit1CompositeMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <div class="lesson-summary" data-units="unit8">
+            <div>
+              <p class="eyebrow">Unit 8 Teach Me</p>
+              <h2>Use volume to model real objects before calculating.</h2>
+            </div>
+            <p>
+              Unit 8 revisits volume through estimation contexts: cube collections, large wagons,
+              sand bags, roof area, and rainfall.
+            </p>
+          </div>
+
+          <section class="scene" id="unit8-volume-modeling" data-units="unit8">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 8)</p>
+              <h2>Volume is a modeling choice before it is a formula.</h2>
+              <p>
+                Unit 8 uses sugar cubes, wagons, sand bags, and rainfall. The habit is to choose
+                the dimensions and units first, then multiply length x width x height.
+              </p>
+              <div class="math-line" id="unit8VolumeEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Model Unit 8 volume contexts">
+              <div class="control-row" aria-label="Choose a Unit 8 volume context">
+                <button class="choice-button is-active" type="button" data-unit8-volume="cubes126">126 cubes</button>
+                <button class="choice-button" type="button" data-unit8-volume="wagon">Wagon estimate</button>
+                <button class="choice-button" type="button" data-unit8-volume="rainfall">Rainfall</button>
+              </div>
+              <div class="unit8-board" id="unit8VolumeBoard"></div>
+              <p class="teacher-note" id="unit8VolumeMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="volumePracticeTopic" data-topic-pane="volume" data-mode-pane="practice" data-units="unit1 unit4 unit8" aria-label="Volume Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Units 1, 4, and 8 Practice</p>
+              <h2>Practice unit cubes, volume tables, missing dimensions, estimation, and real-world volume stories.</h2>
+            </div>
+            <p>
+              These cards keep cube models, source dimensions, tables, and context visible so
+              students can count, multiply, divide, estimate, and explain with units.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="volume">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Volume practice</strong>
+                <span id="volumePracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="volume">Reset answers</button>
+            </div>
+            <div class="practice-list" id="volumePracticeList" data-practice-list="volume"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="fractionFoundationsTopic" data-topic-pane="fractionFoundations" data-units="unit2" aria-label="Fraction Foundations Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 2 - Section A</p>
+              <h2>Fractions can be the answer to a fair sharing problem.</h2>
+            </div>
+            <p>
+              Start with a real story, split each whole into equal shares, then connect the
+              picture to a division expression, a fraction, and a mixed number when the share is
+              more than one whole.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Fraction Foundations Teach Me scenes">
+            <a href="#sharing-makes-fractions">1. Sharing</a>
+            <a href="#division-names">2. Two names</a>
+            <a href="#fraction-meaning">3. Top and bottom</a>
+            <a href="#fraction-more-than-one">4. More than one</a>
+            <a href="#try-sharing">5. Try a problem</a>
+          </nav>
+
+          <section class="scene" id="sharing-makes-fractions">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 2)</p>
+              <h2>Equal sharing creates fraction pieces.</h2>
+              <p>
+                If whole sandwiches are shared fairly, each whole is cut into the same number
+                of equal pieces. One person's share is made from one piece of every sandwich.
+              </p>
+              <div class="math-line" id="sharingEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Fractions as equal sharing">
+              <div class="control-row" aria-label="Choose a sharing story">
+                <button class="choice-button is-active" type="button" data-sharing-preset="3/4">3 sandwiches, 4 people</button>
+                <button class="choice-button" type="button" data-sharing-preset="2/3">2 sandwiches, 3 people</button>
+                <button class="choice-button" type="button" data-sharing-preset="5/4">5 sandwiches, 4 people</button>
+              </div>
+              <div class="sharing-board" id="sharingBoard"></div>
+              <p class="teacher-note" id="sharingMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="division-names">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 2)</p>
+              <h2>The division and the fraction are two names for one amount.</h2>
+              <p>
+                The story, picture, division expression, and fraction are not separate facts.
+                They are four views of the same fair share.
+              </p>
+              <div class="math-line" id="divisionNamesEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Connect story, division expression, fraction, and answer">
+              <div class="sharing-forms-board" id="divisionNamesBoard"></div>
+              <p class="teacher-note" id="divisionNamesMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="fraction-meaning">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 2)</p>
+              <h2>The top tells how many. The bottom tells what kind.</h2>
+              <p>
+                The numerator counts how many fraction pieces are in one share. The denominator
+                names the size of each piece by telling how many equal pieces make one whole.
+              </p>
+              <div class="math-line" id="fractionMeaningEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Try a fraction and see numerator and denominator">
+              <div class="control-row" aria-label="Try a fraction">
+                <label class="custom-number-control fraction-number-control" for="fractionNumeratorInput">
+                  <span>Numerator</span>
+                  <input id="fractionNumeratorInput" type="number" inputmode="numeric" min="0" max="12" value="3" aria-describedby="fractionNumeratorHint">
+                  <small id="fractionNumeratorHint">how many</small>
+                </label>
+                <label class="custom-number-control fraction-number-control" for="fractionDenominatorInput">
+                  <span>Denominator</span>
+                  <input id="fractionDenominatorInput" type="number" inputmode="numeric" min="1" max="12" value="4" aria-describedby="fractionDenominatorHint">
+                  <small id="fractionDenominatorHint">what kind</small>
+                </label>
+              </div>
+              <div class="fraction-meaning-board" id="fractionMeaningBoard"></div>
+              <p class="teacher-note" id="fractionMeaningMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="fraction-more-than-one">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 2)</p>
+              <h2>Sometimes one fair share is more than one whole.</h2>
+              <p>
+                When there are more sandwiches than people, each person can receive whole
+                sandwiches plus a fraction. That is why improper fractions and mixed numbers
+                describe the same amount.
+              </p>
+              <div class="math-line" id="mixedSharingEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Fractions greater than one from equal sharing">
+              <div class="control-row" aria-label="Choose a more-than-one sharing story">
+                <button class="choice-button is-active" type="button" data-mixed-sharing="5/2">5 sandwiches, 2 people</button>
+                <button class="choice-button" type="button" data-mixed-sharing="7/3">7 sandwiches, 3 people</button>
+                <button class="choice-button" type="button" data-mixed-sharing="9/4">9 sandwiches, 4 people</button>
+              </div>
+              <div class="sharing-board" id="mixedSharingBoard"></div>
+              <p class="teacher-note" id="mixedSharingMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="try-sharing">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 2)</p>
+              <h2>Try your own sharing problem.</h2>
+              <p>
+                Choose how many sandwiches and how many people. The app will show the fair
+                share as a picture, division expression, fraction, and mixed number if it needs one.
+              </p>
+              <div class="math-line" id="trySharingEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Try a custom equal sharing problem">
+              <div class="control-row" aria-label="Try a custom sharing problem">
+                <label class="custom-number-control" for="customSharingTotalInput">
+                  <span>Sandwiches</span>
+                  <input id="customSharingTotalInput" type="number" inputmode="numeric" min="1" max="9" value="3" aria-describedby="customSharingTotalHint">
+                  <small id="customSharingTotalHint">1-9</small>
+                </label>
+                <label class="custom-number-control" for="customSharingGroupsInput">
+                  <span>People</span>
+                  <input id="customSharingGroupsInput" type="number" inputmode="numeric" min="2" max="8" value="4" aria-describedby="customSharingGroupsHint">
+                  <small id="customSharingGroupsHint">2-8</small>
+                </label>
+              </div>
+              <div class="sharing-board" id="trySharingBoard"></div>
+              <p class="teacher-note" id="trySharingMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="fractionFoundationsPracticeTopic" data-topic-pane="fractionFoundations" data-mode-pane="practice" data-units="unit2" aria-label="Fraction Foundations Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 2 - Section A Practice</p>
+              <h2>Practice fair sharing, division-as-fraction, and mixed numbers.</h2>
+            </div>
+            <p>
+              Each problem asks for an answer, then connects the answer back to the same kind of
+              picture used in Teach Me. Hints reveal the thinking without giving everything away at once.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="fractionFoundations">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Fraction Foundations practice</strong>
+                <span id="fractionFoundationsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="fractionFoundations">Reset answers</button>
+            </div>
+            <div class="practice-list" id="fractionFoundationsPracticeList" data-practice-list="fractionFoundations"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="multiplyingFractionsTopic" data-topic-pane="multiplyingFractions" data-units="unit2 unit3 unit6 unit8" aria-label="Multiplying Fractions Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Teach Me</p>
+              <h2>Build the multiplication ideas for the current Focus.</h2>
+            </div>
+            <p>
+              The global Focus chooses the unit first. This page then shows the
+              Multiplying Fractions scenes that belong to the current Focus.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Multiplying Fractions Teach Me scenes">
+            <a href="#unit-fraction-of-number" data-units="unit2">1. Unit fraction</a>
+            <a href="#nonunit-fraction-of-number" data-units="unit2">2. Non-unit fraction</a>
+            <a href="#multiply-division-path" data-units="unit2">3. Two paths</a>
+            <a href="#same-diagram-expressions" data-units="unit2">4. Same diagram</a>
+            <a href="#fraction-area-model" data-units="unit2">5. Area model</a>
+            <a href="#greater-than-one-area" data-units="unit2">6. Greater than 1</a>
+            <a href="#mixed-number-area" data-units="unit2">7. Mixed number</a>
+            <a href="#estimate-products" data-units="unit2 unit6">8. Estimate</a>
+            <a href="#fraction-of-fraction-overlap" data-units="unit3">9. Fraction x fraction</a>
+            <a href="#fraction-product-rule" data-units="unit3">10. Product rule</a>
+            <a href="#multiplication-as-scaling" data-units="unit6">11. Scaling</a>
+            <a href="#scaling-number-line" data-units="unit6">12. Number line</a>
+            <a href="#scaling-compare-products" data-units="unit6">13. Compare first</a>
+            <a href="#unit8-fraction-product-game" data-units="unit8">14. Product game</a>
+          </nav>
+
+          <section class="scene" id="unit-fraction-of-number" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 2)</p>
+              <h2>A unit fraction of a number starts by splitting the number into equal groups.</h2>
+              <p>
+                To find one part, divide the whole number by the denominator. That one group
+                is the unit fraction of the whole number.
+              </p>
+              <div class="math-line" id="unitFractionOfEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Find one unit fraction of a whole number">
+              <div class="control-row" aria-label="Choose a unit fraction of a whole number">
+                <button class="choice-button is-active" type="button" data-unit-fraction-of="oneThirdOf6">1/3 of 6</button>
+                <button class="choice-button" type="button" data-unit-fraction-of="oneFourthOf12">1/4 of 12</button>
+                <button class="choice-button" type="button" data-unit-fraction-of="oneFifthOf10">1/5 of 10</button>
+              </div>
+              <div class="fraction-of-board" id="unitFractionOfBoard"></div>
+              <p class="teacher-note" id="unitFractionOfMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="nonunit-fraction-of-number" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 2)</p>
+              <h2>A non-unit fraction takes more than one equal group.</h2>
+              <p>
+                First find one denominator-sized group. Then the numerator tells how many of
+                those equal groups to take.
+              </p>
+              <div class="math-line" id="nonUnitFractionOfEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Find a non-unit fraction of a whole number">
+              <div class="control-row" aria-label="Choose a non-unit fraction of a whole number">
+                <button class="choice-button is-active" type="button" data-nonunit-fraction-of="twoThirdsOf6">2/3 of 6</button>
+                <button class="choice-button" type="button" data-nonunit-fraction-of="threeFourthsOf12">3/4 of 12</button>
+                <button class="choice-button" type="button" data-nonunit-fraction-of="threeFifthsOf10">3/5 of 10</button>
+              </div>
+              <div class="fraction-of-board" id="nonUnitFractionOfBoard"></div>
+              <p class="teacher-note" id="nonUnitFractionOfMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="multiply-division-path" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 2)</p>
+              <h2>Divide first, then multiply by the numerator.</h2>
+              <p>
+                The diagram explains the expression. The denominator splits the whole number,
+                and the numerator counts how many equal groups are used.
+              </p>
+              <div class="math-line" id="multiplyPathEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Connect division and multiplication paths">
+              <div class="control-row" aria-label="Choose a multiplication path">
+                <button class="choice-button is-active" type="button" data-multiply-path="twoThirdsOf6">2/3 of 6</button>
+                <button class="choice-button" type="button" data-multiply-path="threeFourthsOf12">3/4 of 12</button>
+                <button class="choice-button" type="button" data-multiply-path="threeFifthsOf10">3/5 of 10</button>
+              </div>
+              <div class="fraction-path-board" id="multiplyPathBoard"></div>
+              <p class="teacher-note" id="multiplyPathMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="same-diagram-expressions" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 2)</p>
+              <h2>One diagram can match many expressions.</h2>
+              <p>
+                The curriculum asks students to match diagrams and expressions because the
+                same shaded groups can be described in several correct ways.
+              </p>
+              <div class="math-line" id="sameDiagramEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Match one diagram to many expressions">
+              <div class="control-row" aria-label="Choose a diagram for expression matching">
+                <button class="choice-button is-active" type="button" data-expression-match="twoThirdsOf6">2/3 of 6</button>
+                <button class="choice-button" type="button" data-expression-match="threeFourthsOf12">3/4 of 12</button>
+                <button class="choice-button" type="button" data-expression-match="threeFifthsOf10">3/5 of 10</button>
+              </div>
+              <div class="same-diagram-board" id="sameDiagramBoard"></div>
+              <p class="teacher-note" id="sameDiagramMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="fraction-area-model" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 2)</p>
+              <h2>A rectangle can show a whole number times a fraction.</h2>
+              <p>
+                Area still means length times width. When one side is fractional, the unit
+                squares are split into equal fractional rows.
+              </p>
+              <div class="math-line" id="fractionAreaEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Area model for a whole number times a fraction">
+              <div class="control-row" aria-label="Choose a fractional area model">
+                <button class="choice-button is-active" type="button" data-fraction-area="sixByTwoThirds">6 x 2/3</button>
+                <button class="choice-button" type="button" data-fraction-area="fiveByThreeFourths">5 x 3/4</button>
+                <button class="choice-button" type="button" data-fraction-area="eightByOneFourth">8 x 1/4</button>
+              </div>
+              <div class="fraction-area-board" id="fractionAreaBoard"></div>
+              <p class="teacher-note" id="fractionAreaMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="greater-than-one-area" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 2)</p>
+              <h2>A fractional side length can be greater than one.</h2>
+              <p>
+                A fraction like 5/3 is one whole plus 2/3 more. The area is larger than the
+                whole-number length because the fractional side is taller than 1.
+              </p>
+              <div class="math-line" id="greaterAreaEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Area model with a fractional side length greater than one">
+              <div class="control-row" aria-label="Choose a greater-than-one area model">
+                <button class="choice-button is-active" type="button" data-greater-area="fourByFiveThirds">4 x 5/3</button>
+                <button class="choice-button" type="button" data-greater-area="threeBySevenFourths">3 x 7/4</button>
+                <button class="choice-button" type="button" data-greater-area="sixByEightFifths">6 x 8/5</button>
+              </div>
+              <div class="fraction-area-board" id="greaterAreaBoard"></div>
+              <p class="teacher-note" id="greaterAreaMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="mixed-number-area" data-units="unit2">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 2)</p>
+              <h2>Mixed-number area can be split into whole area plus fractional area.</h2>
+              <p>
+                Decomposing the mixed number shows the distributive property without naming a
+                rule first: multiply the whole part, multiply the fraction part, then combine.
+              </p>
+              <div class="math-line" id="mixedAreaEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Decompose mixed-number rectangle area">
+              <div class="control-row" aria-label="Choose a mixed-number area model">
+                <button class="choice-button is-active" type="button" data-mixed-area="twoByThreeTwoFifths">2 x 3 2/5</button>
+                <button class="choice-button" type="button" data-mixed-area="fiveByOneThreeFourths">5 x 1 3/4</button>
+                <button class="choice-button" type="button" data-mixed-area="threeByTwoOneThird">3 x 2 1/3</button>
+              </div>
+              <div class="mixed-area-board" id="mixedAreaBoard"></div>
+              <p class="teacher-note" id="mixedAreaMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="estimate-products" data-units="unit2 unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 8 (Units 2 and 6)</p>
+              <h2>Estimate before calculating.</h2>
+              <p>
+                The fraction factor tells whether the product should be smaller than, the same
+                as, or larger than the whole-number factor.
+              </p>
+              <div class="math-line" id="estimateAreaEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Estimate products before calculating">
+              <div class="control-row" aria-label="Choose an estimate example">
+                <button class="choice-button is-active" type="button" data-estimate-area="sixByTwoThirds">6 x 2/3</button>
+                <button class="choice-button" type="button" data-estimate-area="fourByFiveThirds">4 x 5/3</button>
+                <button class="choice-button" type="button" data-estimate-area="fiveByOneThreeFourths">5 x 1 3/4</button>
+              </div>
+              <div class="estimate-area-board" id="estimateAreaBoard"></div>
+              <p class="teacher-note" id="estimateAreaMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="fraction-of-fraction-overlap" data-units="unit3">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 9 (Unit 3)</p>
+              <h2>A fraction of a fraction is the overlap of two choices.</h2>
+              <p>
+                Shade one fraction in one direction. Then take another fraction of that
+                shaded part in the other direction. The overlap is the product.
+              </p>
+              <div class="math-line" id="fractionOverlapEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Area model for multiplying a fraction by a fraction">
+              <div class="control-row" aria-label="Choose a fraction multiplication overlap model">
+                <button class="choice-button is-active" type="button" data-unit3-overlap="oneThirdByOneFourth">1/3 x 1/4</button>
+                <button class="choice-button" type="button" data-unit3-overlap="twoFourthByThreeFifth">2/4 x 3/5</button>
+                <button class="choice-button" type="button" data-unit3-overlap="threeFourthBySevenFifth">3/4 x 7/5</button>
+              </div>
+              <div class="fraction-overlap-board" id="fractionOverlapBoard"></div>
+              <p class="teacher-note" id="fractionOverlapMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="fraction-product-rule" data-units="unit3">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 10 (Unit 3)</p>
+              <h2>The rule comes from counting the picture.</h2>
+              <p>
+                The denominators make the grid. The numerators count the rows and columns
+                that overlap. Click each part to connect the symbols to the model.
+              </p>
+              <div class="math-line" id="fractionRuleEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Connect fraction multiplication rule to the area model">
+              <div class="fraction-rule-board" id="fractionRuleBoard"></div>
+              <p class="teacher-note" id="fractionRuleMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="multiplication-as-scaling" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 11 (Unit 6)</p>
+              <h2>Multiplication can resize an amount.</h2>
+              <p>
+                In Unit 6, students compare products before multiplying. A scale factor less
+                than 1 shrinks the amount, 1 keeps it the same, and a factor greater than 1 grows it.
+              </p>
+              <div class="math-line" id="unit6ScalingEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Use scale factors to compare product size">
+              <div class="control-row" aria-label="Choose a multiplication scaling example">
+                <button class="choice-button is-active" type="button" data-unit6-scale="halfOf8">1/2 x 8</button>
+                <button class="choice-button" type="button" data-unit6-scale="oneTimes8">1 x 8</button>
+                <button class="choice-button" type="button" data-unit6-scale="fiveFourthsOf8">5/4 x 8</button>
+                <button class="choice-button" type="button" data-unit6-scale="sevenSixthsOf12">7/6 x 12</button>
+              </div>
+              <div class="unit6-scaling-board" id="unit6ScalingBoard"></div>
+              <p class="teacher-note" id="unit6ScalingMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="scaling-number-line" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 12 (Unit 6)</p>
+              <h2>A scale factor moves the product on a number line.</h2>
+              <p>
+                The factor tells where the product lands compared with the starting amount:
+                before it, on it, or beyond it.
+              </p>
+              <div class="math-line" id="unit6ScaleLineEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare scaling products on a number line">
+              <div class="control-row" aria-label="Choose a scaling number line">
+                <button class="choice-button is-active" type="button" data-unit6-scale-line="half">8 x 1/2</button>
+                <button class="choice-button" type="button" data-unit6-scale-line="one">8 x 1</button>
+                <button class="choice-button" type="button" data-unit6-scale-line="threeHalves">8 x 3/2</button>
+              </div>
+              <div class="unit6-scale-line-board" id="unit6ScaleLineBoard"></div>
+              <p class="teacher-note" id="unit6ScaleLineMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="scaling-compare-products" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 13 (Unit 6)</p>
+              <h2>Compare products before calculating exactly.</h2>
+              <p>
+                In Unit 6, students learn to decide whether a product must shrink, stay the
+                same, or grow before doing any exact multiplication.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Sort products by scale factor size">
+              <div class="unit6-product-compare-board" id="unit6ProductCompareBoard"></div>
+              <p class="teacher-note" id="unit6ProductCompareMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="unit8-fraction-product-game" data-units="unit8">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 8)</p>
+              <h2>In fraction product games, numerator spots and denominator spots do different jobs.</h2>
+              <p>
+                Unit 8 game boards ask students to place spun numbers before multiplying.
+                A large numerator grows a fraction; a large denominator shrinks it.
+              </p>
+              <div class="math-line" id="unit8ProductEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore Unit 8 fraction multiplication game strategy">
+              <div class="control-row" aria-label="Choose a fraction product strategy">
+                <button class="choice-button is-active" type="button" data-unit8-product="greatest">Greatest product</button>
+                <button class="choice-button" type="button" data-unit8-product="smallest">Smallest product</button>
+                <button class="choice-button" type="button" data-unit8-product="compareOne">Compare to 1</button>
+              </div>
+              <div class="unit8-board" id="unit8ProductBoard"></div>
+              <p class="teacher-note" id="unit8ProductMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="multiplyingFractionsPracticeTopic" data-topic-pane="multiplyingFractions" data-mode-pane="practice" data-units="unit2 unit3 unit6 unit8" aria-label="Multiplying Fractions Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Practice</p>
+              <h2>Practice the multiplication cards for the current Focus.</h2>
+            </div>
+            <p>
+              The global Focus chooses the unit first. This page then shows the
+              Multiplying Fractions cards that belong to the current Focus.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="multiplyingFractions">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Multiplying Fractions practice</strong>
+                <span id="multiplyingFractionsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="multiplyingFractions">Reset answers</button>
+            </div>
+            <div class="practice-list" id="multiplyingFractionsPracticeList" data-practice-list="multiplyingFractions"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="dividingFractionsTopic" data-topic-pane="dividingFractions" data-units="unit3" aria-label="Dividing Fractions Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 3 - Section B</p>
+              <h2>Dividing fractions asks how many groups fit, or how big each share is.</h2>
+            </div>
+            <p>
+              Tape diagrams keep the two division meanings separate: split a known amount
+              into equal shares, or count how many small groups fit inside a whole amount.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Dividing Fractions Teach Me scenes">
+            <a href="#division-two-stories">1. Two stories</a>
+            <a href="#unit-fraction-divided-by-whole">2. Split a small part</a>
+            <a href="#whole-divided-by-unit-fraction">3. Count small parts</a>
+            <a href="#division-order-and-check">4. Order and check</a>
+          </nav>
+
+          <section class="scene" id="division-two-stories">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 3)</p>
+              <h2>The same word "divide" can mean two different actions.</h2>
+              <p>
+                Sharing division asks how big each share is. Measurement division asks how
+                many groups of a known size fit.
+              </p>
+              <div class="math-line" id="divisionStoriesEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare two fraction division meanings">
+              <div class="division-compare-board" id="divisionStoriesBoard"></div>
+              <p class="teacher-note" id="divisionStoriesMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="unit-fraction-divided-by-whole">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 3)</p>
+              <h2>A unit fraction divided by a whole number splits one small part.</h2>
+              <p>
+                If 1/3 is shared by 4 people, the starting amount is already smaller than
+                one whole. Each share must be smaller than 1/3.
+              </p>
+              <div class="math-line" id="unitFractionDivisionEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Divide a unit fraction by a whole number">
+              <div class="control-row" aria-label="Choose a unit fraction divided by a whole number model">
+                <button class="choice-button is-active" type="button" data-unit-fraction-division="oneThirdByFour">1/3 ÷ 4</button>
+                <button class="choice-button" type="button" data-unit-fraction-division="oneHalfByFive">1/2 ÷ 5</button>
+                <button class="choice-button" type="button" data-unit-fraction-division="oneFourthByThree">1/4 ÷ 3</button>
+              </div>
+              <div class="unit-fraction-division-board" id="unitFractionDivisionBoard"></div>
+              <p class="teacher-note" id="unitFractionDivisionMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="whole-divided-by-unit-fraction">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 3)</p>
+              <h2>A whole number divided by a unit fraction counts how many small pieces fit.</h2>
+              <p>
+                If each serving is 1/3 of a whole, then every whole contains 3 servings.
+                More wholes means more servings to count.
+              </p>
+              <div class="math-line" id="wholeByUnitDivisionEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Divide a whole number by a unit fraction">
+              <div class="control-row" aria-label="Choose a whole number divided by a unit fraction model">
+                <button class="choice-button is-active" type="button" data-whole-unit-division="fourByOneThird">4 ÷ 1/3</button>
+                <button class="choice-button" type="button" data-whole-unit-division="threeByOneFourth">3 ÷ 1/4</button>
+                <button class="choice-button" type="button" data-whole-unit-division="twoByOneFifth">2 ÷ 1/5</button>
+              </div>
+              <div class="whole-unit-division-board" id="wholeByUnitDivisionBoard"></div>
+              <p class="teacher-note" id="wholeByUnitDivisionMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="division-order-and-check">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 3)</p>
+              <h2>Order matters, and multiplication checks the division.</h2>
+              <p>
+                1/3 ÷ 4 and 4 ÷ 1/3 use the same numbers, but the tape diagram action is
+                different. The quotient times the divisor should return the dividend.
+              </p>
+              <div class="math-line" id="divisionCheckEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare division order and multiplication checks">
+              <div class="division-check-board" id="divisionCheckBoard"></div>
+              <p class="teacher-note" id="divisionCheckMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="dividingFractionsPracticeTopic" data-topic-pane="dividingFractions" data-mode-pane="practice" data-units="unit3" aria-label="Dividing Fractions Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 3 - Section B Practice</p>
+              <h2>Practice splitting unit fractions and counting unit-fraction groups.</h2>
+            </div>
+            <p>
+              These cards keep tape and strip diagrams visible so students decide whether the
+              story is asking for share size or how many groups fit.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="dividingFractions">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Dividing Fractions practice</strong>
+                <span id="dividingFractionsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="dividingFractions">Reset answers</button>
+            </div>
+            <div class="practice-list" id="dividingFractionsPracticeList" data-practice-list="dividingFractions"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="fractionWordProblemsTopic" data-topic-pane="fractionWordProblems" data-units="unit3 unit6" aria-label="Fraction Word Problems Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Teach Me</p>
+              <h2>Build the word-problem ideas for the current Focus.</h2>
+            </div>
+            <p>
+              The global Focus chooses the unit first. This page then shows the
+              Fraction Word Problems scenes that belong to the current Focus.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Fraction Word Problems Teach Me scenes">
+            <a href="#story-routine" data-units="unit3">1. Problem routine</a>
+            <a href="#story-classifier" data-units="unit3">2. Choose the action</a>
+            <a href="#same-context-different-question" data-units="unit3">3. Same context, new unknown</a>
+            <a href="#fraction-line-plots" data-units="unit6">4. Line plots</a>
+            <a href="#line-plot-build" data-units="unit6">5. Build plot</a>
+            <a href="#line-plot-missing" data-units="unit6">6. Missing data</a>
+          </nav>
+
+          <section class="scene" id="story-routine" data-units="unit3">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 3)</p>
+              <h2>Start every story by finding the whole.</h2>
+              <p>
+                The whole is what counts as 1. Once the whole is clear, the known amount,
+                unknown amount, diagram, and equation have a place to go.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Fraction word problem routine">
+              <div class="story-routine-board">
+                <article class="routine-card">
+                  <span>1</span>
+                  <strong>Name the whole</strong>
+                  <p>What amount or object is one complete unit?</p>
+                </article>
+                <article class="routine-card">
+                  <span>2</span>
+                  <strong>Mark what is known</strong>
+                  <p>Is the known number a whole, a part, a share, or a group size?</p>
+                </article>
+                <article class="routine-card">
+                  <span>3</span>
+                  <strong>Choose the action</strong>
+                  <p>Part of, equal sharing, or how many fit?</p>
+                </article>
+                <article class="routine-card">
+                  <span>4</span>
+                  <strong>Check the size</strong>
+                  <p>Should the answer be smaller than 1, between 1 and the whole, or larger?</p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="story-classifier" data-units="unit3">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 3)</p>
+              <h2>The story action picks the operation.</h2>
+              <p>
+                Try the examples from Unit 3-style contexts. The app shows how the same
+                routine leads to a diagram and an equation.
+              </p>
+              <div class="math-line" id="fractionStoryEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Classify fraction word problem actions">
+              <div class="control-row" aria-label="Choose a fraction word problem story">
+                <button class="choice-button is-active" type="button" data-fraction-story="milkWhole">Milk container</button>
+                <button class="choice-button" type="button" data-fraction-story="hamburgersFit">Hamburgers</button>
+                <button class="choice-button" type="button" data-fraction-story="saladShare">Potato salad</button>
+                <button class="choice-button" type="button" data-fraction-story="distancePart">Distance</button>
+              </div>
+              <div class="fraction-story-board" id="fractionStoryBoard"></div>
+              <p class="teacher-note" id="fractionStoryMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="same-context-different-question" data-units="unit3">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 3)</p>
+              <h2>The same context can need a different operation when the unknown changes.</h2>
+              <p>
+                The milk story is a good warning: knowing a fractional part and finding the
+                whole is different from knowing the whole and finding a fractional part.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare two questions from the same fraction context">
+              <div class="same-context-board" id="sameContextBoard"></div>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="fraction-line-plots" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 6)</p>
+              <h2>A line plot is a number line with data stacked on it.</h2>
+              <p>
+                Unit 6 uses fractional measurements on line plots. First build the plot from
+                measurement cards, then select the data needed for a comparison or total.
+              </p>
+              <div class="math-line" id="unit6LinePlotEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Build and read a fraction line plot">
+              <div class="control-row" aria-label="Choose a line plot question">
+                <button class="choice-button is-active" type="button" data-unit6-line-plot="ribbonsTotal">Total selected ribbons</button>
+                <button class="choice-button" type="button" data-unit6-line-plot="eggsCompare">Compare egg weights</button>
+                <button class="choice-button" type="button" data-unit6-line-plot="apricotsAbove">Data above a mark</button>
+              </div>
+              <div class="unit6-line-plot-board" id="unit6LinePlotBoard"></div>
+              <p class="teacher-note" id="unit6LinePlotMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="line-plot-build" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 6)</p>
+              <h2>Build a line plot by placing each measurement on its tick.</h2>
+              <p>
+                Repeated measurements do not get a new tick. They stack another X above the
+                same fractional location.
+              </p>
+              <div class="math-line" id="unit6LinePlotBuildEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Build a fraction line plot from measurement cards">
+              <div class="control-row" aria-label="Choose line plot build data">
+                <button class="choice-button is-active" type="button" data-unit6-line-build="ribbons">Ribbons</button>
+                <button class="choice-button" type="button" data-unit6-line-build="seedlings">Seedlings</button>
+              </div>
+              <div class="unit6-line-build-board" id="unit6LinePlotBuildBoard"></div>
+              <p class="teacher-note" id="unit6LinePlotBuildMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="line-plot-missing" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 6)</p>
+              <h2>A line plot can hide missing information in its totals.</h2>
+              <p>
+                Missing-data problems ask students to use the count, the range, or the sum of
+                measurements to decide which X marks must be missing.
+              </p>
+              <div class="math-line" id="unit6LinePlotMissingEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Reason about missing information on a line plot">
+              <div class="control-row" aria-label="Choose a missing line plot clue">
+                <button class="choice-button is-active" type="button" data-unit6-line-missing="missingRibbon">Missing ribbon</button>
+                <button class="choice-button" type="button" data-unit6-line-missing="missingPlant">Missing plant</button>
+              </div>
+              <div class="unit6-line-missing-board" id="unit6LinePlotMissingBoard"></div>
+              <p class="teacher-note" id="unit6LinePlotMissingMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="fractionWordProblemsPracticeTopic" data-topic-pane="fractionWordProblems" data-mode-pane="practice" data-units="unit3 unit6" aria-label="Fraction Word Problems Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Practice</p>
+              <h2>Practice the word-problem cards for the current Focus.</h2>
+            </div>
+            <p>
+              The global Focus chooses the unit first. This page then shows the
+              Fraction Word Problems cards that belong to the current Focus.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="fractionWordProblems">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Fraction Word Problems practice</strong>
+                <span id="fractionWordProblemsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="fractionWordProblems">Reset answers</button>
+            </div>
+            <div class="practice-list" id="fractionWordProblemsPracticeList" data-practice-list="fractionWordProblems"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="multiDigitTopic" data-topic-pane="multiDigit" data-units="unit1 unit4 unit8" aria-label="Multi-Digit Multiplication and Division Teach Me flow" hidden>
+          <div class="lesson-summary" data-units="unit1 unit4">
+            <div>
+              <p class="eyebrow">Unit 4</p>
+              <h2>Multi-digit multiplication and division are place-value machines.</h2>
+            </div>
+            <p>
+              This topic will connect area models, partial products, standard multiplication,
+              and division strategies based on place value.
+            </p>
+          </div>
+
+          <div class="topic-roadmap" data-units="unit1 unit4">
+            <article>
+              <span>5.NBT.5</span>
+              <h3>Multiply Multi-Digit Numbers</h3>
+              <p>Move from area models to the standard algorithm.</p>
+            </article>
+            <article>
+              <span>5.NBT.6</span>
+              <h3>Divide Multi-Digit Numbers</h3>
+              <p>Use place value, partial quotients, and multiplication checks.</p>
+            </article>
+            <article>
+              <span>Assignments</span>
+              <h3>Practice Sequence</h3>
+              <p>Matches the January multiplication and division practice.</p>
+            </article>
+          </div>
+
+          <section class="scene" id="unit4-area-products" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 4)</p>
+              <h2>Multiplication starts as area split by place value.</h2>
+              <p>
+                A multi-digit product is easier to trust when each rectangle has a meaning:
+                tens by tens, tens by ones, ones by tens, and ones by ones.
+              </p>
+              <div class="math-line" id="unit4AreaEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore partial product area models">
+              <div class="control-row" aria-label="Choose an area model">
+                <button class="choice-button is-active" type="button" data-unit4-area="twentyThreeByEighteen">23 x 18</button>
+                <button class="choice-button" type="button" data-unit4-area="thirtyFourByTwelve">34 x 12</button>
+                <button class="choice-button" type="button" data-unit4-area="fortySixByTwentySeven">46 x 27</button>
+              </div>
+              <div class="unit4-board" id="unit4AreaBoard"></div>
+              <p class="teacher-note" id="unit4AreaMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit4-standard-algorithm" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 4)</p>
+              <h2>The standard algorithm is compressed partial products.</h2>
+              <p>
+                The written algorithm gets shorter, but the place values are still there.
+                A row that starts under the tens place is a row of tens.
+              </p>
+              <div class="math-line" id="unit4AlgorithmEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Connect partial products to the standard algorithm">
+              <div class="control-row" aria-label="Choose an algorithm bridge">
+                <button class="choice-button is-active" type="button" data-unit4-algorithm="twentyThreeByEighteen">23 x 18</button>
+                <button class="choice-button" type="button" data-unit4-algorithm="fortySixByTwentySeven">46 x 27</button>
+              </div>
+              <div class="unit4-board" id="unit4AlgorithmBoard"></div>
+              <p class="teacher-note" id="unit4AlgorithmMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit4-digit-placement" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 4)</p>
+              <h2>Where a digit sits can matter more than the digit itself.</h2>
+              <p>
+                Unit 4 digit games are really place-value games. A digit in the tens place
+                does ten times the work of the same digit in the ones place.
+              </p>
+              <div class="math-line" id="unit4DigitEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare digit placement products">
+              <div class="control-row" aria-label="Choose a digit placement comparison">
+                <button class="choice-button is-active" type="button" data-unit4-digit="largest">Largest product</button>
+                <button class="choice-button" type="button" data-unit4-digit="swap">Swap tens and ones</button>
+                <button class="choice-button" type="button" data-unit4-digit="balanced">Balanced factors</button>
+              </div>
+              <div class="unit4-board" id="unit4DigitBoard"></div>
+              <p class="teacher-note" id="unit4DigitMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit4-partial-quotients" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 4)</p>
+              <h2>Division can remove useful chunks instead of guessing one big answer.</h2>
+              <p>
+                Partial quotients keep division flexible: choose a useful multiple of the
+                divisor, subtract it, and keep the leftovers visible.
+              </p>
+              <div class="math-line" id="unit4QuotientEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Build partial quotients by removing chunks">
+              <div class="control-row" aria-label="Choose a partial quotient example">
+                <button class="choice-button is-active" type="button" data-unit4-quotient="sixHundredEight">608 ÷ 32</button>
+                <button class="choice-button" type="button" data-unit4-quotient="fiveHundredTwentyNine">529 ÷ 23</button>
+                <button class="choice-button" type="button" data-unit4-quotient="oneThousandFortyFour">1,044 ÷ 29</button>
+              </div>
+              <div class="unit4-board" id="unit4QuotientBoard"></div>
+              <p class="teacher-note" id="unit4QuotientMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit4-quotient-paths" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 4)</p>
+              <h2>Different partial-quotient paths can still land at the same quotient.</h2>
+              <p>
+                One student may subtract a big chunk first. Another may use more smaller
+                chunks. The check is whether the total quotient and remainder make sense.
+              </p>
+              <div class="math-line" id="unit4PathEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare partial quotient paths">
+              <div class="control-row" aria-label="Choose quotient path comparison">
+                <button class="choice-button is-active" type="button" data-unit4-path="sixHundredEight">608 ÷ 32</button>
+                <button class="choice-button" type="button" data-unit4-path="oneThousandFortyFour">1,044 ÷ 29</button>
+              </div>
+              <div class="unit4-board" id="unit4PathBoard"></div>
+              <p class="teacher-note" id="unit4PathMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit4-remainders" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 4)</p>
+              <h2>A remainder is not finished until the story says what it means.</h2>
+              <p>
+                The same leftover can mean extra, round up, or share more precisely. Unit 4
+                asks students to interpret the leftover, not just write "R."
+              </p>
+              <div class="math-line" id="unit4RemainderEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Interpret remainders in stories">
+              <div class="control-row" aria-label="Choose a remainder story">
+                <button class="choice-button is-active" type="button" data-unit4-remainder="noodle">Noodle length</button>
+                <button class="choice-button" type="button" data-unit4-remainder="teams">Team groups</button>
+                <button class="choice-button" type="button" data-unit4-remainder="boxes">Shipping boxes</button>
+              </div>
+              <div class="unit4-board" id="unit4RemainderBoard"></div>
+              <p class="teacher-note" id="unit4RemainderMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit4-applications" data-units="unit4">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 4)</p>
+              <h2>Application problems start by choosing the missing piece.</h2>
+              <p>
+                Area and volume stories use multiplication and division together. Decide
+                what is missing first, then choose the operation.
+              </p>
+              <div class="math-line" id="unit4ApplicationEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Choose operations for Unit 4 application stories">
+              <div class="control-row" aria-label="Choose an application model">
+                <button class="choice-button is-active" type="button" data-unit4-application="area">Missing side length</button>
+                <button class="choice-button" type="button" data-unit4-application="volume">Volume table</button>
+                <button class="choice-button" type="button" data-unit4-application="check">Reasonableness check</button>
+              </div>
+              <div class="unit4-board" id="unit4ApplicationBoard"></div>
+              <p class="teacher-note" id="unit4ApplicationMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <div class="lesson-summary" data-units="unit8">
+            <div>
+              <p class="eyebrow">Unit 8 Teach Me</p>
+              <h2>Review whole-number computation by choosing a strategy first.</h2>
+            </div>
+            <p>
+              These scenes connect the Unit 8 tasks about largest products, zeros in factors,
+              division estimates, and partial quotients.
+            </p>
+          </div>
+
+          <section class="scene" id="unit8-computation-strategy" data-units="unit8">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 8)</p>
+              <h2>Before calculating, choose the strategy that makes the numbers friendlier.</h2>
+              <p>
+                Unit 8 revisits whole-number multiplication and division. The lesson is not
+                "do the algorithm faster"; it is "see the structure first."
+              </p>
+              <div class="math-line" id="unit8ComputationEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Choose Unit 8 computation strategies">
+              <div class="control-row" aria-label="Choose a computation strategy example">
+                <button class="choice-button is-active" type="button" data-unit8-computation="largestProduct">Largest product</button>
+                <button class="choice-button" type="button" data-unit8-computation="zeros">Factors with zeros</button>
+                <button class="choice-button" type="button" data-unit8-computation="division">Partial quotients</button>
+              </div>
+              <div class="unit8-board" id="unit8ComputationBoard"></div>
+              <p class="teacher-note" id="unit8ComputationMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="multiDigitPracticeTopic" data-topic-pane="multiDigit" data-mode-pane="practice" data-units="unit4 unit8" aria-label="Multi-Digit Multiplication and Division Practice" hidden>
+          <div class="lesson-summary" data-units="unit4">
+            <div>
+              <p class="eyebrow">Unit 4 Practice</p>
+              <h2>Practice partial products, standard algorithms, partial quotients, and application problems.</h2>
+            </div>
+            <p>
+              These cards keep source tables, decomposed products, quotient work, and
+              measurement contexts visible while students fill values or explain their strategy.
+            </p>
+          </div>
+
+          <div class="lesson-summary" data-units="unit8">
+            <div>
+              <p class="eyebrow">Unit 8 Practice</p>
+              <h2>Practice whole-number multiplication and division strategy choices.</h2>
+            </div>
+            <p>
+              These cards focus on digit placement, products with zeros, strategy comparison,
+              quotient estimates, and partial quotients from the Unit 8 source tasks.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="multiDigit">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Multi-Digit Multiplication &amp; Division practice</strong>
+                <span id="multiDigitPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="multiDigit">Reset answers</button>
+            </div>
+            <div class="practice-list" id="multiDigitPracticeList" data-practice-list="multiDigit"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="addSubtractFractionsTopic" data-topic-pane="addSubtractFractions" data-units="unit6 unit8" aria-label="Add and Subtract Fractions Teach Me flow" hidden>
+          <div class="lesson-summary" data-units="unit6">
+            <div>
+              <p class="eyebrow">Unit 6</p>
+              <h2>Add and subtract fractions by making the pieces match first.</h2>
+            </div>
+            <p>
+              Compare, add, and subtract fractions by renaming them into same-size pieces.
+              Mixed numbers and improper fractions come from packing full sets into wholes.
+            </p>
+          </div>
+
+          <div class="lesson-summary" data-units="unit8">
+            <div>
+              <p class="eyebrow">Unit 8 Teach Me</p>
+              <h2>Use fraction game boards to make strategic sums and differences.</h2>
+            </div>
+            <p>
+              Unit 8 turns fraction addition and subtraction into games where students choose
+              placements before calculating.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Add and Subtract Fractions Teach Me scenes">
+            <a href="#fraction-compare" data-units="unit6">1. Compare</a>
+            <a href="#fraction-calculating" data-units="unit6">2. Add/Subtract</a>
+            <a href="#fraction-wholes" data-units="unit6">3. Make wholes</a>
+            <a href="#mixed-number-regroup" data-units="unit6">4. Regroup</a>
+            <a href="#fraction-story-rename" data-units="unit6">5. Story problems</a>
+            <a href="#fraction-strategy-compare" data-units="unit6">6. Strategies</a>
+            <a href="#mixed-number-operation" data-units="unit6">7. Mixed numbers</a>
+            <a href="#unit8-fraction-game-strategy" data-units="unit8">8. Game strategy</a>
+          </nav>
+
+          <section class="scene scene-alt" id="fraction-compare" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 6)</p>
+              <h2>Compare fractions after the pieces are the same size.</h2>
+              <p>
+                Piece counts are only fair to compare when the pieces have the same denominator.
+                Rename first, then compare the shaded pieces.
+              </p>
+              <div class="math-line" id="fractionCompareEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare fractions by renaming to common pieces">
+              <div class="control-row" aria-label="Choose fractions to compare">
+                <button class="choice-button is-active" type="button" data-compare-fractions="halfVsThreeEighths">1/2 vs 3/8</button>
+                <button class="choice-button" type="button" data-compare-fractions="twoThirdsVsThreeQuarters">2/3 vs 3/4</button>
+                <button class="choice-button" type="button" data-compare-fractions="fiveSixthsVsSevenTwelfths">5/6 vs 7/12</button>
+              </div>
+              <div class="fraction-compare-board" id="fractionCompareBoard"></div>
+              <p class="teacher-note" id="fractionCompareMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="fraction-calculating" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 6)</p>
+              <h2>Add or subtract fractions by using same-size pieces.</h2>
+              <p>
+                When denominators match, pieces can be joined or removed directly. When they
+                do not match, rename first so every piece has the same size.
+              </p>
+              <div class="math-line" id="fractionCalcEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Add and subtract fractions with common pieces">
+              <div class="control-row" aria-label="Choose a fraction calculation">
+                <button class="choice-button is-active" type="button" data-fraction-calc="halfPlusQuarter">1/2 + 1/4</button>
+                <button class="choice-button" type="button" data-fraction-calc="twoThirdsPlusSixth">2/3 + 1/6</button>
+                <button class="choice-button" type="button" data-fraction-calc="threeQuartersMinusEighth">3/4 - 1/8</button>
+                <button class="choice-button" type="button" data-fraction-calc="fiveSixthsMinusThird">5/6 - 1/3</button>
+              </div>
+              <div class="fraction-calc-board" id="fractionCalcBoard"></div>
+              <p class="teacher-note" id="fractionCalcMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="fraction-wholes" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 6)</p>
+              <h2>Enough fraction pieces can pack into wholes.</h2>
+              <p>
+                If the numerator reaches the denominator, the shaded pieces fill one whole.
+                Extra pieces become the leftover fraction part.
+              </p>
+              <div class="math-line" id="fractionWholesEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Turn improper fractions into wholes and leftovers">
+              <div class="control-row" aria-label="Try an improper fraction">
+                <button class="choice-button" type="button" data-pack-fraction="4/4">4/4</button>
+                <button class="choice-button is-active" type="button" data-pack-fraction="5/4">5/4</button>
+                <button class="choice-button" type="button" data-pack-fraction="7/3">7/3</button>
+                <label class="custom-number-control fraction-number-control" for="packNumeratorInput">
+                  <span>Numerator</span>
+                  <input id="packNumeratorInput" type="number" inputmode="numeric" min="0" max="24" value="5" aria-describedby="packNumeratorHint">
+                  <small id="packNumeratorHint">top</small>
+                </label>
+                <label class="custom-number-control fraction-number-control" for="packDenominatorInput">
+                  <span>Denominator</span>
+                  <input id="packDenominatorInput" type="number" inputmode="numeric" min="1" max="12" value="4" aria-describedby="packDenominatorHint">
+                  <small id="packDenominatorHint">bottom</small>
+                </label>
+              </div>
+              <div class="fraction-wholes-board" id="fractionWholesBoard"></div>
+              <p class="teacher-note" id="fractionWholesMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="mixed-number-regroup" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 6)</p>
+              <h2>Mixed-number subtraction may need one whole to open into fraction pieces.</h2>
+              <p>
+                If there are not enough fraction pieces to subtract, rename one whole as
+                denominator-sized pieces. The amount stays the same, but now the pieces can be removed.
+              </p>
+              <div class="math-line" id="unit6RegroupEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Regroup a mixed number before subtracting">
+              <div class="control-row" aria-label="Choose a mixed-number subtraction">
+                <button class="choice-button is-active" type="button" data-unit6-regroup="twoOneFourthMinusThreeFourths">2 1/4 - 3/4</button>
+                <button class="choice-button" type="button" data-unit6-regroup="threeOneFifthMinusFourFifths">3 1/5 - 4/5</button>
+                <button class="choice-button" type="button" data-unit6-regroup="fiveTwoThirdsMinusOneFiveSixths">5 2/3 - 1 5/6</button>
+              </div>
+              <div class="unit6-regroup-board" id="unit6RegroupBoard"></div>
+              <p class="teacher-note" id="unit6RegroupMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="fraction-story-rename" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 6)</p>
+              <h2>Story problems still need same-size pieces.</h2>
+              <p>
+                First name the whole. Then rename the fractions so the story pieces can be
+                added or subtracted fairly.
+              </p>
+              <div class="math-line" id="unit6FractionStoryEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Solve unlike-denominator fraction stories">
+              <div class="control-row" aria-label="Choose a fraction story problem">
+                <button class="choice-button is-active" type="button" data-unit6-fraction-story="recipe">Recipe</button>
+                <button class="choice-button" type="button" data-unit6-fraction-story="ribbon">Ribbon</button>
+                <button class="choice-button" type="button" data-unit6-fraction-story="garden">Garden</button>
+              </div>
+              <div class="unit6-fraction-story-board" id="unit6FractionStoryBoard"></div>
+              <p class="teacher-note" id="unit6FractionStoryMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="fraction-strategy-compare" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 6)</p>
+              <h2>Different strategies can explain the same fraction operation.</h2>
+              <p>
+                A common denominator gives exact pieces. Benchmarks and number lines help
+                check whether the answer is reasonable.
+              </p>
+              <div class="math-line" id="unit6StrategyEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare fraction operation strategies">
+              <div class="control-row" aria-label="Choose a strategy example">
+                <button class="choice-button is-active" type="button" data-unit6-strategy="add">1/2 + 1/3</button>
+                <button class="choice-button" type="button" data-unit6-strategy="subtract">5/6 - 1/4</button>
+              </div>
+              <div class="unit6-strategy-board" id="unit6StrategyBoard"></div>
+              <p class="teacher-note" id="unit6StrategyMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="mixed-number-operation" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 6)</p>
+              <h2>Mixed-number operations track wholes and fraction pieces.</h2>
+              <p>
+                Keep the whole-number part and the fraction part visible. Rename or regroup
+                only when the fraction pieces need to match.
+              </p>
+              <div class="math-line" id="unit6MixedOperationEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Add and subtract mixed numbers">
+              <div class="control-row" aria-label="Choose a mixed-number operation">
+                <button class="choice-button is-active" type="button" data-unit6-mixed-op="add">2 1/3 + 1 1/6</button>
+                <button class="choice-button" type="button" data-unit6-mixed-op="subtract">4 1/2 - 2 3/4</button>
+              </div>
+              <div class="unit6-mixed-operation-board" id="unit6MixedOperationBoard"></div>
+              <p class="teacher-note" id="unit6MixedOperationMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="unit8-fraction-game-strategy" data-units="unit8">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 8)</p>
+              <h2>Fraction games reward thinking about piece size before adding or subtracting.</h2>
+              <p>
+                In Greatest Sum and Greatest Difference, every spun digit has a job. Put larger
+                digits where they make the amount bigger, and smaller digits where they control the denominator.
+              </p>
+              <div class="math-line" id="unit8FractionGameEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore Unit 8 fraction game strategy">
+              <div class="control-row" aria-label="Choose a fraction operation game">
+                <button class="choice-button is-active" type="button" data-unit8-fraction-game="sum">Greatest Sum</button>
+                <button class="choice-button" type="button" data-unit8-fraction-game="difference">Greatest Difference</button>
+                <button class="choice-button" type="button" data-unit8-fraction-game="smallDifference">Smallest Difference</button>
+              </div>
+              <div class="unit8-board" id="unit8FractionGameBoard"></div>
+              <p class="teacher-note" id="unit8FractionGameMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="addSubtractFractionsPracticeTopic" data-topic-pane="addSubtractFractions" data-mode-pane="practice" data-units="unit6 unit8" aria-label="Add and Subtract Fractions Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 6 Practice</p>
+              <h2>Practice adding and subtracting fractions by renaming pieces first.</h2>
+            </div>
+            <p>
+              These cards use common denominators, mixed-number regrouping, measurement stories,
+              and source-style card sorts from Unit 6.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="addSubtractFractions">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Add &amp; Subtract Fractions practice</strong>
+                <span id="addSubtractFractionsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="addSubtractFractions">Reset answers</button>
+            </div>
+            <div class="practice-list" id="addSubtractFractionsPracticeList" data-practice-list="addSubtractFractions"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="decimalsTopic" data-topic-pane="decimals" data-units="unit5" aria-label="Decimals Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 5 Teach Me</p>
+              <h2>Decimals extend place value into tenths, hundredths, and thousandths.</h2>
+            </div>
+            <p>
+              Unit 5 starts with equal parts of one whole, then uses grids, number lines,
+              fraction names, expanded form, and helper zeros to compare and round decimals.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Decimals Teach Me scenes">
+            <a href="#place-growth" data-units="unit5">1. Fill places</a>
+            <a href="#left-zeros" data-units="unit5">2. Empty whole places</a>
+            <a href="#decimal-thousandths" data-units="unit5">3. Thousandths</a>
+            <a href="#decimal-zeros" data-units="unit5">4. Decimal zeros</a>
+            <a href="#same-amount" data-units="unit5">5. Same amount</a>
+            <a href="#decimal-place-chart" data-units="unit5">6. Place values</a>
+            <a href="#decimal-benchmarks" data-units="unit5">7. Compare & round</a>
+          </nav>
+
+          <section class="scene" id="place-growth" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 5)</p>
+              <h2>Ones can pack into tens, and tens can open into ones.</h2>
+              <p>
+                Ten loose cookies become one plate of 10. One plate of 10 can also
+                open back into 10 loose cookies when subtraction needs more ones.
+              </p>
+              <div class="math-line" id="growthEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Build place value by adding or subtracting cookies">
+              <div class="control-row growth-controls" aria-label="Add or subtract cookies">
+                <label class="custom-number-control" for="addCookiesInput">
+                  <span>Change by</span>
+                  <input id="addCookiesInput" type="number" inputmode="numeric" min="1" max="9" value="1" aria-describedby="addCookiesHint">
+                  <small id="addCookiesHint">cookies</small>
+                </label>
+                <button class="action-button" type="button" id="addCookiesButton">Add</button>
+                <button class="action-button" type="button" id="subtractCookiesButton">Subtract</button>
+                <label class="custom-number-control" for="resetCookiesInput">
+                  <span>Reset to</span>
+                  <input id="resetCookiesInput" type="number" inputmode="numeric" min="0" max="99" value="1" aria-describedby="resetCookiesHint">
+                  <small id="resetCookiesHint">0-99</small>
+                </label>
+                <button class="choice-button" type="button" id="resetCookiesButton">Reset</button>
+              </div>
+              <div class="growth-board" id="growthBoard"></div>
+              <div class="rollover-controls-host" id="rolloverControlsHost"></div>
+              <p class="teacher-note" id="growthMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="left-zeros" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 5)</p>
+              <h2>Zeros on the left are empty bigger places.</h2>
+              <p>
+                Hundreds and tens are cookie groups. A hundreds plate holds 100 cookies,
+                a tens plate holds 10 cookies, and ones are single loose cookies.
+              </p>
+              <div class="math-line" id="leftZeroEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Left-side zeros with cookies">
+              <div class="control-row" aria-label="Choose a whole number form">
+                <button class="choice-button is-active" type="button" data-left-form="1">1</button>
+                <button class="choice-button" type="button" data-left-form="01">01</button>
+                <button class="choice-button" type="button" data-left-form="001">001</button>
+                <button class="choice-button" type="button" data-left-form="125">125</button>
+                <label class="custom-number-control" for="wholeNumberInput">
+                  <span>Try a number</span>
+                  <input id="wholeNumberInput" type="text" inputmode="numeric" maxlength="3" value="1" aria-describedby="wholeNumberHint">
+                  <small id="wholeNumberHint">0-999</small>
+                </label>
+              </div>
+              <div class="place-board" id="leftPlaceBoard"></div>
+              <div class="cookie-place-stage" id="cookiePlaceStage"></div>
+              <p class="teacher-note" id="leftZeroMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="decimal-thousandths" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 5)</p>
+              <h2>Thousandths are hundredths split into ten smaller equal pieces.</h2>
+              <p>
+                Unit 5 grids make the whole stay fixed. First split one whole into
+                hundredths. Then split each hundredth into 10 thinner pieces, so the whole
+                has 1,000 equal parts.
+              </p>
+              <div class="math-line">
+                <span class="math-token">1 whole</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">10 tenths</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">100 hundredths</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">1,000 thousandths</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="See tenths, hundredths, and thousandths as equal parts">
+              <div class="unit5-place-models">
+                <article class="unit5-decimal-card">
+                  <span class="unit6-small-label">Tenths</span>
+                  <div class="unit5-strip unit5-tenths" aria-label="One whole split into tenths">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <strong>0.1 = 1/10</strong>
+                  <p>One tenth is one of 10 equal parts.</p>
+                </article>
+                <article class="unit5-decimal-card">
+                  <span class="unit6-small-label">Hundredths</span>
+                  <div class="unit5-mini-grid" aria-label="One whole split into hundredths"></div>
+                  <strong>0.01 = 1/100</strong>
+                  <p>Each tenth can split into 10 hundredths.</p>
+                </article>
+                <article class="unit5-decimal-card is-highlight">
+                  <span class="unit6-small-label">Thousandths</span>
+                  <div class="unit5-thousand-zoom" aria-label="One hundredth split into ten thousandths">
+                    <div class="unit5-hundredth-tile"></div>
+                    <div class="unit5-thousand-slivers">
+                      <span></span><span></span><span></span><span></span><span></span>
+                      <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                  <strong>0.001 = 1/1000</strong>
+                  <p>Each hundredth can split into 10 thousandths.</p>
+                </article>
+              </div>
+              <p class="teacher-note">The whole does not get bigger. The pieces get smaller, so it takes more of them to cover the same whole.</p>
+            </div>
+          </section>
+
+          <section class="scene" id="decimal-zeros" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 5)</p>
+              <h2>Zeros on the right rename decimal pieces.</h2>
+              <p>
+                One tenth of a pizza can be one big slice or ten smaller hundredth pieces.
+                The shaded pizza area does not change.
+              </p>
+              <div class="equivalence-strip" id="pizzaEquivalence"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Decimal right-side zeros with pizza">
+              <div class="control-row" aria-label="Choose a decimal form">
+                <button class="choice-button is-active" type="button" data-pizza-form="0.1">0.1</button>
+                <button class="choice-button" type="button" data-pizza-form="0.10">0.10</button>
+                <button class="choice-button" type="button" data-pizza-form="0.100">0.100</button>
+                <label class="custom-number-control" for="decimalNumberInput">
+                  <span>Try a number</span>
+                  <input id="decimalNumberInput" type="text" inputmode="decimal" maxlength="5" value="0.1" aria-describedby="decimalNumberHint">
+                  <small id="decimalNumberHint">0-0.999</small>
+                </label>
+              </div>
+              <div class="pizza-compare" id="pizzaCompare"></div>
+              <p class="teacher-note" id="pizzaMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="same-amount" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 5)</p>
+              <h2>Decimal, fraction, and picture are three views of one amount.</h2>
+              <p>
+                The written form can change while the visual amount stays fixed. That is the habit
+                we want before comparing or calculating.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Same amount in different forms">
+              <div class="control-row" aria-label="Choose an amount">
+                <button class="choice-button is-active" type="button" data-equivalence-key="twoTenths">0.2</button>
+                <button class="choice-button" type="button" data-equivalence-key="oneAndQuarter">1.25</button>
+                <button class="choice-button" type="button" data-equivalence-key="fiveWholes">5</button>
+                <label class="custom-number-control" for="equivalenceNumberInput">
+                  <span>Try a number</span>
+                  <input id="equivalenceNumberInput" type="text" inputmode="decimal" maxlength="5" value="0.2" aria-describedby="equivalenceNumberHint">
+                  <small id="equivalenceNumberHint">0-9.999</small>
+                </label>
+              </div>
+              <div class="equivalence-board" id="equivalenceBoard"></div>
+            </div>
+          </section>
+
+          <section class="scene" id="decimal-place-chart" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 5)</p>
+              <h2>A digit's value depends on its decimal place.</h2>
+              <p>
+                The same digit can mean ones, tenths, hundredths, or thousandths.
+                Moving one place left makes a value 10 times as much; moving one place
+                right makes it one tenth as much.
+              </p>
+              <div class="math-line">
+                <span class="math-token">0.4</span>
+                <span class="math-equals">is 10 times</span>
+                <span class="math-token">0.04</span>
+                <span class="math-equals">and 100 times</span>
+                <span class="math-token">0.004</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Decimal place value chart">
+              <div class="unit5-place-chart">
+                <div class="unit5-place-cell">
+                  <span>ones</span>
+                  <strong>4</strong>
+                  <small>4</small>
+                </div>
+                <div class="unit5-place-cell is-tenth">
+                  <span>tenths</span>
+                  <strong>4</strong>
+                  <small>0.4</small>
+                </div>
+                <div class="unit5-place-cell is-hundredth">
+                  <span>hundredths</span>
+                  <strong>4</strong>
+                  <small>0.04</small>
+                </div>
+                <div class="unit5-place-cell is-thousandth">
+                  <span>thousandths</span>
+                  <strong>4</strong>
+                  <small>0.004</small>
+                </div>
+              </div>
+              <div class="unit5-arrow-row" aria-label="Adjacent place value relationships">
+                <span>left: x 10</span>
+                <span>right: divide by 10</span>
+              </div>
+              <p class="teacher-note">Compare decimals from left to right because larger places decide first.</p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="decimal-benchmarks" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 5)</p>
+              <h2>Number lines make comparing, ordering, and rounding visible.</h2>
+              <p>
+                A decimal belongs in one interval. Helper zeros can show matching places,
+                but the number line shows the size of the amount.
+              </p>
+              <div class="math-line">
+                <span class="math-token">0.72</span>
+                <span class="math-equals">is between</span>
+                <span class="math-token">0.7</span>
+                <span class="math-equals">and</span>
+                <span class="math-token">0.8</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Decimal number line benchmarks">
+              <div class="unit5-numberline-card">
+                <div class="unit5-numberline" aria-label="Number line from 0.7 to 0.8 with 0.72 marked">
+                  <span class="unit5-line"></span>
+                  <span class="unit5-tick start"><strong>0.7</strong></span>
+                  <span class="unit5-tick mid"><strong>0.75</strong></span>
+                  <span class="unit5-tick end"><strong>0.8</strong></span>
+                  <span class="unit5-point" style="--point-left: 20%;"><strong>0.72</strong></span>
+                </div>
+                <div class="unit5-benchmark-grid">
+                  <article>
+                    <span>Compare</span>
+                    <strong>0.72 &gt; 0.7</strong>
+                    <p>0.72 is to the right of 0.70.</p>
+                  </article>
+                  <article>
+                    <span>Order</span>
+                    <strong>0.7, 0.72, 0.8</strong>
+                    <p>Left to right gives least to greatest.</p>
+                  </article>
+                  <article>
+                    <span>Round</span>
+                    <strong>0.72 rounds to 0.7</strong>
+                    <p>It is closer to 0.7 than 0.8.</p>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="decimalsPracticeTopic" data-topic-pane="decimals" data-mode-pane="practice" data-units="unit5" aria-label="Decimals Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 5 Practice</p>
+              <h2>Practice decimal forms, place value, comparing, ordering, and rounding.</h2>
+            </div>
+            <p>
+              These cards keep decimal places visible so students can connect tenths,
+              hundredths, thousandths, fractions, words, and number-line reasoning.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="decimals">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Decimals practice</strong>
+                <span id="decimalsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="decimals">Reset answers</button>
+            </div>
+            <div class="practice-list" id="decimalsPracticeList" data-practice-list="decimals"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="decimalOperationsTopic" data-topic-pane="decimalOperations" data-units="unit5 unit8" aria-label="Decimal Operations Teach Me flow" hidden>
+          <div class="lesson-summary" data-units="unit5">
+            <div>
+              <p class="eyebrow">Unit 5</p>
+              <h2>Decimal operations work when each place lines up with the same kind of piece.</h2>
+            </div>
+            <p>
+              Add, subtract, multiply, and divide decimals by thinking about tenths, hundredths,
+              and thousandths as fraction pieces with matching names.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Decimal Operations Teach Me scenes">
+            <a href="#operations" data-units="unit5">1. Line up places</a>
+            <a href="#decimal-regrouping" data-units="unit5">2. Regroup units</a>
+            <a href="#decimal-multiply-units" data-units="unit5">3. Multiply units</a>
+            <a href="#decimal-area-product" data-units="unit5">4. Area products</a>
+            <a href="#decimal-division-units" data-units="unit5">5. Divide units</a>
+            <a href="#unit8-decimal-race" data-units="unit8">6. Decimal race</a>
+          </nav>
+
+          <div class="lesson-summary" data-units="unit8">
+            <div>
+              <p class="eyebrow">Unit 8 Teach Me</p>
+              <h2>Race with decimals by choosing the value of each digit.</h2>
+            </div>
+            <p>
+              Unit 8 decimal games ask whether a roll should count as tenths, hundredths,
+              thousandths, or a whole-number place.
+            </p>
+          </div>
+
+          <section class="scene" id="operations" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 5)</p>
+              <h2>Before comparing, adding, or subtracting, make the places match.</h2>
+              <p>
+                Helper zeros work like common denominators. They let each tenths, hundredths,
+                or thousandths place line up with the same kind of piece.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Prepare decimals for operations">
+              <div class="control-row" aria-label="Choose an operation">
+                <button class="choice-button is-active" type="button" data-operation="compare">Compare</button>
+                <button class="choice-button" type="button" data-operation="add">Add</button>
+                <button class="choice-button" type="button" data-operation="subtract">Subtract</button>
+              </div>
+              <div class="operation-toolbar">
+                <button class="action-button" type="button" id="helperToggle">Add helper zeros</button>
+              </div>
+              <div class="operation-board" id="operationBoard"></div>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="decimal-regrouping" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 5)</p>
+              <h2>Decimal regrouping is the same 10-for-1 trade in smaller pieces.</h2>
+              <p>
+                Ten hundredths make one tenth. Ten thousandths make one hundredth.
+                Addition and subtraction work when those trades stay visible.
+              </p>
+              <div class="math-line">
+                <span class="math-token">0.68 + 0.27</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">0.95</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Regroup hundredths while adding decimals">
+              <div class="unit5-regroup-board">
+                <article class="unit5-decimal-card">
+                  <span class="unit6-small-label">Tenths</span>
+                  <strong>6 tenths + 2 tenths</strong>
+                  <div class="unit5-regroup-row">
+                    <span class="unit5-piece tenth"></span><span class="unit5-piece tenth"></span><span class="unit5-piece tenth"></span>
+                    <span class="unit5-piece tenth"></span><span class="unit5-piece tenth"></span><span class="unit5-piece tenth"></span>
+                    <span class="unit5-piece tenth is-secondary"></span><span class="unit5-piece tenth is-secondary"></span>
+                  </div>
+                  <p>That makes 8 tenths.</p>
+                </article>
+                <article class="unit5-decimal-card is-highlight">
+                  <span class="unit6-small-label">Hundredths</span>
+                  <strong>8 hundredths + 7 hundredths</strong>
+                  <div class="unit5-regroup-row is-wrap">
+                    <span class="unit5-piece hundredth"></span><span class="unit5-piece hundredth"></span><span class="unit5-piece hundredth"></span><span class="unit5-piece hundredth"></span><span class="unit5-piece hundredth"></span>
+                    <span class="unit5-piece hundredth"></span><span class="unit5-piece hundredth"></span><span class="unit5-piece hundredth"></span>
+                    <span class="unit5-piece hundredth is-secondary"></span><span class="unit5-piece hundredth is-secondary"></span><span class="unit5-piece hundredth is-secondary"></span><span class="unit5-piece hundredth is-secondary"></span><span class="unit5-piece hundredth is-secondary"></span><span class="unit5-piece hundredth is-secondary"></span><span class="unit5-piece hundredth is-secondary"></span>
+                  </div>
+                  <p>15 hundredths becomes 1 tenth and 5 hundredths.</p>
+                </article>
+                <article class="unit5-decimal-card">
+                  <span class="unit6-small-label">Result</span>
+                  <strong>9 tenths and 5 hundredths</strong>
+                  <p>8 tenths plus the regrouped tenth makes 9 tenths.</p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="scene" id="decimal-multiply-units" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 5)</p>
+              <h2>Multiplying a decimal by a whole number counts decimal units.</h2>
+              <p>
+                Think of 3 x 0.24 as 3 groups of 24 hundredths. First use the whole-number
+                fact, then name the unit.
+              </p>
+              <div class="math-line">
+                <span class="math-token">3 x 24 hundredths</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">72 hundredths</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">0.72</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Multiply decimals by counting decimal units">
+              <div class="unit5-groups-board">
+                <article>
+                  <h3>Group 1</h3>
+                  <div class="unit5-hundred-strip is-shaded-24"></div>
+                  <span>24 hundredths</span>
+                </article>
+                <article>
+                  <h3>Group 2</h3>
+                  <div class="unit5-hundred-strip is-shaded-24"></div>
+                  <span>24 hundredths</span>
+                </article>
+                <article>
+                  <h3>Group 3</h3>
+                  <div class="unit5-hundred-strip is-shaded-24"></div>
+                  <span>24 hundredths</span>
+                </article>
+              </div>
+              <p class="teacher-note">The product is less than 3 because each group is much less than 1 whole.</p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="decimal-area-product" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 5)</p>
+              <h2>Tenths times tenths make hundredths.</h2>
+              <p>
+                An area grid shows why decimal-by-decimal multiplication can land in the
+                hundredths. The overlap is the product.
+              </p>
+              <div class="math-line">
+                <span class="math-token">0.3 x 0.4</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">0.12</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Decimal multiplication area model">
+              <div class="unit5-area-layout">
+                <div class="unit5-area-grid" aria-label="Area model showing 3 tenths by 4 tenths">
+                  <div class="unit5-area-horizontal"></div>
+                  <div class="unit5-area-vertical"></div>
+                  <div class="unit5-area-overlap"></div>
+                </div>
+                <div class="unit5-area-notes">
+                  <article>
+                    <span>Width</span>
+                    <strong>4 tenths</strong>
+                  </article>
+                  <article>
+                    <span>Height</span>
+                    <strong>3 tenths</strong>
+                  </article>
+                  <article class="is-highlight">
+                    <span>Overlap</span>
+                    <strong>12 hundredths</strong>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="scene" id="decimal-division-units" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 5)</p>
+              <h2>Dividing by decimals asks how many decimal-size groups fit.</h2>
+              <p>
+                Division by 0.1 or 0.01 can make a quotient larger because the groups are
+                small. Count the groups before judging the answer size.
+              </p>
+              <div class="math-line">
+                <span class="math-token">2 ÷ 0.1</span>
+                <span class="math-equals">=</span>
+                <span class="math-token">20 tenths</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Divide whole numbers by decimal units">
+              <div class="unit5-division-board">
+                <article class="unit5-decimal-card">
+                  <span class="unit6-small-label">Amount</span>
+                  <strong>2 wholes</strong>
+                  <div class="unit5-whole-pair">
+                    <div class="whole-block">1 whole</div>
+                    <div class="whole-block">1 whole</div>
+                  </div>
+                </article>
+                <article class="unit5-decimal-card is-highlight">
+                  <span class="unit6-small-label">Group size</span>
+                  <strong>0.1 each</strong>
+                  <div class="unit5-tenths-counter">
+                    <span>10 tenths</span>
+                    <span>+</span>
+                    <span>10 tenths</span>
+                  </div>
+                </article>
+                <article class="unit5-decimal-card">
+                  <span class="unit6-small-label">Question</span>
+                  <strong>How many 0.1s fit?</strong>
+                  <p>There are 20 groups of one tenth in 2 wholes.</p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="unit8-decimal-race" data-units="unit8">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 8)</p>
+              <h2>In Decimal Race, the same digit can be a big move or a tiny move.</h2>
+              <p>
+                Unit 8 asks students to decide whether a roll should mean tenths, hundredths,
+                or thousandths. The best place value depends on the target and the current total.
+              </p>
+              <div class="math-line" id="unit8DecimalEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore Unit 8 decimal race strategy">
+              <div class="control-row" aria-label="Choose a decimal race example">
+                <button class="choice-button is-active" type="button" data-unit8-decimal="raceOne">Race to 1</button>
+                <button class="choice-button" type="button" data-unit8-decimal="nearOne">Near 1</button>
+                <button class="choice-button" type="button" data-unit8-decimal="race500">Race to 500</button>
+              </div>
+              <div class="unit8-board" id="unit8DecimalBoard"></div>
+              <p class="teacher-note" id="unit8DecimalMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="decimalOperationsPracticeTopic" data-topic-pane="decimalOperations" data-mode-pane="practice" data-units="unit5 unit8" aria-label="Decimal Operations Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Units 5 and 8 Practice</p>
+              <h2>Practice decimal operations, grid models, division groups, and place-value choices.</h2>
+            </div>
+            <p>
+              These cards ask students to line up equal decimal places, use hundredths
+              grids, count decimal-size groups, and choose useful place values.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="decimalOperations">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Decimal Operations practice</strong>
+                <span id="decimalOperationsPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="decimalOperations">Reset answers</button>
+            </div>
+            <div class="practice-list" id="decimalOperationsPracticeList" data-practice-list="decimalOperations"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="expressionsPowersTopic" data-topic-pane="expressionsPowers" data-units="unit5 unit6" aria-label="Expressions and Powers of Ten Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Units 5 and 6</p>
+              <h2>Expressions and powers of ten are compact ways to describe math actions.</h2>
+            </div>
+            <p>
+              This topic will connect order of operations, parentheses and brackets, simple
+              written expressions, metric conversion, and powers of ten.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Expressions and Powers of Ten Teach Me scenes">
+            <a href="#unit5-decimal-place-powers" data-units="unit5">1. Decimal neighbors</a>
+            <a href="#powers-place-values" data-units="unit6">2. Place values</a>
+            <a href="#powers-exponents" data-units="unit6">3. Powers of 10</a>
+            <a href="#powers-digit-move" data-units="unit6">4. Digit movement</a>
+            <a href="#powers-metric-conversion" data-units="unit6">5. Metric conversion</a>
+            <a href="#powers-predict" data-units="unit6">6. Predict first</a>
+            <a href="#powers-customary-conversion" data-units="unit6">7. Customary units</a>
+            <a href="#powers-multi-step" data-units="unit6">8. Multi-step</a>
+            <a href="#powers-conversion-table" data-units="unit6">9. Table</a>
+          </nav>
+
+          <section class="scene scene-alt" id="unit5-decimal-place-powers" data-units="unit5">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 5)</p>
+              <h2>Decimal place values are a chain of times 10 and one tenth.</h2>
+              <p>
+                Unit 5 prepares powers of ten by making neighboring decimal places visible.
+                A place-value chart is a set of relationships, not just a row of labels.
+              </p>
+              <div class="math-line">
+                <span class="math-token">1 tenth</span>
+                <span class="math-equals">= 10 x</span>
+                <span class="math-token">1 hundredth</span>
+                <span class="math-equals">= 100 x</span>
+                <span class="math-token">1 thousandth</span>
+              </div>
+            </div>
+
+            <div class="tool-surface" aria-label="Unit 5 decimal adjacent place value relationships">
+              <div class="unit5-place-chain">
+                <article>
+                  <span>ones</span>
+                  <strong>1</strong>
+                  <p>one whole</p>
+                </article>
+                <span class="unit5-chain-arrow">÷ 10</span>
+                <article>
+                  <span>tenths</span>
+                  <strong>0.1</strong>
+                  <p>one tenth</p>
+                </article>
+                <span class="unit5-chain-arrow">÷ 10</span>
+                <article>
+                  <span>hundredths</span>
+                  <strong>0.01</strong>
+                  <p>one hundredth</p>
+                </article>
+                <span class="unit5-chain-arrow">÷ 10</span>
+                <article>
+                  <span>thousandths</span>
+                  <strong>0.001</strong>
+                  <p>one thousandth</p>
+                </article>
+              </div>
+              <p class="teacher-note">Going back left reverses the arrows: each place is 10 times the value of the place to its right.</p>
+            </div>
+          </section>
+
+          <section class="scene" id="powers-place-values" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 6)</p>
+              <h2>Neighboring place values are connected by 10.</h2>
+              <p>
+                A digit does not have one fixed value. Its place tells what it is worth:
+                moving one place left makes it 10 times as much, and moving one place right
+                makes it one-tenth as much.
+              </p>
+              <div class="math-line" id="unit6PlaceValueEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore adjacent place values">
+              <div class="control-row" aria-label="Choose a digit to compare across places">
+                <button class="choice-button is-active" type="button" data-unit6-place="6">Digit 6</button>
+                <button class="choice-button" type="button" data-unit6-place="4">Digit 4</button>
+                <button class="choice-button" type="button" data-unit6-place="8">Digit 8</button>
+              </div>
+              <div class="unit6-place-board" id="unit6PlaceValueBoard"></div>
+              <p class="teacher-note" id="unit6PlaceValueMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="powers-exponents" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 6)</p>
+              <h2>A power of ten tells how many times 10 is used as a factor.</h2>
+              <p>
+                Exponents are compact notation. Instead of writing 10 x 10 x 10, we can write
+                10<sup>3</sup>. The exponent counts the 10s.
+              </p>
+              <div class="math-line" id="unit6PowerEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Connect powers of ten to repeated multiplication">
+              <div class="control-row" aria-label="Choose a power of ten">
+                <button class="choice-button is-active" type="button" data-unit6-power="1">10^1</button>
+                <button class="choice-button" type="button" data-unit6-power="2">10^2</button>
+                <button class="choice-button" type="button" data-unit6-power="3">10^3</button>
+                <button class="choice-button" type="button" data-unit6-power="6">10^6</button>
+              </div>
+              <div class="unit6-power-board" id="unit6PowerBoard"></div>
+              <p class="teacher-note" id="unit6PowerMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="powers-digit-move" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 6)</p>
+              <h2>The digits move to places with different values.</h2>
+              <p>
+                The decimal point marks the ones place. When we multiply or divide by powers
+                of 10, the digits shift into larger-value or smaller-value places.
+              </p>
+              <div class="math-line" id="unit6MoveEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Move digits by multiplying and dividing by powers of ten">
+              <div class="control-row" aria-label="Choose a power of ten operation">
+                <button class="choice-button is-active" type="button" data-unit6-move="times10">3.42 x 10</button>
+                <button class="choice-button" type="button" data-unit6-move="times100">3.42 x 100</button>
+                <button class="choice-button" type="button" data-unit6-move="divide10">3.42 ÷ 10</button>
+                <button class="choice-button" type="button" data-unit6-move="divide100">3.42 ÷ 100</button>
+              </div>
+              <div class="unit6-move-board" id="unit6MoveBoard"></div>
+              <p class="teacher-note" id="unit6MoveMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="powers-metric-conversion" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 6)</p>
+              <h2>Metric conversions rename the same measurement.</h2>
+              <p>
+                Meters, centimeters, millimeters, and kilometers are different unit names for
+                length. The amount stays the same, but the number changes because the unit size changes.
+              </p>
+              <div class="math-line" id="unit6ConversionEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore metric conversion tables">
+              <div class="control-row" aria-label="Choose a metric conversion">
+                <button class="choice-button is-active" type="button" data-unit6-conversion="metersToCentimeters">3.5 m to cm</button>
+                <button class="choice-button" type="button" data-unit6-conversion="metersToMillimeters">3.5 m to mm</button>
+                <button class="choice-button" type="button" data-unit6-conversion="centimetersToMeters">350 cm to m</button>
+                <button class="choice-button" type="button" data-unit6-conversion="metersToKilometers">1250 m to km</button>
+              </div>
+              <div class="unit6-conversion-board" id="unit6ConversionBoard"></div>
+              <p class="teacher-note" id="unit6ConversionMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="powers-predict" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 6)</p>
+              <h2>Before calculating, predict whether the number should get larger or smaller.</h2>
+              <p>
+                Conversions make more sense when the unit size is named first. Smaller units
+                need more counts; larger units need fewer counts.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Predict conversion size before calculating">
+              <div class="control-row" aria-label="Choose a conversion prediction">
+                <button class="choice-button is-active" type="button" data-unit6-predict="metersToCentimeters">meters to centimeters</button>
+                <button class="choice-button" type="button" data-unit6-predict="millilitersToLiters">milliliters to liters</button>
+                <button class="choice-button" type="button" data-unit6-predict="feetToInches">feet to inches</button>
+                <button class="choice-button" type="button" data-unit6-predict="metersToKilometers">meters to kilometers</button>
+              </div>
+              <div class="unit6-predict-board" id="unit6PredictBoard"></div>
+              <p class="teacher-note" id="unit6PredictMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="powers-customary-conversion" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 6)</p>
+              <h2>Customary conversions use relationship cards, not powers of 10.</h2>
+              <p>
+                Inches, feet, yards, cups, pints, quarts, and gallons use different
+                conversion factors. The same idea still works: rename the same amount.
+              </p>
+              <div class="math-line" id="unit6CustomaryEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore customary measurement conversions">
+              <div class="control-row" aria-label="Choose a customary conversion">
+                <button class="choice-button is-active" type="button" data-unit6-customary="feetToInches">4 ft to in</button>
+                <button class="choice-button" type="button" data-unit6-customary="yardsToFeet">3 yd to ft</button>
+                <button class="choice-button" type="button" data-unit6-customary="quartsToCups">2 qt to cups</button>
+                <button class="choice-button" type="button" data-unit6-customary="gallonsToQuarts">1.5 gal to qt</button>
+              </div>
+              <div class="unit6-customary-board" id="unit6CustomaryBoard"></div>
+              <p class="teacher-note" id="unit6CustomaryMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="powers-multi-step" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 6)</p>
+              <h2>Multi-step measurement problems work one rename at a time.</h2>
+              <p>
+                Complex conversion problems become manageable when each arrow names the unit
+                relationship and the operation.
+              </p>
+              <div class="math-line" id="unit6MultiStepEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Follow multi-step measurement conversions">
+              <div class="control-row" aria-label="Choose a multi-step measurement problem">
+                <button class="choice-button is-active" type="button" data-unit6-multi-step="runner">Runner</button>
+                <button class="choice-button" type="button" data-unit6-multi-step="juice">Juice</button>
+                <button class="choice-button" type="button" data-unit6-multi-step="ribbon">Ribbon</button>
+              </div>
+              <div class="unit6-multi-step-board" id="unit6MultiStepBoard"></div>
+              <p class="teacher-note" id="unit6MultiStepMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="powers-conversion-table" data-units="unit6">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 8 (Unit 6)</p>
+              <h2>A conversion table keeps the amount fixed while the unit changes.</h2>
+              <p>
+                Tables help students notice whether the count grows or shrinks as the unit
+                gets smaller or larger.
+              </p>
+              <div class="math-line" id="unit6ConversionTableEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Compare equivalent measurements in a table">
+              <div class="control-row" aria-label="Choose a conversion table">
+                <button class="choice-button is-active" type="button" data-unit6-conversion-table="length">Length</button>
+                <button class="choice-button" type="button" data-unit6-conversion-table="liquid">Liquid volume</button>
+              </div>
+              <div class="unit6-conversion-table-board" id="unit6ConversionTableBoard"></div>
+              <p class="teacher-note" id="unit6ConversionTableMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="expressionsPowersPracticeTopic" data-topic-pane="expressionsPowers" data-mode-pane="practice" data-units="unit5 unit6" aria-label="Expressions and Powers of Ten Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Units 5 and 6 Practice</p>
+              <h2>Practice decimal place-value relationships, powers of ten, and conversions.</h2>
+            </div>
+            <p>
+              These cards keep place-value tables, conversion tables, relationship cards,
+              and measurement stories visible so students can decide what unit is being counted.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="expressionsPowers">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Expressions &amp; Powers of Ten practice</strong>
+                <span id="expressionsPowersPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="expressionsPowers">Reset answers</button>
+            </div>
+            <div class="practice-list" id="expressionsPowersPracticeList" data-practice-list="expressionsPowers"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="coordinateGeometryTopic" data-topic-pane="coordinateGeometry" data-units="unit7" aria-label="Coordinate Plane and Geometry Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 7</p>
+              <h2>Coordinates, shape attributes, and patterns all help us describe math precisely.</h2>
+            </div>
+            <p>
+              Unit 7 starts with exact locations on a grid, then uses exact attributes to
+              classify shapes, and finally turns matching pattern values into points.
+            </p>
+          </div>
+
+          <nav class="lesson-steps" aria-label="Coordinate Plane and Geometry Teach Me scenes">
+            <a href="#coordinate-need">1. Exact location</a>
+            <a href="#coordinate-trip">2. Ordered pairs</a>
+            <a href="#coordinate-shapes">3. Vertices</a>
+            <a href="#shape-attributes">4. Attributes</a>
+            <a href="#shape-hierarchy">5. Hierarchy</a>
+            <a href="#shape-statements">6. Always?</a>
+            <a href="#pattern-points">7. Rules to points</a>
+            <a href="#pattern-contexts">8. Context graphs</a>
+          </nav>
+
+          <section class="scene" id="coordinate-need">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 7)</p>
+              <h2>A coordinate grid makes a location exact.</h2>
+              <p>
+                The Unit 7 materials begin with drawing and describing shapes. A plain
+                description can be misunderstood, but numbered grid lines let two people
+                land on the same point.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Why coordinate grids are useful">
+              <div class="unit7-need-board">
+                <article>
+                  <span>Plain words</span>
+                  <strong>"Put the corner near the middle."</strong>
+                  <p>Close, but different students might choose different places.</p>
+                </article>
+                <article>
+                  <span>Grid lines</span>
+                  <strong>"Use this row and this column."</strong>
+                  <p>Better, but we still need names for the lines.</p>
+                </article>
+                <article class="is-strong">
+                  <span>Coordinates</span>
+                  <strong>"Put the point at (4, 6)."</strong>
+                  <p>The numbers tell exactly how far right and how far up.</p>
+                </article>
+                <article class="is-strong">
+                  <span>Point</span>
+                  <strong>"Land on the intersection."</strong>
+                  <p>A coordinate names where two grid lines meet, not the inside of a box.</p>
+                </article>
+              </div>
+              <p class="teacher-note">Coordinates are a language for locations. The point is where the two named grid lines meet.</p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="coordinate-trip">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 7)</p>
+              <h2>An ordered pair is a trip from the origin: right first, then up.</h2>
+              <p>
+                In an ordered pair like (4, 6), the first number gives the horizontal
+                position and the second number gives the vertical position.
+              </p>
+              <div class="math-line" id="coordinatePointEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore ordered pairs on a coordinate grid">
+              <div class="control-row unit7-coordinate-controls">
+                <button class="choice-button is-active" type="button" data-coordinate-preset="4,6">(4, 6)</button>
+                <button class="choice-button" type="button" data-coordinate-preset="0,0">(0, 0)</button>
+                <button class="choice-button" type="button" data-coordinate-preset="7,0">(7, 0)</button>
+                <button class="choice-button" type="button" data-coordinate-preset="0,5">(0, 5)</button>
+                <label class="custom-number-control">
+                  x
+                  <input id="coordinateXInput" type="number" inputmode="numeric" min="0" max="10" value="4" aria-label="x coordinate">
+                  <small>0-10</small>
+                </label>
+                <label class="custom-number-control">
+                  y
+                  <input id="coordinateYInput" type="number" inputmode="numeric" min="0" max="10" value="6" aria-label="y coordinate">
+                  <small>0-10</small>
+                </label>
+              </div>
+              <div class="unit7-coordinate-board" id="coordinatePointBoard"></div>
+              <p class="teacher-note" id="coordinatePointMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="coordinate-shapes">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 7)</p>
+              <h2>Coordinates can describe a whole shape, not just one point.</h2>
+              <p>
+                A shape on a coordinate grid is a set of vertices. Naming the vertices lets
+                another person draw the same shape in the same place.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Describe shapes with coordinate vertices">
+              <div class="control-row" aria-label="Choose a coordinate shape">
+                <button class="choice-button is-active" type="button" data-unit7-coordinate-shape="rectangle">Rectangle</button>
+                <button class="choice-button" type="button" data-unit7-coordinate-shape="rightTriangle">Right triangle</button>
+                <button class="choice-button" type="button" data-unit7-coordinate-shape="tiltedSquare">Tilted square</button>
+              </div>
+              <div class="unit7-coordinate-shape-board" id="coordinateShapeBoard"></div>
+              <p class="teacher-note" id="coordinateShapeMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="shape-attributes">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 7)</p>
+              <h2>Shape names come from attributes.</h2>
+              <p>
+                Students sort shapes by properties such as parallel sides, equal side
+                lengths, right angles, and angle size. Rotation does not change the attributes.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore shape attributes">
+              <div class="control-row" aria-label="Choose a shape">
+                <button class="choice-button is-active" type="button" data-unit7-shape="square">Square</button>
+                <button class="choice-button" type="button" data-unit7-shape="rectangle">Rectangle</button>
+                <button class="choice-button" type="button" data-unit7-shape="tiltedSquare">Tilted square</button>
+                <button class="choice-button" type="button" data-unit7-shape="rhombus">Rhombus</button>
+                <button class="choice-button" type="button" data-unit7-shape="parallelogram">Parallelogram</button>
+                <button class="choice-button" type="button" data-unit7-shape="trapezoid">Trapezoid</button>
+                <button class="choice-button" type="button" data-unit7-shape="rightTriangle">Right scalene triangle</button>
+                <button class="choice-button" type="button" data-unit7-shape="equilateralTriangle">Equilateral triangle</button>
+                <button class="choice-button" type="button" data-unit7-shape="obtuseIsoscelesTriangle">Obtuse isosceles triangle</button>
+              </div>
+              <div class="unit7-shape-board" id="shapeAttributesBoard"></div>
+              <p class="teacher-note" id="shapeAttributesMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="shape-hierarchy">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 7)</p>
+              <h2>Some shape families live inside bigger shape families.</h2>
+              <p>
+                Unit 7 uses the inclusive definition of trapezoid: a trapezoid has at least
+                one pair of opposite sides parallel. That means parallelograms count as trapezoids.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Explore the hierarchy of quadrilaterals">
+              <div class="control-row" aria-label="Choose a quadrilateral category">
+                <button class="choice-button is-active" type="button" data-unit7-hierarchy="square">Square</button>
+                <button class="choice-button" type="button" data-unit7-hierarchy="rectangle">Rectangle</button>
+                <button class="choice-button" type="button" data-unit7-hierarchy="rhombus">Rhombus</button>
+                <button class="choice-button" type="button" data-unit7-hierarchy="parallelogram">Parallelogram</button>
+                <button class="choice-button" type="button" data-unit7-hierarchy="trapezoid">Trapezoid</button>
+              </div>
+              <div class="unit7-hierarchy-board" id="shapeHierarchyBoard"></div>
+              <p class="teacher-note" id="shapeHierarchyMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="shape-statements">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 7)</p>
+              <h2>Always, sometimes, and never need examples and counterexamples.</h2>
+              <p>
+                Shape statements are not guesses. A single counterexample can prove a
+                statement is not always true.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Test shape statements with examples and counterexamples">
+              <div class="control-row" aria-label="Choose a shape statement">
+                <button class="choice-button is-active" type="button" data-unit7-statement="rectangleSquare">A rectangle is a square.</button>
+                <button class="choice-button" type="button" data-unit7-statement="squareRectangle">A square is a rectangle.</button>
+                <button class="choice-button" type="button" data-unit7-statement="rectangleNeverSquare">A rectangle is never a square.</button>
+                <button class="choice-button" type="button" data-unit7-statement="parallelogramTrapezoid">A parallelogram is a trapezoid.</button>
+                <button class="choice-button" type="button" data-unit7-statement="triangleRight">A triangle is a right triangle.</button>
+              </div>
+              <div class="unit7-statement-board" id="shapeStatementBoard"></div>
+              <p class="teacher-note" id="shapeStatementMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene" id="pattern-points">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 7)</p>
+              <h2>Two rules can make ordered pairs.</h2>
+              <p>
+                Generate two patterns, match the terms in the same position, then graph
+                those matches. A point tells two values at the same time.
+              </p>
+              <div class="math-line" id="patternPointEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Turn two pattern rules into graph points">
+              <div class="control-row" aria-label="Choose a pair of pattern rules">
+                <button class="choice-button is-active" type="button" data-unit7-pattern="add4Add6">Add 4 / Add 6</button>
+                <button class="choice-button" type="button" data-unit7-pattern="add8Add2">Add 8 / Add 2</button>
+                <button class="choice-button" type="button" data-unit7-pattern="add10Add40">Add 10 / Add 40</button>
+              </div>
+              <div class="unit7-pattern-board" id="patternPointsBoard"></div>
+              <p class="teacher-note" id="patternPointMessage" aria-live="polite"></p>
+            </div>
+          </section>
+
+          <section class="scene scene-alt" id="pattern-contexts">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 8 (Unit 7)</p>
+              <h2>A graph point can describe a real situation.</h2>
+              <p>
+                The same coordinate idea works when the axes are not just "rule 1" and
+                "rule 2." A point can mean coins and cents, length and perimeter, or
+                length and area.
+              </p>
+            </div>
+
+            <div class="tool-surface" aria-label="Interpret coordinate graph points in context">
+              <div class="control-row" aria-label="Choose a graph context">
+                <button class="choice-button is-active" type="button" data-unit7-pattern-context="coins">Quarters / cents</button>
+                <button class="choice-button" type="button" data-unit7-pattern-context="perimeter">Rectangle perimeter</button>
+                <button class="choice-button" type="button" data-unit7-pattern-context="area">Rectangle area</button>
+              </div>
+              <div class="unit7-context-board" id="patternContextBoard"></div>
+              <p class="teacher-note" id="patternContextMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="coordinateGeometryPracticeTopic" data-topic-pane="coordinateGeometry" data-mode-pane="practice" data-units="unit7" aria-label="Coordinate Plane and Geometry Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Unit 7 Practice</p>
+              <h2>Practice coordinates, shape attributes, hierarchy reasoning, and numerical patterns.</h2>
+            </div>
+            <p>
+              These cards come from Unit 7 materials and keep coordinate grids, shape language,
+              tables, and source previews close to the work area.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="coordinateGeometry">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Coordinate Plane &amp; Geometry practice</strong>
+                <span id="coordinateGeometryPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="coordinateGeometry">Reset answers</button>
+            </div>
+            <div class="practice-list" id="coordinateGeometryPracticeList" data-practice-list="coordinateGeometry"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="mixedReviewTopic" data-topic-pane="mixedReview" data-units="unit6 unit7 unit8" aria-label="Mixed Review Teach Me flow" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Teach Me</p>
+              <h2>Build the review path for the current Focus.</h2>
+            </div>
+            <p>
+              The global Focus chooses the unit first. This page then shows the
+              Mixed Review scenes that belong to the current Focus.
+            </p>
+          </div>
+
+          <div class="topic-roadmap">
+            <article>
+              <span>Review</span>
+              <h3>Find the Topic</h3>
+              <p>Practice deciding which math idea a problem is asking for.</p>
+            </article>
+            <article>
+              <span>Fluency</span>
+              <h3>Keep Skills Warm</h3>
+              <p>Short practice sets across major Grade 4 GT / Grade 5 skills.</p>
+            </article>
+            <article>
+              <span>Challenge</span>
+              <h3>Mixed Word Problems</h3>
+              <p>Use multiple ideas in one situation, just like real assignments.</p>
+            </article>
+          </div>
+
+          <section class="scene" id="unit8-routine-design" data-units="unit8">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 8)</p>
+              <h2>A strong routine makes classmates think, not just calculate.</h2>
+              <p>
+                Unit 8 ends with students designing routines: Notice and Wonder, Estimation
+                Exploration, Number Talk, True or False, and Which One Doesn't Belong.
+              </p>
+              <div class="math-line" id="unit8RoutineEquation" aria-live="polite"></div>
+            </div>
+
+            <div class="tool-surface" aria-label="Design Unit 8 math routines">
+              <div class="control-row" aria-label="Choose a routine design type">
+                <button class="choice-button is-active" type="button" data-unit8-routine="notice">Notice &amp; Wonder</button>
+                <button class="choice-button" type="button" data-unit8-routine="estimate">Estimation</button>
+                <button class="choice-button" type="button" data-unit8-routine="numberTalk">Number Talk</button>
+                <button class="choice-button" type="button" data-unit8-routine="trueFalse">True or False</button>
+                <button class="choice-button" type="button" data-unit8-routine="wodb">Which One?</button>
+              </div>
+              <div class="unit8-board" id="unit8RoutineBoard"></div>
+              <p class="teacher-note" id="unit8RoutineMessage" aria-live="polite"></p>
+            </div>
+          </section>
+        </section>
+
+        <section class="lesson-pane" id="mixedReviewPracticeTopic" data-topic-pane="mixedReview" data-mode-pane="practice" data-units="unit4 unit5 unit6 unit7 unit8" aria-label="Mixed Review Practice" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Practice</p>
+              <h2>Practice mixed review problems for the current Focus.</h2>
+            </div>
+            <p>
+              These cards are pulled from review and assessment-style materials after
+              the topic-specific practice sets.
+            </p>
+          </div>
+
+          <div class="practice-panel tool-surface" data-practice-topic="mixedReview">
+            <div class="practice-header control-row">
+              <div>
+                <strong>Mixed Review practice</strong>
+                <span id="mixedReviewPracticeStatus" aria-live="polite"></span>
+              </div>
+              <button class="action-button" type="button" data-practice-reset="mixedReview">Reset answers</button>
+            </div>
+            <div class="practice-list" id="mixedReviewPracticeList" data-practice-list="mixedReview"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="vocabularyTopic" data-topic-pane="vocabulary" data-units="unit1 unit2 unit3 unit4 unit5 unit6 unit7 unit8" aria-label="Vocabulary quick lookup" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow">Reference</p>
+              <h2>Vocabulary is a quick lookup for math words.</h2>
+            </div>
+            <p>
+              When a term feels fuzzy, students can pause here, find the word, and connect it
+              back to the pictures and stories used in Teach Me.
+            </p>
+          </div>
+
+          <div class="vocabulary-panel tool-surface">
+            <div class="vocabulary-toolbar control-row">
+              <label class="vocabulary-search-control" for="vocabularySearchInput">
+                <span>Search</span>
+                <input id="vocabularySearchInput" type="search" inputmode="search" autocomplete="off" placeholder="Try denominator, quotient, tape diagram...">
+              </label>
+              <div class="vocabulary-filter-row" aria-label="Vocabulary filters">
+                <button class="choice-button is-active" type="button" data-vocabulary-filter="all">All</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="fractions">Fractions</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="division">Division</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="multiplication">Multiplication</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="area">Area Models</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="models">Visual Models</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="wordProblems">Word Problems</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit1">Unit 1</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit2">Unit 2</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit3">Unit 3</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit4">Unit 4</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit5">Unit 5</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit6">Unit 6</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit7">Unit 7</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="unit8">Unit 8</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="measurement">Measurement</button>
+                <button class="choice-button" type="button" data-vocabulary-filter="data">Data</button>
+              </div>
+            </div>
+            <div class="vocabulary-status" id="vocabularyStatus" aria-live="polite"></div>
+            <div class="vocabulary-list" id="vocabularyList"></div>
+          </div>
+        </section>
+
+        <section class="lesson-pane" id="practiceFallbackTopic" data-practice-fallback aria-label="Practice coming soon" hidden>
+          <div class="lesson-summary">
+            <div>
+              <p class="eyebrow" id="practiceFallbackEyebrow">Practice</p>
+              <h2 id="practiceFallbackTitle">Practice for this topic is coming next.</h2>
+            </div>
+            <p id="practiceFallbackDescription">
+              This topic already has a Teach Me path. A focused Practice set will be added here
+              using the same visual style.
+            </p>
+          </div>
+
+          <div class="topic-roadmap practice-coming-soon">
+            <article>
+              <span>Step 1</span>
+              <h3>Answer</h3>
+              <p>Students choose an answer or interact with a model.</p>
+            </article>
+            <article>
+              <span>Step 2</span>
+              <h3>Check</h3>
+              <p>The app explains why the answer matches or does not match the picture.</p>
+            </article>
+            <article>
+              <span>Step 3</span>
+              <h3>Try Again</h3>
+              <p>Hints and reset controls let students practice without getting stuck.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="source-preview-modal" id="sourcePreviewModal" role="dialog" aria-modal="true" aria-labelledby="sourcePreviewTitle" hidden>
+      <div class="source-preview-backdrop" data-source-preview-close></div>
+      <section class="source-preview-dialog">
+        <header class="source-preview-header">
+          <h2 id="sourcePreviewTitle">Source page preview</h2>
+          <div class="source-preview-actions">
+            <a id="sourcePreviewOpenLink" href="#" target="_blank" rel="noopener">Open PDF</a>
+            <button type="button" data-source-preview-close>Close</button>
+          </div>
+        </header>
+        <div class="source-preview-body">
+          <iframe class="source-preview-frame" id="sourcePreviewFrame" title="Readable source page preview"></iframe>
+          <img class="source-preview-image" id="sourcePreviewImage" alt="Source page preview fallback" hidden>
+        </div>
+      </section>
+    </div>
+
+    <script src="unit1-practice-bank.js?v=20260712-unit1-practice"></script>
+    <script src="unit2-practice-bank.js?v=20260523-practice-fixes2"></script>
+    <script src="unit3-practice-bank.js?v=20260523-practice-fixes2"></script>
+    <script src="unit4-practice-bank.js?v=20260711-unit4-practice"></script>
+    <script src="unit5-practice-bank.js?v=20260711-unit5-practice"></script>
+    <script src="unit6-practice-bank.js?v=20260523-practice-fixes2"></script>
+    <script src="unit7-practice-bank.js?v=20260710-unit7-practice"></script>
+    <script src="unit8-practice-bank.js?v=20260711-unit8-practice"></script>
+    <script src="script.js?v=20260712-unit1-practice"></script>
+  </body>
+</html>

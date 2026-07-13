@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>5th Grade GT Math Lab - Unit 1</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body data-mode="teach">
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">5th Grade GT Math Lab</p>
+          <h1 id="viewTitle">Unit 1: Area and Surface Area</h1>
+        </div>
+        <nav class="mode-tabs" aria-label="Learning mode">
+          <button class="mode-tab is-active" type="button" data-mode="teach" aria-pressed="true">Teach Me</button>
+          <button class="mode-tab" type="button" data-mode="practice" aria-pressed="false">Practice</button>
+        </nav>
+      </header>
+
+      <main class="app-layout">
+        <aside class="unit-rail" aria-label="Math units">
+          <p class="rail-title">Units</p>
+          <button class="nav-link is-active" type="button" data-view="unit1" aria-controls="unit1View">
+            <span class="nav-number">1</span>
+            <span>
+              <strong>Area and Surface Area</strong>
+              <small>Teach Me ready</small>
+            </span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit2" disabled>
+            <span class="nav-number">2</span>
+            <span><strong>Introducing Ratios</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit3" disabled>
+            <span class="nav-number">3</span>
+            <span><strong>Unit Rates and Percentages</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit4" disabled>
+            <span class="nav-number">4</span>
+            <span><strong>Dividing Fractions</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit5" disabled>
+            <span class="nav-number">5</span>
+            <span><strong>Arithmetic in Base Ten</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit6" disabled>
+            <span class="nav-number">6</span>
+            <span><strong>Expressions and Equations</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit7" disabled>
+            <span class="nav-number">7</span>
+            <span><strong>Rational Numbers</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit8" disabled>
+            <span class="nav-number">8</span>
+            <span><strong>Data Sets and Distributions</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link" type="button" data-view="unit9" disabled>
+            <span class="nav-number">9</span>
+            <span><strong>Putting It All Together</strong><small>Coming later</small></span>
+          </button>
+          <button class="nav-link vocabulary-link" type="button" data-view="vocabulary" aria-controls="vocabularyView">
+            <span class="nav-number">Aa</span>
+            <span>
+              <strong>Vocabulary</strong>
+              <small>All units</small>
+            </span>
+          </button>
+        </aside>
+
+        <section class="content-pane" id="unit1View" data-view-pane="unit1" aria-label="Unit 1 Teach Me">
+          <section class="unit-hero">
+            <div>
+              <p class="eyebrow">Grade 6 Unit 1</p>
+              <h2>Area and surface area start with moving pieces, not memorizing formulas.</h2>
+              <p>
+                Unit 1 builds from tiling and rearranging regions into parallelograms, triangles,
+                polygons, nets, polyhedra, squares, cubes, surface area, and volume.
+              </p>
+            </div>
+            <div class="hero-model" aria-hidden="true">
+              <svg viewBox="0 0 360 220" role="img">
+                <polygon points="40,146 116,72 196,72 120,146" class="shape-fill teal"></polygon>
+                <polygon points="132,146 208,72 288,72 212,146" class="shape-fill amber"></polygon>
+                <line x1="116" y1="72" x2="120" y2="146" class="model-line dashed"></line>
+                <rect x="92" y="154" width="176" height="44" class="shape-fill blue"></rect>
+                <path d="M268 154 l42 -24 v44 l-42 24z" class="shape-fill rose"></path>
+                <path d="M92 154 l42 -24 h176 l-42 24z" class="shape-fill mint"></path>
+              </svg>
+            </div>
+          </section>
+
+          <nav class="scene-nav" aria-label="Unit 1 Teach Me scenes">
+            <a href="#scene-area">1. Rearrange area</a>
+            <a href="#scene-parallelogram">2. Parallelograms</a>
+            <a href="#scene-triangle">3. Triangles</a>
+            <a href="#scene-polygon">4. Polygons</a>
+            <a href="#scene-surface">5. Surface area</a>
+            <a href="#scene-cube">6. Squares and cubes</a>
+            <a href="#scene-tent">7. Tent design</a>
+          </nav>
+
+          <article class="scene" id="scene-area">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 1 (Unit 1, Lessons 1-3)</p>
+              <h2>Equal-area pieces can be moved without changing area.</h2>
+              <p>
+                Counting pieces is only safe when the pieces are the same size. This model shows
+                how rhombuses and trapezoids can be compared using one triangle as the area unit.
+              </p>
+              <div class="math-line" id="areaEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Compare decomposed area units">
+              <div class="control-row" aria-label="Choose an area unit comparison">
+                <button class="choice-button is-active" type="button" data-area-unit="triangle">Triangle</button>
+                <button class="choice-button" type="button" data-area-unit="rhombus">Rhombus</button>
+                <button class="choice-button" type="button" data-area-unit="trapezoid">Trapezoid</button>
+                <button class="choice-button" type="button" data-area-unit="hexagon">Hexagon</button>
+              </div>
+              <div class="model-stage" id="areaModel"></div>
+              <p class="teacher-note" id="areaMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="scene" id="scene-parallelogram">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 2 (Unit 1, Lessons 4-6)</p>
+              <h2>A parallelogram becomes a rectangle with the same base and height.</h2>
+              <p>
+                The slanted side is not the height. The height is the perpendicular distance from
+                the chosen base to the opposite side.
+              </p>
+              <div class="math-line" id="parallelogramEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Build parallelogram area">
+              <div class="slider-grid">
+                <label>Base <input id="parallelogramBase" type="range" min="4" max="11" value="8"></label>
+                <label>Height <input id="parallelogramHeight" type="range" min="2" max="7" value="4"></label>
+                <label>Slant <input id="parallelogramSlant" type="range" min="1" max="5" value="3"></label>
+              </div>
+              <div class="model-stage" id="parallelogramModel"></div>
+              <p class="teacher-note" id="parallelogramMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="scene" id="scene-triangle">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 3 (Unit 1, Lessons 7-10)</p>
+              <h2>Two matching triangles make one parallelogram.</h2>
+              <p>
+                A triangle with base <em>b</em> and height <em>h</em> has half the area of the
+                related parallelogram.
+              </p>
+              <div class="math-line" id="triangleEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Relate triangles and parallelograms">
+              <div class="control-row" aria-label="Choose triangle view">
+                <button class="choice-button is-active" type="button" data-triangle-mode="pair">Pair triangles</button>
+                <button class="choice-button" type="button" data-triangle-mode="height">Show height</button>
+                <button class="choice-button" type="button" data-triangle-mode="formula">Formula</button>
+              </div>
+              <div class="model-stage" id="triangleModel"></div>
+              <p class="teacher-note" id="triangleMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="scene" id="scene-polygon">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 4 (Unit 1, Lesson 11)</p>
+              <h2>Polygons can be split into shapes whose areas we already know.</h2>
+              <p>
+                A good decomposition keeps the pieces visible and makes the calculation match the
+                visual structure.
+              </p>
+              <div class="math-line" id="polygonEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Decompose a polygon">
+              <div class="control-row" aria-label="Choose polygon strategy">
+                <button class="choice-button is-active" type="button" data-polygon-strategy="rectangles">Rectangles</button>
+                <button class="choice-button" type="button" data-polygon-strategy="triangles">Triangles</button>
+                <button class="choice-button" type="button" data-polygon-strategy="compose">Compose around it</button>
+              </div>
+              <div class="model-stage" id="polygonModel"></div>
+              <p class="teacher-note" id="polygonMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="scene" id="scene-surface">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 5 (Unit 1, Lessons 12-15)</p>
+              <h2>Surface area is the sum of every face area.</h2>
+              <p>
+                A net keeps each face visible. Opposite faces match, but they still count as
+                separate faces on the solid.
+              </p>
+              <div class="math-line" id="surfaceEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Build a rectangular prism net">
+              <div class="number-grid">
+                <label>Length <input id="prismLength" type="number" min="2" max="9" value="5"></label>
+                <label>Width <input id="prismWidth" type="number" min="2" max="7" value="3"></label>
+                <label>Height <input id="prismHeight" type="number" min="2" max="7" value="2"></label>
+              </div>
+              <div class="model-stage" id="surfaceModel"></div>
+              <p class="teacher-note" id="surfaceMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="scene" id="scene-cube">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 6 (Unit 1, Lessons 16-18)</p>
+              <h2>Squared, cubed, surface area, and volume measure different things.</h2>
+              <p>
+                An edge length can create a square face, a cube volume, or six square faces. The
+                exponent tells what kind of measure is being built.
+              </p>
+              <div class="math-line" id="cubeEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Compare square, cube, and surface area">
+              <div class="slider-grid one">
+                <label>Edge length <input id="cubeEdge" type="range" min="2" max="8" value="3"></label>
+              </div>
+              <div class="model-stage" id="cubeModel"></div>
+              <p class="teacher-note" id="cubeMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <article class="scene" id="scene-tent">
+            <div class="scene-copy">
+              <p class="eyebrow">Idea 7 (Unit 1, Lesson 19)</p>
+              <h2>A design problem needs the faces that use material.</h2>
+              <p>
+                The tent task asks students to decide which panels matter, estimate, and explain
+                what measurements are needed.
+              </p>
+              <div class="math-line" id="tentEquation" aria-live="polite"></div>
+            </div>
+            <div class="tool-surface" aria-label="Compare tent panels">
+              <div class="control-row" aria-label="Choose tent panel focus">
+                <button class="choice-button is-active" type="button" data-tent-focus="roof">Roof panels</button>
+                <button class="choice-button" type="button" data-tent-focus="ends">Triangular ends</button>
+                <button class="choice-button" type="button" data-tent-focus="floor">Optional floor</button>
+              </div>
+              <div class="model-stage" id="tentModel"></div>
+              <p class="teacher-note" id="tentMessage" aria-live="polite"></p>
+            </div>
+          </article>
+
+          <section class="practice-pane" id="unit1Practice" aria-label="Unit 1 Practice">
+            <section class="practice-header">
+              <div>
+                <p class="eyebrow">Unit 1 Practice</p>
+                <h2>Source-aligned practice cards for area and surface area.</h2>
+                <p>
+                  Each card keeps its source file and opens rendered source pages in the app. Submit when you are ready;
+                  multi-select cards only grade after Submit.
+                </p>
+              </div>
+              <div class="practice-stats" aria-label="Practice progress">
+                <span><strong id="practiceAnsweredCount">0</strong> tried</span>
+                <span><strong id="practiceCorrectCount">0</strong> correct</span>
+                <span><strong id="practiceTotalCount">26</strong> total</span>
+              </div>
+            </section>
+            <div class="practice-filter" id="practiceFilter" aria-label="Practice section filter"></div>
+            <div class="practice-list" id="practiceList" aria-live="polite"></div>
+            <div id="sourceModalHost"></div>
+          </section>
+        </section>
+
+        <section class="content-pane" id="vocabularyView" data-view-pane="vocabulary" hidden aria-label="Vocabulary">
+          <section class="vocabulary-header">
+            <div>
+              <p class="eyebrow">Vocabulary</p>
+              <h2>Unit language, kept in one central place.</h2>
+            </div>
+            <label class="search-box">
+              Search
+              <input id="vocabularySearch" type="search" placeholder="base, net, surface area">
+            </label>
+          </section>
+          <div class="vocabulary-list" id="vocabularyList" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="unit1-practice-bank.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

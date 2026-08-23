@@ -1743,6 +1743,7 @@ body[data-mode="teach"] #unit1Practice {
 }
 
 .rectangular-prism-net-palette,
+.rectangular-prism-net-attach-controls,
 .rectangular-prism-net-status,
 .cube-net-builder-actions {
   display: flex;
@@ -1751,10 +1752,60 @@ body[data-mode="teach"] #unit1Practice {
   gap: 8px;
 }
 
+.rectangular-prism-net-source {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+}
+
+.rectangular-prism-net-source figcaption {
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 780;
+}
+
+.rectangular-prism-net-source img {
+  display: block;
+  width: auto;
+  max-width: min(100%, 700px);
+  height: auto;
+  margin: auto;
+}
+
+.rectangular-prism-net-tools {
+  display: grid;
+  gap: 8px;
+}
+
+.rectangular-prism-net-tools > p,
+.rectangular-prism-net-tool-status {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 740;
+  line-height: 1.4;
+}
+
+.rectangular-prism-net-tool-status {
+  color: var(--muted);
+}
+
+.rectangular-prism-net-attach-controls > span {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 780;
+}
+
 .rectangular-prism-net-workspace > svg {
   display: block;
   width: 100%;
-  max-width: 700px;
+  max-width: 840px;
   height: auto;
   margin: auto;
 }
@@ -1764,31 +1815,30 @@ body[data-mode="teach"] #unit1Practice {
   stroke: var(--line);
 }
 
-.rectangular-prism-net-slot {
+.rectangular-prism-net-face {
   cursor: pointer;
 }
 
-.rectangular-prism-net-slot rect {
-  fill: rgba(255, 255, 255, 0.9);
-  stroke: var(--line-strong);
-  stroke-width: 2;
-  stroke-dasharray: 7 5;
-}
-
-.rectangular-prism-net-slot.is-assigned rect {
+.rectangular-prism-net-face rect {
   fill: rgba(77, 181, 172, 0.46);
   stroke: var(--ink);
-  stroke-dasharray: none;
+  stroke-width: 2;
 }
 
-.rectangular-prism-net-slot:focus rect {
+.rectangular-prism-net-face.is-selected rect {
+  fill: rgba(66, 153, 225, 0.42);
   stroke: var(--blue);
   stroke-width: 4;
 }
 
-.rectangular-prism-net-slot text {
+.rectangular-prism-net-face:focus rect {
+  stroke: var(--blue);
+  stroke-width: 4;
+}
+
+.rectangular-prism-net-face text {
   fill: var(--ink);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 820;
   pointer-events: none;
 }

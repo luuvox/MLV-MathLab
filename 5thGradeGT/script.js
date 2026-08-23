@@ -1555,6 +1555,9 @@ const unit1TeachCards = [
         answerKey: ["square"],
         visualType: "cubeMetricReference",
         edgeLabel: "5 in",
+        netStateId: "cube5",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 5-inch cube before identifying its face shape.",
         hint: "All edges of a cube have the same length, including both dimensions of each face.",
         correctFeedback: "Correct. Every face of a cube is an identical square.",
         incorrectFeedback: "A cube's faces each have four equal sides and four right angles.",
@@ -1569,6 +1572,9 @@ const unit1TeachCards = [
         answerKey: ["25"],
         visualType: "cubeMetricReference",
         edgeLabel: "5 in",
+        netStateId: "cube5",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 5-inch cube before finding one face's area.",
         hint: "Each face is a square with side length 5 inches.",
         correctFeedback: "Correct. Each face has area 5 × 5 = 25 square inches.",
         incorrectFeedback: "Find the area of one 5-inch by 5-inch square face.",
@@ -1583,6 +1589,9 @@ const unit1TeachCards = [
         answerKey: ["150"],
         visualType: "cubeMetricReference",
         edgeLabel: "5 in",
+        netStateId: "cube5",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 5-inch cube before finding its surface area.",
         hint: "A cube has six identical square faces.",
         correctFeedback: "Correct. Six faces of 25 square inches each give 6 × 25 = 150 square inches.",
         incorrectFeedback: "Multiply the area of one face by the cube's six faces.",
@@ -1597,6 +1606,9 @@ const unit1TeachCards = [
         answerKey: ["125"],
         visualType: "cubeMetricReference",
         edgeLabel: "5 in",
+        netStateId: "cube5",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 5-inch cube before finding its volume.",
         hint: "Multiply the cube's three equal edge lengths.",
         correctFeedback: "Correct. 5 × 5 × 5 = 125 cubic inches.",
         incorrectFeedback: "Volume uses all three 5-inch dimensions of the cube.",
@@ -1628,6 +1640,9 @@ const unit1TeachCards = [
         answerConcepts: [["17", "17", "square"], ["17^2", "square"], ["17²", "square"]],
         visualType: "cubeMetricReference",
         edgeLabel: "17 units",
+        netStateId: "cube17",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 17-unit cube before explaining one face's area.",
         hint: "Describe the shape of a face and its two side lengths.",
         correctFeedback: "Correct. Each face is a square with side lengths 17 and 17, so its area is 17 × 17 = 17^2 square units.",
         incorrectFeedback: "Connect the square face's two 17-unit side lengths to multiplication and second-power notation.",
@@ -1642,6 +1657,9 @@ const unit1TeachCards = [
         ],
         visualType: "cubeMetricReference",
         edgeLabel: "17 units",
+        netStateId: "cube17",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 17-unit cube before writing its surface-area expression.",
         hint: "Find one square face's area, then account for all six identical faces.",
         correctFeedback: "Correct. The surface-area expression is 6 × 17^2 square units: six faces, each with area 17^2.",
         incorrectFeedback: "Write six times the second power of 17, and use square units.",
@@ -1656,6 +1674,9 @@ const unit1TeachCards = [
         ],
         visualType: "cubeMetricReference",
         edgeLabel: "17 units",
+        netStateId: "cube17",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw and label a valid net for the 17-unit cube before writing its volume expression.",
         hint: "Volume uses the cube's three equal edge lengths.",
         correctFeedback: "Correct. The volume expression is 17^3 cubic units because all three dimensions are 17 units.",
         incorrectFeedback: "Use three factors of 17, third-power notation, and cubic units.",
@@ -1673,12 +1694,36 @@ const unit1TeachCards = [
     pdfPages: [1, 2, 3, 4],
     cropPath: null,
     visualAlt: "Interactive tent designer with a sleeping-bag floor plan, tent model, and fabric-panel organizer.",
-    sourceContext: "Design a tent for up to four people. Include a floor, use the source sleeping-bag and height specifications, and justify the amount of fabric needed.",
-    sourceDirections: "Standard sleeping bags measure 74 by 34 inches. Choose a capacity, sleeping-bag arrangement, tent height, and tent style; then adjust the floor so every bag fits.",
+    sourceContext: "Tents can take many shapes and sizes. Use the source examples and specifications as evidence for your design choices.",
+    sourceDirections: "Study the source tent styles and specifications, then design a tent for up to four campers. Standard sleeping bags measure 74 by 34 inches, and every design must include a floor and a justified fabric estimate.",
     blacklineMasters: unit1BlacklineMasters.tentPlanning,
     customVisual: "questionSetVisual",
     responseType: "questionSet",
     questions: [
+      {
+        id: "source-discussion",
+        label: "Explore the source tents",
+        prompt: "Study the five source tent styles. Record a similarity or difference, information that will matter in your design, and one pro and one con of a design.",
+        responseType: "openResponse",
+        inputLabel: "Your source observations",
+        placeholder: "Address all three discussion points",
+        minLength: 30,
+        answerConceptRequirements: [
+          [["same"], ["similar"], ["different"], ["shape"], ["roof"], ["wall"]],
+          [["people"], ["sleeping"], ["height"], ["dimension"], ["fabric"], ["floor"], ["size"]],
+          [["pro"], ["advantage"], ["more", "space"], ["easier"]],
+          [["con"], ["disadvantage"], ["more", "fabric"], ["less", "space"], ["harder"]],
+        ],
+        visualCropPath: "lesson-19-p001-tent-styles.png",
+        visualWidth: 1300,
+        visualHeight: 620,
+        visualDisplayMaxWidth: 900,
+        visualDirections: "Compare the source tent styles before choosing your own design.",
+        preserveWhenTentChanges: true,
+        hint: "Notice roof and wall shapes, usable space, likely fabric needs, and how easily campers could move inside.",
+        correctFeedback: "Your observations address how the tents compare, what information matters, and both sides of a design tradeoff.",
+        incorrectFeedback: "Address all three source discussion points: a similarity or difference, important design information, and a pro and con.",
+      },
       {
         id: "build-plan",
         label: "1. Build a tent plan",
@@ -1705,6 +1750,7 @@ const unit1TeachCards = [
           ["height", "fabric"],
           ["floor", "fabric"],
         ],
+        answerConceptsRequired: 2,
         visualType: "tentDesigner",
         requiredConstruction: "savedTentPlan",
         requiredStateFeedback: "Build a valid tent plan in Question 1 before explaining its design decisions.",
@@ -1810,7 +1856,7 @@ const teachCardEnhancements = {
   },
   "teach-l19": {
     activityTitle: "19.1: Tent Design - Part 1",
-    sourceDirections: "Standard sleeping bags measure 74 by 34 inches. Choose a capacity, sleeping-bag arrangement, tent height, and tent style; then adjust the floor so every bag fits.",
+    sourceDirections: "Study the source tent styles and specifications, then design a tent for up to four campers. Standard sleeping bags measure 74 by 34 inches, and every design must include a floor and a justified fabric estimate.",
   },
 };
 
@@ -3431,19 +3477,15 @@ const unit1TeachAdditionalCards = [
       {
         id: "build-net",
         label: "2-3. Build and label the net",
-        prompt: "Assign a dimension label to every face in the graph-paper net. Then record how many faces of each size the net contains.",
-        fields: [
-          { id: "thirteenFive", label: "13 by 5 faces", responseType: "number", placeholder: "Type the number of faces" },
-          { id: "thirteenFour", label: "13 by 4 faces", responseType: "number", placeholder: "Type the number of faces" },
-          { id: "fiveFour", label: "5 by 4 faces", responseType: "number", placeholder: "Type the number of faces" },
-        ],
-        acceptedFieldSets: [{ thirteenFive: ["2"], thirteenFour: ["2"], fiveFour: ["2"] }],
+        prompt: "Build a net for assigned Polyhedron C on the blank graph paper. Use all six faces, with dimensions that match along every shared edge.",
+        responseType: "construction",
+        dynamicAnswer: "rectangularPrismNet",
+        constructionNote: "Choose a face-size tool, place the first face, then select a placed face and attach another face along a complete matching edge.",
+        missingResponseFeedback: "Use the construction controls to place the first face on the blank graph paper.",
         visualType: "rectangularPrismNet",
-        requiredCustomState: { prismNetAssignments: "center:13x5|north:13x4|south:13x4|far-south:13x5|west:5x4|east:5x4" },
-        requiredStateFeedback: "Label all six net faces with dimensions that match along every shared edge.",
-        hint: "Opposite faces are congruent. The prism needs two 13 by 5 rectangles, two 13 by 4 rectangles, and two 5 by 4 rectangles.",
-        correctFeedback: "Correct. The labeled graph-paper arrangement is a valid net with two faces of each size: 13 by 5, 13 by 4, and 5 by 4.",
-        incorrectFeedback: "Check the face inventory and every shared edge. Opposite faces come in congruent pairs, and attached faces must share equal-length sides.",
+        hint: "Study the three edge lengths on Polyhedron C. Opposite faces are congruent, and faces can attach only along sides with equal lengths.",
+        correctFeedback: "Correct. Your graph-paper construction has the six source-sized faces, joins them along matching complete edges, and folds into Polyhedron C without overlap.",
+        incorrectFeedback: "Revise the actual graph-paper construction. Check the face sizes, matching shared edges, overlap, and whether all six faces fold to different sides of the prism.",
       },
       {
         id: "surface-area",
@@ -3453,8 +3495,8 @@ const unit1TeachAdditionalCards = [
         answerKey: ["274"],
         placeholder: "Type square units",
         visualType: "rectangularPrismNet",
-        requiredCustomState: { prismNetAssignments: "center:13x5|north:13x4|south:13x4|far-south:13x5|west:5x4|east:5x4" },
-        requiredStateFeedback: "Complete the labeled net before submitting its surface area.",
+        requiredConstruction: "validRectangularPrismNet",
+        requiredStateFeedback: "Complete and submit a valid net before using it to calculate surface area.",
         reasoningPrompt: "Show an organized calculation using the six labeled faces in your net.",
         reasoningConcepts: [["13", "5", "4"], ["65", "52", "20"], ["two", "pair", "274"]],
         hint: "Add the areas of the three pairs of congruent rectangles.",
@@ -4025,6 +4067,7 @@ const unit1TeachAdditionalCards = [
         ],
         answerKey: ["ten-cubed"],
         reasoningPrompt: "Explain how the factors show which expression is greater.",
+        reasoningConcepts: [["10", "factor", "cub"], ["10", "10", "3"]],
         visualType: "expressionComparison",
         hint: "An exponent of 3 means three factors of 10; it does not mean multiply 10 by 3.",
         correctFeedback: "Correct. 10^3 has three factors of 10, while 10 × 3 has only three groups of 10, so 10^3 is greater.",
@@ -4041,6 +4084,7 @@ const unit1TeachAdditionalCards = [
         ],
         answerKey: ["thirteen-squared"],
         reasoningPrompt: "Explain how comparing equal-factor products shows which is greater.",
+        reasoningConcepts: [["13", "12", "factor"], ["13", "13", "12"]],
         visualType: "expressionComparison",
         hint: "Rewrite 13^2 as 13 × 13, then compare each factor with 12.",
         correctFeedback: "Correct. 13^2 is 13 × 13. Both factors are greater than the corresponding factors in 12 × 12, so 13^2 is greater.",
@@ -4057,6 +4101,7 @@ const unit1TeachAdditionalCards = [
         ],
         answerKey: ["six-groups"],
         reasoningPrompt: "Explain how the number of equal groups shows which expression is greater.",
+        reasoningConcepts: [["six", "five", "97"], ["6", "5", "97"]],
         visualType: "expressionComparison",
         hint: "The repeated sum has six equal groups of 97. Compare that with five equal groups.",
         correctFeedback: "Correct. The repeated sum is 6 × 97, which is one more group of 97 than 5 × 97.",
@@ -4121,6 +4166,9 @@ const unit1TeachAdditionalCards = [
         ],
         visualType: "cubeMetricReference",
         edgeLabel: "s units",
+        netStateId: "symbolic-cube",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw a valid six-square net before writing the general surface-area expression.",
         hint: "A cube has six identical square faces, each with area s^2.",
         correctFeedback: "Correct. The surface area is 6 × s^2 square units because the cube has six faces of area s^2.",
         incorrectFeedback: "Multiply one face's area, s^2, by the six faces and use square units.",
@@ -4135,6 +4183,9 @@ const unit1TeachAdditionalCards = [
         ],
         visualType: "cubeMetricReference",
         edgeLabel: "s units",
+        netStateId: "symbolic-cube",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw a valid six-square net before writing the general volume expression.",
         hint: "Volume uses the cube's three equal edge lengths.",
         correctFeedback: "Correct. The volume is s^3 cubic units because s × s × s uses all three dimensions.",
         incorrectFeedback: "Use three factors of s, third-power notation, and cubic units.",
@@ -4172,6 +4223,10 @@ const unit1TeachAdditionalCards = [
           ["sleeping", "fabric"],
           ["height", "fabric"],
         ],
+        answerConceptRequirements: [
+          [["sleeping", "floor"], ["people", "floor"], ["capacity", "floor"], ["height", "design"], ["shape", "design"]],
+          [["floor", "area"], ["panel", "area"], ["surface", "area"], ["roof", "wall"], ["fabric", "area"]],
+        ],
         visualType: "tentComparison",
         requiredConstruction: "savedTentPlan",
         requiredStateFeedback: "Complete a valid design and fabric estimate in 19.1 before starting the comparison.",
@@ -4194,6 +4249,10 @@ const unit1TeachAdditionalCards = [
         requiredConstruction: "savedTentPlan",
         reasoningPrompt: "Why does that tent use the least fabric?",
         reasoningConcepts: [["fabric"], ["square", "feet"], ["surface", "area"]],
+        reasoningConceptRequirements: [
+          [["least"], ["smallest"], ["less"], ["lower"]],
+          [["square", "feet"], ["surface", "area"], ["fabric", "area"], ["fabric", "total"]],
+        ],
         hint: "Compare the three square-foot estimates, including the floor in each design.",
         correctFeedback: "Correct. You identified a design with the smallest total panel area.",
         incorrectFeedback: "Compare all three fabric estimates and choose the smallest total.",
@@ -4213,6 +4272,10 @@ const unit1TeachAdditionalCards = [
         requiredConstruction: "savedTentPlan",
         reasoningPrompt: "Why does that tent use the most fabric?",
         reasoningConcepts: [["fabric"], ["square", "feet"], ["surface", "area"]],
+        reasoningConceptRequirements: [
+          [["most"], ["largest"], ["more"], ["higher"]],
+          [["square", "feet"], ["surface", "area"], ["fabric", "area"], ["fabric", "total"]],
+        ],
         hint: "Compare all three totals rather than only one dimension.",
         correctFeedback: "Correct. You identified a design with the largest total panel area.",
         incorrectFeedback: "Compare all three fabric estimates and choose the largest total.",
@@ -4231,6 +4294,12 @@ const unit1TeachAdditionalCards = [
         requiredConstruction: "savedTentPlan",
         reasoningPrompt: "Use the changes in square feet to explain your choice.",
         reasoningConcepts: [["square", "feet"], ["fabric"], ["difference"], ["change"]],
+        reasoningConceptRequirements: [
+          [["difference"], ["change"]],
+          [["larger"], ["greater"], ["more"]],
+          [["square", "feet"], ["square", "foot"], ["surface", "area"], ["fabric", "area"]],
+        ],
+        reasoningRequiresNumber: true,
         hint: "Find how far each comparison estimate is from your tent's estimate, then compare the two differences.",
         correctFeedback: "Correct. You compared the size of each change in fabric area, not just the new totals.",
         incorrectFeedback: "Compare each alternative with your tent and choose the larger absolute change in square feet.",
@@ -4463,7 +4532,9 @@ function tentFabricDetails(plan) {
   const { floorLength: length, floorWidth: width, height, style } = plan;
   const floor = length * width;
   if (style === "a-frame") {
-    const slant = Math.sqrt((width / 2) ** 2 + height ** 2);
+    // This is an estimate task. Use the same tenth-foot slant shown to the student
+    // so every displayed multiplication reproduces the graded total.
+    const slant = roundTentMeasure(Math.sqrt((width / 2) ** 2 + height ** 2));
     const roofPair = 2 * length * slant;
     const endPair = width * height;
     return {
@@ -4574,6 +4645,7 @@ function invalidateTentPlanSubmissions() {
   for (const cardId of ["teach-l19", "teach-l19-2"]) {
     const card = unit1TeachCards.find((entry) => entry.id === cardId);
     (card?.questions || []).forEach((question) => {
+      if (question.preserveWhenTentChanges) return;
       state.teachQuestionSubmitted[teachQuestionStateKey(cardId, question.id)] = false;
     });
   }
@@ -7653,10 +7725,6 @@ function renderTentDesigner(card) {
   const controlsReady = Number.isInteger(plan.capacity) && Boolean(plan.arrangement);
   return `
     <section class="tent-designer" aria-label="Interactive tent designer">
-      <figure class="tent-source-inspiration">
-        <figcaption>Source tent styles for inspiration</figcaption>
-        <img src="${encodeURI("artifacts/unit 1/_teachme-crops/lesson-19-p001-tent-styles.png")}" width="1300" height="620" alt="Five tent styles shown in the source material." loading="lazy">
-      </figure>
       <div class="tent-designer-controls">
         ${renderTentChoiceGroup(card, "tentCapacity", "Capacity", "capacity")}
         ${renderTentChoiceGroup(card, "tentArrangement", "Sleeping-bag arrangement", "arrangement")}
@@ -8775,77 +8843,245 @@ function renderSurfaceNetFoldVisual(card, question) {
   `;
 }
 
-const rectangularPrismNetSlotOrder = ["center", "north", "south", "far-south", "west", "east"];
 const rectangularPrismNetFaceTypes = ["13x5", "13x4", "5x4"];
+const rectangularPrismNetBoard = { width: 42, height: 34, unit: 20 };
 
-function rectangularPrismNetAssignments(card) {
-  const assignments = {};
-  String(getTeachCustomResponse(card).prismNetAssignments || "").split("|").forEach((entry) => {
-    const [slot, faceType] = entry.split(":");
-    if (rectangularPrismNetSlotOrder.includes(slot) && rectangularPrismNetFaceTypes.includes(faceType)) {
-      assignments[slot] = faceType;
-    }
-  });
-  return assignments;
+function rectangularPrismNetFaceDimensions(type, rotated = false) {
+  if (!rectangularPrismNetFaceTypes.includes(type)) return null;
+  const [first, second] = type.split("x").map(Number);
+  return rotated ? { width: second, height: first } : { width: first, height: second };
 }
 
-function rectangularPrismNetSignature(assignments) {
-  return rectangularPrismNetSlotOrder
-    .filter((slot) => rectangularPrismNetFaceTypes.includes(assignments[slot]))
-    .map((slot) => `${slot}:${assignments[slot]}`)
+function rectangularPrismNetFaces(card) {
+  const seen = new Set();
+  return String(getTeachCustomResponse(card).prismNetFaces || "").split("|").map((entry) => {
+    const match = /^(\d{1,2}),(13x5|13x4|5x4),(\d{1,2}),(\d{1,2}),([01])$/.exec(entry);
+    if (!match) return null;
+    const id = Number(match[1]);
+    const type = match[2];
+    const x = Number(match[3]);
+    const y = Number(match[4]);
+    const rotated = match[5] === "1";
+    const dimensions = rectangularPrismNetFaceDimensions(type, rotated);
+    if (!dimensions || seen.has(id) || id < 1 || x < 0 || y < 0
+      || x + dimensions.width > rectangularPrismNetBoard.width
+      || y + dimensions.height > rectangularPrismNetBoard.height) return null;
+    seen.add(id);
+    return { id, type, x, y, rotated, ...dimensions };
+  }).filter(Boolean).slice(0, 6);
+}
+
+function rectangularPrismNetFacesSignature(faces) {
+  return [...faces].sort((a, b) => a.id - b.id)
+    .map((face) => `${face.id},${face.type},${face.x},${face.y},${face.rotated ? 1 : 0}`)
     .join("|");
 }
 
-function renderRectangularPrismNetVisual(card) {
-  const assignments = rectangularPrismNetAssignments(card);
-  const selectedType = rectangularPrismNetFaceTypes.includes(getTeachCustomResponse(card).prismNetFaceType)
-    ? getTeachCustomResponse(card).prismNetFaceType
+function rectangularPrismNetTool(card) {
+  const response = getTeachCustomResponse(card);
+  const type = rectangularPrismNetFaceTypes.includes(response.prismNetFaceType)
+    ? response.prismNetFaceType
     : rectangularPrismNetFaceTypes[0];
-  const slots = [
-    { id: "center", x: 220, y: 190, width: 260, height: 100 },
-    { id: "north", x: 220, y: 110, width: 260, height: 80 },
-    { id: "south", x: 220, y: 290, width: 260, height: 80 },
-    { id: "far-south", x: 220, y: 370, width: 260, height: 100 },
-    { id: "west", x: 140, y: 190, width: 80, height: 100 },
-    { id: "east", x: 480, y: 190, width: 80, height: 100 },
-  ];
-  const assignedCount = rectangularPrismNetSlotOrder.filter((slot) => assignments[slot]).length;
+  const rotated = response.prismNetFaceRotated === "true";
+  return { type, rotated, ...rectangularPrismNetFaceDimensions(type, rotated) };
+}
+
+function rectangularPrismNetSelectedFaceId(card, faces = rectangularPrismNetFaces(card)) {
+  const selectedId = Number(getTeachCustomResponse(card).prismNetSelectedFaceId);
+  return faces.some((face) => face.id === selectedId) ? selectedId : faces.at(-1)?.id || 0;
+}
+
+function rectangularPrismNetFacesOverlap(first, second) {
+  return first.x < second.x + second.width
+    && first.x + first.width > second.x
+    && first.y < second.y + second.height
+    && first.y + first.height > second.y;
+}
+
+function rectangularPrismNetNeighborDirection(first, second) {
+  if (first.x + first.width === second.x && first.y === second.y && first.height === second.height) return [1, 0];
+  if (second.x + second.width === first.x && first.y === second.y && first.height === second.height) return [-1, 0];
+  if (first.y + first.height === second.y && first.x === second.x && first.width === second.width) return [0, 1];
+  if (second.y + second.height === first.y && first.x === second.x && first.width === second.width) return [0, -1];
+  return null;
+}
+
+function rectangularPrismNetAxisKey(vector) {
+  return vector.findIndex((value) => Math.abs(value) === 1);
+}
+
+function rectangularPrismNetAnalysis(card) {
+  const faces = rectangularPrismNetFaces(card);
+  const inventory = Object.fromEntries(rectangularPrismNetFaceTypes.map((type) => [type, 0]));
+  faces.forEach((face) => { inventory[face.type] += 1; });
+  let overlap = false;
+  const neighbors = new Map(faces.map((face) => [face.id, []]));
+  for (let firstIndex = 0; firstIndex < faces.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < faces.length; secondIndex += 1) {
+      const first = faces[firstIndex];
+      const second = faces[secondIndex];
+      if (rectangularPrismNetFacesOverlap(first, second)) overlap = true;
+      const direction = rectangularPrismNetNeighborDirection(first, second);
+      if (!direction) continue;
+      neighbors.get(first.id).push({ id: second.id, dx: direction[0], dy: direction[1] });
+      neighbors.get(second.id).push({ id: first.id, dx: -direction[0], dy: -direction[1] });
+    }
+  }
+
+  const orientations = new Map();
+  let orientationConsistent = true;
+  if (faces.length) {
+    orientations.set(faces[0].id, { n: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0] });
+    const queue = [faces[0].id];
+    while (queue.length) {
+      const faceId = queue.shift();
+      const orientation = orientations.get(faceId);
+      for (const neighbor of neighbors.get(faceId) || []) {
+        const expected = cubeNetFoldOrientation(orientation, neighbor.dx, neighbor.dy);
+        const existing = orientations.get(neighbor.id);
+        if (existing) {
+          if (!cubeNetVectorEquals(existing.n, expected.n)
+            || !cubeNetVectorEquals(existing.u, expected.u)
+            || !cubeNetVectorEquals(existing.v, expected.v)) orientationConsistent = false;
+        } else {
+          orientations.set(neighbor.id, expected);
+          queue.push(neighbor.id);
+        }
+      }
+    }
+  }
+
+  const axisLengths = new Map();
+  let dimensionsConsistent = true;
+  faces.forEach((face) => {
+    const orientation = orientations.get(face.id);
+    if (!orientation) return;
+    for (const [axis, length] of [[rectangularPrismNetAxisKey(orientation.u), face.width], [rectangularPrismNetAxisKey(orientation.v), face.height]]) {
+      if (axis < 0) dimensionsConsistent = false;
+      else if (axisLengths.has(axis) && axisLengths.get(axis) !== length) dimensionsConsistent = false;
+      else axisLengths.set(axis, length);
+    }
+  });
+  const uniqueNormals = new Set([...orientations.values()].map(({ n }) => n.join(","))).size;
+  const dimensions = [...axisLengths.values()].sort((a, b) => a - b);
+  const inventoryCorrect = rectangularPrismNetFaceTypes.every((type) => inventory[type] === 2);
+  const connected = faces.length > 0 && orientations.size === faces.length;
+  const topologyValid = faces.length === 6 && connected && orientationConsistent && uniqueNormals === 6;
+  const sourceDimensionsValid = dimensionsConsistent && dimensions.join(",") === "4,5,13";
+  return {
+    faces,
+    inventory,
+    overlap,
+    connected,
+    inventoryCorrect,
+    topologyValid,
+    sourceDimensionsValid,
+    valid: faces.length === 6 && !overlap && inventoryCorrect && topologyValid && sourceDimensionsValid,
+  };
+}
+
+function rectangularPrismNetFeedbackText(card) {
+  const analysis = rectangularPrismNetAnalysis(card);
+  if (!analysis.faces.length) return "Begin with one source-sized rectangular face on the blank graph paper.";
+  if (analysis.faces.length < 6) return `Your net has ${analysis.faces.length} of 6 faces. Continue from the selected face and join each new face along one complete matching edge.`;
+  if (analysis.overlap) return "At least two faces overlap. Remove a face and rebuild so the polygons meet only along complete edges.";
+  if (!analysis.inventoryCorrect) return "The face inventory needs revision. Study the 13, 5, and 4 unit edges on Polyhedron C and account for every opposite face.";
+  if (!analysis.connected) return "All six faces must belong to one connected net. Join every face along a complete edge.";
+  if (!analysis.sourceDimensionsValid) return "A shared edge has incompatible source dimensions. Rotate or replace a face so every joined edge has one matching length.";
+  if (!analysis.topologyValid) return "The six faces are connected, but this arrangement would fold two faces onto the same side. Revise the net topology.";
+  return "Valid net. The six source-sized faces connect without overlap and fold onto six different sides of Polyhedron C.";
+}
+
+function rectangularPrismNetPlacement(parent, tool, direction) {
+  if (!parent || !tool) return null;
+  if ((direction === "north" || direction === "south") && tool.width !== parent.width) return null;
+  if ((direction === "east" || direction === "west") && tool.height !== parent.height) return null;
+  if (direction === "north") return { x: parent.x, y: parent.y - tool.height };
+  if (direction === "south") return { x: parent.x, y: parent.y + parent.height };
+  if (direction === "east") return { x: parent.x + parent.width, y: parent.y };
+  if (direction === "west") return { x: parent.x - tool.width, y: parent.y };
+  return null;
+}
+
+function rectangularPrismNetPlacementFits(faces, candidate) {
+  return candidate.x >= 0 && candidate.y >= 0
+    && candidate.x + candidate.width <= rectangularPrismNetBoard.width
+    && candidate.y + candidate.height <= rectangularPrismNetBoard.height
+    && !faces.some((face) => rectangularPrismNetFacesOverlap(face, candidate));
+}
+
+function storeRectangularPrismNet(card, faces, changes = {}) {
+  state.teachCustomResponses[card.id] = {
+    ...getTeachCustomResponse(card),
+    ...changes,
+    prismNetFaces: rectangularPrismNetFacesSignature(faces),
+  };
+  for (const questionId of ["build-net", "surface-area"]) {
+    state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+  }
+}
+
+function renderRectangularPrismNetVisual(card) {
+  const analysis = rectangularPrismNetAnalysis(card);
+  const faces = analysis.faces;
+  const tool = rectangularPrismNetTool(card);
+  const selectedFaceId = rectangularPrismNetSelectedFaceId(card, faces);
+  const selectedFace = faces.find((face) => face.id === selectedFaceId);
+  const unit = rectangularPrismNetBoard.unit;
+  const message = String(getTeachCustomResponse(card).prismNetMessage || rectangularPrismNetFeedbackText(card));
   return `
     <section class="rectangular-prism-net-workspace" aria-label="Build and label a net for assigned Polyhedron C">
-      <p>Choose a face size, then select a blank graph-paper face to label it. Every shared edge must have the same length on both attached faces.</p>
-      <div class="rectangular-prism-net-palette" role="group" aria-label="Face dimension labels">
-        ${rectangularPrismNetFaceTypes.map((faceType) => {
-          const label = faceType.replace("x", " by ");
-          return `<button class="option-button ${selectedType === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${selectedType === faceType}">${label}</button>`;
-        }).join("")}
+      <figure class="rectangular-prism-net-source">
+        <figcaption>Assigned Polyhedron C: rectangular prism with edge lengths 13, 5, and 4 units.</figcaption>
+        ${teachCropImage("lesson-15-p001-polyhedron-drawings-blackline.png", 700, 188, "Assigned source Polyhedron C with dimensions 13, 5, and 4 units.")}
+      </figure>
+      <div class="rectangular-prism-net-tools">
+        <p>Choose a face size and orientation. Start on the blank graph paper, then select a placed face and attach the next face along a complete matching edge.</p>
+        <div class="rectangular-prism-net-palette" role="group" aria-label="Face-size drawing tools">
+          ${rectangularPrismNetFaceTypes.map((faceType) => `<button class="option-button ${tool.type === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${tool.type === faceType}">${faceType.replace("x", " by ")}</button>`).join("")}
+          <button class="hint-button" type="button" data-prism-net-rotate aria-pressed="${tool.rotated}">Rotate face</button>
+        </div>
+        <p class="rectangular-prism-net-tool-status">Current tool: ${tool.width} units across by ${tool.height} units down.</p>
+        <div class="rectangular-prism-net-attach-controls" role="group" aria-label="Place or attach selected face tool">
+          ${faces.length === 0
+            ? `<button class="practice-submit" type="button" data-prism-net-place-first>Place first face</button>`
+            : `
+              <span>Attach to Face ${selectedFaceId}:</span>
+              <button class="hint-button" type="button" data-prism-net-attach="north">Above</button>
+              <button class="hint-button" type="button" data-prism-net-attach="east">Right</button>
+              <button class="hint-button" type="button" data-prism-net-attach="south">Below</button>
+              <button class="hint-button" type="button" data-prism-net-attach="west">Left</button>
+              <button class="hint-button" type="button" data-prism-net-remove>Remove Face ${selectedFaceId}</button>
+            `}
+        </div>
       </div>
-      <svg viewBox="0 0 700 500" role="img" aria-label="Graph-paper net with ${assignedCount} of 6 faces labeled.">
+      <svg viewBox="0 0 ${rectangularPrismNetBoard.width * unit} ${rectangularPrismNetBoard.height * unit}" role="img" aria-label="Blank graph-paper net builder with ${faces.length} of 6 faces placed.">
         <defs>
-          <pattern id="rectangular-prism-net-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M20 0H0V20" fill="none" stroke="#c9d5da" stroke-width="1"></path>
+          <pattern id="rectangular-prism-net-grid" width="${unit}" height="${unit}" patternUnits="userSpaceOnUse">
+            <path d="M${unit} 0H0V${unit}" fill="none" stroke="#c9d5da" stroke-width="1"></path>
           </pattern>
         </defs>
-        <rect class="rectangular-prism-net-board" x="1" y="1" width="698" height="498" rx="6"></rect>
-        <rect x="20" y="20" width="660" height="460" fill="url(#rectangular-prism-net-grid)"></rect>
-        ${slots.map((slot) => {
-          const faceType = assignments[slot.id] || "";
-          return `
-            <g
-              class="rectangular-prism-net-slot ${faceType ? "is-assigned" : ""}"
-              role="button"
-              tabindex="0"
-              data-prism-net-slot="${slot.id}"
-              aria-label="${slot.id.replace("-", " ")} face: ${faceType ? faceType.replace("x", " by ") : "not labeled"}"
-            >
-              <rect x="${slot.x}" y="${slot.y}" width="${slot.width}" height="${slot.height}"></rect>
-              <text x="${slot.x + slot.width / 2}" y="${slot.y + slot.height / 2 + 7}" text-anchor="middle">${faceType ? faceType.replace("x", " x ") : "select to label"}</text>
-            </g>
-          `;
-        }).join("")}
+        <rect class="rectangular-prism-net-board" x="1" y="1" width="${rectangularPrismNetBoard.width * unit - 2}" height="${rectangularPrismNetBoard.height * unit - 2}" rx="6"></rect>
+        <rect x="0" y="0" width="${rectangularPrismNetBoard.width * unit}" height="${rectangularPrismNetBoard.height * unit}" fill="url(#rectangular-prism-net-grid)"></rect>
+        ${faces.map((face, index) => `
+          <g
+            class="rectangular-prism-net-face ${face.id === selectedFaceId ? "is-selected" : ""}"
+            role="button"
+            tabindex="0"
+            data-prism-net-face="${face.id}"
+            aria-label="Face ${index + 1}, ${face.width} by ${face.height} units${face.id === selectedFaceId ? ", selected" : ""}"
+          >
+            <rect x="${face.x * unit}" y="${face.y * unit}" width="${face.width * unit}" height="${face.height * unit}"></rect>
+            <text x="${(face.x + face.width / 2) * unit}" y="${(face.y + face.height / 2) * unit - 5}" text-anchor="middle">
+              <tspan x="${(face.x + face.width / 2) * unit}">Face ${index + 1}</tspan>
+              <tspan x="${(face.x + face.width / 2) * unit}" dy="22">${face.width} x ${face.height}</tspan>
+            </text>
+          </g>
+        `).join("")}
       </svg>
       <div class="rectangular-prism-net-status">
-        <span>${assignedCount} of 6 faces labeled</span>
-        <button class="hint-button" type="button" data-prism-net-reset ${assignedCount === 0 ? "disabled" : ""}>Reset net</button>
+        <span>${faces.length} of 6 faces placed. ${escapeHtml(message)}</span>
+        <button class="hint-button" type="button" data-prism-net-reset ${faces.length === 0 ? "disabled" : ""}>Reset net</button>
       </div>
     </section>
   `;
@@ -9040,7 +9276,10 @@ function labeledCubeNetCells(card, question) {
 
 function labeledCubeNetQuestionsSharingState(card, question) {
   const stateId = labeledCubeNetStateId(question);
-  return (card.questions || []).filter((entry) => entry.visualType === "labeledCubeNet" && labeledCubeNetStateId(entry) === stateId);
+  return (card.questions || []).filter((entry) => (
+    labeledCubeNetStateId(entry) === stateId
+    && (entry.visualType === "labeledCubeNet" || entry.requiredConstruction === "validCubeNet")
+  ));
 }
 
 function renderLabeledCubeNetBuilder(card, question) {
@@ -9871,6 +10110,23 @@ function tentComparisonSelectionIsCorrect(card, question, mode) {
   return Boolean(selected && tentComparisonAnswerIds(mode).includes(selected));
 }
 
+function normalizedTextMatchesConcept(text, concept) {
+  return Array.isArray(concept) && concept.length > 0
+    && concept.every((term) => text.includes(String(term).toLowerCase()));
+}
+
+function normalizedTextConceptMatchCount(text, concepts) {
+  return (Array.isArray(concepts) ? concepts : [])
+    .filter((concept) => normalizedTextMatchesConcept(text, concept)).length;
+}
+
+function normalizedTextMeetsConceptRequirements(text, requirements) {
+  return (Array.isArray(requirements) ? requirements : []).every((alternatives) => (
+    Array.isArray(alternatives)
+    && alternatives.some((concept) => normalizedTextMatchesConcept(text, concept))
+  ));
+}
+
 function questionSetAnswerIsCorrect(card, question) {
   const answerKey = Array.isArray(question.answerKey) ? question.answerKey : [];
   if (question.dynamicAnswer === "polyhedronPerFigure") {
@@ -9881,6 +10137,9 @@ function questionSetAnswerIsCorrect(card, question) {
   }
   if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
     return pyramidNetAnySaved(card) || pyramidNetAnalysis(card).valid;
+  }
+  if (question.dynamicAnswer === "rectangularPrismNet") {
+    return rectangularPrismNetAnalysis(card).valid;
   }
   if (question.dynamicAnswer === "perfectSquareExamples") {
     return questionSetPowerExamplesAreCorrect(card, question, 2);
@@ -9968,12 +10227,20 @@ function questionSetAnswerIsCorrect(card, question) {
   }
   const normalized = normalizeAnswer(value);
   const concepts = Array.isArray(question.answerConcepts) ? question.answerConcepts : [];
+  const conceptRequirements = Array.isArray(question.answerConceptRequirements)
+    ? question.answerConceptRequirements
+    : [];
+  const requiredConceptCount = Number.isInteger(question.answerConceptsRequired)
+    ? Math.max(1, question.answerConceptsRequired)
+    : 1;
   const minimumLength = Number.isInteger(question.minLength) ? question.minLength : 1;
   if (question.acceptAnyResponse) return normalized.length >= minimumLength;
-  return normalized.length >= minimumLength && concepts.some((concept) => (
-    Array.isArray(concept) && concept.length > 0
-      && concept.every((term) => normalized.includes(String(term).toLowerCase()))
-  ));
+  const conceptsCorrect = concepts.length === 0
+    ? conceptRequirements.length > 0
+    : normalizedTextConceptMatchCount(normalized, concepts) >= requiredConceptCount;
+  return normalized.length >= minimumLength
+    && conceptsCorrect
+    && normalizedTextMeetsConceptRequirements(normalized, conceptRequirements);
 }
 
 function questionSetQuestionUnlocked(card, question) {
@@ -9992,6 +10259,9 @@ function questionSetHasAnswer(card, question) {
     return pyramidNetTargetIds.some((target) => (
       pyramidNetPieces(card, target).length > 0 || pyramidNetSavedSignatures(card, target).length > 0
     ));
+  }
+  if (question.dynamicAnswer === "rectangularPrismNet") {
+    return rectangularPrismNetFaces(card).length > 0;
   }
   if (question.responseType === "construction" && question.dynamicAnswer === "tentPlanReady") {
     return tentPlanHasInteraction();
@@ -10015,10 +10285,19 @@ function questionSetReasoningEvaluation(card, question) {
   const reasoning = normalizeAnswer(questionSetValue(card, question.id, "reasoning"));
   if (!question.reasoningPrompt) return { answered: true, correct: true };
   const concepts = Array.isArray(question.reasoningConcepts) ? question.reasoningConcepts : [];
-  const correct = reasoning.length > 0 && (concepts.length === 0 || concepts.some((concept) => (
-    Array.isArray(concept) && concept.length > 0
-      && concept.every((term) => reasoning.includes(String(term).toLowerCase()))
-  )));
+  const conceptRequirements = Array.isArray(question.reasoningConceptRequirements)
+    ? question.reasoningConceptRequirements
+    : [];
+  const requiredConceptCount = Number.isInteger(question.reasoningConceptsRequired)
+    ? Math.max(1, question.reasoningConceptsRequired)
+    : 1;
+  const conceptsCorrect = concepts.length === 0
+    || normalizedTextConceptMatchCount(reasoning, concepts) >= requiredConceptCount;
+  const numberCorrect = !question.reasoningRequiresNumber || /\d/.test(reasoning);
+  const correct = reasoning.length > 0
+    && conceptsCorrect
+    && normalizedTextMeetsConceptRequirements(reasoning, conceptRequirements)
+    && numberCorrect;
   return { answered: reasoning.length > 0, correct };
 }
 
@@ -10032,6 +10311,9 @@ function questionSetRequiredStateSatisfied(card, question) {
   }
   if (question.requiredConstruction === "validCubeNet") {
     return cubeNetIsValid(labeledCubeNetCells(card, question));
+  }
+  if (question.requiredConstruction === "validRectangularPrismNet") {
+    return rectangularPrismNetAnalysis(card).valid;
   }
   if (question.requiredConstruction === "savedTentPlan") {
     return tentPlanIsSavedFor(card);
@@ -10154,6 +10436,9 @@ function pyramidNetFeedbackText(card) {
 function questionSetResolvedFeedback(card, question, correct) {
   if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
     return pyramidNetFeedbackText(card);
+  }
+  if (question.dynamicAnswer === "rectangularPrismNet") {
+    return `${correct ? "Correct. " : ""}${rectangularPrismNetFeedbackText(card)}`;
   }
   if (question.dynamicAnswer === "tentPlanReady") {
     const plan = tentPlanFromResponse(tentPlanField("teach-l19"));
@@ -12656,23 +12941,87 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
-    const prismNetSlot = event.target.closest("[data-prism-net-slot]");
-    if (prismNetSlot) {
-      const card = teachCardById(prismNetSlot.closest("[data-teach-card]")?.dataset.teachCard);
-      const slot = prismNetSlot.dataset.prismNetSlot;
-      const faceType = card && rectangularPrismNetFaceTypes.includes(getTeachCustomResponse(card).prismNetFaceType)
-        ? getTeachCustomResponse(card).prismNetFaceType
-        : rectangularPrismNetFaceTypes[0];
-      if (!card || !rectangularPrismNetSlotOrder.includes(slot)) return;
-      const assignments = rectangularPrismNetAssignments(card);
-      assignments[slot] = faceType;
+    const prismNetRotate = event.target.closest("[data-prism-net-rotate]");
+    if (prismNetRotate) {
+      const card = teachCardById(prismNetRotate.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
       state.teachCustomResponses[card.id] = {
         ...getTeachCustomResponse(card),
-        prismNetAssignments: rectangularPrismNetSignature(assignments),
+        prismNetFaceRotated: getTeachCustomResponse(card).prismNetFaceRotated === "true" ? "false" : "true",
       };
-      for (const questionId of ["build-net", "surface-area"]) {
-        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      renderTeachMe();
+      return;
+    }
+    const prismNetFace = event.target.closest("[data-prism-net-face]");
+    if (prismNetFace) {
+      const card = teachCardById(prismNetFace.closest("[data-teach-card]")?.dataset.teachCard);
+      const faceId = Number(prismNetFace.dataset.prismNetFace);
+      if (!card || !rectangularPrismNetFaces(card).some((face) => face.id === faceId)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        prismNetSelectedFaceId: String(faceId),
+        prismNetMessage: `Face ${faceId} selected. Choose a face tool and an attachment side.`,
+      };
+      renderTeachMe();
+      return;
+    }
+    const prismNetPlaceFirst = event.target.closest("[data-prism-net-place-first]");
+    if (prismNetPlaceFirst) {
+      const card = teachCardById(prismNetPlaceFirst.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const faces = rectangularPrismNetFaces(card);
+      if (faces.length) return;
+      const tool = rectangularPrismNetTool(card);
+      const firstFace = {
+        id: 1,
+        type: tool.type,
+        rotated: tool.rotated,
+        width: tool.width,
+        height: tool.height,
+        x: Math.floor((rectangularPrismNetBoard.width - tool.width) / 2),
+        y: Math.floor((rectangularPrismNetBoard.height - tool.height) / 2),
+      };
+      storeRectangularPrismNet(card, [firstFace], { prismNetSelectedFaceId: "1", prismNetMessage: "" });
+      renderTeachMe();
+      return;
+    }
+    const prismNetAttach = event.target.closest("[data-prism-net-attach]");
+    if (prismNetAttach) {
+      const card = teachCardById(prismNetAttach.closest("[data-teach-card]")?.dataset.teachCard);
+      const direction = prismNetAttach.dataset.prismNetAttach;
+      if (!card || !["north", "east", "south", "west"].includes(direction)) return;
+      const faces = rectangularPrismNetFaces(card);
+      const selectedId = rectangularPrismNetSelectedFaceId(card, faces);
+      const parent = faces.find((face) => face.id === selectedId);
+      const tool = rectangularPrismNetTool(card);
+      const placement = rectangularPrismNetPlacement(parent, tool, direction);
+      if (faces.length >= 6) {
+        state.teachCustomResponses[card.id] = { ...getTeachCustomResponse(card), prismNetMessage: "A prism net has six faces. Remove a face before adding another." };
+      } else if (!placement) {
+        state.teachCustomResponses[card.id] = { ...getTeachCustomResponse(card), prismNetMessage: `The current ${tool.width} by ${tool.height} face cannot attach ${direction} of Face ${selectedId}: the complete shared-edge lengths do not match.` };
+      } else {
+        const nextId = Math.max(0, ...faces.map((face) => face.id)) + 1;
+        const candidate = { id: nextId, type: tool.type, rotated: tool.rotated, ...tool, ...placement };
+        if (!rectangularPrismNetPlacementFits(faces, candidate)) {
+          state.teachCustomResponses[card.id] = { ...getTeachCustomResponse(card), prismNetMessage: "That placement overlaps another face or leaves the graph-paper workspace. Select another face or attachment side." };
+        } else {
+          storeRectangularPrismNet(card, [...faces, candidate], { prismNetSelectedFaceId: String(nextId), prismNetMessage: "" });
+        }
       }
+      renderTeachMe();
+      return;
+    }
+    const prismNetRemove = event.target.closest("[data-prism-net-remove]");
+    if (prismNetRemove) {
+      const card = teachCardById(prismNetRemove.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const faces = rectangularPrismNetFaces(card);
+      const selectedId = rectangularPrismNetSelectedFaceId(card, faces);
+      const nextFaces = faces.filter((face) => face.id !== selectedId);
+      storeRectangularPrismNet(card, nextFaces, {
+        prismNetSelectedFaceId: String(nextFaces.at(-1)?.id || ""),
+        prismNetMessage: "",
+      });
       renderTeachMe();
       return;
     }
@@ -12680,13 +13029,7 @@ function bindEvents() {
     if (prismNetReset) {
       const card = teachCardById(prismNetReset.closest("[data-teach-card]")?.dataset.teachCard);
       if (!card) return;
-      state.teachCustomResponses[card.id] = {
-        ...getTeachCustomResponse(card),
-        prismNetAssignments: "",
-      };
-      for (const questionId of ["build-net", "surface-area"]) {
-        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
-      }
+      storeRectangularPrismNet(card, [], { prismNetSelectedFaceId: "", prismNetMessage: "" });
       renderTeachMe();
       return;
     }
@@ -13966,7 +14309,7 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
-    const interactiveNetTarget = event.target.closest?.("[data-prism-net-slot], [data-cube-net-cell], [data-labeled-cube-net-cell], [data-eight-cube-cell], [data-snap-cube-cell]");
+    const interactiveNetTarget = event.target.closest?.("[data-prism-net-face], [data-cube-net-cell], [data-labeled-cube-net-cell], [data-eight-cube-cell], [data-snap-cube-cell]");
     if (interactiveNetTarget && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
       interactiveNetTarget.dispatchEvent(new MouseEvent("click", { bubbles: true }));

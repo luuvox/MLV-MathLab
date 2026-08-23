@@ -738,6 +738,14 @@ body[data-mode="teach"] #unit1Practice {
   stroke-linejoin: round;
 }
 
+.parallelogram-pair-shape.is-left polygon {
+  fill: rgba(155, 214, 189, 0.82);
+}
+
+.parallelogram-pair-shape.is-right polygon {
+  fill: rgba(124, 200, 226, 0.82);
+}
+
 .parallelogram-pair-name,
 .parallelogram-pair-measure {
   fill: #1f2a33;
@@ -3064,6 +3072,10 @@ body[data-mode="teach"] #unit1Practice {
   stroke-width: 3;
 }
 
+.parallelogram-explore-shape.is-source {
+  fill: rgba(124, 200, 226, 0.72);
+}
+
 .parallelogram-related-rectangle {
   fill: rgba(155, 214, 189, 0.18);
   stroke: #1d746a;
@@ -3100,6 +3112,13 @@ body[data-mode="teach"] #unit1Practice {
   stroke-width: 5;
 }
 
+.parallelogram-vertex-handle.is-source,
+.parallelogram-source-handle {
+  fill: #f39a48;
+  stroke: #8a3f20;
+  stroke-width: 3;
+}
+
 .parallelogram-area-rectangle {
   fill: rgba(155, 214, 189, 0.34);
   stroke: #1d746a;
@@ -3120,6 +3139,10 @@ body[data-mode="teach"] #unit1Practice {
   stroke-width: 2.6;
 }
 
+.parallelogram-right-angle.is-source {
+  stroke: #2f9f91;
+}
+
 .parallelogram-base-line {
   stroke: #1f2a33;
   stroke-width: 3.6;
@@ -3135,6 +3158,52 @@ body[data-mode="teach"] #unit1Practice {
 
 .parallelogram-area-label {
   font-size: 20px;
+}
+
+.parallelogram-side-label {
+  font-size: 15px;
+}
+
+.parallelogram-height-label {
+  fill: #e1513f;
+}
+
+.parallelogram-area-check-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 720;
+}
+
+.parallelogram-equal-example {
+  display: grid;
+  gap: 10px;
+}
+
+.parallelogram-equal-example svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+}
+
+.parallelogram-source-example {
+  stroke: #1f2a33;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.parallelogram-source-example.is-left {
+  fill: rgba(155, 214, 189, 0.82);
+}
+
+.parallelogram-source-example.is-right {
+  fill: rgba(124, 200, 226, 0.82);
 }
 
 .parallelogram-explore-caption {

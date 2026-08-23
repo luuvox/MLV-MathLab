@@ -589,93 +589,97 @@ const unit1TeachCards = [
     idea: "Idea 2",
     title: "Area of Parallelograms",
     activityTitle: "6.2: More Areas of Parallelograms",
-    sourceDirections: "Find the area of each source parallelogram, determine a missing corresponding height, and construct two different non-rectangular parallelograms with area 20 square units.",
+    sourceDirections: "Calculate and check the starting parallelogram, create and check three new ones, determine Height B, then explain and create equal-area pairs.",
     pdfPage: 1,
     pdfPages: [1, 2],
-    cropPath: "lesson-06-p001-area-parallelograms-6-2.png",
-    visualAlt: "Four source parallelograms A through D with labeled measurements and a square grid.",
+    cropPath: null,
+    visualAlt: "A source-faithful interactive parallelogram with a labeled base, corresponding height, and slanted side.",
     customVisual: "questionSetVisual",
     responseType: "questionSet",
     questions: [
       {
-        id: "A",
-        label: "Area A",
-        prompt: "Find the area of Parallelogram A in square centimeters. Show your reasoning.",
+        id: "digital-start",
+        label: "Starting figure",
+        prompt: "Calculate the area of the given parallelogram. Enter your calculation, then use Show Area to check it.",
         responseType: "number",
-        inputLabel: "Area of Parallelogram A",
+        inputLabel: "Area of the starting parallelogram",
         placeholder: "Type area",
-        answerKey: ["60"],
-        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
-        visualWidth: 1570,
-        visualHeight: 1580,
-        visualDisplayMaxWidth: 610,
-        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
-        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
-        reasoningPrompt: "Explain which base and corresponding height you used.",
-        reasoningConcepts: [["10", "6"]],
-        hint: "Use the 10 cm side and the perpendicular 6 cm segment.",
-        correctFeedback: "Correct. A has area 10 x 6 = 60 square centimeters.",
-        incorrectFeedback: "Not quite. The 10 cm base and its 6 cm corresponding height are perpendicular, so multiply 10 by 6.",
+        answerKey: ["56"],
+        dynamicAnswer: "parallelogramArea",
+        visualType: "parallelogramExplore",
+        model: { base: 8, height: 7, slant: -2, sideLabel: "7.2", editable: false, sourceAreaMode: true },
+        showAreaCheck: true,
+        requireAreaCheck: true,
+        areaCheckFeedback: "Use Show Area to check the calculation before submitting this figure.",
+        hint: "The horizontal base is 8 units and its perpendicular height is 7 units. The 7.2-unit slanted side is not the corresponding height.",
+        correctFeedback: "Correct. The starting parallelogram has area 8 x 7 = 56 square units. The slanted 7.2-unit side is not needed for this base-height calculation.",
+        incorrectFeedback: "Not quite. Multiply the 8-unit base by its perpendicular 7-unit height.",
       },
       {
-        id: "B",
-        label: "Area B",
-        prompt: "Find the area of Parallelogram B in square centimeters. Show your reasoning.",
+        id: "digital-change-1",
+        label: "Changed figure 1",
+        prompt: "Move at least one vertex control to create a new parallelogram. Calculate its area, then use Show Area to check it.",
         responseType: "number",
-        inputLabel: "Area of Parallelogram B",
+        inputLabel: "Area of changed figure 1",
         placeholder: "Type area",
-        answerKey: ["120"],
-        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
-        visualWidth: 1570,
-        visualHeight: 1580,
-        visualDisplayMaxWidth: 610,
-        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
-        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
-        reasoningPrompt: "Explain which base and corresponding height you used.",
-        reasoningConcepts: [["15", "8"]],
-        hint: "The 8 cm segment is perpendicular to the side labeled 15 cm.",
-        correctFeedback: "Correct. B has area 15 x 8 = 120 square centimeters. The labeled 10 cm side does not pair with the 8 cm height.",
-        incorrectFeedback: "Not quite. Use a side and the segment perpendicular to it: 15 cm and 8 cm.",
+        dynamicAnswer: "parallelogramArea",
+        visualType: "parallelogramExplore",
+        model: { base: 8, height: 7, slant: -2, editable: true, sourceAreaMode: true },
+        showAreaCheck: true,
+        requireAreaCheck: true,
+        requireAdjustment: true,
+        modelMustDifferFromQuestionIds: ["digital-start"],
+        unlockedAfterQuestionId: "digital-start",
+        adjustmentFeedback: "Change at least one vertex control before submitting. The source asks for a new parallelogram.",
+        uniquenessFeedback: "Make this parallelogram different from the starting figure before submitting.",
+        areaCheckFeedback: "Use Show Area to check the changed figure before submitting it.",
+        hint: "Read the current horizontal span and perpendicular vertical span from the controls, then multiply them.",
+        correctFeedback: "Correct. Changed figure 1 has area equal to its current horizontal span times its perpendicular vertical span.",
+        incorrectFeedback: "Not quite. Use the current base and perpendicular height shown by the model.",
       },
       {
-        id: "C",
-        label: "Area C",
-        prompt: "Find the area of Parallelogram C in square centimeters. Show your reasoning.",
+        id: "digital-change-2",
+        label: "Changed figure 2",
+        prompt: "Create a second new parallelogram that differs from the figures already recorded. Calculate and check its area.",
         responseType: "number",
-        inputLabel: "Area of Parallelogram C",
+        inputLabel: "Area of changed figure 2",
         placeholder: "Type area",
-        answerKey: ["63"],
-        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
-        visualWidth: 1570,
-        visualHeight: 1580,
-        visualDisplayMaxWidth: 610,
-        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
-        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
-        reasoningPrompt: "Explain which base and corresponding height you used.",
-        reasoningConcepts: [["9", "7"]],
-        hint: "The 7 cm dashed segment is perpendicular to the side parallel to the 9 cm side.",
-        correctFeedback: "Correct. C has area 9 x 7 = 63 square centimeters. The 8 cm side length is not needed.",
-        incorrectFeedback: "Not quite. Pair the 9 cm base with its perpendicular 7 cm height.",
+        dynamicAnswer: "parallelogramArea",
+        visualType: "parallelogramExplore",
+        model: { base: 8, height: 7, slant: -2, editable: true, sourceAreaMode: true },
+        showAreaCheck: true,
+        requireAreaCheck: true,
+        requireAdjustment: true,
+        modelMustDifferFromQuestionIds: ["digital-start", "digital-change-1"],
+        unlockedAfterQuestionId: "digital-change-1",
+        adjustmentFeedback: "Change at least one vertex control before submitting this second new figure.",
+        uniquenessFeedback: "Choose a different base, height, or slant so changed figure 2 is not a copy of an earlier figure.",
+        areaCheckFeedback: "Use Show Area to check changed figure 2 before submitting it.",
+        hint: "Change the horizontal span, vertical span, or slant, then multiply the current base and height.",
+        correctFeedback: "Correct. Changed figure 2 is distinct and its calculated area matches the model's base-height product.",
+        incorrectFeedback: "Not quite. Recheck the current horizontal span and perpendicular vertical span.",
       },
       {
-        id: "D",
-        label: "Area D",
-        prompt: "Find the area of Parallelogram D in square centimeters. Show your reasoning.",
+        id: "digital-change-3",
+        label: "Changed figure 3",
+        prompt: "Create a third new parallelogram that differs from all earlier figures. Calculate and check its area.",
         responseType: "number",
-        inputLabel: "Area of Parallelogram D",
+        inputLabel: "Area of changed figure 3",
         placeholder: "Type area",
-        answerKey: ["35"],
-        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
-        visualWidth: 1570,
-        visualHeight: 1580,
-        visualDisplayMaxWidth: 610,
-        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
-        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
-        reasoningPrompt: "Explain how the grid gives the base and corresponding height.",
-        reasoningConcepts: [["7", "5"]],
-        hint: "Each grid square is 1 cm by 1 cm. Count the horizontal base and the vertical distance between the parallel sides.",
-        correctFeedback: "Correct. D has a 7 cm base and a 5 cm corresponding height, so its area is 35 square centimeters.",
-        incorrectFeedback: "Not quite. The horizontal base spans 7 grid units, and the vertical height spans 5 grid units.",
+        dynamicAnswer: "parallelogramArea",
+        visualType: "parallelogramExplore",
+        model: { base: 8, height: 7, slant: -2, editable: true, sourceAreaMode: true },
+        showAreaCheck: true,
+        requireAreaCheck: true,
+        requireAdjustment: true,
+        modelMustDifferFromQuestionIds: ["digital-start", "digital-change-1", "digital-change-2"],
+        unlockedAfterQuestionId: "digital-change-2",
+        adjustmentFeedback: "Change at least one vertex control before submitting this third new figure.",
+        uniquenessFeedback: "Choose a different base, height, or slant so changed figure 3 is not a copy of an earlier figure.",
+        areaCheckFeedback: "Use Show Area to check changed figure 3 before submitting it.",
+        hint: "Use the current base-height pair. Changing only the slant can make a different-looking parallelogram without changing its area.",
+        correctFeedback: "Correct. Changed figure 3 is distinct and its area matches its current base-height product.",
+        incorrectFeedback: "Not quite. Multiply the current horizontal span by the perpendicular vertical span.",
       },
       {
         id: "height-b",
@@ -698,19 +702,101 @@ const unit1TeachCards = [
         incorrectFeedback: "Not quite. The parallelogram's area is 120 square centimeters. Find the height that makes 10 x height = 120.",
       },
       {
-        id: "pair-build",
-        label: "Build P and Q",
-        prompt: "Construct two different parallelograms P and Q. Each must have area 20 square units, and neither may be a rectangle. Then explain how you know their areas are equal.",
+        id: "equal-example",
+        label: "Explain equal areas",
+        prompt: "The two given parallelograms have the same area. Explain why their areas are equal.",
+        responseType: "openResponse",
+        inputLabel: "Why the given areas are equal",
+        placeholder: "Explain with base-height products",
+        minLength: 12,
+        answerConceptRequirements: [
+          [["6", "4"], ["3", "8"], ["base", "height"]],
+          [["both", "24"], ["same", "product"], ["equal", "product"]],
+        ],
+        visualType: "parallelogramEqualExample",
+        hint: "Count a horizontal base and perpendicular height for each figure on the grid, then compare the two products.",
+        correctFeedback: "Correct. The left parallelogram has base 6 and height 4, while the right has base 3 and height 8. Both products equal 24 square units.",
+        incorrectFeedback: "Strengthen the explanation by comparing the base-height products: 6 x 4 and 3 x 8 both equal 24.",
+      },
+      {
+        id: "equal-build",
+        label: "Build equal areas",
+        prompt: "Create two new parallelograms that are not identical copies of each other but have the same area. Then explain how you know their areas are equal.",
+        responseType: "construction",
+        dynamicAnswer: "parallelogramPairEqualArea",
+        visualType: "parallelogramPair",
+        shapeIds: ["L", "R"],
+        shapeLabels: { L: "Left parallelogram", R: "Right parallelogram" },
+        pairDefaults: {
+          L: { base: 6, height: 4, shift: -1 },
+          R: { base: 3, height: 8, shift: 3 },
+        },
+        pairShiftMin: -4,
+        pairShiftMax: 4,
+        requireBothChanged: true,
+        rejectInitialShapes: true,
+        unlockedAfterQuestionId: "equal-example",
+        visualDirections: "The workspace starts with the given source pair. Change both shapes to make a new, non-identical equal-area pair.",
+        missingResponseFeedback: "Change both source parallelograms, explain the new base-height products, then submit again.",
+        reasoningPrompt: "Explain how the two new base-height products prove the areas are equal.",
+        reasoningConcepts: [["base", "height"], ["product", "equal"], ["same", "area"]],
+        hint: "Choose two different factor pairs with the same product, or keep one base-height pair and use different slants.",
+        correctFeedback: "Correct. Both new parallelograms have the same base-height product, and their dimensions or slants make them non-identical.",
+        incorrectFeedback: "Not quite. Change both source shapes, make the two base-height products equal, and make the final parallelograms different from each other.",
+      },
+      {
+        id: "print-areas",
+        label: "Optional: PDF A-D",
+        optional: true,
+        prompt: "Printable source variant: find the area of each Parallelogram A-D and show the base-height reasoning for all four.",
+        fields: [
+          { id: "A", label: "Area A (square centimeters)", responseType: "number", placeholder: "Type area" },
+          { id: "B", label: "Area B (square centimeters)", responseType: "number", placeholder: "Type area" },
+          { id: "C", label: "Area C (square centimeters)", responseType: "number", placeholder: "Type area" },
+          { id: "D", label: "Area D (square centimeters)", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ A: "60", B: "120", C: "63", D: "35" }],
+        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+        visualWidth: 1570,
+        visualHeight: 1580,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Printable source Parallelograms A through D with labeled measurements and a square grid.",
+        visualDirections: "Use a side and its perpendicular corresponding height for each source figure.",
+        reasoningPrompt: "Record a base-height calculation for A, B, C, and D.",
+        reasoningConceptRequirements: [
+          [["10", "6"], ["60"]],
+          [["15", "8"], ["120"]],
+          [["9", "7"], ["63"]],
+          [["7", "5"], ["35"]],
+        ],
+        hint: "The useful pairs are A: 10 and 6; B: 15 and 8; C: 9 and 7. For D, count a horizontal base and vertical height on the grid.",
+        correctFeedback: "Correct. The printable figures have areas A = 60, B = 120, C = 63, and D = 35 square centimeters.",
+        incorrectFeedback: "Recheck every base-height pair: A uses 10 x 6, B uses 15 x 8, C uses 9 x 7, and D uses 7 x 5.",
+      },
+      {
+        id: "print-pair-20",
+        label: "Optional: PDF P-Q",
+        optional: true,
+        prompt: "Printable source variant: construct two different non-rectangular parallelograms P and Q that each have area 20 square units.",
         responseType: "construction",
         dynamicAnswer: "parallelogramPairArea20",
         visualType: "parallelogramPair",
-        visualDirections: "Adjust the base, perpendicular height, and horizontal shift for both shapes. The shift keeps each shape from being a rectangle.",
-        missingResponseFeedback: "Adjust both Parallelogram P and Parallelogram Q in the workspace, explain your products, then submit again.",
-        reasoningPrompt: "Explain how the base-height products prove both areas are 20 square units.",
+        shapeIds: ["P", "Q"],
+        shapeLabels: { P: "Parallelogram P", Q: "Parallelogram Q" },
+        pairDefaults: {
+          P: { base: 4, height: 4, shift: 2 },
+          Q: { base: 5, height: 3, shift: 3 },
+        },
+        pairShiftMin: 1,
+        pairShiftMax: 5,
+        requireBothChanged: true,
+        visualDirections: "Adjust both shapes. Each base-height product must be 20, each shift must keep the shape non-rectangular, and P and Q must differ.",
+        missingResponseFeedback: "Adjust both Parallelogram P and Parallelogram Q, explain their products, then submit again.",
+        reasoningPrompt: "Explain how the two base-height products prove that both areas are 20 square units.",
         reasoningConcepts: [["20"], ["base", "height"], ["product", "equal"]],
-        hint: "Factor pairs of 20 include 4 and 5, 2 and 10, and 1 and 20. Use two different pairs or two different slants.",
-        correctFeedback: "Correct. Both non-rectangular parallelograms have base-height product 20, and their dimensions or slants make them different shapes.",
-        incorrectFeedback: "Not quite. Make each base x height equal 20, keep each horizontal shift above 0, and make P and Q different from one another.",
+        hint: "Use two factor pairs of 20, such as 4 and 5 or 2 and 10, and keep a nonzero horizontal shift.",
+        correctFeedback: "Correct. Both non-rectangular parallelograms have base-height product 20 and are different shapes.",
+        incorrectFeedback: "Not quite. Change both shapes, make each base x height equal 20, keep each shift nonzero, and make P and Q different.",
       },
       {
         id: "optional-unshaded",
@@ -1804,7 +1890,7 @@ const teachCardEnhancements = {
   },
   "teach-l6": {
     activityTitle: "6.2: More Areas of Parallelograms",
-    sourceDirections: "Find the area of each source parallelogram, determine a missing corresponding height, and construct two different non-rectangular parallelograms with area 20 square units.",
+    sourceDirections: "Calculate and check the starting parallelogram, create and check three new ones, determine Height B, then explain and create equal-area pairs.",
   },
   "teach-l7": {
     activityTitle: "7.1: Same Parallelograms, Different Bases",
@@ -2314,21 +2400,36 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 2",
     title: "Area of Parallelograms",
     activityTitle: "6.1: Missing Dots",
-    sourceDirections: "How many dots are in the image? How do you see them?",
+    sourceDirections: "Study the source dot arrangement, then record both the total and how you saw the groups.",
     pdfPage: 1,
     cropPath: teachLessonCrop(6),
     visualAlt: "The source arrangement of black dots with an open region in the middle.",
     visualWidth: 780,
     visualHeight: 780,
     visualDisplayMaxWidth: 390,
-    prompt: "How many dots are in the image? How do you see them?",
-    responseType: "number",
-    answerKey: ["20"],
-    responsePrompt: "How many dots are in the image?",
-    reasoningPrompt: "How do you see them? Explain without counting one dot at a time.",
-    hint: "Count the full outer square and subtract the missing inside dots, or count the sides without double-counting corners.",
-    correctFeedback: "Correct. A 6 by 6 array has 36 dots, and the missing 4 by 4 center has 16 dots, leaving 20 border dots.",
-    incorrectFeedback: "Watch for double-counting the corners. One way is 36 - 16.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "count",
+        label: "Count and explain",
+        prompt: "How many dots are in the image? How do you see them?",
+        responseType: "number",
+        inputLabel: "Number of dots",
+        placeholder: "Type the total",
+        answerKey: ["30"],
+        visualCropPath: "lesson-06-p001-missing-dots-6-1.png",
+        visualWidth: 780,
+        visualHeight: 780,
+        visualDisplayMaxWidth: 390,
+        visualAlt: "The source arrangement of 30 black dots in six rows with a six-position opening across the two middle-lower rows.",
+        reasoningPrompt: "How do you see them? Explain your grouping rather than counting one dot at a time.",
+        hint: "Compare the arrangement with a complete 6 by 6 array, or group the complete and partial rows.",
+        reasoningRequiredFeedback: "Your count is correct. Add how you grouped or decomposed the dots, then submit again.",
+        correctFeedback: "Correct. There are 30 dots. For example, a complete 6 by 6 array has 36 dots and the opening removes 6, so 36 - 6 = 30. You can also group three full top rows, two 3-dot rows, and one full bottom row.",
+        incorrectFeedback: "Not quite. The opening removes 6 positions from a complete 6 by 6 array, so the visible total is 36 - 6 = 30 dots.",
+      },
+    ],
   },
   {
     id: "teach-l7-2",
@@ -5359,7 +5460,7 @@ function parallelogramExploreShape(card, questionId = questionSetActiveId(card))
   const modelQuestionId = modelQuestion?.id || questionId;
   const base = clampNumber(parallelogramExploreValue(card, modelQuestionId, "base"), 3, 10);
   const height = clampNumber(parallelogramExploreValue(card, modelQuestionId, "height"), 2, 8);
-  const slant = clampNumber(parallelogramExploreValue(card, modelQuestionId, "slant"), 1, 5);
+  const slant = clampNumber(parallelogramExploreValue(card, modelQuestionId, "slant"), -4, 5);
   return { base, height, slant, area: base * height, questionId: modelQuestionId };
 }
 
@@ -5371,6 +5472,28 @@ function parallelogramExploreWasAdjusted(card, questionId) {
     Object.prototype.hasOwnProperty.call(response, parallelogramExploreField(question.id, field))
       && parallelogramExploreValue(card, question.id, field) !== parallelogramExploreDefault(card, question.id, field)
   ));
+}
+
+function parallelogramExploreAreaCheckField(questionId) {
+  return parallelogramExploreField(questionId, "showArea");
+}
+
+function parallelogramExploreAreaIsShown(card, questionId) {
+  return getTeachCustomResponse(card)[parallelogramExploreAreaCheckField(questionId)] === "yes";
+}
+
+function parallelogramExploreSignature(card, questionId) {
+  const shape = parallelogramExploreShape(card, questionId);
+  return `${shape.base}x${shape.height}x${shape.slant}`;
+}
+
+function parallelogramExploreIsUnique(card, question) {
+  const comparisonIds = Array.isArray(question?.modelMustDifferFromQuestionIds)
+    ? question.modelMustDifferFromQuestionIds
+    : [];
+  if (!comparisonIds.length) return true;
+  const signature = parallelogramExploreSignature(card, question.id);
+  return comparisonIds.every((questionId) => signature !== parallelogramExploreSignature(card, questionId));
 }
 
 function parallelogramExploreStrategy(card, questionId) {
@@ -5403,6 +5526,8 @@ function renderParallelogramExploreWorkspace(card) {
   if (!modelQuestion) return "";
   const shape = parallelogramExploreShape(card, modelQuestion.id);
   const strategy = parallelogramExploreStrategy(card, modelQuestion.id);
+  const sourceAreaMode = Boolean(modelQuestion.model?.sourceAreaMode);
+  const showArea = Boolean(modelQuestion.showAreaCheck && parallelogramExploreAreaIsShown(card, modelQuestion.id));
   const cell = 28;
   const baseY = 280;
   const leftX = 160;
@@ -5410,55 +5535,72 @@ function renderParallelogramExploreWorkspace(card) {
   const topLeftX = leftX + shape.slant * cell;
   const topRightX = topLeftX + shape.base * cell;
   const bottomRightX = leftX + shape.base * cell;
-  const heightX = topLeftX + Math.max(1, Math.min(shape.base - 1, Math.round(shape.base / 2))) * cell;
+  const heightX = sourceAreaMode
+    ? topRightX
+    : topLeftX + Math.max(1, Math.min(shape.base - 1, Math.round(shape.base / 2))) * cell;
+  const sideLabelX = (leftX + topLeftX) / 2 - 24;
+  const sideLabelY = (baseY + topY) / 2;
   const editable = Boolean(modelQuestion.model?.editable);
-  const decompositionOverlay = strategy === "decompose" ? `
+  const decompositionOverlay = !sourceAreaMode && strategy === "decompose" ? `
     <rect class="parallelogram-related-rectangle" x="${topLeftX}" y="${topY}" width="${shape.base * cell}" height="${shape.height * cell}"></rect>
     <line class="parallelogram-tool-line" x1="${topLeftX}" y1="${topY}" x2="${topLeftX}" y2="${baseY}"></line>
     <polygon class="parallelogram-tool-piece is-original" points="${leftX},${baseY} ${topLeftX},${topY} ${topLeftX},${baseY}"></polygon>
     <polygon class="parallelogram-tool-piece is-moved" points="${bottomRightX},${baseY} ${topRightX},${topY} ${topRightX},${baseY}"></polygon>
   ` : "";
-  const enclosureOverlay = strategy === "enclose" ? `
+  const enclosureOverlay = !sourceAreaMode && strategy === "enclose" ? `
     <rect class="parallelogram-related-rectangle" x="${leftX}" y="${topY}" width="${(shape.base + shape.slant) * cell}" height="${shape.height * cell}"></rect>
     <polygon class="parallelogram-tool-piece is-extra" points="${leftX},${topY} ${topLeftX},${topY} ${leftX},${baseY}"></polygon>
     <polygon class="parallelogram-tool-piece is-extra" points="${bottomRightX},${baseY} ${topRightX},${topY} ${topRightX},${baseY}"></polygon>
   ` : "";
-  const strategyCaption = strategy === "decompose"
-    ? "The triangle tool shows a side piece moved to complete a related rectangle."
-    : strategy === "enclose"
-      ? "The rectangle and triangle tools show an enclosure with two extra corner regions."
-      : "Choose a polygon tool to visualize a source strategy without revealing the area.";
+  const strategyCaption = sourceAreaMode
+    ? editable
+      ? "Move the vertex controls to create a new parallelogram. The base and corresponding height labels update with the model."
+      : "This is the fixed starting figure from the public lesson. Use its labeled base and corresponding height to calculate the area."
+    : strategy === "decompose"
+      ? "The triangle tool shows a side piece moved to complete a related rectangle."
+      : strategy === "enclose"
+        ? "The rectangle and triangle tools show an enclosure with two extra corner regions."
+        : "Choose a polygon tool to visualize a source strategy without revealing the area.";
+  const sideLabel = String(modelQuestion.model?.sideLabel || "");
   return `
     <section class="parallelogram-explore-workspace" aria-label="Interactive parallelogram area applet recreation">
-      <div class="parallelogram-tool-row" role="group" aria-label="Polygon tools">
-        <button class="page-chip ${strategy === "decompose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="decompose" aria-pressed="${strategy === "decompose"}">Decompose and rearrange</button>
-        <button class="page-chip ${strategy === "enclose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="enclose" aria-pressed="${strategy === "enclose"}">Enclose and subtract</button>
-      </div>
+      ${sourceAreaMode ? "" : `
+        <div class="parallelogram-tool-row" role="group" aria-label="Polygon tools">
+          <button class="page-chip ${strategy === "decompose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="decompose" aria-pressed="${strategy === "decompose"}">Decompose and rearrange</button>
+          <button class="page-chip ${strategy === "enclose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="enclose" aria-pressed="${strategy === "enclose"}">Enclose and subtract</button>
+        </div>
+      `}
       <svg class="parallelogram-explore-stage" viewBox="0 0 760 340" role="img" aria-label="${escapeHtml(card.visualAlt)}">
         <rect x="1" y="1" width="758" height="338" class="parallelogram-explore-board"></rect>
-        <g aria-hidden="true">${gridLines(20, 28, 25, 9, 28)}</g>
+        ${sourceAreaMode ? "" : `<g aria-hidden="true">${gridLines(20, 28, 25, 9, 28)}</g>`}
         ${enclosureOverlay}
         <polygon
-          class="parallelogram-explore-shape"
+          class="parallelogram-explore-shape ${sourceAreaMode ? "is-source" : ""}"
           points="${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}"
         ></polygon>
         ${decompositionOverlay}
-        <line class="parallelogram-height-line" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
-        <path class="parallelogram-right-angle" d="M ${heightX} ${baseY - 15} L ${heightX + 15} ${baseY - 15} L ${heightX + 15} ${baseY}"></path>
+        <line class="parallelogram-height-line ${sourceAreaMode ? "is-source" : ""}" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
+        <path class="parallelogram-right-angle ${sourceAreaMode ? "is-source" : ""}" d="M ${heightX} ${baseY - 15} L ${heightX + 15} ${baseY - 15} L ${heightX + 15} ${baseY}"></path>
+        ${sourceAreaMode ? `
+          <text class="parallelogram-measure-label" x="${leftX + shape.base * cell / 2}" y="316" text-anchor="middle">${shape.base}</text>
+          <text class="parallelogram-measure-label parallelogram-height-label" x="${heightX + 14}" y="${topY + shape.height * cell / 2}" text-anchor="start">${shape.height}</text>
+          ${sideLabel ? `<text class="parallelogram-measure-label parallelogram-side-label" x="${sideLabelX}" y="${sideLabelY}" text-anchor="middle">${escapeHtml(sideLabel)}</text>` : ""}
+          ${showArea ? `<text class="parallelogram-area-label" x="${leftX + (shape.base + shape.slant) * cell / 2}" y="${topY + shape.height * cell / 2}" text-anchor="middle">Area ${shape.area}</text>` : ""}
+        ` : ""}
         ${editable ? `
-          <circle class="parallelogram-vertex-handle" cx="${leftX}" cy="${baseY}" r="7"></circle>
-          <circle class="parallelogram-vertex-handle" cx="${bottomRightX}" cy="${baseY}" r="7"></circle>
-          <circle class="parallelogram-vertex-handle" cx="${topRightX}" cy="${topY}" r="7"></circle>
-          <circle class="parallelogram-vertex-handle" cx="${topLeftX}" cy="${topY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle ${sourceAreaMode ? "is-source" : ""}" cx="${leftX}" cy="${baseY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle ${sourceAreaMode ? "is-source" : ""}" cx="${bottomRightX}" cy="${baseY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle ${sourceAreaMode ? "is-source" : ""}" cx="${topRightX}" cy="${topY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle ${sourceAreaMode ? "is-source" : ""}" cx="${topLeftX}" cy="${topY}" r="7"></circle>
         ` : ""}
       </svg>
       ${editable ? `
         <div class="parallelogram-explore-controls" aria-label="Move the green vertices">
           ${renderParallelogramRangeField(card, modelQuestion.id, "base", "Horizontal span", 3, 10)}
           ${renderParallelogramRangeField(card, modelQuestion.id, "height", "Vertical span", 2, 8)}
-          ${renderParallelogramRangeField(card, modelQuestion.id, "slant", "Horizontal shift", 1, 5)}
+          ${renderParallelogramRangeField(card, modelQuestion.id, "slant", "Horizontal shift", -4, 5)}
         </div>
-      ` : `<p class="parallelogram-fixed-note">This first source parallelogram is fixed. Use a polygon tool to investigate it.</p>`}
+      ` : `<p class="parallelogram-fixed-note">The starting figure stays fixed until you finish its calculation.</p>`}
       <p class="parallelogram-explore-caption">${escapeHtml(strategyCaption)}</p>
     </section>
   `;
@@ -7482,8 +7624,29 @@ function renderPolygonClassificationVisual(card) {
   `;
 }
 
+function renderParallelogramEqualExampleVisual() {
+  const handles = [
+    [100, 260], [220, 260], [200, 180], [80, 180],
+    [450, 260], [510, 260], [570, 100], [510, 100],
+  ].map(([cx, cy]) => `<circle class="parallelogram-source-handle" cx="${cx}" cy="${cy}" r="6"></circle>`).join("");
+  return `
+    <figure class="teach-visual-frame parallelogram-equal-example">
+      <figcaption>Count a horizontal base and its perpendicular height for each given parallelogram.</figcaption>
+      <svg viewBox="0 0 760 330" role="img" aria-label="Two source parallelograms on a square grid. The left has base 6 and height 4; the right has base 3 and height 8.">
+        <rect x="1" y="1" width="758" height="328" class="parallelogram-explore-board"></rect>
+        <g aria-hidden="true">${gridLines(20, 20, 36, 14, 20)}</g>
+        <polygon class="parallelogram-source-example is-left" points="100,260 220,260 200,180 80,180"></polygon>
+        <polygon class="parallelogram-source-example is-right" points="450,260 510,260 570,100 510,100"></polygon>
+        ${handles}
+      </svg>
+    </figure>
+  `;
+}
+
 function renderQuestionSetVisual(card) {
   const question = questionSetDefinition(card, questionSetActiveId(card));
+  if (question?.visualType === "parallelogramExplore") return renderParallelogramExploreWorkspace(card);
+  if (question?.visualType === "parallelogramEqualExample") return renderParallelogramEqualExampleVisual();
   if (question?.visualType === "parallelogramPair") return renderParallelogramPairWorkspace(card, question);
   if (question?.visualType === "cabinetDimensions") return renderCabinetDimensionsVisual(question);
   if (question?.visualType === "cabinetRow") return renderCabinetRowVisual(question);
@@ -9816,44 +9979,91 @@ function renderCabinetRowVisual(question) {
   `;
 }
 
-const parallelogramPairDefaults = {
+const parallelogramPairFallbackDefaults = {
   P: { base: 4, height: 4, shift: 2 },
   Q: { base: 5, height: 3, shift: 3 },
 };
 
-function parallelogramPairField(shapeId, field) {
-  return `parallelogramPair_${shapeId}_${field}`;
+function parallelogramPairShapeIds(question) {
+  const configured = Array.isArray(question?.shapeIds) ? question.shapeIds.filter(Boolean) : [];
+  return configured.length === 2 ? configured : ["P", "Q"];
 }
 
-function parallelogramPairValue(card, shapeId, field) {
-  const fallback = parallelogramPairDefaults[shapeId]?.[field] || 1;
-  const parsed = Number(getTeachCustomResponse(card)[parallelogramPairField(shapeId, field)]);
+function parallelogramPairDefault(question, shapeId, field) {
+  const configured = Number(question?.pairDefaults?.[shapeId]?.[field]);
+  if (Number.isFinite(configured)) return configured;
+  return Number(parallelogramPairFallbackDefaults[shapeId]?.[field]) || 1;
+}
+
+function parallelogramPairField(questionId, shapeId, field) {
+  return `parallelogramPair_${questionId}_${shapeId}_${field}`;
+}
+
+function parallelogramPairLimits(question, field) {
+  if (field === "base") return [2, Number(question?.pairBaseMax) || 10];
+  if (field === "height") return [2, Number(question?.pairHeightMax) || 10];
+  return [Number.isFinite(Number(question?.pairShiftMin)) ? Number(question.pairShiftMin) : 1,
+    Number.isFinite(Number(question?.pairShiftMax)) ? Number(question.pairShiftMax) : 5];
+}
+
+function parallelogramPairValue(card, question, shapeId, field) {
+  const fallback = parallelogramPairDefault(question, shapeId, field);
+  const parsed = Number(getTeachCustomResponse(card)[parallelogramPairField(question.id, shapeId, field)]);
   if (!Number.isFinite(parsed)) return fallback;
-  const limits = field === "base" ? [2, 10] : field === "height" ? [2, 8] : [1, 5];
+  const limits = parallelogramPairLimits(question, field);
   return clampNumber(parsed, limits[0], limits[1]);
 }
 
-function parallelogramPairHasInteraction(card) {
+function parallelogramPairSignature(card, question, shapeId) {
+  return ["base", "height", "shift"]
+    .map((field) => parallelogramPairValue(card, question, shapeId, field))
+    .join("x");
+}
+
+function parallelogramPairHasInteraction(card, question) {
   const response = getTeachCustomResponse(card);
-  return ["P", "Q"].every((shapeId) => ["base", "height", "shift"].some((field) => (
-    Object.prototype.hasOwnProperty.call(response, parallelogramPairField(shapeId, field))
+  return parallelogramPairShapeIds(question).every((shapeId) => ["base", "height", "shift"].some((field) => (
+    Object.prototype.hasOwnProperty.call(response, parallelogramPairField(question.id, shapeId, field))
   )));
 }
 
-function parallelogramPairIsCorrect(card) {
-  const shapes = ["P", "Q"].map((shapeId) => ({
-    base: parallelogramPairValue(card, shapeId, "base"),
-    height: parallelogramPairValue(card, shapeId, "height"),
-    shift: parallelogramPairValue(card, shapeId, "shift"),
+function parallelogramPairIsCorrect(card, question) {
+  const shapeIds = parallelogramPairShapeIds(question);
+  const shapes = shapeIds.map((shapeId) => ({
+    id: shapeId,
+    base: parallelogramPairValue(card, question, shapeId, "base"),
+    height: parallelogramPairValue(card, question, shapeId, "height"),
+    shift: parallelogramPairValue(card, question, shapeId, "shift"),
   }));
-  const [shapeP, shapeQ] = shapes;
-  const bothArea20 = shapes.every((shape) => shape.base * shape.height === 20 && shape.shift > 0);
-  const different = ["base", "height", "shift"].some((field) => shapeP[field] !== shapeQ[field]);
-  return bothArea20 && different;
+  const [firstShape, secondShape] = shapes;
+  const different = ["base", "height", "shift"].some((field) => firstShape[field] !== secondShape[field]);
+  const bothChanged = !question.requireBothChanged || shapes.every((shape) => (
+    ["base", "height", "shift"].some((field) => shape[field] !== parallelogramPairDefault(question, shape.id, field))
+  ));
+  const initialSignatures = new Set(shapeIds.map((shapeId) => (
+    ["base", "height", "shift"].map((field) => parallelogramPairDefault(question, shapeId, field)).join("x")
+  )));
+  const allNew = !question.rejectInitialShapes || shapeIds.every((shapeId) => (
+    !initialSignatures.has(parallelogramPairSignature(card, question, shapeId))
+  ));
+  const equalAreas = shapes.every((shape) => (
+    shape.base * shape.height === firstShape.base * firstShape.height
+  ));
+  if (question.dynamicAnswer === "parallelogramPairArea20") {
+    return shapes.every((shape) => shape.base * shape.height === 20 && shape.shift !== 0)
+      && different
+      && bothChanged;
+  }
+  return question.dynamicAnswer === "parallelogramPairEqualArea"
+    && equalAreas
+    && different
+    && bothChanged
+    && allNew;
 }
 
-function renderParallelogramPairRange(card, shapeId, field, label, min, max) {
-  const value = parallelogramPairValue(card, shapeId, field);
+function renderParallelogramPairRange(card, question, shapeId, field, label) {
+  const [min, max] = parallelogramPairLimits(question, field);
+  const value = parallelogramPairValue(card, question, shapeId, field);
   return `
     <label class="parallelogram-pair-range">
       <span>${escapeHtml(label)}: <strong>${value}</strong></span>
@@ -9864,19 +10074,21 @@ function renderParallelogramPairRange(card, shapeId, field, label, min, max) {
         step="1"
         value="${value}"
         data-parallelogram-pair-input="${card.id}"
-        data-shape-id="${shapeId}"
+        data-question-id="${escapeHtml(question.id)}"
+        data-shape-id="${escapeHtml(shapeId)}"
         data-pair-field="${field}"
       >
     </label>
   `;
 }
 
-function renderParallelogramPairShape(card, shapeId, originX) {
-  const base = parallelogramPairValue(card, shapeId, "base");
-  const height = parallelogramPairValue(card, shapeId, "height");
-  const shift = parallelogramPairValue(card, shapeId, "shift");
+function renderParallelogramPairShape(card, question, shapeId, originX, positionClass) {
+  const base = parallelogramPairValue(card, question, shapeId, "base");
+  const height = parallelogramPairValue(card, question, shapeId, "height");
+  const shift = parallelogramPairValue(card, question, shapeId, "shift");
+  const shapeLabel = question.shapeLabels?.[shapeId] || `Parallelogram ${shapeId}`;
   const cell = 20;
-  const baseY = 250;
+  const baseY = 265;
   const topY = baseY - height * cell;
   const leftX = originX;
   const topLeftX = leftX + shift * 12;
@@ -9884,8 +10096,8 @@ function renderParallelogramPairShape(card, shapeId, originX) {
   const topRightX = topLeftX + base * cell;
   const heightX = topLeftX + Math.min(base - 1, 2) * cell;
   return `
-    <g class="parallelogram-pair-shape" data-pair-shape="${shapeId}">
-      <text class="parallelogram-pair-name" x="${originX + 110}" y="42" text-anchor="middle">${shapeId}</text>
+    <g class="parallelogram-pair-shape ${positionClass}" data-pair-shape="${escapeHtml(shapeId)}">
+      <text class="parallelogram-pair-name" x="${originX + 110}" y="34" text-anchor="middle">${escapeHtml(shapeLabel)}</text>
       <polygon points="${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}"></polygon>
       <line class="parallelogram-height-line" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
       <path class="parallelogram-right-angle" d="M ${heightX} ${baseY - 13} L ${heightX + 13} ${baseY - 13} L ${heightX + 13} ${baseY}"></path>
@@ -9896,22 +10108,23 @@ function renderParallelogramPairShape(card, shapeId, originX) {
 }
 
 function renderParallelogramPairWorkspace(card, question) {
+  const shapeIds = parallelogramPairShapeIds(question);
   return `
     <figure class="teach-visual-frame parallelogram-pair-workspace">
       <figcaption>${escapeHtml(question.visualDirections)}</figcaption>
-      <svg class="parallelogram-pair-stage" viewBox="0 0 760 300" role="img" aria-label="Two adjustable non-rectangular parallelograms P and Q on square grids.">
+      <svg class="parallelogram-pair-stage" viewBox="0 0 760 300" role="img" aria-label="Two adjustable parallelograms on square grids.">
         <rect x="1" y="1" width="758" height="298" class="parallelogram-explore-board"></rect>
         <g aria-hidden="true">${gridLines(20, 10, 36, 14, 20)}</g>
-        ${renderParallelogramPairShape(card, "P", 55)}
-        ${renderParallelogramPairShape(card, "Q", 420)}
+        ${renderParallelogramPairShape(card, question, shapeIds[0], 75, "is-left")}
+        ${renderParallelogramPairShape(card, question, shapeIds[1], 430, "is-right")}
       </svg>
       <div class="parallelogram-pair-controls">
-        ${["P", "Q"].map((shapeId) => `
+        ${shapeIds.map((shapeId) => `
           <fieldset>
-            <legend>Parallelogram ${shapeId}</legend>
-            ${renderParallelogramPairRange(card, shapeId, "base", "Base", 2, 10)}
-            ${renderParallelogramPairRange(card, shapeId, "height", "Height", 2, 8)}
-            ${renderParallelogramPairRange(card, shapeId, "shift", "Horizontal shift", 1, 5)}
+            <legend>${escapeHtml(question.shapeLabels?.[shapeId] || `Parallelogram ${shapeId}`)}</legend>
+            ${renderParallelogramPairRange(card, question, shapeId, "base", "Base")}
+            ${renderParallelogramPairRange(card, question, shapeId, "height", "Height")}
+            ${renderParallelogramPairRange(card, question, shapeId, "shift", "Horizontal shift")}
           </fieldset>
         `).join("")}
       </div>
@@ -10168,8 +10381,8 @@ function questionSetAnswerIsCorrect(card, question) {
   if (question.dynamicAnswer === "validCubeNet") {
     return cubeNetIsValid(labeledCubeNetCells(card, question));
   }
-  if (question.responseType === "construction" && question.dynamicAnswer === "parallelogramPairArea20") {
-    return parallelogramPairIsCorrect(card);
+  if (question.responseType === "construction" && ["parallelogramPairArea20", "parallelogramPairEqualArea"].includes(question.dynamicAnswer)) {
+    return parallelogramPairIsCorrect(card, question);
   }
   if (question.dynamicAnswer === "eightCubeShapeMetrics") {
     const shapeId = question.shapeId === "B" ? "B" : "A";
@@ -10266,8 +10479,8 @@ function questionSetHasAnswer(card, question) {
   if (question.responseType === "construction" && question.dynamicAnswer === "tentPlanReady") {
     return tentPlanHasInteraction();
   }
-  if (question.responseType === "construction" && question.dynamicAnswer === "parallelogramPairArea20") {
-    return parallelogramPairHasInteraction(card);
+  if (question.responseType === "construction" && ["parallelogramPairArea20", "parallelogramPairEqualArea"].includes(question.dynamicAnswer)) {
+    return parallelogramPairHasInteraction(card, question);
   }
   if (question.responseType === "construction" && question.dynamicAnswer === "validCubeNet") {
     return labeledCubeNetCells(card, question).length > 0;
@@ -10302,6 +10515,7 @@ function questionSetReasoningEvaluation(card, question) {
 }
 
 function questionSetRequiredStateSatisfied(card, question) {
+  if (question.requireAreaCheck && !parallelogramExploreAreaIsShown(card, question.id)) return false;
   if (question.requiredConstruction === "sourceNetFoldComplete") {
     return surfaceNetFoldStep(card, question.netId) === 3;
   }
@@ -10328,6 +10542,7 @@ function questionSetRequiredStateSatisfied(card, question) {
 function questionSetQuestionIsCorrect(card, question) {
   const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
   return adjustmentSatisfied
+    && parallelogramExploreIsUnique(card, question)
     && questionSetRequiredStateSatisfied(card, question)
     && questionSetAnswerIsCorrect(card, question)
     && questionSetReasoningEvaluation(card, question).correct;
@@ -10481,8 +10696,9 @@ function renderQuestionSetFeedback(card, question) {
   const answerCorrect = answered && questionSetAnswerIsCorrect(card, question);
   const reasoning = questionSetReasoningEvaluation(card, question);
   const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
+  const uniquenessSatisfied = parallelogramExploreIsUnique(card, question);
   const requiredStateSatisfied = questionSetRequiredStateSatisfied(card, question);
-  const correct = submitted && adjustmentSatisfied && requiredStateSatisfied && answerCorrect && reasoning.correct;
+  const correct = submitted && adjustmentSatisfied && uniquenessSatisfied && requiredStateSatisfied && answerCorrect && reasoning.correct;
   const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
   const feedbackText = !submitted
     ? `Submit ${question.label} when you are ready for feedback.`
@@ -10490,8 +10706,12 @@ function renderQuestionSetFeedback(card, question) {
       ? question.missingResponseFeedback || `Choose or enter an answer for ${question.label}, then submit again.`
       : !adjustmentSatisfied
         ? question.adjustmentFeedback || "Change the model before submitting this question."
+        : !uniquenessSatisfied
+          ? question.uniquenessFeedback || "Make this model different from the figures already recorded."
       : !requiredStateSatisfied
-        ? question.requiredStateFeedback || "Complete the required workspace action before submitting this question."
+        ? question.requireAreaCheck
+          ? question.areaCheckFeedback || "Use Show Area to check this figure before submitting it."
+          : question.requiredStateFeedback || "Complete the required workspace action before submitting this question."
       : answerCorrect && question.reasoningPrompt && !reasoning.answered
         ? question.reasoningRequiredFeedback || "Your answer is correct. Add your reasoning, then submit again."
         : answerCorrect && question.reasoningPrompt && !reasoning.correct
@@ -10505,6 +10725,23 @@ function renderQuestionSetFeedback(card, question) {
 function renderQuestionSetHint(card, question) {
   if (!isTeachQuestionHintVisible(card, question.id)) return "";
   return `<p class="practice-hints teach-question-hint" data-question-set-hint-content="${escapeHtml(question.id)}"><strong>Hint:</strong> ${escapeHtml(question.hint)}</p>`;
+}
+
+function renderParallelogramAreaCheck(card, question) {
+  if (!question.showAreaCheck) return "";
+  const showArea = parallelogramExploreAreaIsShown(card, question.id);
+  return `
+    <div class="parallelogram-area-check-row">
+      <button
+        class="hint-button parallelogram-show-area"
+        type="button"
+        data-parallelogram-show-area="${card.id}"
+        data-question-id="${escapeHtml(question.id)}"
+        aria-pressed="${showArea}"
+      >${showArea ? "Hide Area" : "Show Area"}</button>
+      <span>${showArea ? "The applet now displays its calculated area in the workspace." : "Area is hidden."}</span>
+    </div>
+  `;
 }
 
 function renderQuestionSetAnswer(card, question) {
@@ -10580,6 +10817,7 @@ function renderQuestionSetAnswer(card, question) {
         placeholder="${escapeHtml(question.placeholder || "Type your answer")}"
       >
     </label>
+    ${renderParallelogramAreaCheck(card, question)}
   `;
 }
 
@@ -13858,7 +14096,21 @@ function bindEvents() {
     const parallelogramShowAreaButton = event.target.closest("[data-parallelogram-show-area]");
     if (parallelogramShowAreaButton) {
       const id = parallelogramShowAreaButton.dataset.parallelogramShowArea;
+      const questionId = parallelogramShowAreaButton.dataset.questionId;
       const card = teachCardById(id);
+      const question = card && questionId ? questionSetDefinition(card, questionId) : null;
+      if (card?.responseType === "questionSet" && question?.showAreaCheck) {
+        const response = getTeachCustomResponse(card);
+        const field = parallelogramExploreAreaCheckField(question.id);
+        state.teachCustomResponses[id] = {
+          ...response,
+          [field]: response[field] === "yes" ? "no" : "yes",
+        };
+        state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
+        state.sourceModalItemId = null;
+        renderTeachMe();
+        return;
+      }
       if (!card || card.responseType !== "parallelogramExplore") return;
       const response = state.teachCustomResponses[id] || {};
       state.teachCustomResponses[id] = {
@@ -14102,14 +14354,18 @@ function bindEvents() {
     const parallelogramPairInput = event.target.closest("[data-parallelogram-pair-input]");
     if (parallelogramPairInput) {
       const id = parallelogramPairInput.dataset.parallelogramPairInput;
+      const questionId = parallelogramPairInput.dataset.questionId;
       const shapeId = parallelogramPairInput.dataset.shapeId;
       const field = parallelogramPairInput.dataset.pairField;
       const card = teachCardById(id);
-      const question = card ? questionSetDefinition(card, "pair-build") : null;
-      if (!card || question?.dynamicAnswer !== "parallelogramPairArea20" || !["P", "Q"].includes(shapeId) || !["base", "height", "shift"].includes(field)) return;
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      if (!card
+        || !["parallelogramPairArea20", "parallelogramPairEqualArea"].includes(question?.dynamicAnswer)
+        || !parallelogramPairShapeIds(question).includes(shapeId)
+        || !["base", "height", "shift"].includes(field)) return;
       state.teachCustomResponses[id] = {
         ...getTeachCustomResponse(card),
-        [parallelogramPairField(shapeId, field)]: parallelogramPairInput.value,
+        [parallelogramPairField(question.id, shapeId, field)]: parallelogramPairInput.value,
       };
       state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
       state.sourceModalItemId = null;
@@ -14123,10 +14379,13 @@ function bindEvents() {
       const field = parallelogramInput.dataset.parallelogramField;
       const card = teachCardById(id);
       const question = card ? parallelogramExploreQuestion(card, questionId) : null;
-      if (!card || card.customVisual !== "parallelogramExplore" || !question?.model?.editable || !["base", "height", "slant"].includes(field)) return;
+      const isParallelogramWorkspace = card?.customVisual === "parallelogramExplore"
+        || question?.visualType === "parallelogramExplore";
+      if (!card || !isParallelogramWorkspace || !question?.model?.editable || !["base", "height", "slant"].includes(field)) return;
       state.teachCustomResponses[id] = {
         ...getTeachCustomResponse(card),
         [parallelogramExploreField(question.id, field)]: parallelogramInput.value,
+        [parallelogramExploreAreaCheckField(question.id)]: "no",
       };
       state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
       state.sourceModalItemId = null;

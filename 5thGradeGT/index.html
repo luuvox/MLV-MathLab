@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>5th Grade GT Math Lab - Unit 1</title>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260823-18">
   </head>
   <body data-mode="teach">
     <div class="app-shell">
@@ -23,13 +23,23 @@
       <main class="app-layout">
         <aside class="unit-rail" aria-label="Math units">
           <p class="rail-title">Units</p>
-          <button class="nav-link is-active" type="button" data-view="unit1" aria-controls="unit1View">
-            <span class="nav-number">1</span>
-            <span>
-              <strong>Area and Surface Area</strong>
-              <small>Teach Me ready</small>
-            </span>
-          </button>
+          <div class="unit-nav-group" data-unit-nav-group="unit1">
+            <button
+              class="nav-link is-active"
+              id="unit1NavButton"
+              type="button"
+              data-view="unit1"
+              aria-controls="unit1View teachLessonNav"
+              aria-expanded="true"
+            >
+              <span class="nav-number">1</span>
+              <span>
+                <strong>Area and Surface Area</strong>
+                <small>Teach Me ready</small>
+              </span>
+            </button>
+            <nav class="unit-lesson-nav" id="teachLessonNav" aria-label="Unit 1 lessons"></nav>
+          </div>
           <button class="nav-link" type="button" data-view="unit2" disabled>
             <span class="nav-number">2</span>
             <span><strong>Introducing Ratios</strong><small>Coming later</small></span>
@@ -82,7 +92,7 @@
               </p>
             </div>
             <div class="hero-model" aria-hidden="true">
-              <svg viewBox="0 0 360 220" role="img">
+              <svg viewBox="26 62 298 146" role="img">
                 <polygon points="40,146 116,72 196,72 120,146" class="shape-fill teal"></polygon>
                 <polygon points="132,146 208,72 288,72 212,146" class="shape-fill amber"></polygon>
                 <line x1="116" y1="72" x2="120" y2="146" class="model-line dashed"></line>
@@ -92,8 +102,6 @@
               </svg>
             </div>
           </section>
-
-          <nav class="scene-nav lesson-nav" id="teachLessonNav" aria-label="Unit 1 Teach Me lessons"></nav>
 
           <section class="teach-deck" id="teachLessonDeck" aria-label="Unit 1 student-facing lesson cards"></section>
 
@@ -135,7 +143,9 @@
       </main>
     </div>
 
-    <script src="unit1-practice-bank.js"></script>
-    <script src="script.js"></script>
+    <script src="vendor/three.min.js?v=20260823-4"></script>
+    <script src="unit1-polyhedra-models.js?v=20260823-4"></script>
+    <script src="unit1-practice-bank.js?v=20260823-4"></script>
+    <script src="script.js?v=20260823-17"></script>
   </body>
 </html>

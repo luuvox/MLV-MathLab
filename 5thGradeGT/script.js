@@ -1,3 +1,13 @@
+const initialTeachLessonMatch = window.location.hash.match(/^#lesson-(\d{2})$/);
+const initialTeachLessonNumber = Number(initialTeachLessonMatch?.[1]);
+const initialTeachLesson = Number.isInteger(initialTeachLessonNumber)
+  && initialTeachLessonNumber >= 1
+  && initialTeachLessonNumber <= 19
+  ? initialTeachLessonNumber
+  : 1;
+
+const TEXTAREA_MAX_LENGTH = 1000;
+
 const state = {
   view: "unit1",
   mode: "teach",
@@ -7,17 +17,26 @@ const state = {
   teachSubmitted: {},
   teachHints: {},
   teachActiveParts: {},
+  teachActiveLesson: initialTeachLesson,
   teachVariants: {},
   teachCustomResponses: {},
+  teachQuestionSubmitted: {},
+  teachQuestionHints: {},
+  teachGridAreaActive: {},
+  teachQuestionSetActive: {},
   teachOpenDropdown: null,
   teachTangramPieces: null,
   teachTangramSelectedPiece: "square",
   teachTrianglePairActive: "P",
   teachTrianglePairPieces: null,
   teachTrianglePairSelectedPiece: "copy-a",
+  teachDecomposePieces: null,
+  teachDecomposeSelectedPiece: "small",
   teachQuadrilateralActive: "A",
   teachQuadrilateralStartVertex: null,
+  teachQuadrilateralExtensionOpen: false,
   teachTriangleHeightStartPoint: null,
+  teachTriangleHeightRound: "round1",
   areaIdea: "compare",
   parallelogramBase: 8,
   parallelogramHeight: 4,
@@ -44,6 +63,8 @@ const state = {
 let sourceModalPointer = null;
 let tangramPointer = null;
 let trianglePairPointer = null;
+let decomposePointer = null;
+let pyramidNetPointer = null;
 
 const sourceModalBounds = {
   minWidth: 360,
@@ -57,6 +78,25 @@ const viewTitles = {
 };
 
 const practiceBank = window.unit1PracticeBank || [];
+
+const lesson14MatchChoices = [
+  { id: "solid-1", label: "1 - cube" },
+  { id: "solid-2", label: "2 - rectangular prism" },
+  { id: "solid-3", label: "3 - square pyramid" },
+  { id: "solid-4", label: "4 - triangular pyramid" },
+  { id: "solid-5", label: "5 - triangular prism" },
+];
+
+const measurementUnitChoices = [
+  { id: "millimeters", label: "millimeters (mm)" },
+  { id: "feet", label: "feet (ft)" },
+  { id: "meters", label: "meters (m)" },
+  { id: "square-inches", label: "square inches (sq in)" },
+  { id: "square-feet", label: "square feet (sq ft)" },
+  { id: "square-miles", label: "square miles (sq mi)" },
+  { id: "cubic-kilometers", label: "cubic kilometers (cu km)" },
+  { id: "cubic-yards", label: "cubic yards (cu yd)" },
+];
 
 const areaIdeaScenes = {
   compare: {
@@ -178,6 +218,14 @@ const unit1BlacklineMasters = {
     [1, 2, 3, 4],
     "Rendered Blackline Master pages for the Lesson 13 prism, pyramid, and polygon-net materials.",
     "Blackline Master page showing prism and pyramid materials for Lesson 13"
+  ),
+  prismsPyramidsStudentMaterials: unit1BlacklineMasterPages(
+    "Grade6.1.13.2",
+    "Prisms and Pyramids",
+    "Grade6-1-E13-2-prisms-and-pyramids-prisms-and-pyramids",
+    [2, 3, 4],
+    "Rendered student-use Blackline Master pages for testing nets for the triangular pyramid (source Figure P) and composing an assigned polyhedron net.",
+    "Blackline Master page showing student-use prism and pyramid net materials for Lesson 13"
   ),
   assemblingPolyhedra: unit1BlacklineMasterPages(
     "Grade6.1.13.3",
@@ -371,19 +419,17 @@ const unit1TeachCards = [
     title: "Finding Area by Decomposing and Rearranging",
     pdfPage: 1,
     cropPath: "lesson-02-p001-area-grids.png",
-    visualAlt: "Four grid-based shapes from the Student Task Statements.",
-    prompt: "Which statement best matches the lesson meaning of area?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "same-units", label: "Area is the amount of flat space covered, measured with same-size units without gaps or overlaps." },
-      { id: "outside", label: "Area is the distance around the outside of a figure." },
-      { id: "count-lines", label: "Area is the number of grid lines a figure touches." },
-      { id: "shape-name", label: "Area depends only on the name of the shape." },
-    ],
-    answerKey: ["same-units"],
-    hint: "The source page asks you to explain area using squares inside a two-dimensional shape.",
-    correctFeedback: "Correct. The lesson builds area from same-size units that cover the region, even when a shape is decomposed or rearranged.",
-    incorrectFeedback: "Try again. Area measures flat space inside a region; it is not perimeter, line count, or shape name.",
+    visualWidth: 470,
+    visualHeight: 325,
+    visualDisplayMaxWidth: 470,
+    visualAlt: "Four source drawings labeled A through D, each showing squares inside a blue two-dimensional shape.",
+    prompt: "Select all drawings whose squares could be used to find the area of the shape.",
+    definitionPrompt: "Write a definition of area that includes all the information that you think is important.",
+    responseType: "areaMeaning",
+    drawingChoices: ["A", "B", "C", "D"],
+    drawingAnswerKey: ["A", "B", "D"],
+    drawingHint: "Check whether the squares cover the whole shape without overlapping. If square sizes differ, consider whether the sizes can be converted to one common square unit.",
+    definitionHint: "Include what area measures, the unit used to measure it, and how those units must cover the region.",
   },
   {
     id: "teach-l3",
@@ -393,6 +439,9 @@ const unit1TeachCards = [
     title: "Reasoning to Find Area",
     pdfPage: 1,
     cropPath: "lesson-03-p001-region-grid-area.png",
+    visualWidth: 365,
+    visualHeight: 140,
+    visualDisplayMaxWidth: 365,
     visualAlt: "Source figures comparing a square region with a shaded region that has a missing square and an attached square.",
     sourceContext: "The source provides a Blackline Master copy for students who cut or physically compare the two regions.",
     prompt: "In Figure B, one square is removed from inside and an equal square is attached outside. How does its shaded area compare with Figure A?",
@@ -417,18 +466,55 @@ const unit1TeachCards = [
     pdfPage: 1,
     cropPath: "lesson-04-p001-parallelogram-examples.png",
     visualAlt: "Source examples and non-examples of parallelograms on a grid.",
-    prompt: "Which property explains why A, B, and C are parallelograms but D, E, and F are not?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "opposite-parallel", label: "They have two pairs of opposite sides that are parallel." },
-      { id: "right-angles", label: "They must have four right angles." },
-      { id: "six-sides", label: "They must have six sides." },
-      { id: "same-length", label: "All sides must be the same length." },
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "sides",
+        label: "Number of sides",
+        prompt: "What do you notice about the number of sides that a parallelogram has?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "three", label: "It has 3 sides." },
+          { id: "four", label: "It has 4 sides." },
+          { id: "six", label: "It has 6 sides." },
+        ],
+        answerKey: ["four"],
+        hint: "Trace the boundary of Figures A, B, and C and count each straight side once.",
+        correctFeedback: "Correct. Every parallelogram is a quadrilateral, so it has 4 sides.",
+        incorrectFeedback: "Not quite. Trace one complete boundary. Each of Figures A, B, and C has 4 sides, so every parallelogram is a quadrilateral.",
+      },
+      {
+        id: "opposite-sides",
+        label: "Opposite sides",
+        prompt: "What do you notice about opposite sides of a parallelogram?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "parallel-equal", label: "Both pairs are parallel, and each pair has equal length." },
+          { id: "one-parallel", label: "Only one pair must be parallel." },
+          { id: "all-equal", label: "All 4 sides must have equal length." },
+          { id: "perpendicular", label: "Opposite sides must be perpendicular." },
+        ],
+        answerKey: ["parallel-equal"],
+        hint: "Compare each side with the side directly across from it in A, B, and C.",
+        correctFeedback: "Correct. Both pairs of opposite sides are parallel, and opposite sides have equal length.",
+        incorrectFeedback: "Not quite. In every example, both pairs of opposite sides are parallel and each opposite pair has equal length. All 4 sides do not need to be equal.",
+      },
+      {
+        id: "opposite-angles",
+        label: "Opposite angles",
+        prompt: "What do you notice about opposite angles of a parallelogram?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "equal", label: "Each pair of opposite angles has equal measure." },
+          { id: "all-right", label: "All 4 angles must be right angles." },
+          { id: "all-different", label: "All 4 angles have different measures." },
+        ],
+        answerKey: ["equal"],
+        hint: "Compare the corners directly across from one another, especially in the slanted Figure A.",
+        correctFeedback: "Correct. Opposite angles of a parallelogram have equal measure.",
+        incorrectFeedback: "Not quite. Opposite angles have equal measure. They do not all need to be right angles, as Figure A shows.",
+      },
     ],
-    answerKey: ["opposite-parallel"],
-    hint: "Compare opposite sides, not just the slant or the size.",
-    correctFeedback: "Correct. A parallelogram is a quadrilateral with two pairs of opposite parallel sides.",
-    incorrectFeedback: "Not quite. Rectangles are parallelograms, but not every parallelogram has right angles or all sides equal. The key feature is parallel opposite sides.",
   },
   {
     id: "teach-l5",
@@ -436,22 +522,65 @@ const unit1TeachCards = [
     section: "B",
     idea: "Idea 2",
     title: "Bases and Heights of Parallelograms",
-    pdfPage: 3,
-    cropPath: "lesson-05-p003-bases-heights.png",
-    visualAlt: "Five source parallelograms labeled A through E with bases and heights.",
-    prompt: "Select every drawing that correctly labels a base b and a corresponding height h.",
-    responseType: "multiSelect",
-    choices: [
-      { id: "A", label: "A" },
-      { id: "B", label: "B" },
-      { id: "C", label: "C" },
-      { id: "D", label: "D" },
-      { id: "E", label: "E" },
+    pdfPage: 2,
+    pdfPages: [2, 3],
+    cropPath: "lesson-05-p002-height-examples-5-2.png",
+    visualAlt: "Source examples and non-examples of corresponding bases and heights in parallelograms.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "true-statements",
+        label: "True statements",
+        prompt: "Select all the statements that are true about bases and heights in a parallelogram.",
+        responseType: "multiSelect",
+        visualCropPath: "lesson-05-p002-height-examples-5-2.png",
+        visualWidth: 680,
+        visualHeight: 950,
+        visualDisplayMaxWidth: 410,
+        visualAlt: "Four source examples above four source non-examples of corresponding heights for chosen bases.",
+        visualDirections: "Examples: the top four dashed segments represent corresponding heights. Non-examples: the bottom four dashed segments do not.",
+        choices: [
+          { id: "a", label: "a. Only a horizontal side of a parallelogram can be a base." },
+          { id: "b", label: "b. Any side of a parallelogram can be a base." },
+          { id: "c", label: "c. A height can be drawn at any angle to the side chosen as the base." },
+          { id: "d", label: "d. A base and its corresponding height must be perpendicular to each other." },
+          { id: "e", label: "e. A height can only be drawn inside a parallelogram." },
+          { id: "f", label: "f. A height can be drawn outside the parallelogram if it is at a 90-degree angle to the base." },
+          { id: "g", label: "g. A base cannot be extended to meet a height." },
+        ],
+        answerKey: ["b", "d", "f"],
+        hint: "Use the right-angle marks in the examples. A base may be any side, and a corresponding height may meet an extension of that side.",
+        correctFeedback: "Correct. Statements b, d, and f are true: any side can be a base, its corresponding height is perpendicular, and that height may be outside the parallelogram.",
+        incorrectFeedback: "Not quite. The true statements are b, d, and f. A base need not be horizontal, a height must be perpendicular, and a height may be outside or meet an extended base.",
+      },
+      {
+        id: "student-drawings",
+        label: "Student drawings",
+        prompt: "Are all five drawings correctly labeled? Select every drawing with a correct base-height pair, then explain how you know.",
+        responseType: "multiSelect",
+        visualCropPath: "lesson-05-p003-student-height-labels-5-2.png",
+        visualWidth: 1320,
+        visualHeight: 800,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Five source parallelograms A through E with student-labeled bases and heights.",
+        choices: [
+          { id: "A", label: "Drawing A" },
+          { id: "B", label: "Drawing B" },
+          { id: "C", label: "Drawing C" },
+          { id: "D", label: "Drawing D" },
+          { id: "E", label: "Drawing E" },
+        ],
+        answerKey: ["A", "C", "D"],
+        reasoningPrompt: "Explain the rule you used to decide which labels are correct.",
+        reasoningConcepts: [["perpendicular"], ["90"], ["right angle"]],
+        reasoningRequiredFeedback: "Your selections are correct. Add an explanation of the perpendicular base-height relationship, then submit again.",
+        reasoningRevisionFeedback: "Your selections are correct, but strengthen the explanation. State that a corresponding height must be perpendicular to the chosen base or its extension.",
+        hint: "Look for a right angle between h and b, or between h and a line extending b.",
+        correctFeedback: "Correct. Not all five are correct: A, C, and D show a height perpendicular to the chosen base or its extension. B and E do not.",
+        incorrectFeedback: "Not quite. A, C, and D are correctly labeled. In B and E, the segment labeled h is not perpendicular to the chosen base.",
+      },
     ],
-    answerKey: ["A", "C", "D"],
-    hint: "The height must be perpendicular to the chosen base or to a line extending that base.",
-    correctFeedback: "Correct. A, C, and D pair a base with a perpendicular height. C also shows that the height can be drawn outside the parallelogram.",
-    incorrectFeedback: "Check for a right angle between b and h. B and E use a segment that is not perpendicular to the chosen base.",
   },
   {
     id: "teach-l6",
@@ -459,20 +588,152 @@ const unit1TeachCards = [
     section: "B",
     idea: "Idea 2",
     title: "Area of Parallelograms",
-    activityTitle: "6.2: Area of Parallelograms",
-    sourceContext: "The source activity uses an applet where students calculate area, show the area to check, and change the parallelogram.",
-    sourceDirections: "Change the parallelogram, calculate its area, and use Show Area to verify your calculation.",
+    activityTitle: "6.2: More Areas of Parallelograms",
+    sourceDirections: "Find the area of each source parallelogram, determine a missing corresponding height, and construct two different non-rectangular parallelograms with area 20 square units.",
     pdfPage: 1,
-    cropPath: null,
-    visualAlt: "Interactive parallelogram area model with adjustable base, height, and slant.",
-    customVisual: "parallelogramExplore",
-    defaultParallelogram: { base: 10, height: 6, slant: 3 },
-    prompt: "Build a parallelogram you like, then calculate its area from the base and corresponding height.",
-    responseType: "parallelogramExplore",
-    responsePrompt: "Record the area of the current parallelogram in square units.",
-    hint: "The slanted side changes the shape, but the area uses the base and perpendicular height.",
-    correctFeedback: "Correct. A parallelogram's area is base times corresponding height, and Show Area confirms the product for the figure you built.",
-    incorrectFeedback: "Recheck the base and perpendicular height shown in the model. Multiply those two measurements; the slant is not the height.",
+    pdfPages: [1, 2],
+    cropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+    visualAlt: "Four source parallelograms A through D with labeled measurements and a square grid.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "A",
+        label: "Area A",
+        prompt: "Find the area of Parallelogram A in square centimeters. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Parallelogram A",
+        placeholder: "Type area",
+        answerKey: ["60"],
+        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+        visualWidth: 1570,
+        visualHeight: 1580,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
+        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
+        reasoningPrompt: "Explain which base and corresponding height you used.",
+        reasoningConcepts: [["10", "6"]],
+        hint: "Use the 10 cm side and the perpendicular 6 cm segment.",
+        correctFeedback: "Correct. A has area 10 x 6 = 60 square centimeters.",
+        incorrectFeedback: "Not quite. The 10 cm base and its 6 cm corresponding height are perpendicular, so multiply 10 by 6.",
+      },
+      {
+        id: "B",
+        label: "Area B",
+        prompt: "Find the area of Parallelogram B in square centimeters. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Parallelogram B",
+        placeholder: "Type area",
+        answerKey: ["120"],
+        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+        visualWidth: 1570,
+        visualHeight: 1580,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
+        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
+        reasoningPrompt: "Explain which base and corresponding height you used.",
+        reasoningConcepts: [["15", "8"]],
+        hint: "The 8 cm segment is perpendicular to the side labeled 15 cm.",
+        correctFeedback: "Correct. B has area 15 x 8 = 120 square centimeters. The labeled 10 cm side does not pair with the 8 cm height.",
+        incorrectFeedback: "Not quite. Use a side and the segment perpendicular to it: 15 cm and 8 cm.",
+      },
+      {
+        id: "C",
+        label: "Area C",
+        prompt: "Find the area of Parallelogram C in square centimeters. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Parallelogram C",
+        placeholder: "Type area",
+        answerKey: ["63"],
+        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+        visualWidth: 1570,
+        visualHeight: 1580,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
+        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
+        reasoningPrompt: "Explain which base and corresponding height you used.",
+        reasoningConcepts: [["9", "7"]],
+        hint: "The 7 cm dashed segment is perpendicular to the side parallel to the 9 cm side.",
+        correctFeedback: "Correct. C has area 9 x 7 = 63 square centimeters. The 8 cm side length is not needed.",
+        incorrectFeedback: "Not quite. Pair the 9 cm base with its perpendicular 7 cm height.",
+      },
+      {
+        id: "D",
+        label: "Area D",
+        prompt: "Find the area of Parallelogram D in square centimeters. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Parallelogram D",
+        placeholder: "Type area",
+        answerKey: ["35"],
+        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+        visualWidth: 1570,
+        visualHeight: 1580,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Source Parallelograms A through D with their labeled measurements.",
+        visualDirections: "Study Parallelograms A-D. Select a question to record each area.",
+        reasoningPrompt: "Explain how the grid gives the base and corresponding height.",
+        reasoningConcepts: [["7", "5"]],
+        hint: "Each grid square is 1 cm by 1 cm. Count the horizontal base and the vertical distance between the parallel sides.",
+        correctFeedback: "Correct. D has a 7 cm base and a 5 cm corresponding height, so its area is 35 square centimeters.",
+        incorrectFeedback: "Not quite. The horizontal base spans 7 grid units, and the vertical height spans 5 grid units.",
+      },
+      {
+        id: "height-b",
+        label: "Height B",
+        prompt: "In Parallelogram B, what is the corresponding height for the base that is 10 cm long? Explain or show your reasoning.",
+        responseType: "number",
+        inputLabel: "Corresponding height for the 10 cm base",
+        placeholder: "Type height",
+        answerKey: ["12"],
+        visualCropPath: "lesson-06-p001-area-parallelograms-6-2.png",
+        visualWidth: 1570,
+        visualHeight: 1580,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Source Parallelograms A through D, including B with side lengths 15 cm and 10 cm and an 8 cm corresponding height for the 15 cm side.",
+        visualDirections: "Use Parallelogram B's known base-height pair to determine the height for its other base.",
+        reasoningPrompt: "Explain how the two base-height pairs give the same area.",
+        reasoningConcepts: [["15", "8"], ["120", "10"]],
+        hint: "First find B's area from 15 x 8. Then divide that area by the 10 cm base.",
+        correctFeedback: "Correct. B's area is 15 x 8 = 120 square centimeters, so the height for a 10 cm base is 120 / 10 = 12 cm.",
+        incorrectFeedback: "Not quite. The parallelogram's area is 120 square centimeters. Find the height that makes 10 x height = 120.",
+      },
+      {
+        id: "pair-build",
+        label: "Build P and Q",
+        prompt: "Construct two different parallelograms P and Q. Each must have area 20 square units, and neither may be a rectangle. Then explain how you know their areas are equal.",
+        responseType: "construction",
+        dynamicAnswer: "parallelogramPairArea20",
+        visualType: "parallelogramPair",
+        visualDirections: "Adjust the base, perpendicular height, and horizontal shift for both shapes. The shift keeps each shape from being a rectangle.",
+        missingResponseFeedback: "Adjust both Parallelogram P and Parallelogram Q in the workspace, explain your products, then submit again.",
+        reasoningPrompt: "Explain how the base-height products prove both areas are 20 square units.",
+        reasoningConcepts: [["20"], ["base", "height"], ["product", "equal"]],
+        hint: "Factor pairs of 20 include 4 and 5, 2 and 10, and 1 and 20. Use two different pairs or two different slants.",
+        correctFeedback: "Correct. Both non-rectangular parallelograms have base-height product 20, and their dimensions or slants make them different shapes.",
+        incorrectFeedback: "Not quite. Make each base x height equal 20, keep each horizontal shift above 0, and make P and Q different from one another.",
+      },
+      {
+        id: "optional-unshaded",
+        label: "Optional challenge",
+        optional: true,
+        prompt: "What is the area of the unshaded parallelogram in the middle? Explain or show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of the unshaded parallelogram",
+        placeholder: "Type area",
+        answerKey: ["3.2", "16/5"],
+        visualCropPath: "lesson-06-p002-unshaded-parallelogram-6-2.png",
+        visualWidth: 940,
+        visualHeight: 550,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Source green parallelogram composed of four identical shaded parallelograms around an unshaded parallelogram, labeled 5, 3, and 2.4 inches.",
+        visualDirections: "The shaded region is composed of four identical parallelograms. All lengths are in inches.",
+        reasoningPrompt: "Explain how the known base-height pair and the whole figure determine the middle area.",
+        reasoningConcepts: [["51.2", "48"], ["2", "1.6"], ["5", "2.4"]],
+        hint: "One shaded parallelogram has area 5 x 2.4 = 12. You can compare the four shaded areas with the area of the whole outer parallelogram.",
+        correctFeedback: "Correct. The outer parallelogram has area 8 x 6.4 = 51.2 square inches, while the four shaded parallelograms total 4 x 12 = 48 square inches. The unshaded area is 3.2 square inches.",
+        incorrectFeedback: "Not quite. Find the area of one shaded parallelogram, multiply by 4, and subtract that total from the area of the outer parallelogram.",
+      },
+    ],
   },
   {
     id: "teach-l7",
@@ -482,13 +743,50 @@ const unit1TeachCards = [
     title: "From Parallelograms to Triangles",
     pdfPage: 1,
     cropPath: "lesson-07-p001-same-parallelograms.png",
-    visualAlt: "Two source parallelograms with different chosen bases and heights.",
-    prompt: "The left parallelogram has base 2.4 cm and height 1 cm. The right parallelogram has the same area and height 2 cm. What is its base length?",
-    responseType: "number",
-    answerKey: ["1.2", "6/5"],
-    hint: "First find the shared area, then divide by the right parallelogram's height.",
-    correctFeedback: "Correct. The shared area is 2.4 square centimeters, and 2.4 ÷ 2 = 1.2 cm.",
-    incorrectFeedback: "The two parallelograms have the same area. Use 2.4 × 1 = 2.4, then find the base that makes base × 2 = 2.4.",
+    visualAlt: "Two identical source parallelograms, each with a different side marked as base and its corresponding height marked perpendicular.",
+    sourceDirections: "Here are two copies of a parallelogram. Each copy has one side labeled as the base and a segment drawn for its corresponding height.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "left-area",
+        label: "Left area",
+        prompt: "The base of the parallelogram on the left is 2.4 centimeters, and its corresponding height is 1 centimeter. Find its area in square centimeters.",
+        responseType: "number",
+        inputLabel: "Area of the left parallelogram",
+        placeholder: "Type area",
+        answerKey: ["2.4", "12/5"],
+        visualCropPath: "lesson-07-p001-same-parallelograms.png",
+        visualWidth: 535,
+        visualHeight: 155,
+        visualDisplayMaxWidth: 535,
+        visualAlt: "Two identical source parallelograms with different base-height pairs marked.",
+        visualDirections: "Use the marked base and corresponding height on each copy.",
+        hint: "Area of a parallelogram is base x corresponding height.",
+        correctFeedback: "Correct. The left parallelogram has area 2.4 x 1 = 2.4 square centimeters.",
+        incorrectFeedback: "Not quite. Multiply the 2.4 cm base by its 1 cm corresponding height.",
+      },
+      {
+        id: "right-base",
+        label: "Right base",
+        prompt: "The height of the parallelogram on the right is 2 centimeters. How long is its base? Explain your reasoning.",
+        responseType: "number",
+        inputLabel: "Base length of the right parallelogram",
+        placeholder: "Type length",
+        answerKey: ["1.2", "6/5"],
+        visualCropPath: "lesson-07-p001-same-parallelograms.png",
+        visualWidth: 535,
+        visualHeight: 155,
+        visualDisplayMaxWidth: 535,
+        visualAlt: "Two identical source parallelograms with different base-height pairs marked.",
+        visualDirections: "The two drawings are copies of the same parallelogram, so they have the same area.",
+        reasoningPrompt: "Explain how the shared area and the 2 cm height determine the base.",
+        reasoningConcepts: [["2.4", "2"], ["divide", "2"]],
+        hint: "Use the area from the left copy, then divide by the right copy's 2 cm height.",
+        correctFeedback: "Correct. The shared area is 2.4 square centimeters, and 2.4 / 2 = 1.2, so the base is 1.2 centimeters.",
+        incorrectFeedback: "Not quite. The two copies have the same 2.4-square-centimeter area. Find the base that makes base x 2 = 2.4.",
+      },
+    ],
   },
   {
     id: "teach-l8",
@@ -498,18 +796,81 @@ const unit1TeachCards = [
     title: "Area of Triangles",
     pdfPage: 1,
     cropPath: "lesson-08-p001-composing-parallelograms.png",
-    visualAlt: "Source diagrams composing a triangle and its copy into parallelograms.",
-    prompt: "When Triangle M and an identical copy compose each parallelogram, how does a composed parallelogram's area compare with Triangle M?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "same", label: "It has the same area as Triangle M." },
-      { id: "twice", label: "It has twice the area of Triangle M." },
-      { id: "half", label: "It has half the area of Triangle M." },
+    visualAlt: "Source Triangle M and three different parallelograms composed from Triangle M and one identical copy on square grids.",
+    sourceDirections: "For each parallelogram Han composed, identify a base and corresponding height, write their measurements, and find the area. Show your reasoning.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "left",
+        label: "Left parallelogram",
+        prompt: "Identify a base and corresponding height for the left parallelogram, then find its area in square units.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [
+          { base: ["6"], height: ["4"], area: ["24"] },
+          { base: ["4"], height: ["6"], area: ["24"] },
+        ],
+        visualCropPath: "lesson-08-p001-composing-parallelograms.png",
+        visualWidth: 630,
+        visualHeight: 390,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Triangle M and three source parallelograms composed from two copies of it.",
+        visualDirections: "The top grid shows Triangle M. The lower grid shows the left, middle, and right parallelograms Han composed.",
+        reasoningPrompt: "Explain how the grid confirms your base, height, and area.",
+        reasoningConcepts: [["6", "4"], ["4", "6"]],
+        hint: "Count grid intervals, not grid lines. The left composition can be viewed as a 6-by-4 rectangle.",
+        correctFeedback: "Correct. The left parallelogram has area 24 square units. It is composed of two copies of Triangle M, so Triangle M has area 12 square units.",
+        incorrectFeedback: "Not quite. A valid pair is base 6 and height 4, giving area 24 square units.",
+      },
+      {
+        id: "middle",
+        label: "Middle parallelogram",
+        prompt: "Identify a base and corresponding height for the middle parallelogram, then find its area in square units.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: ["4"], height: ["6"], area: ["24"] }],
+        visualCropPath: "lesson-08-p001-composing-parallelograms.png",
+        visualWidth: 630,
+        visualHeight: 390,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Triangle M and three source parallelograms composed from two copies of it.",
+        visualDirections: "The top grid shows Triangle M. The lower grid shows the left, middle, and right parallelograms Han composed.",
+        reasoningPrompt: "Explain how the grid confirms your base, height, and area.",
+        reasoningConcepts: [["4", "6"]],
+        hint: "Use the vertical side as a 4-unit base and count the 6-unit perpendicular distance to the opposite side.",
+        correctFeedback: "Correct. The middle parallelogram has base 4, corresponding height 6, and area 24 square units. Triangle M is half of it, with area 12.",
+        incorrectFeedback: "Not quite. The easy base-height pair is 4 and 6, so the area is 24 square units.",
+      },
+      {
+        id: "right",
+        label: "Right parallelogram",
+        prompt: "Identify a base and corresponding height for the right parallelogram, then find its area in square units.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: ["6"], height: ["4"], area: ["24"] }],
+        visualCropPath: "lesson-08-p001-composing-parallelograms.png",
+        visualWidth: 630,
+        visualHeight: 390,
+        visualDisplayMaxWidth: 610,
+        visualAlt: "Triangle M and three source parallelograms composed from two copies of it.",
+        visualDirections: "The top grid shows Triangle M. The lower grid shows the left, middle, and right parallelograms Han composed.",
+        reasoningPrompt: "Explain how the grid confirms your base, height, and area.",
+        reasoningConcepts: [["6", "4"]],
+        hint: "Use a 6-unit horizontal side as the base and the 4-unit vertical distance as its height.",
+        correctFeedback: "Correct. The right parallelogram has base 6, corresponding height 4, and area 24 square units. Triangle M is half of it, with area 12.",
+        incorrectFeedback: "Not quite. The horizontal base is 6 units and the corresponding height is 4 units, so the area is 24.",
+      },
     ],
-    answerKey: ["twice"],
-    hint: "Each parallelogram is made from Triangle M plus one congruent copy.",
-    correctFeedback: "Correct. Two congruent triangles compose the parallelogram, so one triangle is half of the parallelogram.",
-    incorrectFeedback: "Count the copies. The parallelogram is made of Triangle M and one identical triangle, so its area is twice Triangle M's area.",
   },
   {
     id: "teach-l9",
@@ -519,19 +880,121 @@ const unit1TeachCards = [
     title: "Formula for the Area of a Triangle",
     pdfPage: 2,
     cropPath: "lesson-09-p002-triangle-formula.png",
-    visualAlt: "Source triangle formula page with triangles on grids and a table for base, height, and area.",
-    prompt: "Which expression gives the area of any triangle with base b and corresponding height h?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "bh", label: "b × h" },
-      { id: "half-bh", label: "1/2 × b × h" },
-      { id: "b-plus-h", label: "b + h" },
-      { id: "two-bh", label: "2 × b × h" },
+    visualAlt: "Source triangles A through D on grids and a table for base, height, area, and the general triangle formula.",
+    sourceDirections: "For each triangle, identify a base and corresponding height, record their lengths and area, then write an expression for the area of any triangle.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "A",
+        label: "Triangle A",
+        prompt: "Record a base, its corresponding height, and the area of Triangle A.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: ["10"], height: ["7"], area: ["35"] }],
+        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualWidth: 570,
+        visualHeight: 660,
+        visualDisplayMaxWidth: 570,
+        visualAlt: "Source triangles A through D on square grids.",
+        visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
+        reasoningPrompt: "Explain the area calculation.",
+        reasoningConcepts: [["10", "7"], ["70", "half"], ["35", "square"]],
+        hint: "The horizontal base is 10 units and its corresponding height is 7 units.",
+        correctFeedback: "Correct. Triangle A has area 1/2 x 10 x 7 = 35 square units.",
+        incorrectFeedback: "Not quite. Count 10 grid intervals along the horizontal base and 7 perpendicular intervals for the height.",
+      },
+      {
+        id: "B",
+        label: "Triangle B",
+        prompt: "Record a base, its corresponding height, and the area of Triangle B.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [
+          { base: ["11"], height: ["6"], area: ["33"] },
+          { base: ["6"], height: ["11"], area: ["33"] },
+        ],
+        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualWidth: 570,
+        visualHeight: 660,
+        visualDisplayMaxWidth: 570,
+        visualAlt: "Source triangles A through D on square grids.",
+        visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
+        reasoningPrompt: "Explain the area calculation.",
+        reasoningConcepts: [["11", "6"], ["66", "half"], ["33", "square"]],
+        hint: "The perpendicular sides measure 11 units and 6 units; either can be the base.",
+        correctFeedback: "Correct. Triangle B has area 1/2 x 11 x 6 = 33 square units.",
+        incorrectFeedback: "Not quite. Use the 11-unit horizontal side with the 6-unit vertical side, or swap their roles.",
+      },
+      {
+        id: "C",
+        label: "Triangle C",
+        prompt: "Record a base, its corresponding height, and the area of Triangle C.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: ["10"], height: ["3"], area: ["15"] }],
+        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualWidth: 570,
+        visualHeight: 660,
+        visualDisplayMaxWidth: 570,
+        visualAlt: "Source triangles A through D on square grids.",
+        visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
+        reasoningPrompt: "Explain the area calculation.",
+        reasoningConcepts: [["10", "3"], ["30", "half"], ["15", "square"]],
+        hint: "The horizontal base is 10 units and the opposite vertex is 3 perpendicular units away.",
+        correctFeedback: "Correct. Triangle C has area 1/2 x 10 x 3 = 15 square units.",
+        incorrectFeedback: "Not quite. The slanted side is not the height for the horizontal base; use the 3-unit perpendicular distance.",
+      },
+      {
+        id: "D",
+        label: "Triangle D",
+        prompt: "Record a base, its corresponding height, and the area of Triangle D.",
+        fields: [
+          { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: ["4"], height: ["11"], area: ["22"] }],
+        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualWidth: 570,
+        visualHeight: 660,
+        visualDisplayMaxWidth: 570,
+        visualAlt: "Source triangles A through D on square grids.",
+        visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
+        reasoningPrompt: "Explain the area calculation.",
+        reasoningConcepts: [["4", "11"], ["44", "half"], ["22", "square"]],
+        hint: "Use the 4-unit horizontal top side and the 11-unit perpendicular vertical distance.",
+        correctFeedback: "Correct. Triangle D has area 1/2 x 4 x 11 = 22 square units.",
+        incorrectFeedback: "Not quite. The top base spans 4 grid intervals, and its corresponding height spans 11.",
+      },
+      {
+        id: "formula",
+        label: "Any triangle",
+        prompt: "Write an expression for the area of any triangle with base b and corresponding height h.",
+        responseType: "shortAnswer",
+        inputLabel: "Area expression",
+        placeholder: "Type expression",
+        answerKey: ["1/2 x b x h", "(b x h)/2", "b x h / 2", "bh/2", "0.5bh"],
+        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualWidth: 570,
+        visualHeight: 660,
+        visualDisplayMaxWidth: 570,
+        visualAlt: "Source triangles A through D on square grids and the recording table.",
+        visualDirections: "Use the pattern in the four completed area calculations.",
+        hint: "A triangle is half of a parallelogram with the same base and corresponding height.",
+        correctFeedback: "Correct. The area of any triangle is 1/2 x b x h.",
+        incorrectFeedback: "Not quite. Start with b x h for the related parallelogram and take half.",
+      },
     ],
-    answerKey: ["half-bh"],
-    hint: "A triangle is half of a related parallelogram with the same base and height.",
-    correctFeedback: "Correct. The related parallelogram has area b × h, and the triangle is half of it.",
-    incorrectFeedback: "Use the related parallelogram idea: the triangle's area is half of b × h.",
   },
   {
     id: "teach-l10",
@@ -540,13 +1003,12 @@ const unit1TeachCards = [
     idea: "Idea 3",
     title: "Bases and Heights of Triangles",
     activityTitle: "10.2: Hunting for Heights",
-    sourceContext: "The source asks students to use an index-card right angle to draw triangle heights. The app recreates that marking step with point-to-point height segments.",
-    sourceDirections: "Draw a height that corresponds to each chosen base.",
+    sourceDirections: "Round 1: draw a corresponding height for sides a, b, and c of the rotated triangle. After those are checked, continue to Round 2 and draw a height for the chosen base in Triangles A-F.",
     pdfPage: 2,
     cropPath: null,
     customVisual: "triangleHeights",
     visualAlt: "Source triangle diagrams for drawing heights to chosen bases.",
-    prompt: "Click the opposite vertex and the matching point on the base line to draw each height, then explain what all correct heights have in common.",
+    prompt: "Complete both source rounds: mark all nine corresponding heights, then explain what makes every segment a height.",
     responseType: "triangleHeightMarks",
     hint: "A height is perpendicular to the base line and reaches the opposite vertex. Sometimes the base line has to be extended.",
     correctFeedback: "Correct. Each marked height is perpendicular to the chosen base line and connects that line to the opposite vertex. Some heights land outside the triangle because the base line has to be extended.",
@@ -558,21 +1020,46 @@ const unit1TeachCards = [
     section: "D",
     idea: "Idea 4",
     title: "Polygons",
+    activityTitle: "11.2: What Are Polygons?",
+    sourceDirections: "Study the source examples and non-examples. Circle every figure A-J that is a polygon, then describe the characteristics you used.",
     pdfPage: 2,
-    cropPath: "lesson-11-p002-polygons.png",
-    visualAlt: "Source examples and non-examples of polygons with figures A through J.",
-    prompt: "Which description matches the figures that are polygons?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "closed-straight", label: "Closed, flat figures made only of straight segments that meet end to end." },
-      { id: "curved-ok", label: "Any closed figure, including ones with curves." },
-      { id: "three-d", label: "Any drawing that looks three-dimensional." },
-      { id: "open-ok", label: "Any figure made from straight segments, even if it is open." },
+    cropPath: "lesson-11-p002-polygon-candidates.png",
+    customVisual: "polygonClassification",
+    visualAlt: "Source polygon examples, non-examples, and candidate figures A through J.",
+    prompt: "Complete both source questions: classify the figures, then explain what all polygons have in common.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "classify",
+        label: "Question 1",
+        prompt: "Circle every figure A-J that is a polygon.",
+        responseType: "multiSelect",
+        choices: "ABCDEFGHIJ".split("").map((id) => ({ id, label: `Figure ${id}` })),
+        answerKey: ["B", "F", "G", "H"],
+        hint: "A polygon is one two-dimensional figure made only of straight segments. Each segment meets exactly one other segment at each endpoint, and the sides do not cross.",
+        correctFeedback: "Correct. B, F, G, and H are polygons. A and E are open; C and J contain extra segments; D has curves; and I has crossing sides.",
+        incorrectFeedback: "Not quite. Check whether each drawing is one closed two-dimensional figure made only of straight, non-crossing segments that meet end to end.",
+      },
+      {
+        id: "characteristics",
+        label: "Question 2",
+        prompt: "What do the figures you circled have in common? What characteristics helped you decide whether a figure was a polygon?",
+        responseType: "openResponse",
+        inputLabel: "Characteristics of a polygon",
+        placeholder: "Describe the characteristics you used.",
+        minLength: 24,
+        answerConcepts: [
+          ["straight", "closed"],
+          ["line segment", "endpoint"],
+          ["straight", "meet", "end"],
+          ["two-dimensional", "straight"],
+          ["straight", "do not cross"],
+        ],
+        hint: "Describe the sides, how their endpoints connect, whether they cross, and whether the figure is two-dimensional.",
+        correctFeedback: "Good definition. A polygon is a two-dimensional figure made of straight line segments; each segment meets exactly one other segment at each endpoint, and the sides do not cross.",
+        incorrectFeedback: "Strengthen the definition with at least two defining ideas, such as straight line segments, connected endpoints, no crossings, or being two-dimensional.",
+      },
     ],
-    answerKey: ["closed-straight"],
-    hint: "Look at the source examples and non-examples: curves, openings, crossings, and extra segments matter.",
-    correctFeedback: "Correct. Polygons are closed two-dimensional figures made of straight line segments.",
-    incorrectFeedback: "Try again. A polygon must be closed and made only of straight line segments, with the segments meeting end to end.",
   },
   {
     id: "teach-l12",
@@ -580,14 +1067,13 @@ const unit1TeachCards = [
     section: "E",
     idea: "Idea 5",
     title: "What is Surface Area?",
-    activityTitle: "12.3: Building Prisms",
-    sourceContext: "The source uses 12 snap cubes or a digital hidden-stack applet. The app recreates the build by letting students choose a 12-cube prism and then reason from the rendered solid.",
-    sourceDirections: "Use all 12 cubes to build a different rectangular prism, then find its faces and surface area.",
+    activityTitle: "12.3: Building with Snap Cubes",
+    sourceDirections: "Use all 12 cubes to build a rectangular prism with different edge lengths than the shown 3 by 2 by 2 prism. Find its number of faces and surface area, then use the rendered model as your drawing.",
     pdfPage: 2,
     cropPath: null,
     customVisual: "prismBuilder",
     visualAlt: "Interactive rectangular-prism builder using 12 unit cubes.",
-    prompt: "Build a different 12-cube rectangular prism than the source example, then find its faces and surface area.",
+    prompt: "Build a different 12-cube rectangular prism, determine its six outside faces and surface area, and explain how the rendered drawing supports your calculation.",
     responseType: "prismBuild",
     builderMode: "single12",
     hint: "The source prism has dimensions 3 by 2 by 2. Choose a different factor triple with product 12, then add the areas of all 6 outside faces.",
@@ -600,24 +1086,51 @@ const unit1TeachCards = [
     section: "E",
     idea: "Idea 5",
     title: "Polyhedra",
+    activityTitle: "13.1: What are Polyhedra?",
     pdfPage: 1,
-    cropPath: "lesson-13-p001-polyhedra-sort.png",
-    visualAlt: "Source pictures of polyhedra and non-polyhedra.",
-    sourceContext: "The source notes that teachers may use Blackline Master nets to make physical models, but the app uses the student-facing sort pictures and does not expose teacher-prep net pages.",
-    prompt: "Which features should you use when sorting objects into polyhedra and non-polyhedra?",
-    responseType: "multiSelect",
-    reasoningPrompt: "Describe how the top row and bottom row differ.",
-    choices: [
-      { id: "flat-polygon-faces", label: "It is made only of flat polygon faces." },
-      { id: "straight-edges", label: "Its faces meet along straight edges." },
-      { id: "encloses-region", label: "The faces enclose a three-dimensional region." },
-      { id: "curved-surfaces", label: "It has curved surfaces." },
-      { id: "open-top", label: "It has an opening like a box without a lid." },
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Source examples and source-derived virtual figures to inspect and sort.",
+    sourceDirections: "Study the source examples and non-examples. Then turn and inspect each virtual figure the app provides, sort the figures into polyhedra and non-polyhedra, and explain the features that distinguish the groups.",
+    prompt: "Inspect and sort every assigned figure, then explain how you decided.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "sort",
+        label: "Question 1",
+        prompt: "Classify every assigned figure as a polyhedron or not a polyhedron. Submit each figure separately.",
+        responseType: "perFigureClassification",
+        dynamicAnswer: "polyhedronPerFigure",
+        choices: [
+          { id: "polyhedron", label: "Polyhedron" },
+          { id: "not-polyhedron", label: "Not a polyhedron" },
+        ],
+        answerKey: ["A", "B", "C", "D", "E", "F", "G", "H", "J"],
+        visualType: "polyhedronSort",
+        hint: "Turn each figure and check three things: every face is a filled-in polygon, each face joins exactly one other face along each complete edge, and the faces enclose one three-dimensional region.",
+        correctFeedback: "Correct. A-H and J are closed source-prepared figures made from flat polygon faces that meet edge to edge. K does not make a closed edge-to-edge surface. L and M have curved surfaces, N is a joined twisted strip that does not enclose a three-dimensional region, and O has an open top.",
+        incorrectFeedback: "Inspect every figure from more than one direction. Check for curved surfaces, unjoined or improperly joined edges, and whether the faces enclose one three-dimensional region.",
+      },
+      {
+        id: "features",
+        label: "Question 2",
+        prompt: "What features helped you distinguish the polyhedra from the other figures?",
+        responseType: "openResponse",
+        inputLabel: "Defining features",
+        placeholder: "Describe the features you used.",
+        minLength: 24,
+        answerConcepts: [
+          ["flat", "face", "closed"],
+          ["polygon", "face", "enclose"],
+          ["straight", "edge", "no curve"],
+          ["three-dimensional", "polygon", "face"],
+        ],
+        visualType: "polyhedronExamples",
+        hint: "Describe the kinds of faces, how the faces meet, and whether the figure encloses a region.",
+        correctFeedback: "Good definition. A polyhedron is a closed three-dimensional figure made from flat polygon faces. Each face meets another face along complete straight edges, and the faces enclose a region.",
+        incorrectFeedback: "Strengthen the description with the flat polygon faces, complete straight edges, and closed three-dimensional region that define a polyhedron.",
+      },
     ],
-    answerKey: ["flat-polygon-faces", "straight-edges", "encloses-region"],
-    hint: "Look for solid 3D figures with flat polygon faces, straight edges, and no openings or curved surfaces.",
-    correctFeedback: "Correct. Polyhedra are closed 3D figures made from flat polygon faces; spheres, cylinders, curved surfaces, and open boxes do not fit.",
-    incorrectFeedback: "Sort by surface type and whether the figure is closed: a polyhedron is enclosed by flat polygon faces that meet along straight edges.",
   },
   {
     id: "teach-l14",
@@ -625,24 +1138,107 @@ const unit1TeachCards = [
     section: "E",
     idea: "Idea 5",
     title: "Nets and Surface Area",
+    activityTitle: "14.1: Matching Nets",
     pdfPage: 1,
-    cropPath: "lesson-14-p001-net-matching.png",
+    cropPath: null,
+    customVisual: "questionSetVisual",
     visualAlt: "Source nets and solids for matching nets to polyhedra.",
-    sourceContext: "The source offers the Matching Nets Blackline Master as cutout support for testing the same net-to-solid matches.",
+    sourceDirections: "Match every source net A-E with its corresponding numbered polyhedron, name the polyhedron, and explain a visual clue for each match.",
     blacklineMasters: unit1BlacklineMasters.matchingNets,
-    prompt: "Which full matching pairs every net with its corresponding polyhedron?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "correct", label: "A-4, B-2, C-3, D-5, E-1" },
-      { id: "swap-prisms", label: "A-4, B-5, C-3, D-2, E-1" },
-      { id: "swap-pyramids", label: "A-3, B-2, C-4, D-5, E-1" },
-      { id: "cube-b", label: "A-4, B-1, C-3, D-5, E-2" },
+    prompt: "Complete all five net-to-polyhedron matches.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "net-a",
+        label: "Net A",
+        prompt: "Which numbered polyhedron does Net A form, and what is its name?",
+        responseType: "singleChoice",
+        choices: lesson14MatchChoices,
+        answerKey: ["solid-3"],
+        reasoningPrompt: "Name one face-shape clue that proves the match.",
+        reasoningConcepts: [["square", "four", "triang"], ["square", "triang", "pyramid"]],
+        visualCropPath: "lesson-14-p001-net-matching-hd.png",
+        visualWidth: 2050,
+        visualHeight: 850,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source Nets A-E above numbered Polyhedra 1-5.",
+        hint: "Net A has one square and four triangles.",
+        correctFeedback: "Correct. Net A matches Polyhedron 3, a square pyramid, because its square base is surrounded by four triangular faces.",
+        incorrectFeedback: "Net A has one square face and four triangular faces. Match those faces to the numbered solid.",
+      },
+      {
+        id: "net-b",
+        label: "Net B",
+        prompt: "Which numbered polyhedron does Net B form, and what is its name?",
+        responseType: "singleChoice",
+        choices: lesson14MatchChoices,
+        answerKey: ["solid-2"],
+        reasoningPrompt: "Name one face-shape clue that proves the match.",
+        reasoningConcepts: [["six", "rectang"], ["rectang", "three", "pair"]],
+        visualCropPath: "lesson-14-p001-net-matching-hd.png",
+        visualWidth: 2050,
+        visualHeight: 850,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source Nets A-E above numbered Polyhedra 1-5.",
+        hint: "Net B is made from six rectangles in three matching pairs.",
+        correctFeedback: "Correct. Net B matches Polyhedron 2, a rectangular prism, because it has six rectangular faces arranged in three matching pairs.",
+        incorrectFeedback: "Count Net B's rectangular faces and compare their shapes with the box-like solids.",
+      },
+      {
+        id: "net-c",
+        label: "Net C",
+        prompt: "Which numbered polyhedron does Net C form, and what is its name?",
+        responseType: "singleChoice",
+        choices: lesson14MatchChoices,
+        answerKey: ["solid-4"],
+        reasoningPrompt: "Name one face-shape clue that proves the match.",
+        reasoningConcepts: [["four", "triang"], ["triang", "pyramid"]],
+        visualCropPath: "lesson-14-p001-net-matching-hd.png",
+        visualWidth: 2050,
+        visualHeight: 850,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source Nets A-E above numbered Polyhedra 1-5.",
+        hint: "Net C has exactly four triangular faces.",
+        correctFeedback: "Correct. Net C matches Polyhedron 4, a triangular pyramid, because all four faces are triangles.",
+        incorrectFeedback: "Look for the numbered solid made from four triangular faces.",
+      },
+      {
+        id: "net-d",
+        label: "Net D",
+        prompt: "Which numbered polyhedron does Net D form, and what is its name?",
+        responseType: "singleChoice",
+        choices: lesson14MatchChoices,
+        answerKey: ["solid-5"],
+        reasoningPrompt: "Name one face-shape clue that proves the match.",
+        reasoningConcepts: [["two", "triang", "three", "rectang"], ["triang", "prism"]],
+        visualCropPath: "lesson-14-p001-net-matching-hd.png",
+        visualWidth: 2050,
+        visualHeight: 850,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source Nets A-E above numbered Polyhedra 1-5.",
+        hint: "Net D has two triangular bases and three rectangular side faces.",
+        correctFeedback: "Correct. Net D matches Polyhedron 5, a triangular prism, because it has two triangles and three rectangles.",
+        incorrectFeedback: "Find the solid with two triangular bases connected by three rectangles.",
+      },
+      {
+        id: "net-e",
+        label: "Net E",
+        prompt: "Which numbered polyhedron does Net E form, and what is its name?",
+        responseType: "singleChoice",
+        choices: lesson14MatchChoices,
+        answerKey: ["solid-1"],
+        reasoningPrompt: "Name one face-shape clue that proves the match.",
+        reasoningConcepts: [["six", "square"], ["cube", "square"]],
+        visualCropPath: "lesson-14-p001-net-matching-hd.png",
+        visualWidth: 2050,
+        visualHeight: 850,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source Nets A-E above numbered Polyhedra 1-5.",
+        hint: "Net E has six congruent square faces.",
+        correctFeedback: "Correct. Net E matches Polyhedron 1, a cube, because all six faces are congruent squares.",
+        incorrectFeedback: "Look for the numbered solid whose six faces are all squares.",
+      },
     ],
-    answerKey: ["correct"],
-    reasoningPrompt: "Name one clue you used to match a net to a solid.",
-    hint: "Match the face shapes first: square-pyramid nets have one square and four triangles; triangular-prism nets have rectangles and two triangles; a cube net has six squares.",
-    correctFeedback: "Correct. The source match is A-4, B-2, C-3, D-5, and E-1.",
-    incorrectFeedback: "Check the faces in each net against the visible faces of each solid. Net E has six squares, and Net D has two triangles plus rectangles.",
   },
   {
     id: "teach-l15",
@@ -650,21 +1246,78 @@ const unit1TeachCards = [
     section: "E",
     idea: "Idea 5",
     title: "More Nets, More Surface Area",
+    activityTitle: "15.3: Comparing Boxes",
+    sourceDirections: "Use the source nets to compare all three boxes. First compare their surface areas and cardboard use. Then compare their volumes and cube capacity.",
     pdfPage: 2,
-    cropPath: "lesson-15-p002-box-nets.png",
+    pdfPages: [2, 3],
+    cropPath: null,
+    customVisual: "questionSetVisual",
     visualAlt: "Source net diagrams for three cardboard boxes.",
-    prompt: "To decide which box uses the least cardboard, what measurement should you compare?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "surface-area", label: "The total area of all outside faces." },
-      { id: "volume", label: "The volume inside each box." },
-      { id: "height-only", label: "Only the height of each box." },
-      { id: "longest-edge", label: "Only the longest edge in each net." },
+    prompt: "Answer both source comparisons, then try the optional cube-net investigation.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "box-surface-areas",
+        label: "Question 1: Cardboard",
+        prompt: "Find and compare the surface areas of Boxes A, B, and C. Which box uses the least cardboard?",
+        fields: [
+          { id: "areaA", label: "Box A surface area", responseType: "number", placeholder: "Type square units" },
+          { id: "areaB", label: "Box B surface area", responseType: "number", placeholder: "Type square units" },
+          { id: "areaC", label: "Box C surface area", responseType: "number", placeholder: "Type square units" },
+          { id: "least", label: "Box using the least cardboard", responseType: "shortAnswer", placeholder: "Type A, B, or C" },
+        ],
+        acceptedFieldSets: [{ areaA: ["42"], areaB: ["54"], areaC: ["54"], least: ["A", "Box A"] }],
+        reasoningPrompt: "Show how the face areas in the nets support your comparison.",
+        reasoningConcepts: [["42", "54"], ["surface", "area", "a"], ["face", "area", "a"]],
+        visualCropPath: "lesson-15-p002-box-nets.png",
+        visualWidth: 538,
+        visualHeight: 510,
+        visualDisplayMaxWidth: 538,
+        visualAlt: "Source nets A, B, and C with all side lengths labeled in centimeters.",
+        hint: "Each pair of matching faces appears in the net. Add all six face areas for each box.",
+        reasoningRevisionFeedback: "Your surface areas and comparison are correct. Strengthen the explanation by showing how the labeled faces total 42 for A and 54 for both B and C.",
+        correctFeedback: "Correct. Box A has surface area 42 square centimeters. Boxes B and C each have surface area 54 square centimeters, so Box A uses the least cardboard.",
+        incorrectFeedback: "Recheck all six faces in each net. Box dimensions are A: 2 by 3 by 3, B: 1 by 3 by 6, and C: 3 by 3 by 3.",
+      },
+      {
+        id: "box-volumes",
+        label: "Question 2: Capacity",
+        prompt: "Find and compare the volumes of Boxes A, B, and C. Which box holds the most 1-centimeter cubes?",
+        fields: [
+          { id: "volumeA", label: "Box A volume", responseType: "number", placeholder: "Type cubic centimeters" },
+          { id: "volumeB", label: "Box B volume", responseType: "number", placeholder: "Type cubic centimeters" },
+          { id: "volumeC", label: "Box C volume", responseType: "number", placeholder: "Type cubic centimeters" },
+          { id: "most", label: "Box holding the most cubes", responseType: "shortAnswer", placeholder: "Type A, B, or C" },
+        ],
+        acceptedFieldSets: [{ volumeA: ["18"], volumeB: ["18"], volumeC: ["27"], most: ["C", "Box C"] }],
+        reasoningPrompt: "Show how the three edge lengths of each folded box support your comparison.",
+        reasoningConcepts: [["18", "27"], ["volume", "c"], ["multiply", "length", "c"]],
+        visualCropPath: "lesson-15-p002-box-nets.png",
+        visualWidth: 538,
+        visualHeight: 510,
+        visualDisplayMaxWidth: 538,
+        visualAlt: "Source nets A, B, and C with all side lengths labeled in centimeters.",
+        hint: "Fold each net mentally, identify its three edge lengths, and multiply those lengths.",
+        reasoningRevisionFeedback: "Your volumes and comparison are correct. Strengthen the explanation by showing that A and B each have volume 18 while C has volume 27.",
+        correctFeedback: "Correct. Boxes A and B each hold 18 cubic centimeters. Box C holds 27 cubic centimeters, so C holds the most 1-centimeter cubes.",
+        incorrectFeedback: "Use the three folded dimensions: A is 2 by 3 by 3, B is 1 by 3 by 6, and C is 3 by 3 by 3.",
+      },
+      {
+        id: "optional-cube-nets",
+        label: "Optional: Cube nets",
+        prompt: "Build and save three cube nets that differ from source Figure C. Then enter the total number of different nets that can be assembled into a cube.",
+        responseType: "number",
+        optional: true,
+        answerKey: ["11"],
+        placeholder: "Type the total number of cube nets",
+        visualType: "cubeNetBuilder",
+        requiredCustomState: { cubeNetSavedCount: "3" },
+        requiredStateFeedback: "Build and save three different valid cube nets before submitting the total.",
+        hint: "A cube net uses exactly six edge-connected squares. When folded, the six squares must become six different faces without overlap.",
+        correctFeedback: "Correct. There are 11 different cube nets, counting rotations and reflections of the same arrangement as one net. Your three saved constructions are valid examples different from Figure C.",
+        incorrectFeedback: "Keep the six squares edge-connected and test whether every square folds to a different cube face. The total counts arrangements, not their rotations or reflections.",
+      },
     ],
-    answerKey: ["surface-area"],
-    hint: "Cardboard covers the outside faces of the box.",
-    correctFeedback: "Correct. Cardboard needed is a surface-area question: add the areas of all outside faces.",
-    incorrectFeedback: "For cardboard, compare surface area. Volume answers how much the box holds, which is a different measure.",
   },
   {
     id: "teach-l16",
@@ -672,21 +1325,116 @@ const unit1TeachCards = [
     section: "F",
     idea: "Idea 6",
     title: "Distinguishing Between Surface Area and Volume",
+    activityTitle: "16.1: Attributes and Their Measures",
+    sourceDirections: "For Quantities 1-6, choose every unit from the source bank that is appropriate in both dimension and scale. For 7-8, give a quantity that fits the stated unit.",
     pdfPage: 1,
     cropPath: null,
-    visualAlt: "Source list of quantities and measurement units for surface area and volume.",
-    prompt: "A refrigerator's surface area should be measured with which kind of unit?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "square-feet", label: "Square feet" },
-      { id: "cubic-feet", label: "Cubic feet" },
-      { id: "feet", label: "Feet" },
-      { id: "meters", label: "Meters" },
+    customVisual: "questionSetVisual",
+    visualAlt: "Source quantities and measurement-unit bank.",
+    prompt: "Complete all eight source rows independently.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "parking-lot",
+        label: "1. Parking lot perimeter",
+        prompt: "Which source units are appropriate for the perimeter of a parking lot? Select all that apply.",
+        responseType: "multiSelect",
+        choices: measurementUnitChoices,
+        answerKey: ["feet", "meters"],
+        visualType: "measurementUnitBank",
+        hint: "Perimeter is a length, and a parking lot needs a human-scale unit larger than millimeters.",
+        correctFeedback: "Correct. Feet and meters are appropriate length units for a parking-lot perimeter. Square and cubic units measure different attributes.",
+        incorrectFeedback: "Choose length units with a reasonable size for a parking lot; do not use square or cubic units.",
+      },
+      {
+        id: "semi-truck",
+        label: "2. Semi-truck volume",
+        prompt: "Which source unit is appropriate for the volume of a semi truck?",
+        responseType: "multiSelect",
+        choices: measurementUnitChoices,
+        answerKey: ["cubic-yards"],
+        visualType: "measurementUnitBank",
+        hint: "Volume needs a cubic unit large enough for a truck but far smaller than a cubic kilometer.",
+        correctFeedback: "Correct. Cubic yards is the appropriately scaled three-dimensional unit in the source bank.",
+        incorrectFeedback: "Volume requires cubic units. Compare the real-world sizes represented by cubic yards and cubic kilometers.",
+      },
+      {
+        id: "refrigerator",
+        label: "3. Refrigerator surface area",
+        prompt: "Which source unit is appropriate for the surface area of a refrigerator?",
+        responseType: "multiSelect",
+        choices: measurementUnitChoices,
+        answerKey: ["square-feet"],
+        visualType: "measurementUnitBank",
+        hint: "Surface area is two-dimensional and a refrigerator is usually measured on a feet scale.",
+        correctFeedback: "Correct. Square feet is an appropriately scaled area unit for the outside faces of a refrigerator.",
+        incorrectFeedback: "Choose a square unit with a reasonable scale for a refrigerator.",
+      },
+      {
+        id: "eyelash",
+        label: "4. Eyelash length",
+        prompt: "Which source unit is appropriate for the length of an eyelash?",
+        responseType: "multiSelect",
+        choices: measurementUnitChoices,
+        answerKey: ["millimeters"],
+        visualType: "measurementUnitBank",
+        hint: "An eyelash is short and length is one-dimensional.",
+        correctFeedback: "Correct. Millimeters is an appropriately small length unit for an eyelash.",
+        incorrectFeedback: "Choose a small one-dimensional unit, not a square or cubic unit.",
+      },
+      {
+        id: "state-area",
+        label: "5. Area of a state",
+        prompt: "Which source unit is appropriate for the area of a state?",
+        responseType: "multiSelect",
+        choices: measurementUnitChoices,
+        answerKey: ["square-miles"],
+        visualType: "measurementUnitBank",
+        hint: "A state covers a large two-dimensional region.",
+        correctFeedback: "Correct. Square miles is an appropriately large area unit for a state.",
+        incorrectFeedback: "Area needs square units, and a state needs a large geographic-scale unit.",
+      },
+      {
+        id: "ocean-volume",
+        label: "6. Ocean volume",
+        prompt: "Which source unit is appropriate for the volume of an ocean?",
+        responseType: "multiSelect",
+        choices: measurementUnitChoices,
+        answerKey: ["cubic-kilometers"],
+        visualType: "measurementUnitBank",
+        hint: "An ocean is an enormous three-dimensional amount of space.",
+        correctFeedback: "Correct. Cubic kilometers is an appropriately large volume unit for an ocean.",
+        incorrectFeedback: "Volume needs cubic units, and an ocean requires the largest cubic scale in the source bank.",
+      },
+      {
+        id: "miles-example",
+        label: "7. Quantity measured in miles",
+        prompt: "Name a quantity that could appropriately be measured in miles.",
+        responseType: "openResponse",
+        inputLabel: "Quantity measured in miles",
+        placeholder: "Describe a quantity",
+        minLength: 5,
+        answerConcepts: [["distance"], ["length"], ["trip"], ["road"], ["between"], ["route"]],
+        visualType: "measurementUnitBank",
+        hint: "Think of a long one-dimensional distance, such as travel between places.",
+        correctFeedback: "Good example. Miles appropriately measure long distances, such as the length of a route or the distance between cities.",
+        incorrectFeedback: "Describe a long distance or length that could reasonably be measured in miles.",
+      },
+      {
+        id: "cubic-meters-example",
+        label: "8. Quantity measured in cubic meters",
+        prompt: "Name a quantity that could appropriately be measured in cubic meters.",
+        responseType: "openResponse",
+        inputLabel: "Quantity measured in cubic meters",
+        placeholder: "Describe a quantity",
+        minLength: 5,
+        answerConcepts: [["volume"], ["room"], ["pool"], ["container"], ["space"], ["building"]],
+        visualType: "measurementUnitBank",
+        hint: "Think of a three-dimensional space or container whose volume is room-sized.",
+        correctFeedback: "Good example. Cubic meters appropriately measure volume, such as the space in a room, pool, or large container.",
+        incorrectFeedback: "Describe a three-dimensional amount of space that could reasonably be measured in cubic meters.",
+      },
     ],
-    answerKey: ["square-feet"],
-    hint: "Surface area is two-dimensional, so its units are squared.",
-    correctFeedback: "Correct. Surface area is measured in square units, and square feet is a reasonable unit for a refrigerator.",
-    incorrectFeedback: "Surface area measures outside faces, so it needs square units. Cubic units measure volume.",
   },
   {
     id: "teach-l17",
@@ -694,15 +1442,72 @@ const unit1TeachCards = [
     section: "F",
     idea: "Idea 6",
     title: "Squares and Cubes",
+    activityTitle: "17.1: Perfect Squares",
     pdfPage: 1,
-    cropPath: "lesson-17-p001-perfect-squares-cubes.png",
-    visualAlt: "Source perfect square and cube tasks.",
-    prompt: "A square has side length 7. What is its area?",
-    responseType: "number",
-    answerKey: ["49"],
-    hint: "A square's area is side length times itself.",
-    correctFeedback: "Correct. 7 × 7 = 49, so the area is 49 square units.",
-    incorrectFeedback: "For a square, multiply the side length by itself: 7 × 7.",
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "A three-by-three square on a square grid, matching the source perfect-square visual.",
+    sourceDirections: "Use square side lengths and areas to investigate perfect squares.",
+    prompt: "Complete all three source questions about perfect squares.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "square-examples",
+        label: "1. Examples and non-examples",
+        prompt: "The number 9 is a perfect square. Find four numbers that are perfect squares and two numbers that are not perfect squares.",
+        fields: [
+          { id: "square1", label: "Perfect square 1", responseType: "number", placeholder: "Type a number" },
+          { id: "square2", label: "Perfect square 2", responseType: "number", placeholder: "Type a number" },
+          { id: "square3", label: "Perfect square 3", responseType: "number", placeholder: "Type a number" },
+          { id: "square4", label: "Perfect square 4", responseType: "number", placeholder: "Type a number" },
+          { id: "notSquare1", label: "Not a perfect square 1", responseType: "number", placeholder: "Type a number" },
+          { id: "notSquare2", label: "Not a perfect square 2", responseType: "number", placeholder: "Type a number" },
+        ],
+        dynamicAnswer: "perfectSquareExamples",
+        visualCropPath: "lesson-17-p001-perfect-squares-cubes.png",
+        visualWidth: 140,
+        visualHeight: 140,
+        visualDisplayMaxWidth: 140,
+        visualAlt: "A three-by-three square on a square grid, the source example for the perfect square 9.",
+        hint: "A whole number is a perfect square when it can be written as the product of the same whole number twice.",
+        correctFeedback: "Correct. Each of the first four numbers is a whole number multiplied by itself, while neither of the last two has an equal whole-number factor pair.",
+        incorrectFeedback: "Check all six distinct numbers. The first four must each equal n × n for a whole number n; the last two must not.",
+      },
+      {
+        id: "square-area",
+        label: "2. Area from side length",
+        prompt: "A square has side length 7 inches. What is its area in square inches?",
+        responseType: "number",
+        inputLabel: "Area (square inches)",
+        placeholder: "Type area",
+        answerKey: ["49"],
+        visualCropPath: "lesson-17-p001-perfect-squares-cubes.png",
+        visualWidth: 140,
+        visualHeight: 140,
+        visualDisplayMaxWidth: 140,
+        visualAlt: "A square divided into equal square units.",
+        hint: "Multiply the side length by itself.",
+        correctFeedback: "Correct. A 7-inch by 7-inch square has area 7 × 7 = 49 square inches.",
+        incorrectFeedback: "A square has equal side lengths. Multiply 7 inches by 7 inches and report square inches.",
+      },
+      {
+        id: "square-side",
+        label: "3. Side length from area",
+        prompt: "The area of a square is 64 square centimeters. What is its side length in centimeters?",
+        responseType: "number",
+        inputLabel: "Side length (centimeters)",
+        placeholder: "Type side length",
+        answerKey: ["8"],
+        visualCropPath: "lesson-17-p001-perfect-squares-cubes.png",
+        visualWidth: 140,
+        visualHeight: 140,
+        visualDisplayMaxWidth: 140,
+        visualAlt: "A square divided into equal square units.",
+        hint: "Find the whole number that gives 64 when multiplied by itself.",
+        correctFeedback: "Correct. 8 × 8 = 64, so the square's side length is 8 centimeters.",
+        incorrectFeedback: "Look for two equal whole-number factors of 64. Their common value is the side length.",
+      },
+    ],
   },
   {
     id: "teach-l18",
@@ -710,15 +1515,152 @@ const unit1TeachCards = [
     section: "F",
     idea: "Idea 6",
     title: "Surface Area of a Cube",
+    activityTitle: "18.2: The Net of a Cube",
     pdfPage: 1,
+    pdfPages: [1, 2],
     cropPath: null,
-    visualAlt: "Source exponent review and cube net task for a cube with edge length 5 inches.",
-    prompt: "A cube has edge length 5 inches. What is its surface area?",
-    responseType: "number",
-    answerKey: ["150"],
-    hint: "Each face is a 5 by 5 square, and a cube has 6 faces.",
-    correctFeedback: "Correct. Each face has area 25 square inches, and 6 × 25 = 150 square inches.",
-    incorrectFeedback: "Find one face first: 5 × 5 = 25. Then count all 6 faces of the cube.",
+    customVisual: "questionSetVisual",
+    visualAlt: "Interactive cube-net construction and cube edge-length reference.",
+    sourceDirections: "Draw and label a net for each cube, then reason about its faces, surface area, and volume.",
+    prompt: "Complete both source cube investigations: edge length 5 inches and edge length 17 units.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "cube5-net",
+        label: "1a. Net for edge 5",
+        prompt: "Draw a net for the cube with edge length 5 inches, and label its sides with measurements.",
+        fields: [
+          { id: "edgeLabel", label: "Side-length measurement applied to the net's squares", responseType: "shortAnswer", placeholder: "Type a measurement", answerKey: ["5", "5 in", "5 inches"] },
+        ],
+        visualType: "labeledCubeNet",
+        netStateId: "cube5",
+        netLabelField: "edgeLabel",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Select six edge-connected squares that fold into a cube before submitting the labeled net.",
+        hint: "A cube net has six equal squares connected along complete edges. Not every connected arrangement folds without overlap.",
+        correctFeedback: "Correct. Your six-square arrangement folds into a cube, and every edge has length 5 inches.",
+        incorrectFeedback: "Keep a valid six-square cube net and label its edge measurement as 5 inches.",
+      },
+      {
+        id: "cube5-face-shape",
+        label: "1b. Face shape",
+        prompt: "What is the shape of each face of the cube?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "square", label: "Square" },
+          { id: "rectangle", label: "Rectangle that is not a square" },
+          { id: "triangle", label: "Triangle" },
+          { id: "circle", label: "Circle" },
+        ],
+        answerKey: ["square"],
+        visualType: "cubeMetricReference",
+        edgeLabel: "5 in",
+        hint: "All edges of a cube have the same length, including both dimensions of each face.",
+        correctFeedback: "Correct. Every face of a cube is an identical square.",
+        incorrectFeedback: "A cube's faces each have four equal sides and four right angles.",
+      },
+      {
+        id: "cube5-face-area",
+        label: "1c. Area of each face",
+        prompt: "What is the area of each face of the cube?",
+        responseType: "number",
+        inputLabel: "Area of each face (square inches)",
+        placeholder: "Type face area",
+        answerKey: ["25"],
+        visualType: "cubeMetricReference",
+        edgeLabel: "5 in",
+        hint: "Each face is a square with side length 5 inches.",
+        correctFeedback: "Correct. Each face has area 5 × 5 = 25 square inches.",
+        incorrectFeedback: "Find the area of one 5-inch by 5-inch square face.",
+      },
+      {
+        id: "cube5-surface-area",
+        label: "1d. Surface area",
+        prompt: "What is the surface area of the cube?",
+        responseType: "number",
+        inputLabel: "Surface area (square inches)",
+        placeholder: "Type surface area",
+        answerKey: ["150"],
+        visualType: "cubeMetricReference",
+        edgeLabel: "5 in",
+        hint: "A cube has six identical square faces.",
+        correctFeedback: "Correct. Six faces of 25 square inches each give 6 × 25 = 150 square inches.",
+        incorrectFeedback: "Multiply the area of one face by the cube's six faces.",
+      },
+      {
+        id: "cube5-volume",
+        label: "1e. Volume",
+        prompt: "What is the volume of the cube?",
+        responseType: "number",
+        inputLabel: "Volume (cubic inches)",
+        placeholder: "Type volume",
+        answerKey: ["125"],
+        visualType: "cubeMetricReference",
+        edgeLabel: "5 in",
+        hint: "Multiply the cube's three equal edge lengths.",
+        correctFeedback: "Correct. 5 × 5 × 5 = 125 cubic inches.",
+        incorrectFeedback: "Volume uses all three 5-inch dimensions of the cube.",
+      },
+      {
+        id: "cube17-net",
+        label: "2a. Net for edge 17",
+        prompt: "Draw a net for the second cube with edge length 17 units, and label its sides with measurements.",
+        fields: [
+          { id: "edgeLabel", label: "Side-length measurement applied to the net's squares", responseType: "shortAnswer", placeholder: "Type a measurement", answerKey: ["17", "17 units"] },
+        ],
+        visualType: "labeledCubeNet",
+        netStateId: "cube17",
+        netLabelField: "edgeLabel",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Select six edge-connected squares that fold into a cube before submitting the labeled net.",
+        hint: "The arrangement can differ from your first net, but it still needs exactly six equal square faces.",
+        correctFeedback: "Correct. Your six-square arrangement folds into a cube, and every edge is labeled 17 units.",
+        incorrectFeedback: "Keep a valid six-square cube net and label its edge measurement as 17 units.",
+      },
+      {
+        id: "cube17-face-area",
+        label: "2b. Face-area reasoning",
+        prompt: "Explain why the area of each face of this cube is 17^2 square units.",
+        responseType: "openResponse",
+        inputLabel: "Your explanation",
+        placeholder: "Explain using the face dimensions",
+        minLength: 12,
+        answerConcepts: [["17", "17", "square"], ["17^2", "square"], ["17²", "square"]],
+        visualType: "cubeMetricReference",
+        edgeLabel: "17 units",
+        hint: "Describe the shape of a face and its two side lengths.",
+        correctFeedback: "Correct. Each face is a square with side lengths 17 and 17, so its area is 17 × 17 = 17^2 square units.",
+        incorrectFeedback: "Connect the square face's two 17-unit side lengths to multiplication and second-power notation.",
+      },
+      {
+        id: "cube17-surface-expression",
+        label: "2c. Surface-area expression",
+        prompt: "Write an expression for the cube's surface area, in square units. Do not calculate it.",
+        fields: [
+          { id: "expression", label: "Surface-area expression", responseType: "shortAnswer", placeholder: "Type an expression", answerKey: ["6 x 17^2", "6 × 17^2", "6*17^2", "6(17^2)", "6 · 17^2", "6 x 17²", "6 × 17²", "6*17²", "6(17²)", "6 · 17²"] },
+          { id: "units", label: "Surface-area units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["square units", "units^2", "units²"] },
+        ],
+        visualType: "cubeMetricReference",
+        edgeLabel: "17 units",
+        hint: "Find one square face's area, then account for all six identical faces.",
+        correctFeedback: "Correct. The surface-area expression is 6 × 17^2 square units: six faces, each with area 17^2.",
+        incorrectFeedback: "Write six times the second power of 17, and use square units.",
+      },
+      {
+        id: "cube17-volume-expression",
+        label: "2d. Volume expression",
+        prompt: "Write an expression for the cube's volume, in cubic units. Do not calculate it.",
+        fields: [
+          { id: "expression", label: "Volume expression", responseType: "shortAnswer", placeholder: "Type an expression", answerKey: ["17^3", "17³", "17 x 17 x 17", "17 × 17 × 17", "17*17*17"] },
+          { id: "units", label: "Volume units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["cubic units", "units^3", "units³"] },
+        ],
+        visualType: "cubeMetricReference",
+        edgeLabel: "17 units",
+        hint: "Volume uses the cube's three equal edge lengths.",
+        correctFeedback: "Correct. The volume expression is 17^3 cubic units because all three dimensions are 17 units.",
+        incorrectFeedback: "Use three factors of 17, third-power notation, and cubic units.",
+      },
+    ],
   },
   {
     id: "teach-l19",
@@ -726,54 +1668,81 @@ const unit1TeachCards = [
     section: "G",
     idea: "Idea 7",
     title: "Designing a Tent",
-    pdfPage: 2,
-    pdfPages: [1, 2, 3],
-    cropPath: "lesson-19-p002-tent-specs.png",
-    visualAlt: "Source tent height specifications and sleeping bag measurements.",
-    sourceContext: "The source design work uses the Blackline Master planning sheet after students review tent examples, height specifications, and sleeping bag measurements.",
+    activityTitle: "19.1: Tent Design - Part 1",
+    pdfPage: 1,
+    pdfPages: [1, 2, 3, 4],
+    cropPath: null,
+    visualAlt: "Interactive tent designer with a sleeping-bag floor plan, tent model, and fabric-panel organizer.",
+    sourceContext: "Design a tent for up to four people. Include a floor, use the source sleeping-bag and height specifications, and justify the amount of fabric needed.",
+    sourceDirections: "Standard sleeping bags measure 74 by 34 inches. Choose a capacity, sleeping-bag arrangement, tent height, and tent style; then adjust the floor so every bag fits.",
     blacklineMasters: unit1BlacklineMasters.tentPlanning,
-    prompt: "Create a tent design for up to four people and estimate the fabric needed, using the source specifications.",
-    responseType: "guidedFields",
-    guidedOpenEnded: true,
-    guidedFields: [
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
       {
-        id: "people",
-        label: "How many people can sleep in your tent?",
-        type: "singleChoice",
-        choices: [
-          { id: "1", label: "1" },
-          { id: "2", label: "2" },
-          { id: "3", label: "3" },
-          { id: "4", label: "4" },
-        ],
+        id: "build-plan",
+        label: "1. Build a tent plan",
+        prompt: "Create a tent design that fits every selected sleeping bag and includes a floor.",
+        responseType: "construction",
+        dynamicAnswer: "tentPlanReady",
+        visualType: "tentDesigner",
+        hint: "Start with the capacity and bag arrangement. The dashed outline shows the minimum floor space required by 74-by-34-inch sleeping bags.",
+        correctFeedback: "Your plan fits every sleeping bag and includes a complete tent shape and floor.",
+        incorrectFeedback: "Complete the design choices and make the floor large enough for every sleeping bag.",
       },
       {
-        id: "height",
-        label: "Tent height category",
-        type: "singleChoice",
-        choices: [
-          { id: "sitting", label: "Sitting, 3 ft" },
-          { id: "kneeling", label: "Kneeling, 4 ft" },
-          { id: "stooping", label: "Stooping, 5 ft" },
-          { id: "standing", label: "Standing, 6 ft" },
-          { id: "roaming", label: "Roaming, 7 ft" },
+        id: "design-decisions",
+        label: "2. Design decisions",
+        prompt: "What decisions were important when choosing your tent design?",
+        responseType: "openResponse",
+        inputLabel: "Important design decisions",
+        placeholder: "Explain the choices that mattered",
+        minLength: 20,
+        answerConcepts: [
+          ["people", "floor"],
+          ["sleeping", "bag"],
+          ["height", "shape"],
+          ["height", "fabric"],
+          ["floor", "fabric"],
         ],
+        visualType: "tentDesigner",
+        requiredConstruction: "savedTentPlan",
+        requiredStateFeedback: "Build a valid tent plan in Question 1 before explaining its design decisions.",
+        hint: "Consider capacity, sleeping-bag space, height, tent shape, and how those choices affect fabric.",
+        correctFeedback: "Your explanation connects at least two design constraints from the source task.",
+        incorrectFeedback: "Name the design choices and explain how at least two of them are connected, such as sleeping-bag space and floor size or height and fabric.",
       },
-      { id: "designSketch", label: "Describe or sketch the bottom panel and sleeping-bag locations.", type: "textarea" },
-      { id: "overallDesign", label: "Describe the overall tent shape and dimensions you chose.", type: "textarea" },
-      { id: "fabricEstimate", label: "Fabric estimate", type: "text", placeholder: "Estimate in square feet" },
-      { id: "justification", label: "Mathematical justification for the estimate", type: "textarea" },
+      {
+        id: "fabric-estimate",
+        label: "3. Fabric estimate",
+        prompt: "How many square feet of fabric are needed for your tent, including the floor?",
+        fields: [
+          { id: "estimate", label: "Fabric estimate", responseType: "number", placeholder: "Enter a number" },
+          { id: "units", label: "Area units", responseType: "shortAnswer", placeholder: "Type area units" },
+        ],
+        dynamicAnswer: "tentFabricEstimate",
+        visualType: "tentDesigner",
+        requiredConstruction: "savedTentPlan",
+        requiredStateFeedback: "Build a valid tent plan in Question 1 before calculating its fabric.",
+        reasoningPrompt: "Show how the floor and every outside panel are included in your estimate.",
+        reasoningConcepts: [
+          ["surface", "area"],
+          ["floor", "roof"],
+          ["panel", "area"],
+          ["floor", "wall"],
+        ],
+        hint: "Use the panel organizer beside the model. Find each panel area, multiply for matching panels, and include the floor.",
+        correctFeedback: "Your estimate matches the total area of every fabric panel in your selected design.",
+        incorrectFeedback: "Recheck the floor and each matching pair of roof, wall, or end panels.",
+      },
     ],
-    hint: "Use sleeping-bag space, height category, and all outside surfaces, including the floor. A net or face-by-face list can keep the fabric estimate organized.",
-    correctFeedback: "Design saved. A strong source-faithful plan states who the tent fits, includes a floor, records design decisions, and justifies the fabric estimate with surface-area reasoning.",
-    incorrectFeedback: "Add the missing design details: capacity, height, floor/sleeping-bag layout, overall shape, fabric estimate, and surface-area justification.",
   },
 ];
 
 const teachCardEnhancements = {
   "teach-l2": {
     activityTitle: "2.1: What is Area?",
-    sourceDirections: "Which drawing shows the amount of squares inside a two-dimensional shape?",
+    sourceDirections: "Here are four drawings that each show squares inside a shape.",
   },
   "teach-l3": {
     activityTitle: "3.1: Comparing Regions",
@@ -781,7 +1750,7 @@ const teachCardEnhancements = {
   },
   "teach-l4": {
     activityTitle: "4.1: Features of a Parallelogram",
-    sourceDirections: "Study the examples and non-examples. What do you notice?",
+    sourceDirections: "Figures A, B, and C are parallelograms. Figures D, E, and F are not parallelograms. Study the examples and non-examples.",
   },
   "teach-l5": {
     activityTitle: "5.2: The Right Height?",
@@ -789,15 +1758,15 @@ const teachCardEnhancements = {
   },
   "teach-l6": {
     activityTitle: "6.2: More Areas of Parallelograms",
-    sourceDirections: "Change the parallelogram, calculate its area, and use Show Area to verify your calculation.",
+    sourceDirections: "Find the area of each source parallelogram, determine a missing corresponding height, and construct two different non-rectangular parallelograms with area 20 square units.",
   },
   "teach-l7": {
     activityTitle: "7.1: Same Parallelograms, Different Bases",
-    sourceDirections: "Use the base-height pairs to reason about equal parallelogram areas.",
+    sourceDirections: "Here are two copies of a parallelogram. Each copy has one side labeled as the base and a segment drawn for its corresponding height.",
   },
   "teach-l8": {
     activityTitle: "8.1: Composing Parallelograms",
-    sourceDirections: "Use Triangle M and copies of it to reason about related parallelograms.",
+    sourceDirections: "For each parallelogram Han composed, identify a base and corresponding height, write their measurements, and find the area. Show your reasoning.",
   },
   "teach-l9": {
     activityTitle: "9.2: Finding a Formula for Area of a Triangle",
@@ -809,23 +1778,23 @@ const teachCardEnhancements = {
   },
   "teach-l11": {
     activityTitle: "11.2: What Are Polygons?",
-    sourceDirections: "Identify which figures are polygons and explain what they have in common.",
+    sourceDirections: "Study the source examples and non-examples. Circle every figure A-J that is a polygon, then describe the characteristics you used.",
   },
   "teach-l12": {
     activityTitle: "12.3: Building with Snap Cubes",
-    sourceDirections: "Use a rectangular prism to reason about faces and surface area.",
+    sourceDirections: "Use all 12 cubes to build a rectangular prism with different edge lengths than the shown 3 by 2 by 2 prism. Find its number of faces and surface area, then use the rendered model as your drawing.",
   },
   "teach-l13": {
     activityTitle: "13.1: What are Polyhedra?",
-    sourceDirections: "Sort the objects into polyhedra and non-polyhedra.",
+    sourceDirections: "Study the source examples and non-examples. Turn and inspect every virtual figure, sort the figures into polyhedra and non-polyhedra, and explain the features that distinguish the groups.",
   },
   "teach-l14": {
     activityTitle: "14.1: Matching Nets",
-    sourceDirections: "Match each net with the polyhedron it can form.",
+    sourceDirections: "Match every source net A-E with its corresponding numbered polyhedron, name the polyhedron, and explain a visual clue for each match.",
   },
   "teach-l15": {
     activityTitle: "15.3: Comparing Boxes",
-    sourceDirections: "Compare the nets of three rectangular-prism boxes.",
+    sourceDirections: "Use the source nets to compare all three boxes. First compare their surface areas and cardboard use. Then compare their volumes and cube capacity.",
   },
   "teach-l16": {
     activityTitle: "16.1: Attributes and Their Measures",
@@ -837,11 +1806,11 @@ const teachCardEnhancements = {
   },
   "teach-l18": {
     activityTitle: "18.2: The Net of a Cube",
-    sourceDirections: "Use a cube net to reason about surface area and volume.",
+    sourceDirections: "Draw and label a net for each cube, then reason about its faces, surface area, and volume.",
   },
   "teach-l19": {
     activityTitle: "19.1: Tent Design - Part 1",
-    sourceDirections: "Use the tent specifications to make design decisions.",
+    sourceDirections: "Standard sleeping bags measure 74 by 34 inches. Choose a capacity, sleeping-bag arrangement, tent height, and tent style; then adjust the floor so every bag fits.",
   },
 };
 
@@ -894,16 +1863,44 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 1",
     title: "Reasoning to Find Area",
     activityTitle: "3.2: On the Grid",
-    sourceDirections: "Find areas of shaded regions on a grid without counting every square one at a time.",
+    sourceDirections: "Each grid square is 1 square unit. Find the area, in square units, of each shaded region without counting every square. Select a figure to work on.",
     pdfPage: 1,
     cropPath: teachLessonCrop(3),
-    visualAlt: "Source grid figures for reasoning about shaded area.",
-    prompt: "Choose one shaded grid figure and explain an efficient way to find its area.",
-    responseType: "open",
-    reasoningPrompt: "Show your area strategy.",
-    hint: "Try decomposing, rearranging, or subtracting a missing piece from a larger rectangle.",
-    correctFeedback: "Good reasoning should name a strategy and account for all shaded square units without changing the region's area.",
-    incorrectFeedback: "Use the grid to organize the area: split the shape, rearrange pieces, or subtract unshaded parts from a larger rectangle.",
+    customVisual: "gridFigureAreas",
+    visualAlt: "Four source grid figures labeled A through D with shaded regions whose areas are to be found.",
+    prompt: "Select a figure, find its area in square units, and explain an efficient strategy.",
+    responseType: "gridFigureAreas",
+    reasoningPrompt: "How did you find the area without counting every square?",
+    figures: [
+      {
+        id: "A",
+        answer: "24",
+        hint: "Draw an imaginary horizontal line from the inside corner to split the shaded region into two rectangles.",
+        correctFeedback: "Correct. Figure A has area 24 square units. A 6 by 2 rectangle has area 12, and the lower 3 by 4 rectangle also has area 12, so the total is 24.",
+        incorrectFeedback: "Not quite. Split Figure A into a top rectangle and a lower-right rectangle. Use the grid to find each rectangle's dimensions, then add their areas.",
+      },
+      {
+        id: "B",
+        answer: "27",
+        hint: "Find the area of the large outer square and subtract the area of the unshaded inner square.",
+        correctFeedback: "Correct. Figure B has area 27 square units. The outer 6 by 6 square has area 36, and the 3 by 3 opening has area 9, so 36 - 9 = 27.",
+        incorrectFeedback: "Not quite. Treat Figure B as a large square with a square opening. Use the grid to find both side lengths, then subtract the opening's area.",
+      },
+      {
+        id: "C",
+        answer: "16",
+        hint: "Pair matching shaded triangles and imagine rearranging each pair into a rectangle.",
+        correctFeedback: "Correct. Figure C has area 16 square units. The four shaded triangles can be paired and rearranged into two 2 by 4 rectangles, each with area 8.",
+        incorrectFeedback: "Not quite. The inner square's side length is not shown, so subtraction is not the efficient route. Pair and rearrange the shaded triangles into rectangles whose dimensions can be read from the grid.",
+      },
+      {
+        id: "D",
+        answer: "20",
+        hint: "Enclose Figure D in a 6 by 6 square and compare the four corner regions with the shaded regions of Figure C.",
+        correctFeedback: "Correct. Figure D has area 20 square units. Its 6 by 6 enclosure has area 36, and the four corner regions have total area 16, so 36 - 16 = 20.",
+        incorrectFeedback: "Not quite. Enclose Figure D in a 6 by 6 square. The four corner regions match the shaded pieces from Figure C, so subtract their total area from the enclosure.",
+      },
+    ],
   },
   {
     id: "teach-l3-3",
@@ -912,21 +1909,52 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 1",
     title: "Reasoning to Find Area",
     activityTitle: "3.3: Off the Grid",
-    sourceDirections: "Find the area of shaded regions that are not completely aligned to a grid.",
+    sourceDirections: "Find the area of the shaded region(s) of each figure. Explain or show your reasoning. Select a figure to work on.",
     pdfPage: 2,
     cropPath: teachLessonCrop(3),
-    visualAlt: "Source off-grid shaded regions for area reasoning.",
-    prompt: "What is a reliable strategy when the shaded region is off the grid?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "decompose", label: "Decompose or enclose the region, then add or subtract known areas." },
-      { id: "outline", label: "Measure only the outside boundary." },
-      { id: "guess", label: "Estimate from the shape name only." },
+    customVisual: "gridFigureAreas",
+    visualAlt: "Three source figures labeled A through C with off-grid shaded regions and measurements in centimeters.",
+    visualWidth: 1300,
+    visualHeight: 390,
+    visualDisplayMaxWidth: 650,
+    visualColumnWeights: [33, 39, 28],
+    visualRowWeights: [1],
+    prompt: "Find the area of all three shaded regions and explain a source-faithful strategy for each.",
+    figurePrompt: "Find the area of the shaded region(s) in Figure {figure}.",
+    responseType: "gridFigureAreas",
+    reasoningPrompt: "Explain or show how you found the area.",
+    requireReasoning: true,
+    reasoningRequiredFeedback: "Your area is correct. Add an explanation showing how the measurements support your strategy, then submit Figure {figure} again.",
+    unitLabel: "square centimeters",
+    figures: [
+      {
+        id: "A",
+        answer: "15",
+        reasoningConcepts: [["rearrang", "rectangle"], ["mov", "rectangle"], ["5", "3"], ["triangle", "7.5"]],
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe how the two shaded triangles can be moved or rearranged into a rectangle, or use the 5 cm and 3 cm measurements in your reasoning.",
+        hint: "The two shaded pieces can be rearranged into one rectangle with side lengths 5 cm and 3 cm.",
+        correctFeedback: "Correct. Figure A has area 15 square centimeters. Rearranging the two shaded triangles makes a 5 cm by 3 cm rectangle, so its area is 15 square centimeters.",
+        incorrectFeedback: "Not quite. Use the 5 cm segment and the two 3 cm perpendicular measurements. Try rearranging the two shaded triangles into one rectangle.",
+      },
+      {
+        id: "B",
+        answer: "16",
+        reasoningConcepts: [["pair", "triangle"], ["rectangle", "2", "4"], ["four", "triangle"], ["4", "triangle"], ["two", "rectangle"], ["2", "rectangle"]],
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe how the four corner triangles can be paired into rectangles using the labeled 2 cm and 4 cm lengths.",
+        hint: "Do not estimate the tilted square's side length. Pair the four shaded corner triangles to make rectangles using the labeled 2 cm and 4 cm lengths.",
+        correctFeedback: "Correct. Figure B has area 16 square centimeters. The four shaded corner triangles can be paired into two 2 cm by 4 cm rectangles. Each rectangle has area 8 square centimeters, so the total is 16.",
+        incorrectFeedback: "Not quite. The tilted inner square's side length is unknown, so outer-area-minus-inner-area is not supported. Pair the four corner triangles into rectangles using the labeled 2 cm and 4 cm lengths.",
+      },
+      {
+        id: "C",
+        answer: "21",
+        reasoningConcepts: [["subtract", "square"], ["outer", "inner"], ["25", "4"], ["5", "2"], ["remove", "square"], ["difference", "area"]],
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe finding the outer square's area and subtracting the inner square's area using the 5 cm and 2 cm side lengths.",
+        hint: "Find the area of the 5 cm by 5 cm outer square, then subtract the area of the 2 cm by 2 cm inner square.",
+        correctFeedback: "Correct. Figure C has area 21 square centimeters. The outer square has area 25 square centimeters and the inner square has area 4 square centimeters, so 25 - 4 = 21.",
+        incorrectFeedback: "Not quite. Treat the shaded region as a 5 cm by 5 cm square with a 2 cm by 2 cm square removed. Subtract the inner area from the outer area.",
+      },
     ],
-    answerKey: ["decompose"],
-    hint: "The lesson is about turning unfamiliar regions into shapes whose areas you can find.",
-    correctFeedback: "Correct. Decomposing, rearranging, or enclosing-and-subtracting keeps the reasoning tied to area.",
-    incorrectFeedback: "Area is about the region inside, not the boundary length or the shape name.",
   },
   {
     id: "teach-l4-2",
@@ -935,19 +1963,62 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 2",
     title: "Parallelograms",
     activityTitle: "4.2: Area of a Parallelogram",
-    sourceContext: "The public-reference digital activity gives students polygons and movable vertices so they can test area by decomposing, rearranging, and changing the parallelogram.",
-    sourceDirections: "Drag the model controls to change the parallelogram, then reason from a related rectangle.",
+    sourceDirections: "Use the local polygon tools to test decomposing, rearranging, and enclosure. Complete all three source tasks.",
     pdfPage: 2,
     cropPath: null,
-    visualAlt: "Interactive parallelogram model that can be changed and checked against a related rectangle.",
+    visualAlt: "Interactive source-faithful parallelogram model on a square grid with decomposition and enclosure tools.",
     customVisual: "parallelogramExplore",
-    defaultParallelogram: { base: 6, height: 4, slant: 2 },
-    prompt: "Find the area of the parallelogram you build, then explain how a related rectangle helps.",
-    responseType: "parallelogramExplore",
-    responsePrompt: "Record the area of the current parallelogram in square units.",
-    hint: "Imagine moving the slanted side piece to make a rectangle. The base and perpendicular height stay the useful measurements.",
-    correctFeedback: "Correct. Decomposing and rearranging turns the parallelogram into a rectangle with the same base and height, so the area is base times height.",
-    incorrectFeedback: "Use the model's base and perpendicular height. A related rectangle with those side lengths has the same area as the parallelogram.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "first-area",
+        label: "First area",
+        prompt: "Find the area of the parallelogram and explain your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of the first parallelogram",
+        placeholder: "Type area",
+        answerKey: ["36"],
+        dynamicAnswer: "parallelogramArea",
+        model: { base: 6, height: 6, slant: 3, editable: false },
+        reasoningPrompt: "Explain how decomposing and rearranging, or enclosing and subtracting, gives the area.",
+        reasoningConcepts: [["rectangle"], ["rearrange"], ["decompose"], ["enclose"], ["subtract"], ["6", "6"]],
+        hint: "Try one polygon tool. A related rectangle can preserve the area or show which corner regions to subtract.",
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe how the polygon tool relates the parallelogram to one or more rectangles.",
+        correctFeedback: "Correct. The parallelogram has area 36 square units. It can be rearranged into a 6-by-6 rectangle, or enclosed and found by subtracting the extra triangles.",
+        incorrectFeedback: "Not quite. Use a polygon tool to relate the parallelogram to rectangles, then use the grid measurements without counting individual squares.",
+      },
+      {
+        id: "changed-area",
+        label: "Changed area",
+        prompt: "Change the parallelogram by moving its green vertices. Find its area and explain your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of your changed parallelogram",
+        placeholder: "Type area",
+        dynamicAnswer: "parallelogramArea",
+        model: { base: 6, height: 6, slant: 3, editable: true },
+        requireAdjustment: true,
+        adjustmentFeedback: "Change at least one vertex control before submitting this task. The source asks for a different parallelogram.",
+        reasoningPrompt: "Explain how a polygon tool helps find the area of your changed parallelogram.",
+        reasoningConcepts: [["rectangle"], ["rearrange"], ["decompose"], ["enclose"], ["subtract"], ["base", "height"]],
+        hint: "First change the shape. Then use decomposing and rearranging or enclosing and subtracting to connect it to rectangles.",
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe how the chosen tool turns this changed parallelogram into known rectangle areas.",
+        correctFeedback: "Correct. Your changed parallelogram's area matches its base times its perpendicular height; changing the slant alone does not change that area.",
+        incorrectFeedback: "Not quite. Read the current base and perpendicular height from the grid, and use the polygon tool to explain why those measurements determine the area.",
+      },
+      {
+        id: "polygon-reflection",
+        label: "Polygon tools",
+        prompt: "If you used the polygons on the side, how were they helpful? If you did not, how could one or more polygons show another way to find the area?",
+        responseType: "text",
+        inputLabel: "Your reflection",
+        placeholder: "Explain how the tools help",
+        minLength: 18,
+        answerConcepts: [["rectangle"], ["triangle"], ["decompose"], ["rearrange"], ["enclose"], ["subtract"]],
+        hint: "Describe either moving a triangular piece to make a rectangle or enclosing the parallelogram and subtracting extra triangles.",
+        correctFeedback: "Good reasoning. The polygons can model decomposing and rearranging into a rectangle, or enclosing the parallelogram and subtracting extra triangular regions.",
+        incorrectFeedback: "Add how a rectangle or triangle tool can be moved, combined, or subtracted to show the parallelogram's area.",
+      },
+    ],
   },
   {
     id: "teach-l4-3",
@@ -958,19 +2029,56 @@ const unit1TeachAdditionalCards = [
     activityTitle: "4.3: Lots of Parallelograms",
     sourceDirections: "Find the area of each parallelogram. Show your reasoning.",
     pdfPage: 2,
-    cropPath: teachLessonCrop(4),
-    visualAlt: "Source collection of parallelograms for area strategies.",
-    prompt: "When decomposing is awkward, what other source strategy can find the area?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "enclose-subtract", label: "Enclose the parallelogram in a rectangle and subtract corner triangles." },
-      { id: "ignore-grid", label: "Ignore the grid and use the longest side twice." },
-      { id: "count-vertices", label: "Count the four vertices." },
+    cropPath: "lesson-04-p002-lots-parallelograms-4-3.png",
+    visualAlt: "Source parallelograms A and B on square grids and parallelogram C labeled with a 6-unit base, 4-unit perpendicular height, and 4.5-unit slanted side.",
+    customVisual: "gridFigureAreas",
+    responseType: "gridFigureAreas",
+    visualWidth: 820,
+    visualHeight: 880,
+    visualDisplayMaxWidth: 500,
+    visualColumnWeights: [1, 1],
+    visualRowWeights: [1, 1.08],
+    figurePrompt: "Find the area of Parallelogram {figure}. Show your reasoning.",
+    reasoningPrompt: "Explain or show a decomposition-and-rearrangement or enclosure-and-subtraction strategy.",
+    reasoningRequiredFeedback: "Your area is correct. Add an explanation for Parallelogram {figure}, then submit again.",
+    requireReasoning: true,
+    unitLabel: "square units",
+    figures: [
+      {
+        id: "A",
+        visualRow: 1,
+        visualColumn: 1,
+        answer: "15",
+        reasoningConcepts: [["3", "5"], ["rectangle", "15"], ["rearrange", "rectangle"], ["vertical", "horizontal"]],
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Use the grid to describe a 3-unit perpendicular width and a 5-unit vertical side, or show how the pieces rearrange into a rectangle.",
+        hint: "Use a vertical side as the base. The perpendicular distance to the opposite vertical side is horizontal on the grid.",
+        correctFeedback: "Correct. Parallelogram A has area 15 square units. Its 5-unit vertical side and 3-unit perpendicular horizontal distance match a 5-by-3 rectangle.",
+        incorrectFeedback: "Not quite. The slanted side is not the useful perpendicular measurement. Use the 5-unit vertical side and the 3-unit horizontal distance between the vertical sides.",
+      },
+      {
+        id: "B",
+        visualRow: 1,
+        visualColumn: 2,
+        answer: "12",
+        reasoningConcepts: [["2", "6"], ["enclose", "subtract"], ["rectangle", "triangle"], ["base", "height"]],
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Use the 2-unit horizontal side with the 6-unit perpendicular vertical distance, or describe enclosing and subtracting the two extra triangles.",
+        hint: "The short horizontal side is 2 grid units. Measure the vertical distance between the two horizontal sides.",
+        correctFeedback: "Correct. Parallelogram B has area 12 square units. The horizontal base is 2 units and its perpendicular height is 6 units; enclosure and subtraction gives the same result.",
+        incorrectFeedback: "Not quite. Do not multiply a slanted length by a horizontal or vertical distance that is not perpendicular to it. Use the 2-unit horizontal side and 6-unit vertical distance.",
+      },
+      {
+        id: "C",
+        visualRow: 2,
+        visualColumn: 1,
+        visualColumnSpan: 2,
+        answer: "24",
+        reasoningConcepts: [["6", "4"], ["base", "height"], ["rearrange", "rectangle"], ["4.5", "not"]],
+        reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Explain why the 6-unit base and 4-unit perpendicular height are useful and the 4.5-unit slanted side is not needed.",
+        hint: "The dashed 4-unit segment is perpendicular to the 6-unit side. The 4.5-unit slanted side is not paired with a corresponding height.",
+        correctFeedback: "Correct. Parallelogram C has area 24 square units because 6 times the perpendicular height 4 is 24. The 4.5-unit slanted side is not needed.",
+        incorrectFeedback: "Not quite. Use the 6-unit base and the perpendicular 4-unit height. The 4.5-unit slanted side does not determine the area with that height.",
+      },
     ],
-    answerKey: ["enclose-subtract"],
-    hint: "Look for a larger rectangle around the parallelogram.",
-    correctFeedback: "Correct. Enclosing the shape and subtracting the extra triangles is a source-faithful area strategy.",
-    incorrectFeedback: "Try building a known rectangle around the parallelogram, then remove the extra triangular pieces.",
   },
   {
     id: "teach-l5-1",
@@ -979,52 +2087,54 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 2",
     title: "Bases and Heights of Parallelograms",
     activityTitle: "5.1: A Parallelogram and Its Rectangles",
-    sourceContext: "The source applet uses sliders to reveal Tyler's and Elena's ways of rearranging the same parallelogram into rectangles.",
     sourceDirections: "Move both sliders to compare Tyler's and Elena's rectangle strategies.",
     pdfPage: 1,
     cropPath: "lesson-05-p001-parallelogram-rectangles-5-1.png",
     visualAlt: "Source decompositions of one parallelogram into rectangles.",
     customVisual: "parallelogramCutSliders",
-    prompt: "Why can both rectangle strategies give the same parallelogram area?",
-    responseType: "guidedFields",
-    responsePrompt: "After using both sliders, compare the two strategies.",
-    guidedFields: [
+    responseType: "questionSet",
+    questions: [
       {
         id: "same",
-        label: "How are Tyler's and Elena's strategies the same?",
-        type: "singleChoice",
+        label: "How are they the same?",
+        prompt: "How are the two strategies for finding the area of a parallelogram the same?",
+        responseType: "singleChoice",
         choices: [
           { id: "same-area", label: "Both rearrange the same parallelogram into a rectangle with the same area." },
           { id: "same-perimeter", label: "Both keep the same perimeter, so area is guaranteed to match." },
           { id: "same-cut", label: "Both make the cut in exactly the same place." },
         ],
+        answerKey: ["same-area"],
+        requiredCustomState: { tylerStage: "2", elenaStage: "2" },
+        requiredStateFeedback: "Move both Tyler's and Elena's sliders to their completed rectangle views before submitting.",
+        reasoningPrompt: "Explain one measurement or area feature that stays the same.",
+        reasoningConcepts: [["same", "area"], ["same", "rectangle"], ["base", "same"], ["height", "same"], ["same", "length"]],
+        hint: "Compare the final rectangles and the original parallelogram. Track the side lengths and total area.",
+        reasoningRevisionFeedback: "Your choice is correct, but strengthen the explanation. Describe how both rearrangements preserve area and create rectangles with the same side lengths.",
+        correctFeedback: "Correct. Both strategies rearrange the same parallelogram into identical rectangles, so the base, height, and area are preserved.",
+        incorrectFeedback: "Not quite. The cut locations differ, but both rearrange the same parallelogram into an equal-area rectangle with the same side lengths.",
       },
       {
         id: "different",
-        label: "How are the strategies different?",
-        type: "singleChoice",
+        label: "How are they different?",
+        prompt: "How are the two strategies different?",
+        responseType: "singleChoice",
         choices: [
           { id: "different-cut", label: "They cut and move different side pieces." },
           { id: "different-area", label: "They make rectangles with different areas." },
           { id: "different-height", label: "Only one strategy uses the height." },
         ],
-      },
-      {
-        id: "reasoning",
-        label: "Explain how the slider views show area is preserved.",
-        type: "textarea",
-        placeholder: "Explain your thinking.",
+        answerKey: ["different-cut"],
+        requiredCustomState: { tylerStage: "2", elenaStage: "2" },
+        requiredStateFeedback: "Move both Tyler's and Elena's sliders to their completed rectangle views before submitting.",
+        reasoningPrompt: "Explain where the cuts or moved pieces differ.",
+        reasoningConcepts: [["different", "cut"], ["different", "piece"], ["left", "right"], ["tyler", "elena"]],
+        hint: "Watch which side piece moves in each slider sequence.",
+        reasoningRevisionFeedback: "Your choice is correct, but strengthen the explanation. Identify that Tyler and Elena cut in different places and move different side pieces.",
+        correctFeedback: "Correct. Tyler and Elena cut at different locations and move different side pieces, even though both finish with an identical rectangle.",
+        incorrectFeedback: "Not quite. Both use the same height and preserve the same area; the difference is where they cut and which side piece they move.",
       },
     ],
-    guidedAnswerKey: {
-      static: {
-        same: "same-area",
-        different: "different-cut",
-      },
-    },
-    hint: "Area is preserved when pieces are decomposed and rearranged.",
-    correctFeedback: "Correct. Elena and Tyler create different rectangles from the same parallelogram area.",
-    incorrectFeedback: "The key is area preservation, not perimeter or color.",
   },
   {
     id: "teach-l5-3",
@@ -1033,21 +2143,123 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 2",
     title: "Bases and Heights of Parallelograms",
     activityTitle: "5.3: Finding the Formula for Area of Parallelograms",
-    sourceDirections: "Use base-height pairs to write a general expression.",
+    sourceDirections: "For each parallelogram, identify a base and corresponding height, record their lengths, and find the area.",
     pdfPage: 4,
-    cropPath: teachLessonCrop(5),
-    visualAlt: "Source table for deriving the parallelogram area formula.",
-    prompt: "Which expression gives the area of any parallelogram with base b and height h?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "bh", label: "b x h" },
-      { id: "half-bh", label: "1/2 x b x h" },
-      { id: "b-plus-h", label: "b + h" },
+    cropPath: "lesson-05-p004-parallelogram-formula-5-3.png",
+    visualAlt: "Source parallelograms A through D on a square grid.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "A",
+        label: "Parallelogram A",
+        prompt: "Record a base, its corresponding height, and the area of Parallelogram A.",
+        fields: [
+          { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area (square units)", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [
+          { base: "4", height: "6", area: "24" },
+          { base: "6", height: "4", area: "24" },
+        ],
+        hint: "A is a rectangle, so either side can be a base. Pair it with the perpendicular side length.",
+        correctFeedback: "Correct. Parallelogram A has perpendicular side lengths 4 and 6, so its area is 24 square units.",
+        incorrectFeedback: "Not quite. Use a matched perpendicular pair: base 4 and height 6, or base 6 and height 4. The area is 24 square units.",
+      },
+      {
+        id: "B",
+        label: "Parallelogram B",
+        prompt: "Record a base, its corresponding height, and the area of Parallelogram B.",
+        fields: [
+          { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area (square units)", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: "5", height: "3", area: "15" }],
+        hint: "Use a horizontal side as the base and count the vertical distance to the opposite horizontal side.",
+        correctFeedback: "Correct. Parallelogram B has base 5 units, corresponding height 3 units, and area 15 square units.",
+        incorrectFeedback: "Not quite. The horizontal base is 5 units and its perpendicular height is 3 units, so the area is 15 square units.",
+      },
+      {
+        id: "C",
+        label: "Parallelogram C",
+        prompt: "Record a base, its corresponding height, and the area of Parallelogram C.",
+        fields: [
+          { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area (square units)", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: "2", height: "3", area: "6" }],
+        hint: "Use either short horizontal side as the base and count the vertical distance between them.",
+        correctFeedback: "Correct. Parallelogram C has base 2 units, corresponding height 3 units, and area 6 square units.",
+        incorrectFeedback: "Not quite. The horizontal base is 2 units and the perpendicular vertical height is 3 units, so the area is 6 square units.",
+      },
+      {
+        id: "D",
+        label: "Parallelogram D",
+        prompt: "Record a base, its corresponding height, and the area of Parallelogram D.",
+        fields: [
+          { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
+          { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
+          { id: "area", label: "Area (square units)", responseType: "number", placeholder: "Type area" },
+        ],
+        acceptedFieldSets: [{ base: "4", height: "2", area: "8" }],
+        hint: "Use a vertical side as the base. Its corresponding height is the horizontal distance to the opposite vertical side.",
+        correctFeedback: "Correct. Parallelogram D has a 4-unit vertical base, a 2-unit horizontal height, and area 8 square units.",
+        incorrectFeedback: "Not quite. Use the 4-unit vertical side and the 2-unit perpendicular horizontal distance. Their product is 8 square units.",
+      },
+      {
+        id: "formula",
+        label: "Any parallelogram",
+        prompt: "Write an expression for the area of any parallelogram using b for a base and h for its corresponding height.",
+        responseType: "shortAnswer",
+        inputLabel: "Area expression",
+        placeholder: "Type an expression",
+        answerKey: ["bh", "b x h", "b*h", "h x b", "h*b", "hb"],
+        hint: "Every numerical area above is the product of a base and its corresponding height.",
+        correctFeedback: "Correct. The area of any parallelogram is b x h.",
+        incorrectFeedback: "Not quite. A parallelogram rearranges to a rectangle with side lengths b and h, so its area expression is b x h.",
+      },
+      {
+        id: "height-scaling",
+        label: "Optional: height changes",
+        optional: true,
+        prompt: "What happens to the area if the height doubles, triples, or becomes 100 times as large while the base stays unchanged?",
+        fields: [
+          { id: "double", label: "Height doubles: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
+          { id: "triple", label: "Height triples: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
+          { id: "hundred", label: "Height is 100 times: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
+        ],
+        acceptedFieldSets: [{
+          double: ["2", "2x", "double", "twice"],
+          triple: ["3", "3x", "triple"],
+          hundred: ["100", "100x", "100 times"],
+        }],
+        hint: "The base stays fixed, so the area changes by the same factor as the height.",
+        correctFeedback: "Correct. The area doubles, triples, or becomes 100 times as large with the height.",
+        incorrectFeedback: "Not quite. With a fixed base, multiplying the height by a factor multiplies the area by that same factor.",
+      },
+      {
+        id: "both-scaling",
+        label: "Optional: both change",
+        optional: true,
+        prompt: "What happens to the area if both the base and height double, triple, or become 100 times as large?",
+        fields: [
+          { id: "double", label: "Both double: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
+          { id: "triple", label: "Both triple: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
+          { id: "hundred", label: "Both are 100 times: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
+        ],
+        acceptedFieldSets: [{
+          double: ["4", "4x", "4 times"],
+          triple: ["9", "9x", "9 times"],
+          hundred: ["10000", "10000x", "10000 times", "10,000", "10,000 times"],
+        }],
+        hint: "Both factors in b x h change. Multiply the base scale factor by the height scale factor.",
+        correctFeedback: "Correct. The area becomes 4 times, 9 times, or 10,000 times as large because both dimensions are scaled.",
+        incorrectFeedback: "Not quite. Multiply the two scale factors: 2 x 2, 3 x 3, and 100 x 100.",
+      },
     ],
-    answerKey: ["bh"],
-    hint: "A parallelogram rearranges to a rectangle with the same base and height.",
-    correctFeedback: "Correct. The area of a parallelogram is base times corresponding height, b x h.",
-    incorrectFeedback: "Use the related rectangle: its dimensions are the parallelogram's base and corresponding height.",
   },
   {
     id: "teach-l6-1",
@@ -1059,11 +2271,15 @@ const unit1TeachAdditionalCards = [
     sourceDirections: "How many dots are in the image? How do you see them?",
     pdfPage: 1,
     cropPath: teachLessonCrop(6),
-    visualAlt: "Source missing-dots visual and parallelogram area tasks.",
-    prompt: "The dot image can be seen as a 6 by 6 border with a 4 by 4 middle missing. How many dots are on the border?",
+    visualAlt: "The source arrangement of black dots with an open region in the middle.",
+    visualWidth: 780,
+    visualHeight: 780,
+    visualDisplayMaxWidth: 390,
+    prompt: "How many dots are in the image? How do you see them?",
     responseType: "number",
     answerKey: ["20"],
-    reasoningPrompt: "Explain how you counted.",
+    responsePrompt: "How many dots are in the image?",
+    reasoningPrompt: "How do you see them? Explain without counting one dot at a time.",
     hint: "Count the full outer square and subtract the missing inside dots, or count the sides without double-counting corners.",
     correctFeedback: "Correct. A 6 by 6 array has 36 dots, and the missing 4 by 4 center has 16 dots, leaving 20 border dots.",
     incorrectFeedback: "Watch for double-counting the corners. One way is 36 - 16.",
@@ -1075,7 +2291,6 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "From Parallelograms to Triangles",
     activityTitle: "7.2: A Tale of Two Triangles (Part 1)",
-    sourceContext: "The public-reference digital activity has students use a segment tool to decompose the quadrilaterals. The app recreates that construction action locally with vertex-to-vertex segment marking.",
     sourceDirections: "Use the segment tool: choose a quadrilateral, then click two vertices to draw one line. Try to decompose each polygon into two identical triangles, if possible.",
     pdfPage: 2,
     cropPath: null,
@@ -1085,7 +2300,7 @@ const unit1TeachAdditionalCards = [
     responseType: "quadrilateralDecompose",
     hint: "Try segments that connect opposite vertices. Rectangles, rhombuses, and parallelograms can be split by a diagonal into two identical triangles.",
     correctFeedback: "Correct. Quadrilaterals A, B, D, F, and G can be decomposed into two identical triangles. They are parallelograms, so a diagonal connects opposite vertices and makes two identical triangles.",
-    incorrectFeedback: "Use the segment tool to test opposite vertices. The successful figures are the parallelograms: A, B, D, F, and G. C and E decompose into two triangles, but the triangles are not identical.",
+    incorrectFeedback: "Revise the segments, selections, or observation. The successful figures are A, B, D, F, and G. They are parallelograms: both pairs of opposite sides are parallel, and a diagonal splits each into two identical triangles. C and E do not.",
   },
   {
     id: "teach-l7-3",
@@ -1094,7 +2309,6 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "From Parallelograms to Triangles",
     activityTitle: "7.3: A Tale of Two Triangles (Part 2)",
-    sourceContext: "The app provides the student triangle-pair cutouts from the Blackline Master as a local composing workspace.",
     sourceDirections: "Choose a pair P-U. Drag the two copies, select a copy, and turn it to test whether the pair can compose a rectangle or a parallelogram.",
     pdfPage: 3,
     cropPath: null,
@@ -1116,19 +2330,93 @@ const unit1TeachAdditionalCards = [
     activityTitle: "8.2: More Triangles",
     sourceDirections: "Find the areas of at least two triangles. Show your reasoning.",
     pdfPage: 2,
-    cropPath: teachLessonCrop(8),
-    visualAlt: "Source triangles on grids for area reasoning.",
-    prompt: "What area strategy should you use for these grid triangles?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "half-parallelogram", label: "Use a related parallelogram or rectangle and take half when appropriate." },
-      { id: "perimeter", label: "Add the side lengths." },
-      { id: "vertices", label: "Count the vertices." },
+    cropPath: "lesson-08-p002-more-triangles-8-2.png",
+    visualAlt: "Four source triangles A through D drawn on square grids for area reasoning.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    minimumRequiredCount: 2,
+    questions: [
+      {
+        id: "A",
+        label: "Triangle A",
+        prompt: "Find the area of Triangle A in square units. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Triangle A",
+        placeholder: "Type area",
+        answerKey: ["8"],
+        visualCropPath: "lesson-08-p002-more-triangles-8-2.png",
+        visualWidth: 590,
+        visualHeight: 520,
+        visualDisplayMaxWidth: 590,
+        visualAlt: "Four source triangles A through D on square grids.",
+        visualDirections: "Choose any two of Triangles A-D to solve. You may solve more for practice.",
+        reasoningPrompt: "Explain how a base and corresponding height, or a related parallelogram, gives the area.",
+        reasoningConcepts: [["8", "2"], ["16", "half"], ["8", "square"]],
+        hint: "Triangle A has a horizontal base of 8 units and a corresponding height of 2 units.",
+        correctFeedback: "Correct. Triangle A has area 1/2 x 8 x 2 = 8 square units.",
+        incorrectFeedback: "Not quite. Use a base of 8 units and its 2-unit corresponding height, then take half of the related parallelogram's area.",
+      },
+      {
+        id: "B",
+        label: "Triangle B",
+        prompt: "Find the area of Triangle B in square units. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Triangle B",
+        placeholder: "Type area",
+        answerKey: ["10.5", "21/2"],
+        visualCropPath: "lesson-08-p002-more-triangles-8-2.png",
+        visualWidth: 590,
+        visualHeight: 520,
+        visualDisplayMaxWidth: 590,
+        visualAlt: "Four source triangles A through D on square grids.",
+        visualDirections: "Choose any two of Triangles A-D to solve. You may solve more for practice.",
+        reasoningPrompt: "Explain how a base and corresponding height, or a related parallelogram, gives the area.",
+        reasoningConcepts: [["7", "3"], ["21", "half"], ["10.5", "square"]],
+        hint: "Triangle B has a horizontal base of 7 units and a corresponding height of 3 units.",
+        correctFeedback: "Correct. Triangle B has area 1/2 x 7 x 3 = 10.5 square units.",
+        incorrectFeedback: "Not quite. Multiply the 7-unit base by the 3-unit corresponding height, then take half.",
+      },
+      {
+        id: "C",
+        label: "Triangle C",
+        prompt: "Find the area of Triangle C in square units. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Triangle C",
+        placeholder: "Type area",
+        answerKey: ["10"],
+        visualCropPath: "lesson-08-p002-more-triangles-8-2.png",
+        visualWidth: 590,
+        visualHeight: 520,
+        visualDisplayMaxWidth: 590,
+        visualAlt: "Four source triangles A through D on square grids.",
+        visualDirections: "Choose any two of Triangles A-D to solve. You may solve more for practice.",
+        reasoningPrompt: "Explain how a base and corresponding height, or a related parallelogram, gives the area.",
+        reasoningConcepts: [["5", "4"], ["20", "half"], ["10", "square"]],
+        hint: "Triangle C has a horizontal base of 5 units and a corresponding height of 4 units.",
+        correctFeedback: "Correct. Triangle C has area 1/2 x 5 x 4 = 10 square units.",
+        incorrectFeedback: "Not quite. Use the 5-unit base and its 4-unit corresponding height, then take half.",
+      },
+      {
+        id: "D",
+        label: "Triangle D",
+        prompt: "Find the area of Triangle D in square units. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of Triangle D",
+        placeholder: "Type area",
+        answerKey: ["12"],
+        visualCropPath: "lesson-08-p002-more-triangles-8-2.png",
+        visualWidth: 590,
+        visualHeight: 520,
+        visualDisplayMaxWidth: 590,
+        visualAlt: "Four source triangles A through D on square grids.",
+        visualDirections: "Choose any two of Triangles A-D to solve. You may solve more for practice.",
+        reasoningPrompt: "Explain how a base and corresponding height, or a related parallelogram, gives the area.",
+        reasoningConcepts: [["4", "6"], ["24", "half"], ["12", "square"]],
+        hint: "A vertical side can be the 4-unit base; its corresponding horizontal height is 6 units.",
+        correctFeedback: "Correct. Triangle D has area 1/2 x 4 x 6 = 12 square units.",
+        incorrectFeedback: "Not quite. Use the 4-unit vertical base and its 6-unit horizontal corresponding height, then take half.",
+      },
     ],
-    answerKey: ["half-parallelogram"],
-    hint: "Lesson 8 connects a triangle to a parallelogram made from two copies.",
-    correctFeedback: "Correct. A triangle's area can be reasoned from a related parallelogram or rectangle.",
-    incorrectFeedback: "Area is inside the region. Use a related rectangle/parallelogram, not perimeter.",
   },
   {
     id: "teach-l8-3",
@@ -1137,15 +2425,20 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "Area of Triangles",
     activityTitle: "8.3: Decomposing a Parallelogram",
-    sourceContext: "The app provides the Blackline Master parallelogram assignments A-D that students cut and rearrange in the source lesson.",
-    sourceDirections: "Use one assigned parallelogram. Compare the original parallelogram, the new parallelogram made from two cut pieces, and the remaining large triangle.",
+    sourceDirections: "Choose one parallelogram A-D. Move and turn its small triangle and trapezoid to explore a different parallelogram, then compare its areas with the original and the remaining large triangle.",
     pdfPage: 3,
     pdfPages: [3, 4],
-    cropPath: "lesson-08-p003-decomposing-parallelogram-blackline.png",
+    cropPath: null,
     visualAlt: "Blackline Master parallelograms A through D with measurements and dotted cut lines.",
     blacklineMasters: unit1BlacklineMasters.decomposingParallelogram,
+    customVisual: "decomposeParallelogram",
     prompt: "Choose one parallelogram A-D and complete the same area comparisons from the source task.",
     responseType: "guidedFields",
+    requiredWorkspaceState: {
+      decomposeSmallUsed: "yes",
+      decomposeTrapezoidUsed: "yes",
+    },
+    missingResponseFeedback: "Choose A-D, move or turn both cut pieces, and complete every required area comparison before submitting again.",
     guidedFields: [
       {
         id: "parallelogram",
@@ -1197,6 +2490,20 @@ const unit1TeachAdditionalCards = [
         },
       },
     },
+    guidedReasoningRequirements: [
+      { field: "reasoning", concepts: [["same", "pieces"], ["rearrang", "area"], ["cut", "area"]] },
+    ],
+    optionalChallenge: {
+      id: "rectangle-challenge",
+      field: "rectangleChallenge",
+      prompt: "Can you decompose the remaining large triangle and rearrange its parts to form a rectangle? Describe how it could be done.",
+      inputLabel: "Describe the cuts and rearrangement.",
+      minLength: 18,
+      answerConcepts: [["cut", "rectangle"], ["split", "rectangle"], ["decompos", "rectangle"]],
+      hint: "Try splitting the triangle through the midpoint of a side, then moving one smaller triangle to the other side.",
+      correctFeedback: "That works. A midpoint cut can create pieces that move together into a rectangle without changing area.",
+      incorrectFeedback: "Add enough detail to name a cut or decomposition and explain how the pieces rearrange into a rectangle.",
+    },
     hint: "Find the original area with base x height. The rearranged trapezoid-plus-small-triangle uses half the original height, and the remaining large triangle has the same area as that new parallelogram.",
     correctFeedback: "Correct. In each assigned parallelogram, the new parallelogram has half the area of the original, and the remaining large triangle has the same area as the new parallelogram.",
     incorrectFeedback: "Recheck the base-height area of your chosen parallelogram, then compare the half-height rearranged parallelogram and the remaining large triangle.",
@@ -1208,21 +2515,28 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "Formula for the Area of a Triangle",
     activityTitle: "9.1: Bases and Heights of a Triangle",
-    sourceDirections: "Study examples and non-examples of triangle bases and heights.",
+    sourceDirections: "Study the examples and non-examples, then select all statements that are true about bases and heights in a triangle.",
     pdfPage: 1,
-    cropPath: teachLessonCrop(9),
+    cropPath: "lesson-09-p001-bases-heights-triangle-9-1.png",
+    visualWidth: 510,
+    visualHeight: 309,
+    visualDisplayMaxWidth: 510,
     visualAlt: "Source examples and non-examples of triangle bases and heights.",
-    prompt: "Which statement is true about a triangle height?",
-    responseType: "singleChoice",
+    prompt: "Select all statements that are true about bases and heights in a triangle.",
+    responseType: "multiSelect",
     choices: [
-      { id: "perpendicular", label: "A height must be perpendicular to its chosen base." },
-      { id: "any-angle", label: "A height can meet the base at any angle." },
-      { id: "only-inside", label: "A height must always be inside the triangle." },
+      { id: "1", label: "1. Any side of a triangle can be a base." },
+      { id: "2", label: "2. There is only one possible height." },
+      { id: "3", label: "3. A height is always one of the sides of a triangle." },
+      { id: "4", label: "4. A corresponding height must be drawn at an acute angle to the base." },
+      { id: "5", label: "5. A corresponding height must be drawn at a right angle to the base." },
+      { id: "6", label: "6. Once a base is chosen, only one segment can represent its corresponding height." },
+      { id: "7", label: "7. A segment representing a height must go through a vertex." },
     ],
-    answerKey: ["perpendicular"],
-    hint: "The examples all show a right angle between base and height.",
-    correctFeedback: "Correct. A corresponding height is perpendicular to the chosen base or its extension.",
-    incorrectFeedback: "Look for the right angle: a height must be perpendicular to the base.",
+    answerKey: ["1", "5"],
+    hint: "Any side may be named as the base. A corresponding height is a perpendicular distance, and a segment showing that distance can be shifted along parallel lines.",
+    correctFeedback: "Correct. Statements 1 and 5 are true. Any side can be a base, and its corresponding height is perpendicular. Heights need not be sides, stay inside, use only one possible segment, or pass through a vertex.",
+    incorrectFeedback: "Recheck the examples and non-examples. Any side can be a base, and the corresponding height must be perpendicular; the other restrictions are not required.",
   },
   {
     id: "teach-l9-3",
@@ -1231,21 +2545,28 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "Formula for the Area of a Triangle",
     activityTitle: "9.3: Applying the Formula for Area of Triangles",
-    sourceDirections: "Circle a usable base measurement and find areas of three triangles.",
+    sourceDirections: "For each triangle, identify a usable base measurement. Then find the area of any three triangles and show your reasoning.",
     pdfPage: 3,
-    cropPath: teachLessonCrop(9),
+    cropPath: "lesson-09-p003-applying-formula-9-3.png",
     visualAlt: "Source triangles with base and height measurements.",
-    prompt: "What measurements must be paired when using the triangle area formula?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "corresponding", label: "A base and its corresponding perpendicular height." },
-      { id: "any-two", label: "Any two side lengths." },
-      { id: "longest-only", label: "Only the longest side and shortest side." },
-    ],
-    answerKey: ["corresponding"],
-    hint: "The base and height must match each other.",
-    correctFeedback: "Correct. Use 1/2 x base x corresponding height.",
-    incorrectFeedback: "The height must correspond to the base, so not every pair of measurements works.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    minimumRequiredCount: 3,
+    questions: [
+      { id: "A", label: "Triangle A", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle A.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["5"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["5", "6"], ["30", "half"], ["15", "square"]], hint: "The 5 cm base has a 6 cm corresponding height.", correctFeedback: "Correct. Triangle A has area 1/2 x 5 x 6 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 5 cm base and 6 cm perpendicular height." },
+      { id: "B", label: "Triangle B", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle B.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["4"], area: ["8"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["4", "4"], ["16", "half"], ["8", "square"]], hint: "The two 4 cm sides meet at a right angle.", correctFeedback: "Correct. Triangle B has area 1/2 x 4 x 4 = 8 square centimeters.", incorrectFeedback: "Not quite. Either 4 cm perpendicular side can be the base and the other is its height." },
+      { id: "C", label: "Triangle C", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle C.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["7"], area: ["10.5", "21/2"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["7", "3"], ["21", "half"], ["10.5", "square"]], hint: "Use the 7 cm vertical side as the base; the dashed 3 cm horizontal segment is its height.", correctFeedback: "Correct. Triangle C has area 1/2 x 7 x 3 = 10.5 square centimeters.", incorrectFeedback: "Not quite. The usable labeled base is 7 cm, paired with the 3 cm perpendicular distance." },
+      { id: "D", label: "Triangle D", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle D.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["8"], area: ["14"] }, { base: ["3.5"], area: ["14"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["8", "3.5"], ["28", "half"], ["14", "square"]], hint: "The 8 cm and 3.5 cm sides are perpendicular, so either can be the base.", correctFeedback: "Correct. Triangle D has area 1/2 x 8 x 3.5 = 14 square centimeters.", incorrectFeedback: "Not quite. Pair the perpendicular 8 cm and 3.5 cm sides; do not use the 8.73 cm slanted side with an unknown height." },
+      { id: "E", label: "Triangle E", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle E.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["6"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["6", "5"], ["30", "half"], ["15", "square"]], hint: "The 6 cm base has a 5 cm corresponding height outside the triangle.", correctFeedback: "Correct. Triangle E has area 1/2 x 6 x 5 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 6 cm base and the 5 cm perpendicular height drawn to its extension." },
+    ].map((question) => ({
+      ...question,
+      visualCropPath: "lesson-09-p003-applying-formula-9-3.png",
+      visualWidth: 575,
+      visualHeight: 425,
+      visualDisplayMaxWidth: 575,
+      visualAlt: "Source triangles A through E with labeled measurements.",
+      visualDirections: "Identify a usable labeled base for each triangle. Complete any three area calculations.",
+    })),
   },
   {
     id: "teach-l10-1",
@@ -1254,7 +2575,6 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "Bases and Heights of Triangles",
     activityTitle: "10.1: An Area of 12",
-    sourceContext: "The source asks students to draw a triangle, preferably non-right, and justify its area.",
     sourceDirections: "Choose measurements and an apex placement to construct one non-right triangle with area 12 square units.",
     pdfPage: 1,
     cropPath: null,
@@ -1288,7 +2608,7 @@ const unit1TeachAdditionalCards = [
         id: "triangleReasoning",
         label: "Explain why the area is 12 square units.",
         type: "textarea",
-        placeholder: "Use the triangle area formula or a related parallelogram.",
+        placeholder: "Explain your area reasoning.",
       },
     ],
     guidedAnswerKey: {
@@ -1297,6 +2617,9 @@ const unit1TeachAdditionalCards = [
         apexPlacement: ["left-skew", "right-skew"],
       },
     },
+    guidedReasoningRequirements: [
+      { field: "triangleReasoning", concepts: [["half", "12"], ["1/2", "12"], ["divide", "12"]] },
+    ],
     hint: "Triangle area is 1/2 x base x height, so the base and height need a product of 24. A non-right triangle has its top vertex not directly above a base endpoint.",
     correctFeedback: "Correct. Your selected base-height pair has product 24, so half of it is 12 square units, and the apex placement makes the triangle non-right.",
     incorrectFeedback: "Recheck both parts: the base-height product should be 24 before taking half, and the source asks you to try a non-right triangle.",
@@ -1308,21 +2631,91 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "Bases and Heights of Triangles",
     activityTitle: "10.3: Some Bases Are Better Than Others",
-    sourceDirections: "Identify a base and height, then find the triangle area.",
+    sourceDirections: "For each triangle A-D, identify and label a base and corresponding height, then find the area. Complete the optional challenge separately if you choose.",
     pdfPage: 3,
-    cropPath: teachLessonCrop(10),
-    visualAlt: "Source grid triangles for choosing useful bases and heights.",
-    prompt: "Why are some bases easier to use than others?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "clear-height", label: "Their corresponding heights are easier to read or draw from the grid." },
-      { id: "longest", label: "The longest side is always the only correct base." },
-      { id: "horizontal-only", label: "Only horizontal sides can be bases." },
-    ],
-    answerKey: ["clear-height"],
-    hint: "Any side can be a base, but some make the height easier to identify.",
-    correctFeedback: "Correct. A convenient base is one whose corresponding height can be measured or drawn clearly.",
-    incorrectFeedback: "Any side can be chosen as the base; the useful question is whether its corresponding height is clear.",
+    cropPath: "lesson-10-p003-better-bases-10-3.png",
+    visualAlt: "Source grid triangles A through D for choosing useful bases and corresponding heights.",
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "A",
+        label: "Triangle A",
+        prompt: "Identify a base and corresponding height for Triangle A, then find its area.",
+        fields: [{ id: "base", label: "Base", responseType: "number", placeholder: "Type length" }, { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }],
+        acceptedFieldSets: [{ base: ["9"], height: ["5"], area: ["22.5", "45/2"] }, { base: ["5"], height: ["9"], area: ["22.5", "45/2"] }],
+        reasoningPrompt: "Show how the grid gives your base, height, and area.",
+        reasoningConcepts: [["9", "5"], ["45", "half"], ["22.5", "square"]],
+        hint: "The horizontal and vertical sides measure 9 and 5 units and meet at a right angle.",
+        correctFeedback: "Correct. Triangle A has area 1/2 x 9 x 5 = 22.5 square units.",
+        incorrectFeedback: "Not quite. Use the perpendicular 9-unit and 5-unit sides as a base-height pair.",
+      },
+      {
+        id: "B",
+        label: "Triangle B",
+        prompt: "Identify a base and corresponding height for Triangle B, then find its area.",
+        fields: [{ id: "base", label: "Base", responseType: "number", placeholder: "Type length" }, { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }],
+        acceptedFieldSets: [{ base: ["11"], height: ["8"], area: ["44"] }],
+        reasoningPrompt: "Show how the grid gives your base, height, and area.",
+        reasoningConcepts: [["11", "8"], ["88", "half"], ["44", "square"]],
+        hint: "The horizontal top side is 11 units; its perpendicular vertical height is 8 units.",
+        correctFeedback: "Correct. Triangle B has area 1/2 x 11 x 8 = 44 square units.",
+        incorrectFeedback: "Not quite. Use the 11-unit horizontal base and 8-unit vertical distance to the opposite vertex.",
+      },
+      {
+        id: "C",
+        label: "Triangle C",
+        prompt: "Identify a base and corresponding height for Triangle C, then find its area.",
+        fields: [{ id: "base", label: "Base", responseType: "number", placeholder: "Type length" }, { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }],
+        acceptedFieldSets: [{ base: ["4"], height: ["18"], area: ["36"] }],
+        reasoningPrompt: "Show how the grid gives your base, height, and area.",
+        reasoningConcepts: [["4", "18"], ["72", "half"], ["36", "square"]],
+        hint: "Use the 4-unit vertical side as the base and the 18-unit horizontal distance as its height.",
+        correctFeedback: "Correct. Triangle C has area 1/2 x 4 x 18 = 36 square units.",
+        incorrectFeedback: "Not quite. The convenient base is vertical, so its corresponding height is the horizontal distance across the grid.",
+      },
+      {
+        id: "D",
+        label: "Triangle D",
+        prompt: "Identify a base and corresponding height for Triangle D, then find its area.",
+        fields: [{ id: "base", label: "Base", responseType: "number", placeholder: "Type length" }, { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }],
+        acceptedFieldSets: [{ base: ["6"], height: ["11"], area: ["33"] }],
+        reasoningPrompt: "Show how the grid gives your base, height, and area.",
+        reasoningConcepts: [["6", "11"], ["66", "half"], ["33", "square"]],
+        hint: "Use the 6-unit vertical side as the base and the 11-unit horizontal distance as its height.",
+        correctFeedback: "Correct. Triangle D has area 1/2 x 6 x 11 = 33 square units.",
+        incorrectFeedback: "Not quite. Count the vertical base and its perpendicular horizontal distance on the grid.",
+      },
+      {
+        id: "optional",
+        label: "Optional challenge",
+        optional: true,
+        prompt: "Find the area of the optional triangle. Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of the optional triangle",
+        placeholder: "Type area",
+        answerKey: ["51"],
+        reasoningPrompt: "Explain a decomposition, enclosure, or subtraction strategy.",
+        reasoningConcepts: [["144", "subtract"], ["42", "15", "36"], ["51", "square"]],
+        hint: "Enclose the triangle in a 12-by-12 square, then subtract the three outside right triangles.",
+        correctFeedback: "Correct. The enclosing square has area 144, and the three outside triangles have areas 42, 15, and 36, so the triangle has area 51 square units.",
+        incorrectFeedback: "Not quite. Account for the full enclosing square and all three outside triangles exactly once.",
+        visualCropPath: "lesson-10-p003-optional-triangle-10-3.png",
+        visualWidth: 305,
+        visualHeight: 306,
+        visualDisplayMaxWidth: 305,
+        visualAlt: "Optional source triangle on a square grid.",
+        visualDirections: "Optional: use the grid and an area strategy to find this triangle's area.",
+      },
+    ].map((question) => question.visualCropPath ? question : ({
+      ...question,
+      visualCropPath: "lesson-10-p003-better-bases-10-3.png",
+      visualWidth: 595,
+      visualHeight: 345,
+      visualDisplayMaxWidth: 595,
+      visualAlt: "Source triangles A through D on a square grid.",
+      visualDirections: "Complete every required triangle A-D. Use a convenient vertical or horizontal base when possible.",
+    })),
   },
   {
     id: "teach-l11-1",
@@ -1333,14 +2726,35 @@ const unit1TeachAdditionalCards = [
     activityTitle: "11.1: Which One Doesn't Belong: Bases and Heights",
     sourceDirections: "Which one doesn't belong?",
     pdfPage: 1,
-    cropPath: teachLessonCrop(11),
-    visualAlt: "Source which-one-does-not-belong visual for bases and heights.",
-    prompt: "Give one reason a figure could be the one that does not belong.",
-    responseType: "open",
-    reasoningPrompt: "Explain your choice.",
+    cropPath: "lesson-11-p001-wodb-bases-heights-11-1.png",
+    visualWidth: 460,
+    visualHeight: 325,
+    visualDisplayMaxWidth: 460,
+    visualAlt: "Source triangles S, T, U, and V on a square grid.",
+    prompt: "Choose one figure that does not belong and justify your choice with a mathematical observation.",
+    responseType: "guidedFields",
+    responsePrompt: "There can be more than one valid answer. Your explanation must support the figure you choose.",
+    guidedFields: [
+      {
+        id: "figure",
+        label: "Figure that does not belong",
+        type: "singleChoice",
+        choices: [
+          { id: "S", label: "S" },
+          { id: "T", label: "T" },
+          { id: "U", label: "U" },
+          { id: "V", label: "V" },
+        ],
+      },
+      { id: "reasoning", label: "Why does your chosen figure not belong?", type: "textarea", placeholder: "Explain a mathematical difference." },
+    ],
+    guidedAnswerKey: { static: { figure: ["S", "T", "U", "V"] } },
+    guidedReasoningRequirements: [
+      { field: "reasoning", concepts: [["base"], ["height"], ["angle"], ["horizontal"], ["vertical"], ["side"], ["triangle"]] },
+    ],
     hint: "Which One Doesn't Belong tasks can have more than one valid answer if the reasoning is clear.",
-    correctFeedback: "A strong response names a figure and gives a mathematical reason based on its base-height relationship.",
-    incorrectFeedback: "Choose one figure and explain a mathematical feature that makes it different.",
+    correctFeedback: "That is a valid Which One Doesn't Belong response. The selected figure is supported by a mathematical observation about its sides, angles, orientation, base, or height.",
+    incorrectFeedback: "Choose S, T, U, or V and explain a mathematical feature of that figure, such as a side, angle, orientation, base, or height.",
   },
   {
     id: "teach-l11-3",
@@ -1351,19 +2765,127 @@ const unit1TeachAdditionalCards = [
     activityTitle: "11.3: Quadrilateral Strategies",
     sourceDirections: "Find the area of two quadrilaterals of your choice. Show your reasoning.",
     pdfPage: 3,
-    cropPath: teachLessonCrop(11),
-    visualAlt: "Source quadrilaterals on grids for area strategies.",
-    prompt: "Which strategy can help find the area of an irregular quadrilateral?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "decompose", label: "Decompose it into triangles or rectangles." },
-      { id: "name", label: "Use only the name quadrilateral." },
-      { id: "corners", label: "Count the corners." },
-    ],
-    answerKey: ["decompose"],
-    hint: "Lesson 11 uses decomposition and enclosure strategies.",
-    correctFeedback: "Correct. Breaking a polygon into shapes with known areas is a source-faithful strategy.",
-    incorrectFeedback: "Area needs a region strategy; a name or corner count is not enough.",
+    cropPath: "lesson-11-p003-quadrilateral-strategies-11-3.png",
+    visualAlt: "Source quadrilaterals A through F on a square grid.",
+    customVisual: "questionSetVisual",
+    prompt: "Choose any two quadrilaterals A-F. Find each area and show your reasoning. The optional trapezoid formula challenge is separate.",
+    responseType: "questionSet",
+    minimumRequiredCount: 2,
+    questions: [
+      {
+        id: "A",
+        label: "Quadrilateral A",
+        prompt: "Find the area of Quadrilateral A.",
+        responseType: "number",
+        inputLabel: "Area of A",
+        placeholder: "Type area",
+        answerKey: ["12"],
+        reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
+        reasoningConcepts: [["rectangle", "subtract"], ["triangle", "add"], ["grid", "12"], ["decompose"]],
+        hint: "Enclose A in a grid-aligned rectangle and subtract the outside triangles, or decompose it into triangles.",
+        correctFeedback: "Correct. Quadrilateral A has area 12 square units.",
+        incorrectFeedback: "Not quite. Keep every grid unit accounted for when you decompose or enclose Quadrilateral A.",
+      },
+      {
+        id: "B",
+        label: "Quadrilateral B",
+        prompt: "Find the area of Quadrilateral B.",
+        responseType: "number",
+        inputLabel: "Area of B",
+        placeholder: "Type area",
+        answerKey: ["16"],
+        reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
+        reasoningConcepts: [["rectangle", "triangle"], ["subtract"], ["grid", "16"], ["decompose"]],
+        hint: "Split B into a rectangle and a right triangle, or enclose it and subtract the missing triangle.",
+        correctFeedback: "Correct. Quadrilateral B has area 16 square units.",
+        incorrectFeedback: "Not quite. Separate B into familiar grid-aligned regions and add or subtract their areas.",
+      },
+      {
+        id: "C",
+        label: "Quadrilateral C",
+        prompt: "Find the area of Quadrilateral C.",
+        responseType: "number",
+        inputLabel: "Area of C",
+        placeholder: "Type area",
+        answerKey: ["34"],
+        reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
+        reasoningConcepts: [["rectangle", "triangle"], ["7", "10", "4"], ["grid", "34"], ["decompose"]],
+        hint: "Decompose the trapezoid into a central rectangle and two side triangles, or use its two parallel side lengths and height.",
+        correctFeedback: "Correct. Quadrilateral C has area 34 square units.",
+        incorrectFeedback: "Not quite. Its parallel horizontal sides are 7 and 10 units long and are 4 units apart.",
+      },
+      {
+        id: "D",
+        label: "Quadrilateral D",
+        prompt: "Find the area of Quadrilateral D.",
+        responseType: "number",
+        inputLabel: "Area of D",
+        placeholder: "Type area",
+        answerKey: ["14"],
+        reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
+        reasoningConcepts: [["triangle", "add"], ["diagonal", "4", "7"], ["grid", "14"], ["decompose"]],
+        hint: "The horizontal and vertical diagonals divide D into right triangles.",
+        correctFeedback: "Correct. Quadrilateral D has area 14 square units.",
+        incorrectFeedback: "Not quite. Use its 4-unit horizontal diagonal and 7-unit vertical diagonal to organize the triangular pieces.",
+      },
+      {
+        id: "E",
+        label: "Quadrilateral E",
+        prompt: "Find the area of Quadrilateral E.",
+        responseType: "number",
+        inputLabel: "Area of E",
+        placeholder: "Type area",
+        answerKey: ["15"],
+        reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
+        reasoningConcepts: [["rectangle", "triangle"], ["8", "2", "3"], ["grid", "15"], ["decompose"]],
+        hint: "Split E into a rectangle and a right triangle, or treat it as a trapezoid.",
+        correctFeedback: "Correct. Quadrilateral E has area 15 square units.",
+        incorrectFeedback: "Not quite. The parallel horizontal sides are 8 and 2 units long and are 3 units apart.",
+      },
+      {
+        id: "F",
+        label: "Quadrilateral F",
+        prompt: "Find the area of Quadrilateral F.",
+        responseType: "number",
+        inputLabel: "Area of F",
+        placeholder: "Type area",
+        answerKey: ["18"],
+        reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
+        reasoningConcepts: [["triangle", "add"], ["diagonal", "6"], ["grid", "18"], ["decompose"]],
+        hint: "Its 6-unit horizontal and vertical diagonals divide F into four right triangles.",
+        correctFeedback: "Correct. Quadrilateral F has area 18 square units.",
+        incorrectFeedback: "Not quite. Use the two 6-unit diagonals to organize four congruent right triangles.",
+      },
+      {
+        id: "formula",
+        label: "Optional challenge",
+        optional: true,
+        prompt: "Write a formula for the area of a trapezoid with parallel side lengths a and b and height h.",
+        responseType: "shortAnswer",
+        inputLabel: "Area formula",
+        placeholder: "Write a formula using a, b, and h",
+        answerKey: ["h(a+b)/2", "(a+b)h/2", "1/2h(a+b)", "1/2(a+b)h", "(a+b)*h/2", "0.5h(a+b)"],
+        reasoningPrompt: "Explain how decomposing, rearranging, or duplicating the trapezoid supports your formula.",
+        reasoningConcepts: [["duplicate", "parallelogram"], ["two", "trapezoid"], ["add", "bases"], ["average", "bases"], ["a", "b", "h"]],
+        hint: "Duplicate the trapezoid and rotate the copy. Together, the two congruent trapezoids can form a parallelogram with base a + b and height h.",
+        correctFeedback: "Correct. Two copies make a parallelogram with area (a + b)h, so one trapezoid has area h(a + b)/2.",
+        incorrectFeedback: "Not quite. Your formula should use both parallel side lengths, the height, and a factor of one half.",
+        visualCropPath: "lesson-11-p003-optional-trapezoid.png",
+        visualWidth: 555,
+        visualHeight: 365,
+        visualDisplayMaxWidth: 430,
+        visualAlt: "Source trapezoid labeled with parallel side lengths a and b and perpendicular height h.",
+        visualDirections: "Optional: use the labeled trapezoid to derive a general area formula.",
+      },
+    ].map((question) => question.visualCropPath ? question : ({
+      ...question,
+      visualCropPath: "lesson-11-p003-quadrilateral-strategies-11-3.png",
+      visualWidth: 545,
+      visualHeight: 350,
+      visualDisplayMaxWidth: 545,
+      visualAlt: "Source quadrilaterals A through F on a square grid.",
+      visualDirections: "Choose any two quadrilaterals A-F and find their areas.",
+    })),
   },
   {
     id: "teach-l11-4",
@@ -1372,19 +2894,36 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 4",
     title: "Polygons",
     activityTitle: "11.4: Pinwheel",
-    sourceContext: "The source uses the Blackline Master pinwheel grid as the group display object for area strategies.",
     sourceDirections: "Find the area of the shaded region in square units. Show your reasoning.",
     pdfPage: 4,
-    cropPath: teachLessonCrop(11),
+    cropPath: "lesson-11-p004-pinwheel-11-4.png",
     visualAlt: "Source pinwheel polygon on a grid.",
     blacklineMasters: unit1BlacklineMasters.pinwheel,
-    prompt: "Find the area of the shaded pinwheel region in square units.",
-    responseType: "number",
-    answerKey: ["40"],
-    reasoningPrompt: "Show a decomposition or subtraction strategy that accounts for the shaded region.",
-    hint: "Use the grid to make known triangles, rectangles, or an enclosing shape. One efficient path is to enclose the pinwheel and subtract the outside triangles.",
-    correctFeedback: "Correct. The pinwheel has area 40 square units; a complete strategy accounts for every shaded piece exactly once.",
-    incorrectFeedback: "The pinwheel is an area task. Try decomposing the shaded region into triangles/rectangles or enclosing it and subtracting the unshaded parts.",
+    customVisual: "questionSetVisual",
+    prompt: "Find the area of the shaded pinwheel region and justify the calculation.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "pinwheel",
+        label: "Pinwheel",
+        prompt: "Find the area of the shaded region in square units.",
+        responseType: "number",
+        inputLabel: "Shaded area",
+        placeholder: "Type area",
+        answerKey: ["40"],
+        reasoningPrompt: "Show a decomposition, rearrangement, or enclosure-and-subtraction strategy that accounts for the entire shaded region.",
+        reasoningConcepts: [["four", "identical"], ["triangle", "rectangle"], ["enclose", "subtract"], ["square", "subtract"], ["decompose"]],
+        hint: "Use the grid to make known triangles and rectangles. You can also enclose the pinwheel and subtract the four congruent outside regions.",
+        correctFeedback: "Correct. The pinwheel has area 40 square units. A valid decomposition, rearrangement, or enclosure strategy accounts for every shaded piece exactly once.",
+        incorrectFeedback: "Not quite. Use the grid to decompose the shaded region, or enclose it and subtract every unshaded part exactly once.",
+        visualCropPath: "lesson-11-p004-pinwheel-11-4.png",
+        visualWidth: 341,
+        visualHeight: 344,
+        visualDisplayMaxWidth: 341,
+        visualAlt: "Source pinwheel polygon on a square grid.",
+        visualDirections: "Find the shaded area in square units. Show a complete area strategy.",
+      },
+    ],
   },
   {
     id: "teach-l12-1",
@@ -1393,22 +2932,35 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "What is Surface Area?",
     activityTitle: "12.1: Covering the Cabinet (Part 1)",
-    sourceContext: "The app replaces the classroom video with the same estimation question.",
-    sourceDirections: "Estimate how many sticky notes it would take to cover the cabinet.",
+    sourceDirections: "Study the source cabinet photographs. Estimate how many sticky notes it would take to cover the cabinet, excluding the bottom.",
     pdfPage: 1,
-    cropPath: teachLessonCrop(12),
-    visualAlt: "Source cabinet-covering surface area task.",
-    prompt: "What information would help you estimate the number of sticky notes needed?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "surface-and-note", label: "The cabinet surface dimensions and the area of one sticky note." },
-      { id: "height-only", label: "Only the cabinet height." },
-      { id: "volume-only", label: "Only the cabinet volume." },
+    cropPath: "lesson-12-p001-cabinet-stills.png",
+    customVisual: "questionSetVisual",
+    visualAlt: "Four source photographs of a filing cabinet, sticky notes, and a teacher beginning to cover the cabinet.",
+    prompt: "Make a reasoned estimate before the exact cabinet dimensions are revealed in Part 2.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "estimate",
+        label: "Estimate",
+        prompt: "How many sticky notes would it take to cover the cabinet, excluding the bottom?",
+        responseType: "number",
+        estimate: true,
+        inputLabel: "Your estimate",
+        placeholder: "Type a positive estimate",
+        reasoningPrompt: "Explain what you noticed in the photographs and how it informed your estimate.",
+        reasoningConcepts: [["cabinet"], ["sticky"], ["front"], ["side"], ["face"], ["row"], ["column"]],
+        hint: "Use the visible cabinet proportions and the size of one sticky note. This is an estimate, so the explanation matters more than an exact value.",
+        correctFeedback: "Estimate recorded. The source intentionally asks for a reasoned estimate before giving exact dimensions. Continue to Part 2 to determine the actual mathematical count.",
+        incorrectFeedback: "Enter a positive estimate and explain how the cabinet photographs or sticky-note size informed it.",
+        visualCropPath: "lesson-12-p001-cabinet-stills.png",
+        visualWidth: 2161,
+        visualHeight: 1160,
+        visualDisplayMaxWidth: 650,
+        visualAlt: "Four source photographs of a filing cabinet, sticky notes, and a teacher beginning to cover the cabinet.",
+        visualDirections: "Study the cabinet and partial covering sequence before estimating.",
+      },
     ],
-    answerKey: ["surface-and-note"],
-    hint: "Covering outside faces is a surface-area question.",
-    correctFeedback: "Correct. You need the area to be covered and the area covered by each sticky note.",
-    incorrectFeedback: "Surface area counts the outside covering, so dimensions of faces and sticky-note area matter.",
   },
   {
     id: "teach-l12-2",
@@ -1417,21 +2969,71 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "What is Surface Area?",
     activityTitle: "12.2: Covering the Cabinet (Part 2)",
-    sourceDirections: "Use information about the cabinet to find the number of sticky notes needed.",
+    sourceDirections: "First explain how to find the actual count and what information is needed. Then use the revealed cabinet dimensions to find the number of sticky notes, excluding the bottom.",
     pdfPage: 1,
-    cropPath: teachLessonCrop(12),
-    visualAlt: "Source cabinet-covering follow-up task.",
-    prompt: "Which calculation structure matches the surface-area reasoning?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "total-divide", label: "Find total exposed surface area, then divide by the area of one sticky note." },
-      { id: "volume-divide", label: "Find volume, then divide by sticky-note perimeter." },
-      { id: "height-times-notes", label: "Multiply cabinet height by the number of notes in a stack." },
+    cropPath: "lesson-12-p001-cabinet-stills.png",
+    customVisual: "questionSetVisual",
+    visualAlt: "Source cabinet photographs and an app-rendered cabinet dimension model.",
+    prompt: "Complete the two source questions in order. The app reveals the source dimensions after your method identifies the information needed.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "method",
+        label: "Question 1",
+        prompt: "How could you find the actual number of sticky notes needed to cover the cabinet, excluding the bottom? What information would you need?",
+        responseType: "openResponse",
+        inputLabel: "Method and needed information",
+        placeholder: "Describe the measurements and calculation you would need.",
+        minLength: 28,
+        answerConcepts: [["dimensions", "faces"], ["measure", "surface"], ["length", "width", "height"], ["area", "sticky note"], ["measurements", "cabinet"]],
+        hint: "Think about the dimensions of each exposed rectangular face and the area covered by one sticky note.",
+        correctFeedback: "Good plan. The source now provides the cabinet measurements in sticky-note units: 24 high, 12 wide, and 6 deep. Each sticky note is 3 inches by 3 inches, but the sticky-note-unit dimensions are enough for the count.",
+        incorrectFeedback: "Add the measurements needed for the cabinet's exposed faces and explain how one sticky note's area relates to the total covering.",
+        visualCropPath: "lesson-12-p001-cabinet-stills.png",
+        visualWidth: 2161,
+        visualHeight: 1160,
+        visualDisplayMaxWidth: 650,
+        visualAlt: "Four source photographs of the filing cabinet and sticky notes.",
+        visualDirections: "Decide what measurements are needed before the exact dimensions are revealed.",
+      },
+      {
+        id: "count",
+        label: "Question 2",
+        unlockedAfterQuestionId: "method",
+        prompt: "The cabinet is 24 sticky notes high, 12 sticky notes wide, and 6 sticky notes deep. How many sticky notes cover all faces except the bottom?",
+        responseType: "number",
+        inputLabel: "Number of sticky notes",
+        placeholder: "Type the total",
+        answerKey: ["936"],
+        reasoningPrompt: "Show how each exposed face is counted and why the bottom is excluded.",
+        reasoningConcepts: [["576", "288", "72"], ["24", "12", "6"], ["front", "back", "side", "top"], ["surface", "bottom"]],
+        hint: "Add the front and back, both side faces, and the top: 2(24 x 12) + 2(24 x 6) + (12 x 6).",
+        correctFeedback: "Correct. Front and back use 576 notes, the two sides use 288, and the top uses 72. Excluding the bottom gives 576 + 288 + 72 = 936 sticky notes.",
+        incorrectFeedback: "Not quite. Count two 24-by-12 faces, two 24-by-6 faces, and one 12-by-6 top face. Do not include the bottom.",
+        visualType: "cabinetDimensions",
+        visualDirections: "Use the source-provided dimensions, measured in sticky-note units.",
+      },
+      {
+        id: "extension",
+        label: "Optional challenge",
+        optional: true,
+        unlockedAfterQuestionId: "count",
+        prompt: "How many sticky notes cover the outside of 2, 3, and 20 identical cabinets pushed together side by side, including the bottom?",
+        fields: [
+          { id: "two", label: "2 cabinets", responseType: "number", placeholder: "Type total" },
+          { id: "three", label: "3 cabinets", responseType: "number", placeholder: "Type total" },
+          { id: "twenty", label: "20 cabinets", responseType: "number", placeholder: "Type total" },
+        ],
+        acceptedFieldSets: [{ two: ["1728"], three: ["2448"], twenty: ["14688"] }],
+        reasoningPrompt: "Explain how shared side faces change the outside surface as cabinets are added.",
+        reasoningConcepts: [["shared", "face"], ["inside", "outside"], ["1008", "288"], ["720", "288"], ["subtract", "side"]],
+        hint: "One cabinet including its bottom needs 1,008 notes. Each new cabinet adds 1,008, but the two touching 24-by-6 side faces become internal, removing 288 from the outside count.",
+        correctFeedback: "Correct. The totals are 1,728, 2,448, and 14,688. For n side-by-side cabinets, the outside count is 1,008n - 288(n - 1), or 720n + 288.",
+        incorrectFeedback: "Not quite. Include each bottom, but remove both copies of every 24-by-6 face where neighboring cabinets touch.",
+        visualType: "cabinetRow",
+        visualDirections: "The drawing shows three cabinets pushed side by side. Shared faces are inside the combined solid.",
+      },
     ],
-    answerKey: ["total-divide"],
-    hint: "Each sticky note covers a flat patch of surface.",
-    correctFeedback: "Correct. Surface area divided by sticky-note area gives a count of notes.",
-    incorrectFeedback: "The outside covering is measured in square units, so use surface area.",
   },
   {
     id: "teach-l13-2",
@@ -1440,25 +3042,125 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "Polyhedra",
     activityTitle: "13.2: Prisms and Pyramids",
-    sourceContext: "The source uses Blackline Master nets and polygon cutouts to test the prism/pyramid claims after students inspect the pictures.",
-    sourceDirections: "Compare prisms and pyramids, then use the net materials to reason about which nets fold into Pyramid P.",
+    sourceDirections: "Describe the source prisms and pyramids, test the three nets for the triangular pyramid (source Figure P), then choose source Figure Q, R, or S and compose a net from loose polygons.",
     pdfPage: 2,
     pdfPages: [2, 3],
-    cropPath: teachLessonCrop(13),
-    visualAlt: "Source prisms, pyramids, and pyramid nets.",
-    blacklineMasters: unit1BlacklineMasters.prismsPyramids,
-    prompt: "Which nets can be folded into Pyramid P? Select all that apply, then explain a prism/pyramid feature you used.",
-    responseType: "multiSelect",
-    reasoningPrompt: "Explain why your selected net or nets work, and name one feature of prisms or pyramids from the source figures.",
-    choices: [
-      { id: "net-1", label: "net 1" },
-      { id: "net-2", label: "net 2" },
-      { id: "net-3", label: "net 3" },
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Source prisms, pyramids, triangular-pyramid nets, and a loose-polygon square-pyramid net workspace.",
+    blacklineMasters: unit1BlacklineMasters.prismsPyramidsStudentMaterials,
+    prompt: "Complete each source task about prisms, pyramids, and nets.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "prisms",
+        label: "Question 1a",
+        prompt: "Look at Prisms A-F. What are their characteristics or features?",
+        responseType: "openResponse",
+        inputLabel: "Characteristics of prisms",
+        placeholder: "Describe what the prisms have in common.",
+        minLength: 24,
+        answerConcepts: [
+          ["two", "identical", "parallel", "base"],
+          ["matching", "parallel", "base", "rectangle"],
+          ["same", "base", "rectangle", "connect"],
+        ],
+        visualCropPath: "lesson-13-p002-prism-examples.png",
+        visualWidth: 1340,
+        visualHeight: 940,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source drawings of Prisms A through F.",
+        visualDirections: "Compare the bases and the faces that connect them.",
+        hint: "Find two faces with the same shape and size. Then inspect the faces between them.",
+        correctFeedback: "Good description. A prism has two identical parallel faces called bases, connected by rectangles or sometimes parallelograms. The prism is named for the shape of its bases.",
+        incorrectFeedback: "Describe the two matching parallel bases and the rectangular or parallelogram faces that connect them.",
+      },
+      {
+        id: "pyramids",
+        label: "Question 1b",
+        prompt: "Look at Pyramids P-S. What are their characteristics or features?",
+        responseType: "openResponse",
+        inputLabel: "Characteristics of pyramids",
+        placeholder: "Describe what the pyramids have in common.",
+        minLength: 24,
+        answerConcepts: [
+          ["one", "base", "triangle", "vertex"],
+          ["one", "base", "triangular", "vertex"],
+          ["single", "base", "triangular", "point"],
+          ["base", "triangles", "meet"],
+        ],
+        visualCropPath: "lesson-13-p002-pyramid-examples.png",
+        visualWidth: 1450,
+        visualHeight: 390,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source drawings of Pyramids P through S.",
+        visualDirections: "Compare each base with the faces that meet above it.",
+        hint: "Count the special base faces and notice where all the other faces meet.",
+        correctFeedback: "Good description. A pyramid has one polygon base. Every other face is a triangle, and all of those triangles meet at one vertex.",
+        incorrectFeedback: "Describe the one polygon base, the triangular side faces, and the single vertex where those triangles meet.",
+      },
+      {
+        id: "pyramid-p-nets",
+        label: "Question 2",
+        prompt: "Which nets can be folded into the triangular pyramid shown (source Figure P)? Select all that apply.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "net-1", label: "net 1" },
+          { id: "net-2", label: "net 2" },
+          { id: "net-3", label: "net 3" },
+        ],
+        answerKey: ["net-1", "net-2"],
+        visualCropPath: "lesson-13-p002-pyramid-nets.png",
+        visualWidth: 1200,
+        visualHeight: 340,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source triangular-pyramid nets 1, 2, and 3.",
+        visualReferenceCropPath: "lesson-13-p002-pyramid-p.png",
+        visualReferenceWidth: 260,
+        visualReferenceHeight: 245,
+        visualReferenceLabel: "Triangular pyramid",
+        visualReferenceSourceLabel: "Source Figure P",
+        visualReferenceAlt: "Source drawing of Figure P, a triangular pyramid.",
+        visualDirections: "Use the triangular pyramid shown as the target. Imagine folding each set of four triangles so no faces overlap.",
+        hint: "The triangular pyramid has four triangular faces. Watch what happens to every triangle as each net folds around one face.",
+        correctFeedback: "Correct. Nets 1 and 2 fold into the triangular pyramid shown as source Figure P. In net 3, two triangular faces overlap instead of enclosing the solid.",
+        incorrectFeedback: "Try folding around one triangle. Net 3 cannot enclose the triangular pyramid because two faces move into the same place and overlap.",
+      },
+      {
+        id: "compose-q",
+        label: "Question 3",
+        prompt: "Choose the square pyramid (source Figure Q), pentagonal pyramid (source Figure R), or hexagonal pyramid (source Figure S). Select the polygons your chosen pyramid needs, then arrange those loose cut-outs into a net that could be taped and folded into the pyramid.",
+        responseType: "construction",
+        dynamicAnswer: "pyramidFamilyLooseNet",
+        constructionNote: "The app checks the face inventory for the selected source pyramid and whether the complete edges form one connected, non-overlapping net. Completing any one of Figures Q, R, or S finishes Question 3; the other targets remain available to explore.",
+        visualType: "pyramidFamilyNet",
+        missingResponseFeedback: "Choose polygons from the supply and place them on the workspace before submitting.",
+        hint: "Start by identifying the selected pyramid's one polygon base. It needs one triangular side face for every edge of that base. In a net, every cut-out must join the growing figure along a complete edge without covering another face.",
+        correctFeedback: "Correct. Your selected faces form one connected, non-overlapping net for the source pyramid. You can build another net or switch targets.",
+        incorrectFeedback: "Inspect the selected source pyramid again, then check both the face inventory and the way complete edges meet.",
+      },
+      {
+        id: "extension",
+        label: "Optional challenge",
+        optional: true,
+        prompt: "What is the smallest number of faces a polyhedron can possibly have? Explain how you know.",
+        responseType: "number",
+        inputLabel: "Smallest number of faces",
+        placeholder: "Type number",
+        answerKey: ["4"],
+        visualCropPath: "lesson-13-p002-pyramid-examples.png",
+        visualWidth: 1450,
+        visualHeight: 390,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source drawings of Pyramids P through S.",
+        visualDirections: "Use the source pyramids as examples while deciding whether a polyhedron could enclose space with fewer faces.",
+        reasoningPrompt: "Name or describe a polyhedron with that many faces.",
+        reasoningConcepts: [["triangular", "pyramid"], ["tetrahedron"], ["four", "triangle"]],
+        hint: "Try to enclose a three-dimensional region using as few polygon faces as possible.",
+        correctFeedback: "Correct. Four triangular faces can enclose a tetrahedron, also called a triangular pyramid. Three faces cannot enclose a three-dimensional region.",
+        incorrectFeedback: "Try a triangular pyramid: it has one triangular base and three triangular side faces.",
+      },
     ],
-    answerKey: ["net-1", "net-2"],
-    hint: "Pyramid P is made from triangular faces. Watch for whether triangles fold up without overlapping.",
-    correctFeedback: "Correct. Nets 1 and 2 can fold into Pyramid P; net 3 has triangles arranged so that two faces would overlap.",
-    incorrectFeedback: "Try visualizing the fold. Net 3 cannot work because two of its triangles overlap when folded into Pyramid P.",
   },
   {
     id: "teach-l13-3",
@@ -1467,26 +3169,35 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "Polyhedra",
     activityTitle: "13.3: Assembling Polyhedra",
-    sourceContext: "The app assigns Net A from the Blackline Master so the face-count task has a concrete net instead of an unspecified teacher handout.",
-    sourceDirections: "Use Net A from the Blackline Master as the assigned net. Imagine folding along the solid edges and tucking the dotted flaps behind the faces.",
+    sourceDirections: "The app assigns Net A. Step through the fold, ignoring the dotted glue flaps, then count the vertices, edges, and faces of the assembled polyhedron.",
     pdfPage: 3,
-    cropPath: "lesson-13-p003-assembling-polyhedra-net-a-blackline.png",
-    visualAlt: "Blackline Master Net A for assembling a polyhedron.",
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Interactive staged folding of Blackline Master Net A into a triangular prism.",
     blacklineMasters: unit1BlacklineMasters.assemblingPolyhedraNetA,
-    prompt: "Fold Net A mentally. How many vertices, edges, and faces will the polyhedron have?",
-    responseType: "guidedFields",
-    guidedFields: [
-      { id: "vertices", label: "Vertices", type: "number" },
-      { id: "edges", label: "Edges", type: "number" },
-      { id: "faces", label: "Faces", type: "number" },
-      { id: "reasoning", label: "Explain how the shaded faces of the net fold into the polyhedron.", type: "textarea" },
+    prompt: "Fold Net A and count the parts of the assembled polyhedron.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "assemble-a",
+        label: "Net A",
+        prompt: "After folding Net A, how many vertices, edges, and faces are in the polyhedron?",
+        fields: [
+          { id: "vertices", label: "Vertices", responseType: "number", placeholder: "Type number" },
+          { id: "edges", label: "Edges", responseType: "number", placeholder: "Type number" },
+          { id: "faces", label: "Faces", responseType: "number", placeholder: "Type number" },
+        ],
+        acceptedFieldSets: [{ vertices: ["6"], edges: ["9"], faces: ["5"] }],
+        visualType: "polyhedronFold",
+        requiredCustomState: { polyhedronFoldStep: "3" },
+        requiredStateFeedback: "Use Next fold step until Net A is fully assembled before submitting the counts.",
+        reasoningPrompt: "Explain how the shaded faces of the net become the faces of the polyhedron.",
+        reasoningConcepts: [["three", "rectangle", "two", "triangle"], ["triangular", "prism", "five", "face"]],
+        hint: "Dotted regions are glue flaps, not faces. Count the 3 shaded rectangles and 2 shaded triangles, then count the assembled solid's vertices and edges.",
+        correctFeedback: "Correct. Net A folds into a triangular prism with 2 triangular faces and 3 rectangular faces: 5 faces, 9 edges, and 6 vertices.",
+        incorrectFeedback: "Ignore the dotted glue flaps. The shaded net folds into a triangular prism with 2 triangular faces and 3 rectangular faces.",
+      },
     ],
-    guidedAnswerKey: {
-      static: { vertices: "6", edges: "9", faces: "5" },
-    },
-    hint: "Ignore the dotted flaps. Net A has 3 rectangular faces and 2 triangular faces, so it folds into a triangular prism.",
-    correctFeedback: "Correct. Net A folds into a triangular prism with 6 vertices, 9 edges, and 5 faces.",
-    incorrectFeedback: "Ignore the dotted flaps and count only the folded polyhedron: Net A has 3 rectangles and 2 triangles, forming a triangular prism.",
   },
   {
     id: "teach-l14-2",
@@ -1495,64 +3206,134 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "Nets and Surface Area",
     activityTitle: "14.2: Using Nets to Find Surface Area",
-    sourceContext: "The source uses the three gridded Blackline Master nets A-C as the cut-and-assemble materials for this activity.",
-    sourceDirections: "Use the shaded faces of the Blackline Master nets. Ignore dotted flaps when finding surface area.",
+    sourceContext: "The source uses the three gridded Blackline Master nets A-C as cut-and-assemble materials.",
+    sourceDirections: "For each net, assemble the polyhedron, name it, find its surface area, and explain how the areas of all the shaded faces combine.",
     pdfPage: 1,
-    pdfPages: [1, 2],
-    cropPath: teachLessonCrop(14),
-    visualAlt: "Source nets on grids for surface area reasoning.",
+    pdfPages: [1, 2, 3],
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Source nets on grids for naming, assembly, and surface-area reasoning.",
     blacklineMasters: unit1BlacklineMasters.surfaceAreaNets,
-    prompt: "Name each polyhedron and find the surface area of the shaded faces of Nets A, B, and C.",
-    responseType: "guidedFields",
-    guidedFields: [
+    prompt: "Complete the three source nets, then investigate both optional net sets.",
+    responseType: "questionSet",
+    questions: [
       {
-        id: "netAName",
-        label: "Net A forms a...",
-        type: "singleChoice",
-        choices: [
-          { id: "rectangular-prism", label: "Rectangular prism" },
-          { id: "square-pyramid", label: "Square pyramid" },
-          { id: "triangular-prism", label: "Triangular prism" },
+        id: "surface-net-a",
+        label: "Net A",
+        prompt: "Assemble Net A. What polyhedron does it form, and what is its surface area?",
+        fields: [
+          { id: "name", label: "Polyhedron name", responseType: "shortAnswer", placeholder: "Type the polyhedron name" },
+          { id: "area", label: "Surface area (square units)", responseType: "number", placeholder: "Type the surface area" },
         ],
+        acceptedFieldSets: [{ name: ["rectangular prism", "rectangle prism", "box"], area: ["82"] }],
+        visualType: "surfaceNetFold",
+        netId: "A",
+        visualCropPath: "lesson-14-p001-surface-net-a.png",
+        visualWidth: 570,
+        visualHeight: 800,
+        visualAlt: "Source Net A on a square grid showing six shaded rectangular faces.",
+        requiredConstruction: "sourceNetFoldComplete",
+        requiredStateFeedback: "Complete all three fold steps for Net A before submitting its name and surface area.",
+        reasoningPrompt: "Explain how you combined the areas of all six shaded faces.",
+        reasoningConcepts: [["60", "12", "10", "82"]],
+        hint: "Net A has three pairs of matching rectangular faces. Find the area of each pair, then add.",
+        reasoningRevisionFeedback: "Your name and surface area are correct. Strengthen the explanation by showing the three matching-face contributions: 60, 12, and 10 square units, totaling 82.",
+        correctFeedback: "Correct. Net A forms a rectangular prism. Its three pairs of rectangular faces contribute 60, 12, and 10 square units, for a total surface area of 82 square units.",
+        incorrectFeedback: "Recheck the solid and the six shaded rectangles. Add both 6 by 5 faces, both 6 by 1 faces, and both 5 by 1 faces.",
       },
-      { id: "netAArea", label: "Net A surface area", type: "number", placeholder: "square units" },
       {
-        id: "netBName",
-        label: "Net B forms a...",
-        type: "singleChoice",
-        choices: [
-          { id: "rectangular-prism", label: "Rectangular prism" },
-          { id: "square-pyramid", label: "Square pyramid" },
-          { id: "triangular-prism", label: "Triangular prism" },
+        id: "surface-net-b",
+        label: "Net B",
+        prompt: "Assemble Net B. What polyhedron does it form, and what is its surface area?",
+        fields: [
+          { id: "name", label: "Polyhedron name", responseType: "shortAnswer", placeholder: "Type the polyhedron name" },
+          { id: "area", label: "Surface area (square units)", responseType: "number", placeholder: "Type the surface area" },
         ],
+        acceptedFieldSets: [{ name: ["square pyramid"], area: ["48"] }],
+        visualType: "surfaceNetFold",
+        netId: "B",
+        visualCropPath: "lesson-14-p001-surface-net-b.png",
+        visualWidth: 680,
+        visualHeight: 800,
+        visualAlt: "Source Net B on a square grid showing one shaded square face and four shaded triangular faces.",
+        requiredConstruction: "sourceNetFoldComplete",
+        requiredStateFeedback: "Complete all three fold steps for Net B before submitting its name and surface area.",
+        reasoningPrompt: "Explain how you combined the areas of the shaded square and four shaded triangles.",
+        reasoningConcepts: [["16", "four", "triangle", "48"]],
+        hint: "Separate the square base from the four triangular faces. Use the grid to find each area.",
+        reasoningRevisionFeedback: "Your name and surface area are correct. Strengthen the explanation by showing the 16-square-unit base, the four triangular faces, and the total of 48 square units.",
+        correctFeedback: "Correct. Net B forms a square pyramid. The square base and four triangular faces have a total surface area of 48 square units.",
+        incorrectFeedback: "Recheck the square base and the four shaded triangles. Use the grid to find each face area, then add all five faces.",
       },
-      { id: "netBArea", label: "Net B surface area", type: "number", placeholder: "square units" },
       {
-        id: "netCName",
-        label: "Net C forms a...",
-        type: "singleChoice",
-        choices: [
-          { id: "rectangular-prism", label: "Rectangular prism" },
-          { id: "square-pyramid", label: "Square pyramid" },
-          { id: "triangular-prism", label: "Triangular prism" },
+        id: "surface-net-c",
+        label: "Net C",
+        prompt: "Assemble Net C. What polyhedron does it form, and what is its surface area?",
+        fields: [
+          { id: "name", label: "Polyhedron name", responseType: "shortAnswer", placeholder: "Type the polyhedron name" },
+          { id: "area", label: "Surface area (square units)", responseType: "number", placeholder: "Type the surface area" },
         ],
+        acceptedFieldSets: [{ name: ["triangular prism", "triangle prism"], area: ["48"] }],
+        visualType: "surfaceNetFold",
+        netId: "C",
+        visualCropPath: "lesson-14-p001-surface-net-c.png",
+        visualWidth: 690,
+        visualHeight: 800,
+        visualAlt: "Source Net C on a square grid showing two shaded triangular faces and three shaded rectangular faces.",
+        requiredConstruction: "sourceNetFoldComplete",
+        requiredStateFeedback: "Complete all three fold steps for Net C before submitting its name and surface area.",
+        reasoningPrompt: "Explain how you combined the areas of the two shaded triangles and three shaded rectangles.",
+        reasoningConcepts: [["6", "9", "12", "15", "48"]],
+        hint: "A triangular prism has two triangular faces and three rectangular faces. Find each shaded face area from the grid.",
+        reasoningRevisionFeedback: "Your name and surface area are correct. Strengthen the explanation by showing 6 square units for each triangular face and 9, 12, and 15 square units for the rectangles, totaling 48.",
+        correctFeedback: "Correct. Net C forms a triangular prism. Its two triangular faces and three rectangular faces have a total surface area of 48 square units.",
+        incorrectFeedback: "Recheck the two shaded triangles and three shaded rectangles. Find each face area from the grid and add them.",
       },
-      { id: "netCArea", label: "Net C surface area", type: "number", placeholder: "square units" },
-      { id: "reasoning", label: "Explain how you counted or combined the shaded faces. Ignore dotted flaps.", type: "textarea" },
+      {
+        id: "optional-rectangular-nets",
+        label: "Optional: Rectangular prism nets",
+        prompt: "Which of the source drawings A-D are nets for a rectangular prism? Select all that apply.",
+        responseType: "multiSelect",
+        optional: true,
+        choices: [
+          { id: "A", label: "A" },
+          { id: "B", label: "B" },
+          { id: "C", label: "C" },
+          { id: "D", label: "D" },
+        ],
+        answerKey: ["C"],
+        visualCropPath: "lesson-14-p002-rectangular-prism-net-checks.png",
+        visualWidth: 1500,
+        visualHeight: 1000,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source drawings A-D to test as possible rectangular-prism nets.",
+        hint: "A closed rectangular prism needs six compatible rectangular faces. Count the faces before imagining the folds.",
+        correctFeedback: "Correct. Only C is a rectangular-prism net. It has all six compatible faces in an arrangement that folds without overlap; A, B, and D each show only five faces.",
+        incorrectFeedback: "Count the rectangular faces in every drawing. A, B, and D each have only five; then test whether C's six faces can fold without overlap.",
+      },
+      {
+        id: "optional-triangular-nets",
+        label: "Optional: Triangular prism nets",
+        prompt: "Which of the source drawings A-D are nets for a triangular prism? Select all that apply.",
+        responseType: "multiSelect",
+        optional: true,
+        choices: [
+          { id: "A", label: "A" },
+          { id: "B", label: "B" },
+          { id: "C", label: "C" },
+          { id: "D", label: "D" },
+        ],
+        answerKey: ["C", "D"],
+        visualCropPath: "lesson-14-p003-triangular-prism-net-checks.png",
+        visualWidth: 1780,
+        visualHeight: 810,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Source drawings A-D to test as possible triangular-prism nets.",
+        hint: "A triangular prism needs three rectangles forming the side band and two triangles that close opposite ends.",
+        correctFeedback: "Correct. C and D fold into triangular prisms. A places both triangular bases on the same end of the side band, and B joins faces along incompatible edge positions.",
+        incorrectFeedback: "Track the three-rectangle side band and ask whether the two triangles close opposite ends without overlap. Test C and D carefully.",
+      },
     ],
-    guidedAnswerKey: {
-      static: {
-        netAName: "rectangular-prism",
-        netAArea: "82",
-        netBName: "square-pyramid",
-        netBArea: "48",
-        netCName: "triangular-prism",
-        netCArea: "48",
-      },
-    },
-    hint: "Count only shaded regions. Net A has a 6 by 5 pair, 6 by 1 pair, and 5 by 1 pair. For B and C, combine rectangle and triangle areas from the grid.",
-    correctFeedback: "Correct. Net A is a rectangular prism with surface area 82 square units; Net B is a square pyramid with surface area 48; Net C is a triangular prism with surface area 48.",
-    incorrectFeedback: "Check the shaded faces only. Dotted flaps are for assembly and do not count as surface area.",
   },
   {
     id: "teach-l15-1",
@@ -1561,21 +3342,53 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "More Nets, More Surface Area",
     activityTitle: "15.1: Notice and Wonder: Wrapping Paper",
-    sourceDirections: "Notice and wonder about wrapping a box as a present.",
+    sourceDirections: "Kiran is wrapping this box of sports cards as a present for a friend. Record one thing you notice and one thing you wonder.",
     pdfPage: 1,
-    cropPath: teachLessonCrop(15),
+    cropPath: null,
+    customVisual: "questionSetVisual",
     visualAlt: "Source rectangular box for wrapping-paper noticing.",
-    prompt: "Which question best connects the box visual to surface area?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "paper", label: "How much paper is needed to cover all outside faces?" },
-      { id: "weight", label: "How heavy is the box?" },
-      { id: "color", label: "What color should the wrapping paper be?" },
+    prompt: "Submit the notice and wonder independently.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "notice",
+        label: "Notice",
+        prompt: "What do you notice about the box, its measurements, or the wrapping context?",
+        responseType: "openResponse",
+        inputLabel: "Your notice",
+        placeholder: "Describe something you observe",
+        minLength: 3,
+        acceptAnyResponse: true,
+        recordResponse: true,
+        visualCropPath: "lesson-15-p001-wrapping-paper-15-1.png",
+        visualWidth: 295,
+        visualHeight: 200,
+        visualDisplayMaxWidth: 295,
+        visualAlt: "A box of sports cards with a 4-inch front edge and a 2.5-inch depth; its height is not labeled.",
+        hint: "Look at the shape, the two shown measurements, and the missing measurement.",
+        correctFeedback: "Notice recorded. The box is a rectangular prism with a 4-inch length and 2.5-inch depth, while its height is not given. Those details matter when estimating wrapping paper or volume.",
+        incorrectFeedback: "Record one specific feature you can see in the source box or its labels.",
+      },
+      {
+        id: "wonder",
+        label: "Wonder",
+        prompt: "What do you wonder about the box or the amount of wrapping paper it needs?",
+        responseType: "openResponse",
+        inputLabel: "Your wonder",
+        placeholder: "Write a question you have",
+        minLength: 3,
+        acceptAnyResponse: true,
+        recordResponse: true,
+        visualCropPath: "lesson-15-p001-wrapping-paper-15-1.png",
+        visualWidth: 295,
+        visualHeight: 200,
+        visualDisplayMaxWidth: 295,
+        visualAlt: "A box of sports cards with a 4-inch front edge and a 2.5-inch depth; its height is not labeled.",
+        hint: "You might wonder about a missing measurement, the amount of paper, or the space inside.",
+        correctFeedback: "Wonder recorded. Questions about wrapping paper lead to surface area, while questions about how much the box holds lead to volume. Either calculation also needs an estimate or measurement for the missing height.",
+        incorrectFeedback: "Write a question about something the source image makes you curious about.",
+      },
     ],
-    answerKey: ["paper"],
-    hint: "Wrapping covers the outside of the box.",
-    correctFeedback: "Correct. Wrapping paper is a surface-area context.",
-    incorrectFeedback: "The mathematical question is about covering the outside faces.",
   },
   {
     id: "teach-l15-2",
@@ -1584,29 +3397,72 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 5",
     title: "More Nets, More Surface Area",
     activityTitle: "15.2: Building Prisms and Pyramids",
-    sourceContext: "The source gives each student one Blackline Master polyhedron drawing. The app assigns Polyhedron C from the student-facing Blackline page.",
-    sourceDirections: "Use assigned Polyhedron C, draw or imagine its net on graph paper, label the faces, and use those faces to find surface area.",
+    sourceContext: "The source gives each student one Blackline Master polyhedron drawing. The app takes the teacher role and assigns Polyhedron C, then provides a structured graph-paper net builder.",
+    sourceDirections: "Study app-assigned Polyhedron C. Name it, build and label a net with all six faces, then use that net to find its surface area.",
     pdfPage: 1,
-    cropPath: "lesson-15-p001-polyhedron-drawings-blackline.png",
+    cropPath: null,
+    customVisual: "questionSetVisual",
     visualAlt: "Blackline Master Polyhedron C rectangular prism with dimensions 13, 4, and 5.",
     blacklineMasters: unit1BlacklineMasters.buildingPrismsPyramidsPage1,
-    prompt: "The app assigns Polyhedron C. Plan its net and calculate its surface area.",
-    responseType: "guidedFields",
-    guidedFields: [
-      { id: "polyhedronName", label: "What polyhedron do you have?", type: "text", placeholder: "Type the polyhedron name" },
-      { id: "netFaces", label: "List the faces your net needs.", type: "textarea" },
-      { id: "surfaceArea", label: "Surface area of Polyhedron C", type: "number", placeholder: "square units" },
-      { id: "reasoning", label: "Show your organized calculation from the net.", type: "textarea" },
-    ],
-    guidedAnswerKey: {
-      static: {
-        polyhedronName: ["rectangular prism", "rectangular-prism"],
-        surfaceArea: "274",
+    prompt: "Complete all three parts for assigned Polyhedron C.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "identify-polyhedron",
+        label: "1. Name the polyhedron",
+        prompt: "What polyhedron did the app assign?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "rectangular-prism", label: "Rectangular prism" },
+          { id: "triangular-prism", label: "Triangular prism" },
+          { id: "square-pyramid", label: "Square pyramid" },
+          { id: "composite", label: "Composite polyhedron" },
+        ],
+        answerKey: ["rectangular-prism"],
+        visualCropPath: "lesson-15-p001-polyhedron-drawings-blackline.png",
+        visualWidth: 700,
+        visualHeight: 188,
+        visualDisplayMaxWidth: 620,
+        visualAlt: "Assigned Blackline Polyhedron C with dimensions 13, 4, and 5.",
+        hint: "It has six rectangular faces in three matching opposite pairs.",
+        correctFeedback: "Correct. Polyhedron C is a rectangular prism with edge lengths 13, 4, and 5 units.",
+        incorrectFeedback: "Look at the face shapes and the three perpendicular dimensions in the assigned drawing.",
       },
-    },
-    hint: "Polyhedron C is a rectangular prism with dimensions 13, 4, and 5. Its net has three pairs of congruent rectangles.",
-    correctFeedback: "Correct. Polyhedron C is a rectangular prism, and 2 x (13 x 4 + 13 x 5 + 4 x 5) = 274 square units.",
-    incorrectFeedback: "Use the drawing for Polyhedron C. A rectangular prism net needs three pairs of matching rectangles: 13 by 4, 13 by 5, and 4 by 5.",
+      {
+        id: "build-net",
+        label: "2-3. Build and label the net",
+        prompt: "Assign a dimension label to every face in the graph-paper net. Then record how many faces of each size the net contains.",
+        fields: [
+          { id: "thirteenFive", label: "13 by 5 faces", responseType: "number", placeholder: "Type the number of faces" },
+          { id: "thirteenFour", label: "13 by 4 faces", responseType: "number", placeholder: "Type the number of faces" },
+          { id: "fiveFour", label: "5 by 4 faces", responseType: "number", placeholder: "Type the number of faces" },
+        ],
+        acceptedFieldSets: [{ thirteenFive: ["2"], thirteenFour: ["2"], fiveFour: ["2"] }],
+        visualType: "rectangularPrismNet",
+        requiredCustomState: { prismNetAssignments: "center:13x5|north:13x4|south:13x4|far-south:13x5|west:5x4|east:5x4" },
+        requiredStateFeedback: "Label all six net faces with dimensions that match along every shared edge.",
+        hint: "Opposite faces are congruent. The prism needs two 13 by 5 rectangles, two 13 by 4 rectangles, and two 5 by 4 rectangles.",
+        correctFeedback: "Correct. The labeled graph-paper arrangement is a valid net with two faces of each size: 13 by 5, 13 by 4, and 5 by 4.",
+        incorrectFeedback: "Check the face inventory and every shared edge. Opposite faces come in congruent pairs, and attached faces must share equal-length sides.",
+      },
+      {
+        id: "surface-area",
+        label: "4. Find surface area",
+        prompt: "What is the surface area of assigned Polyhedron C?",
+        responseType: "number",
+        answerKey: ["274"],
+        placeholder: "Type square units",
+        visualType: "rectangularPrismNet",
+        requiredCustomState: { prismNetAssignments: "center:13x5|north:13x4|south:13x4|far-south:13x5|west:5x4|east:5x4" },
+        requiredStateFeedback: "Complete the labeled net before submitting its surface area.",
+        reasoningPrompt: "Show an organized calculation using the six labeled faces in your net.",
+        reasoningConcepts: [["13", "5", "4"], ["65", "52", "20"], ["two", "pair", "274"]],
+        hint: "Add the areas of the three pairs of congruent rectangles.",
+        reasoningRevisionFeedback: "The surface area is correct. Strengthen the calculation by showing the two 13 by 5, two 13 by 4, and two 5 by 4 faces.",
+        correctFeedback: "Correct. The six face areas are two each of 65, 52, and 20 square units, so the surface area is 2 x (65 + 52 + 20) = 274 square units.",
+        incorrectFeedback: "Use every labeled face once: two 13 by 5 rectangles, two 13 by 4 rectangles, and two 5 by 4 rectangles.",
+      },
+    ],
   },
   {
     id: "teach-l16-2",
@@ -1615,18 +3471,73 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Distinguishing Between Surface Area and Volume",
     activityTitle: "16.2: Building with 8 Cubes",
-    sourceContext: "The source uses snap cubes or a digital hidden-stack applet. The app recreates the build with selectable 8-cube solids so students compare volume and exposed surface.",
-    sourceDirections: "Build two different shapes using 8 cubes for each, then compare volume and surface area.",
+    sourceContext: "You have 16 snap cubes: 8 for Shape A and 8 for Shape B.",
+    sourceDirections: "Build two different connected shapes using exactly 8 cubes for each. Give each shape a name, determine its volume and surface area, then compare the results.",
     pdfPage: 1,
     cropPath: null,
-    customVisual: "prismBuilder",
-    visualAlt: "Interactive comparison of two solids built with 8 unit cubes each.",
-    prompt: "Choose two different 8-cube solids, then compare their volumes and surface areas.",
-    responseType: "prismBuild",
-    builderMode: "compare8",
-    hint: "Both shapes use 8 cubes, so both volumes are 8 cubic units. Surface area depends on how many faces are exposed.",
-    correctFeedback: "Correct. Both selected shapes have volume 8 cubic units, but their surface areas can be different because the cubes are arranged differently.",
-    incorrectFeedback: "Use the rendered solids: volume counts cubes used, while surface area counts exposed square faces.",
+    customVisual: "questionSetVisual",
+    visualAlt: "Interactive layer-based builders for two connected 8-cube shapes.",
+    prompt: "Complete both builds and the comparison.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "shape-a",
+        label: "Shape A",
+        prompt: "Build a connected shape with exactly 8 cubes. Name it, then determine its volume and surface area.",
+        fields: [
+          { id: "name", label: "Shape name", responseType: "shortAnswer", placeholder: "Give the shape a name" },
+          { id: "volume", label: "Volume (cubic units)", responseType: "number", placeholder: "Type the volume" },
+          { id: "surfaceArea", label: "Surface area (square units)", responseType: "number", placeholder: "Type the surface area" },
+        ],
+        dynamicAnswer: "eightCubeShapeMetrics",
+        shapeId: "A",
+        visualType: "eightCubeBuilder",
+        requiredCustomState: { eightCubeShapeAValid: "true" },
+        requiredStateFeedback: "Build one connected Shape A using exactly 8 cubes before submitting its measurements.",
+        hint: "Volume counts cubes. For surface area, count every exposed square face and do not count faces shared by touching cubes.",
+        correctFeedback: "Correct. Shape A uses 8 unit cubes, so its volume is 8 cubic units. Its surface area matches the exposed faces in your construction.",
+        incorrectFeedback: "Check the cube count, connection, and exposed faces. Each shared face is hidden on both touching cubes.",
+      },
+      {
+        id: "shape-b",
+        label: "Shape B",
+        prompt: "Build a second connected 8-cube shape that is different from Shape A. Name it, then determine its volume and surface area.",
+        fields: [
+          { id: "name", label: "Shape name", responseType: "shortAnswer", placeholder: "Give the shape a name" },
+          { id: "volume", label: "Volume (cubic units)", responseType: "number", placeholder: "Type the volume" },
+          { id: "surfaceArea", label: "Surface area (square units)", responseType: "number", placeholder: "Type the surface area" },
+        ],
+        dynamicAnswer: "eightCubeShapeMetrics",
+        shapeId: "B",
+        visualType: "eightCubeBuilder",
+        requiredCustomState: { eightCubeShapeBValid: "true" },
+        requiredStateFeedback: "Build a connected Shape B with exactly 8 cubes in an arrangement different from Shape A.",
+        hint: "Use all 8 cubes, keep the shape connected, and change the arrangement rather than merely shifting or turning Shape A.",
+        correctFeedback: "Correct. Shape B is a different connected arrangement of 8 cubes. Its volume is 8 cubic units, and its surface area matches its exposed faces.",
+        incorrectFeedback: "Recheck the cube count, whether every cube connects to the shape, and how many faces remain exposed.",
+      },
+      {
+        id: "compare-shapes",
+        label: "Compare",
+        prompt: "What does building two different shapes from 8 cubes show?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "same-volume-variable-surface", label: "Their volumes are both 8, while their surface areas depend on the arrangements." },
+          { id: "same-everything", label: "Using 8 cubes forces both volume and surface area to be the same." },
+          { id: "surface-controls-volume", label: "The shape with greater surface area must also have greater volume." },
+        ],
+        answerKey: ["same-volume-variable-surface"],
+        visualType: "eightCubeBuilder",
+        shapeId: "compare",
+        requiredCustomState: { eightCubeShapeAValid: "true", eightCubeShapeBValid: "true" },
+        requiredStateFeedback: "Complete two different connected 8-cube shapes before comparing them.",
+        reasoningPrompt: "Explain how shared and exposed cube faces affect surface area without changing volume.",
+        reasoningConcepts: [["shared", "exposed"], ["same", "volume", "surface"], ["8", "volume", "face"]],
+        hint: "Both shapes contain 8 cubes. Compare how many cube faces touch other cubes in each arrangement.",
+        correctFeedback: "Correct. Both shapes have volume 8 because each contains 8 unit cubes. More compact arrangements hide more shared faces and tend to have less surface area; spread-out arrangements expose more faces.",
+        incorrectFeedback: "Separate the two attributes: volume counts the 8 cubes, while surface area counts exposed square faces.",
+      },
+    ],
   },
   {
     id: "teach-l16-3",
@@ -1635,21 +3546,99 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Distinguishing Between Surface Area and Volume",
     activityTitle: "16.3: Comparing Prisms Without Building Them",
-    sourceDirections: "Find the surface area and volume of three rectangular prisms.",
+    sourceDirections: "Each prism is 1 centimeter high. Find the surface area and volume of Prism A (1 by 11 base), Prism B (2 by 7 base), and Prism C (3 by 5 base), then state what you notice.",
     pdfPage: 2,
-    cropPath: teachLessonCrop(16),
-    visualAlt: "Source prism dimensions and dot paper for comparing surface area and volume.",
-    prompt: "What can happen when rectangular prisms have different dimensions?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "different-attributes", label: "Volume and surface area can change in different ways." },
-      { id: "always-same", label: "Same height always means same surface area and same volume." },
-      { id: "surface-equals-volume", label: "Surface area is always equal to volume." },
+    pdfPages: [2, 3],
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "App-rendered source dimensions for Prisms A, B, and C.",
+    prompt: "Complete all three prism calculations, the observation, and the optional example search.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "prism-a",
+        label: "Prism A",
+        prompt: "Prism A has dimensions 1 cm by 1 cm by 11 cm. Find its surface area and volume.",
+        fields: [
+          { id: "surfaceArea", label: "Surface area (square centimeters)", responseType: "number", placeholder: "Type surface area" },
+          { id: "volume", label: "Volume (cubic centimeters)", responseType: "number", placeholder: "Type volume" },
+        ],
+        acceptedFieldSets: [{ surfaceArea: ["46"], volume: ["11"] }],
+        visualType: "prismDimensions",
+        prismLabel: "A",
+        dimensions: { l: 11, w: 1, h: 1 },
+        hint: "Volume is 11 x 1 x 1. Surface area is twice the sum of the three different face areas.",
+        correctFeedback: "Correct. Prism A has volume 11 cubic centimeters and surface area 2 x (11 + 11 + 1) = 46 square centimeters.",
+        incorrectFeedback: "Use all three dimensions in both calculations and count each pair of opposite faces.",
+      },
+      {
+        id: "prism-b",
+        label: "Prism B",
+        prompt: "Prism B has dimensions 1 cm by 2 cm by 7 cm. Find its surface area and volume.",
+        fields: [
+          { id: "surfaceArea", label: "Surface area (square centimeters)", responseType: "number", placeholder: "Type surface area" },
+          { id: "volume", label: "Volume (cubic centimeters)", responseType: "number", placeholder: "Type volume" },
+        ],
+        acceptedFieldSets: [{ surfaceArea: ["46"], volume: ["14"] }],
+        visualType: "prismDimensions",
+        prismLabel: "B",
+        dimensions: { l: 7, w: 2, h: 1 },
+        hint: "Volume is 7 x 2 x 1. The three face-area types are 7 x 2, 7 x 1, and 2 x 1.",
+        correctFeedback: "Correct. Prism B has volume 14 cubic centimeters and surface area 2 x (14 + 7 + 2) = 46 square centimeters.",
+        incorrectFeedback: "Use all three dimensions and double each of the three different face areas.",
+      },
+      {
+        id: "prism-c",
+        label: "Prism C",
+        prompt: "Prism C has dimensions 1 cm by 3 cm by 5 cm. Find its surface area and volume.",
+        fields: [
+          { id: "surfaceArea", label: "Surface area (square centimeters)", responseType: "number", placeholder: "Type surface area" },
+          { id: "volume", label: "Volume (cubic centimeters)", responseType: "number", placeholder: "Type volume" },
+        ],
+        acceptedFieldSets: [{ surfaceArea: ["46"], volume: ["15"] }],
+        visualType: "prismDimensions",
+        prismLabel: "C",
+        dimensions: { l: 5, w: 3, h: 1 },
+        hint: "Volume is 5 x 3 x 1. The three face-area types are 5 x 3, 5 x 1, and 3 x 1.",
+        correctFeedback: "Correct. Prism C has volume 15 cubic centimeters and surface area 2 x (15 + 5 + 3) = 46 square centimeters.",
+        incorrectFeedback: "Use all three dimensions and double each of the three different face areas.",
+      },
+      {
+        id: "observations",
+        label: "Observations",
+        prompt: "Analyze the three surface areas and volumes. What do you notice? Write one or two observations.",
+        responseType: "openResponse",
+        inputLabel: "Your observations",
+        placeholder: "Compare the measurements",
+        minLength: 16,
+        answerConcepts: [["surface", "same", "volume", "different"], ["46", "11", "14", "15"], ["area", "46", "volume"]],
+        visualType: "prismDimensionSet",
+        hint: "Compare the three surface-area values with the three volume values.",
+        correctFeedback: "Good observation. All three prisms have the same surface area, 46 square centimeters, but their volumes are different: 11, 14, and 15 cubic centimeters.",
+        incorrectFeedback: "State what is the same across all three prisms and what changes from A to B to C.",
+      },
+      {
+        id: "optional-more-prisms",
+        label: "Optional: More examples",
+        prompt: "Find two more rectangular prisms with the same surface area but different volumes. Enter their dimensions.",
+        fields: [
+          { id: "aL", label: "First prism length", responseType: "number", placeholder: "Type length" },
+          { id: "aW", label: "First prism width", responseType: "number", placeholder: "Type width" },
+          { id: "aH", label: "First prism height", responseType: "number", placeholder: "Type height" },
+          { id: "bL", label: "Second prism length", responseType: "number", placeholder: "Type length" },
+          { id: "bW", label: "Second prism width", responseType: "number", placeholder: "Type width" },
+          { id: "bH", label: "Second prism height", responseType: "number", placeholder: "Type height" },
+        ],
+        dynamicAnswer: "sameSurfaceDifferentVolume",
+        optional: true,
+        reasoningPrompt: "Show that the surface areas match and the volumes differ.",
+        reasoningConcepts: [["same", "surface", "different", "volume"], ["22", "5", "6"], ["area", "equal", "volume"]],
+        visualType: "prismPairExamples",
+        hint: "Try small whole-number dimensions. Compare 2(lw + lh + wh) and lwh for each prism.",
+        correctFeedback: "Valid example. The two entered prisms have equal surface areas and different volumes, and at least one is new beyond source Prisms A-C.",
+        incorrectFeedback: "Use positive whole-number dimensions. The two surface areas must be equal, the volumes must differ, and at least one prism must be new.",
+      },
     ],
-    answerKey: ["different-attributes"],
-    hint: "Volume is cubic units; surface area is square units.",
-    correctFeedback: "Correct. Surface area and volume measure different attributes, so they do not have to change together.",
-    incorrectFeedback: "Compare square-unit surface coverage with cubic-unit space inside.",
   },
   {
     id: "teach-l17-2",
@@ -1658,18 +3647,156 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Squares and Cubes",
     activityTitle: "17.2: Building with 32 Cubes",
-    sourceContext: "The source uses 32 snap cubes or a digital hidden-stack applet. The app recreates the build by letting students test cube edge lengths.",
-    sourceDirections: "Use the 32 cubes to build the largest single cube you can.",
+    sourceContext: "Each small cube has an edge length of 1 unit.",
+    sourceDirections: "Build the largest single cube you can from the available snap cubes. Select cube positions one layer at a time.",
     pdfPage: 1,
     cropPath: null,
-    customVisual: "prismBuilder",
-    visualAlt: "Interactive cube builder for testing edge lengths with 32 unit cubes.",
-    prompt: "Build the largest cube possible with 32 unit cubes, then answer all source questions.",
-    responseType: "prismBuild",
-    builderMode: "cube32",
-    hint: "Compare perfect cubes: 3 cubed is 27 and 4 cubed is 64.",
-    correctFeedback: "Correct. A 3 by 3 by 3 cube uses 27 cubes, has face area 9 square units, and volume 27 cubic units; a 4 by 4 by 4 cube would need 64.",
-    incorrectFeedback: "Look for the largest perfect cube that is not greater than 32, then answer the source follow-up questions for that built cube.",
+    customVisual: "questionSetVisual",
+    visualAlt: "Interactive layer workspace for building the largest cube possible from a snap-cube inventory.",
+    prompt: "Build the largest single cube possible, then answer each source question about your construction.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "32-cubes-used",
+        label: "1. Cubes used",
+        prompt: "How many snap cubes did you use to build the largest single cube possible from 32 cubes?",
+        responseType: "number",
+        inputLabel: "Snap cubes used",
+        placeholder: "Type number of cubes",
+        answerKey: ["27"],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 32,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Build the largest complete cube from the 32-cube inventory before submitting this answer.",
+        hint: "A complete cube has the same whole-number edge length in all three directions.",
+        correctFeedback: "Correct. The largest complete cube uses 27 snap cubes.",
+        incorrectFeedback: "Count the unit cubes in your completed construction. Do not include unused cubes from the inventory.",
+      },
+      {
+        id: "32-edge-length",
+        label: "2. Edge length",
+        prompt: "What is the edge length of the cube you built?",
+        responseType: "number",
+        inputLabel: "Edge length (units)",
+        placeholder: "Type edge length",
+        answerKey: ["3"],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 32,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Complete the largest cube in the workspace before submitting its edge length.",
+        hint: "Count the unit-cube edges along one side of your completed cube.",
+        correctFeedback: "Correct. The built cube is 3 units long, 3 units wide, and 3 units high.",
+        incorrectFeedback: "Count how many unit cubes lie along any one edge of the completed cube.",
+      },
+      {
+        id: "32-face-area",
+        label: "3. Face area",
+        prompt: "What is the area of each face of the built cube? Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of one face (square units)",
+        placeholder: "Type face area",
+        answerKey: ["9"],
+        reasoningPrompt: "Explain how the cube's edge length determines the area of one face.",
+        reasoningConcepts: [["3", "9"]],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 32,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Complete the largest cube in the workspace before submitting its face area.",
+        hint: "One face is a square. Multiply its side length by itself.",
+        correctFeedback: "Correct. Each face is a 3-by-3 square, so its area is 9 square units.",
+        incorrectFeedback: "Use the two equal side lengths of one square face, not all three dimensions of the cube.",
+      },
+      {
+        id: "32-volume",
+        label: "4. Volume",
+        prompt: "What is the volume of the built cube? Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Volume (cubic units)",
+        placeholder: "Type volume",
+        answerKey: ["27"],
+        reasoningPrompt: "Explain how the cube's edge length determines its volume.",
+        reasoningConcepts: [["3", "27"]],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 32,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Complete the largest cube in the workspace before submitting its volume.",
+        hint: "Multiply the three equal edge lengths, or count cubes by layers.",
+        correctFeedback: "Correct. The cube has 3 layers of 9 cubes, so 3 × 3 × 3 = 27 cubic units.",
+        incorrectFeedback: "Volume counts unit cubes. Multiply the three equal edge lengths of your completed cube.",
+      },
+      {
+        id: "64-cubes-used",
+        label: "Optional 1. Cubes used",
+        prompt: "The extension inventory has 64 snap cubes. Build the largest single cube you can. How many cubes did you use?",
+        responseType: "number",
+        inputLabel: "Snap cubes used",
+        placeholder: "Type number of cubes",
+        answerKey: ["64"],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 64,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Build the largest complete cube from the 64-cube inventory before submitting this answer.",
+        optional: true,
+        hint: "Use equal whole-number edge lengths in all three directions.",
+        correctFeedback: "Correct. All 64 cubes form the largest possible complete cube.",
+        incorrectFeedback: "Count every unit cube in the completed extension cube.",
+      },
+      {
+        id: "64-edge-length",
+        label: "Optional 2. Edge length",
+        prompt: "What is the edge length of the new cube?",
+        responseType: "number",
+        inputLabel: "Edge length (units)",
+        placeholder: "Type edge length",
+        answerKey: ["4"],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 64,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Complete the extension cube before submitting its edge length.",
+        optional: true,
+        hint: "Count the unit cubes along one edge.",
+        correctFeedback: "Correct. The 64-cube construction has edge length 4 units.",
+        incorrectFeedback: "Count the unit-cube edges along one side of the completed cube.",
+      },
+      {
+        id: "64-face-area",
+        label: "Optional 3. Face area",
+        prompt: "What is the area of each face of this cube? Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Area of one face (square units)",
+        placeholder: "Type face area",
+        answerKey: ["16"],
+        reasoningPrompt: "Explain how you found the area of one face.",
+        reasoningConcepts: [["4", "16"]],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 64,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Complete the extension cube before submitting its face area.",
+        optional: true,
+        hint: "Each face is a square with the cube's edge length as both dimensions.",
+        correctFeedback: "Correct. Each face is a 4-by-4 square with area 16 square units.",
+        incorrectFeedback: "Multiply the two equal side lengths of one face.",
+      },
+      {
+        id: "64-volume",
+        label: "Optional 4. Volume",
+        prompt: "What is the volume of this cube? Show your reasoning.",
+        responseType: "number",
+        inputLabel: "Volume (cubic units)",
+        placeholder: "Type volume",
+        answerKey: ["64"],
+        reasoningPrompt: "Explain how you found the volume.",
+        reasoningConcepts: [["4", "64"]],
+        visualType: "snapCubeBuilder",
+        cubeInventory: 64,
+        requiredConstruction: "largestCube",
+        requiredStateFeedback: "Complete the extension cube before submitting its volume.",
+        optional: true,
+        hint: "Multiply all three equal edge lengths, or count cubes by layers.",
+        correctFeedback: "Correct. The cube has 4 layers of 16 cubes, so 4 × 4 × 4 = 64 cubic units.",
+        incorrectFeedback: "Volume uses all three dimensions of the cube.",
+      },
+    ],
   },
   {
     id: "teach-l17-3",
@@ -1678,16 +3805,88 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Squares and Cubes",
     activityTitle: "17.3: Perfect Cubes",
-    sourceDirections: "Identify perfect cubes and find cube volumes.",
+    sourceDirections: "Use equal cube edge lengths and volumes to investigate perfect cubes.",
     pdfPage: 2,
-    cropPath: teachLessonCrop(17),
-    visualAlt: "Source cube with side length 4 and perfect-cube questions.",
-    prompt: "A cube has side length 4 cm. What is its volume?",
-    responseType: "number",
-    answerKey: ["64"],
-    hint: "Cube volume is side length x side length x side length.",
-    correctFeedback: "Correct. 4 x 4 x 4 = 64 cubic centimeters.",
-    incorrectFeedback: "For volume, multiply the edge length three times.",
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "A three-by-three-by-three cube divided into unit cubes, matching the source perfect-cube visual.",
+    prompt: "Complete all four source questions about perfect cubes.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "cube-examples",
+        label: "1. Examples and non-examples",
+        prompt: "The number 27 is a perfect cube. Find four other numbers that are perfect cubes and two numbers that are not perfect cubes.",
+        fields: [
+          { id: "cube1", label: "Perfect cube 1", responseType: "number", placeholder: "Type a number" },
+          { id: "cube2", label: "Perfect cube 2", responseType: "number", placeholder: "Type a number" },
+          { id: "cube3", label: "Perfect cube 3", responseType: "number", placeholder: "Type a number" },
+          { id: "cube4", label: "Perfect cube 4", responseType: "number", placeholder: "Type a number" },
+          { id: "notCube1", label: "Not a perfect cube 1", responseType: "number", placeholder: "Type a number" },
+          { id: "notCube2", label: "Not a perfect cube 2", responseType: "number", placeholder: "Type a number" },
+        ],
+        dynamicAnswer: "perfectCubeExamples",
+        visualCropPath: "lesson-17-p002-perfect-cubes-17-3.png",
+        visualWidth: 148,
+        visualHeight: 145,
+        visualDisplayMaxWidth: 148,
+        visualAlt: "A three-by-three-by-three cube made from 27 unit cubes.",
+        hint: "A perfect cube is a whole number that can be written as n × n × n for a whole number n.",
+        correctFeedback: "Correct. Each of the first four numbers is a whole number multiplied by itself three times, while neither of the last two is.",
+        incorrectFeedback: "Check six distinct numbers. The first four must be perfect cubes other than 27; the last two must not be perfect cubes.",
+      },
+      {
+        id: "cube-volume-4",
+        label: "2. Side length 4 cm",
+        prompt: "A cube has side length 4 centimeters. What is its volume in cubic centimeters?",
+        responseType: "number",
+        inputLabel: "Volume (cubic centimeters)",
+        placeholder: "Type volume",
+        answerKey: ["64"],
+        visualCropPath: "lesson-17-p002-perfect-cubes-17-3.png",
+        visualWidth: 148,
+        visualHeight: 145,
+        visualDisplayMaxWidth: 148,
+        visualAlt: "A cube divided into unit cubes.",
+        hint: "Multiply the edge length three times.",
+        correctFeedback: "Correct. 4 × 4 × 4 = 64 cubic centimeters.",
+        incorrectFeedback: "Cube volume uses three equal edge lengths: 4 × 4 × 4.",
+      },
+      {
+        id: "cube-volume-10",
+        label: "3. Side length 10 in",
+        prompt: "A cube has side length 10 inches. What is its volume in cubic inches?",
+        responseType: "number",
+        inputLabel: "Volume (cubic inches)",
+        placeholder: "Type volume",
+        answerKey: ["1000"],
+        visualCropPath: "lesson-17-p002-perfect-cubes-17-3.png",
+        visualWidth: 148,
+        visualHeight: 145,
+        visualDisplayMaxWidth: 148,
+        visualAlt: "A cube divided into unit cubes.",
+        hint: "Multiply 10 by itself three times.",
+        correctFeedback: "Correct. 10 × 10 × 10 = 1,000 cubic inches.",
+        incorrectFeedback: "Use all three equal dimensions of the cube: 10 × 10 × 10.",
+      },
+      {
+        id: "cube-volume-s",
+        label: "4. Side length s",
+        prompt: "A cube has side length s units. Write an expression for its volume.",
+        responseType: "shortAnswer",
+        inputLabel: "Volume expression (cubic units)",
+        placeholder: "Type an expression",
+        answerKey: ["s^3", "s³", "s × s × s", "s x s x s", "s times s times s"],
+        visualCropPath: "lesson-17-p002-perfect-cubes-17-3.png",
+        visualWidth: 148,
+        visualHeight: 145,
+        visualDisplayMaxWidth: 148,
+        visualAlt: "A cube divided into unit cubes.",
+        hint: "A cube has three equal dimensions, each with length s.",
+        correctFeedback: "Correct. The volume is s × s × s, which can be written as s^3 cubic units.",
+        incorrectFeedback: "Multiply the symbolic edge length s by itself three times.",
+      },
+    ],
   },
   {
     id: "teach-l17-4",
@@ -1696,21 +3895,109 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Squares and Cubes",
     activityTitle: "17.4: Introducing Exponents",
-    sourceDirections: "Use exponents and correct units for square and cube measures.",
+    sourceContext: "Squaring multiplies two equal factors; cubing multiplies three equal factors. Exponents also describe square and cubic units.",
+    sourceDirections: "Use exponents and include correct units of measure as part of each answer.",
     pdfPage: 2,
-    cropPath: teachLessonCrop(17),
-    visualAlt: "Source exponent notation questions.",
-    prompt: "A square has side length 10 cm. Which expression uses an exponent to show its area?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "10-2", label: "10^2 square centimeters" },
-      { id: "10-3", label: "10^3 cubic centimeters" },
-      { id: "2-10", label: "2^10 square centimeters" },
+    pdfPages: [2, 3],
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Exponent reference connecting equal factors with square area and cube volume.",
+    prompt: "Complete all six source exponent questions. Then try the optional challenge if you are ready.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "square-10",
+        label: "1. Square side 10 cm",
+        prompt: "A square has side length 10 centimeters. Use an exponent to express its area, including units.",
+        fields: [
+          { id: "expression", label: "Area expression", responseType: "shortAnswer", placeholder: "Type an exponent expression", answerKey: ["10^2", "10²"] },
+          { id: "units", label: "Area units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["cm^2", "cm²", "square centimeters", "sq cm"] },
+        ],
+        visualType: "exponentReference",
+        hint: "A square uses two equal side-length factors, and area uses square units.",
+        correctFeedback: "Correct. The area is 10^2 square centimeters, written with a second power for both the factor and the units.",
+        incorrectFeedback: "Use 10 multiplied by itself twice, and include square-centimeter units.",
+      },
+      {
+        id: "side-from-seven-squared",
+        label: "2. Area 7^2 sq in",
+        prompt: "The area of a square is 7^2 square inches. What is its side length, including units?",
+        fields: [
+          { id: "length", label: "Side length", responseType: "number", placeholder: "Type side length", answerKey: ["7"] },
+          { id: "units", label: "Length units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["in", "inch", "inches"] },
+        ],
+        visualType: "exponentReference",
+        hint: "The base of the second-power expression is the square's side length.",
+        correctFeedback: "Correct. 7^2 means 7 × 7, so the square's side length is 7 inches.",
+        incorrectFeedback: "Read the base of 7^2, then use linear inches rather than square inches for a side length.",
+      },
+      {
+        id: "square-area-81",
+        label: "3. Area 81 m^2",
+        prompt: "The area of a square is 81 square meters. Use an exponent to express this area, including units.",
+        fields: [
+          { id: "expression", label: "Area expression", responseType: "shortAnswer", placeholder: "Type an exponent expression", answerKey: ["9^2", "9²"] },
+          { id: "units", label: "Area units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["m^2", "m²", "square meters", "sq m"] },
+        ],
+        visualType: "exponentReference",
+        hint: "Find the equal whole-number factors whose product is 81.",
+        correctFeedback: "Correct. 81 square meters is 9^2 square meters because 9 × 9 = 81.",
+        incorrectFeedback: "Find the side length of a square with area 81, write it to the second power, and include square-meter units.",
+      },
+      {
+        id: "cube-edge-5",
+        label: "4. Cube edge 5 in",
+        prompt: "A cube has edge length 5 inches. Use an exponent to express its volume, including units.",
+        fields: [
+          { id: "expression", label: "Volume expression", responseType: "shortAnswer", placeholder: "Type an exponent expression", answerKey: ["5^3", "5³"] },
+          { id: "units", label: "Volume units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["in^3", "in³", "cubic inches", "cu in"] },
+        ],
+        visualType: "exponentReference",
+        hint: "Cube volume uses three equal edge-length factors and cubic units.",
+        correctFeedback: "Correct. The volume is 5^3 cubic inches because 5 × 5 × 5 uses all three dimensions.",
+        incorrectFeedback: "Use a third power for the three equal edge lengths, and include cubic-inch units.",
+      },
+      {
+        id: "edge-from-six-cubed",
+        label: "5. Volume 6^3 cm^3",
+        prompt: "The volume of a cube is 6^3 cubic centimeters. What is its edge length, including units?",
+        fields: [
+          { id: "length", label: "Edge length", responseType: "number", placeholder: "Type edge length", answerKey: ["6"] },
+          { id: "units", label: "Length units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["cm", "centimeter", "centimeters"] },
+        ],
+        visualType: "exponentReference",
+        hint: "The base of the third-power expression gives the cube's edge length.",
+        correctFeedback: "Correct. 6^3 means 6 × 6 × 6, so the cube's edge length is 6 centimeters.",
+        incorrectFeedback: "Read the base of 6^3, then use linear centimeters rather than cubic centimeters for an edge length.",
+      },
+      {
+        id: "cube-edge-s",
+        label: "6. Cube edge s",
+        prompt: "A cube has edge length s units. Use an exponent to write an expression for its volume, including units.",
+        fields: [
+          { id: "expression", label: "Volume expression", responseType: "shortAnswer", placeholder: "Type an exponent expression", answerKey: ["s^3", "s³"] },
+          { id: "units", label: "Volume units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["units^3", "units³", "cubic units"] },
+        ],
+        visualType: "exponentReference",
+        hint: "Multiply s by itself once for each of the cube's three dimensions.",
+        correctFeedback: "Correct. The volume is s^3 cubic units because s × s × s uses all three edge lengths.",
+        incorrectFeedback: "Use the variable s as the base, a third power, and cubic units.",
+      },
+      {
+        id: "optional-both-powers",
+        label: "Optional: Square and cube",
+        prompt: "15,625 is both a perfect square and a perfect cube: 125^2 and 25^3. Find one or more different numbers that are both. Separate multiple numbers with commas.",
+        responseType: "shortAnswer",
+        inputLabel: "Numbers that are both perfect squares and perfect cubes",
+        placeholder: "Type one or more numbers",
+        dynamicAnswer: "perfectSquareAndCubeExamples",
+        optional: true,
+        visualType: "exponentReference",
+        hint: "A number that is both can be written using a whole-number sixth power. Try a small whole-number base.",
+        correctFeedback: "Correct. Every number you entered is both a perfect square and a perfect cube. These numbers are whole-number sixth powers.",
+        incorrectFeedback: "Enter a different nonnegative whole number that has both an equal-factor square representation and an equal-factor cube representation.",
+      },
     ],
-    answerKey: ["10-2"],
-    hint: "Area of a square uses the side length multiplied by itself.",
-    correctFeedback: "Correct. 10^2 square centimeters represents 10 x 10 square centimeters.",
-    incorrectFeedback: "Square area uses a second power; cube volume uses a third power.",
   },
   {
     id: "teach-l18-1",
@@ -1719,21 +4006,63 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Surface Area of a Cube",
     activityTitle: "18.1: Exponent Review",
-    sourceDirections: "Select the greater expression without calculating each value.",
+    sourceDirections: "Select the greater expression in each pair without calculating the value of either expression. Explain each choice.",
     pdfPage: 1,
-    cropPath: teachLessonCrop(18),
-    visualAlt: "Source exponent review and cube net task.",
-    prompt: "Which expression is greater: 10^3 or 10^4?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "10-3", label: "10^3" },
-      { id: "10-4", label: "10^4" },
-      { id: "same", label: "They are equal." },
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "The three source pairs of expressions for comparison.",
+    prompt: "Compare all three source expression pairs and explain how their structure shows which is greater.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "ten-times-three",
+        label: "1. 10 × 3 or 10^3",
+        prompt: "Which expression is greater: 10 × 3 or 10^3? Choose without calculating both values.",
+        responseType: "singleChoice",
+        choices: [
+          { id: "ten-times-three", label: "10 × 3" },
+          { id: "ten-cubed", label: "10^3" },
+        ],
+        answerKey: ["ten-cubed"],
+        reasoningPrompt: "Explain how the factors show which expression is greater.",
+        visualType: "expressionComparison",
+        hint: "An exponent of 3 means three factors of 10; it does not mean multiply 10 by 3.",
+        correctFeedback: "Correct. 10^3 has three factors of 10, while 10 × 3 has only three groups of 10, so 10^3 is greater.",
+        incorrectFeedback: "Interpret the exponent first: 10^3 means 10 × 10 × 10, not 10 × 3.",
+      },
+      {
+        id: "thirteen-squared",
+        label: "2. 13^2 or 12 × 12",
+        prompt: "Which expression is greater: 13^2 or 12 × 12? Choose without calculating both values.",
+        responseType: "singleChoice",
+        choices: [
+          { id: "thirteen-squared", label: "13^2" },
+          { id: "twelve-squared", label: "12 × 12" },
+        ],
+        answerKey: ["thirteen-squared"],
+        reasoningPrompt: "Explain how comparing equal-factor products shows which is greater.",
+        visualType: "expressionComparison",
+        hint: "Rewrite 13^2 as 13 × 13, then compare each factor with 12.",
+        correctFeedback: "Correct. 13^2 is 13 × 13. Both factors are greater than the corresponding factors in 12 × 12, so 13^2 is greater.",
+        incorrectFeedback: "Compare 13 × 13 with 12 × 12 factor by factor; no full calculation is needed.",
+      },
+      {
+        id: "six-groups-of-97",
+        label: "3. Six 97s or five 97s",
+        prompt: "Which expression is greater: 97 + 97 + 97 + 97 + 97 + 97 or 5 × 97? Choose without calculating.",
+        responseType: "singleChoice",
+        choices: [
+          { id: "six-groups", label: "97 + 97 + 97 + 97 + 97 + 97" },
+          { id: "five-groups", label: "5 × 97" },
+        ],
+        answerKey: ["six-groups"],
+        reasoningPrompt: "Explain how the number of equal groups shows which expression is greater.",
+        visualType: "expressionComparison",
+        hint: "The repeated sum has six equal groups of 97. Compare that with five equal groups.",
+        correctFeedback: "Correct. The repeated sum is 6 × 97, which is one more group of 97 than 5 × 97.",
+        incorrectFeedback: "Rewrite the repeated addition as multiplication, then compare the number of equal groups.",
+      },
     ],
-    answerKey: ["10-4"],
-    hint: "The same base is multiplied more times in 10^4.",
-    correctFeedback: "Correct. 10^4 is greater than 10^3.",
-    incorrectFeedback: "With the same base greater than 1, the larger exponent gives the larger value.",
   },
   {
     id: "teach-l18-3",
@@ -1742,21 +4071,75 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 6",
     title: "Surface Area of a Cube",
     activityTitle: "18.3: Every Cube in the Whole World",
-    sourceDirections: "Write expressions for a cube with edge length s.",
+    sourceDirections: "Draw a net and write expressions that work for every cube with edge length s.",
     pdfPage: 2,
-    cropPath: teachLessonCrop(18),
-    visualAlt: "Source cube expression task for any edge length.",
-    prompt: "For a cube with edge length s, which expression gives surface area?",
-    responseType: "singleChoice",
-    choices: [
-      { id: "6s2", label: "6 x s^2" },
-      { id: "s3", label: "s^3" },
-      { id: "12s", label: "12 x s" },
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Interactive net and symbolic cube reference for edge length s.",
+    prompt: "Complete all four source tasks for a cube whose edge length is s units.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "symbolic-net",
+        label: "1. Draw a cube net",
+        prompt: "Draw a net for a cube with edge length s.",
+        responseType: "construction",
+        dynamicAnswer: "validCubeNet",
+        visualType: "labeledCubeNet",
+        netStateId: "symbolic-cube",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Select six edge-connected squares that fold into a cube before submitting the net.",
+        hint: "Use six equal squares connected along full edges, then test whether they fold into six different faces.",
+        correctFeedback: "Correct. Your six-square arrangement is a valid net for a cube with edge length s.",
+        incorrectFeedback: "Revise the six-square arrangement so it folds into all six faces without overlap.",
+      },
+      {
+        id: "symbolic-face-area",
+        label: "2. Area of each face",
+        prompt: "Write an expression for the area of each face, and label every face of your net with that area.",
+        fields: [
+          { id: "faceArea", label: "Expression placed on every face", responseType: "shortAnswer", placeholder: "Type an exponent expression", answerKey: ["s^2", "s²"] },
+          { id: "units", label: "Face-area units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["square units", "units^2", "units²"] },
+        ],
+        visualType: "labeledCubeNet",
+        netStateId: "symbolic-cube",
+        netLabelField: "faceArea",
+        netLabelPosition: "center",
+        requiredConstruction: "validCubeNet",
+        requiredStateFeedback: "Draw a valid six-square cube net before labeling every face with its area.",
+        hint: "Each square face has side lengths s and s.",
+        correctFeedback: "Correct. Every square face has area s^2 square units, and the expression labels all six faces of your net.",
+        incorrectFeedback: "Use the product s × s for one square face, write it with a second power, and include square units.",
+      },
+      {
+        id: "symbolic-surface-area",
+        label: "3. Surface area",
+        prompt: "Write an expression for the cube's surface area, including units.",
+        fields: [
+          { id: "expression", label: "Surface-area expression", responseType: "shortAnswer", placeholder: "Type an expression", answerKey: ["6 x s^2", "6 × s^2", "6*s^2", "6(s^2)", "6 · s^2", "6 x s²", "6 × s²", "6*s²", "6(s²)", "6 · s²"] },
+          { id: "units", label: "Surface-area units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["square units", "units^2", "units²"] },
+        ],
+        visualType: "cubeMetricReference",
+        edgeLabel: "s units",
+        hint: "A cube has six identical square faces, each with area s^2.",
+        correctFeedback: "Correct. The surface area is 6 × s^2 square units because the cube has six faces of area s^2.",
+        incorrectFeedback: "Multiply one face's area, s^2, by the six faces and use square units.",
+      },
+      {
+        id: "symbolic-volume",
+        label: "4. Volume",
+        prompt: "Write an expression for the cube's volume, including units.",
+        fields: [
+          { id: "expression", label: "Volume expression", responseType: "shortAnswer", placeholder: "Type an exponent expression", answerKey: ["s^3", "s³", "s x s x s", "s × s × s", "s*s*s"] },
+          { id: "units", label: "Volume units", responseType: "shortAnswer", placeholder: "Type units", answerKey: ["cubic units", "units^3", "units³"] },
+        ],
+        visualType: "cubeMetricReference",
+        edgeLabel: "s units",
+        hint: "Volume uses the cube's three equal edge lengths.",
+        correctFeedback: "Correct. The volume is s^3 cubic units because s × s × s uses all three dimensions.",
+        incorrectFeedback: "Use three factors of s, third-power notation, and cubic units.",
+      },
     ],
-    answerKey: ["6s2"],
-    hint: "A cube has 6 square faces, and each face has area s^2.",
-    correctFeedback: "Correct. Surface area is 6 x s^2; volume is s^3.",
-    incorrectFeedback: "Find one square face first, then count all 6 faces.",
   },
   {
     id: "teach-l19-2",
@@ -1765,25 +4148,94 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 7",
     title: "Designing a Tent",
     activityTitle: "19.2: Tent Design - Part 2",
-    sourceContext: "This follow-up uses the same tent design and planning sheet from 19.1.",
-    sourceDirections: "Use your 19.1 planning sheet to explain the tent design, fabric estimate, and design choices.",
+    sourceContext: "This follow-up uses your tent from 19.1 and two app-provided tents for the same number of campers.",
+    sourceDirections: "Compare the three fabric estimates. Explain your own design, identify which tent uses the least and most fabric, and decide which change has the greatest effect.",
     pdfPage: 4,
-    cropPath: "lesson-19-p003-tent-planning-sheet-blackline.png",
-    visualAlt: "Blackline Master tent design planning sheet with sketch spaces.",
+    cropPath: null,
+    visualAlt: "Three comparable tent designs for the same number of campers, with dimensions and fabric estimates.",
     blacklineMasters: unit1BlacklineMasters.tentPlanning,
-    prompt: "Explain your tent design and compare how design choices affect the fabric estimate.",
-    responseType: "guidedFields",
-    guidedOpenEnded: true,
-    guidedFields: [
-      { id: "designExplanation", label: "Explain your tent design and why you chose it.", type: "textarea" },
-      { id: "fabricExplanation", label: "Explain how you found your fabric estimate.", type: "textarea" },
-      { id: "leastFabric", label: "Which design would use the least fabric? Why?", type: "textarea" },
-      { id: "mostFabric", label: "Which design would use the most fabric? Why?", type: "textarea" },
-      { id: "impactChoice", label: "Which design change most impacts fabric needed?", type: "textarea" },
+    customVisual: "questionSetVisual",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "explain-design",
+        label: "1. Explain your design",
+        prompt: "Explain why you chose your tent design and how you found its fabric estimate.",
+        responseType: "openResponse",
+        inputLabel: "Your explanation",
+        placeholder: "Explain your design and calculation",
+        minLength: 24,
+        answerConcepts: [
+          ["floor", "area"],
+          ["panel", "area"],
+          ["surface", "area"],
+          ["sleeping", "fabric"],
+          ["height", "fabric"],
+        ],
+        visualType: "tentComparison",
+        requiredConstruction: "savedTentPlan",
+        requiredStateFeedback: "Complete a valid design and fabric estimate in 19.1 before starting the comparison.",
+        hint: "Name the capacity, shape, dimensions, and the panels you added for the total fabric area.",
+        correctFeedback: "Your explanation connects the tent design to its fabric-area calculation.",
+        incorrectFeedback: "Explain both why you chose the design and how its panel areas produce the fabric estimate.",
+      },
+      {
+        id: "least-fabric",
+        label: "2. Least fabric",
+        prompt: "Which tent design uses the least fabric?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "own", label: "Your tent" },
+          { id: "height-change", label: "Height-change tent" },
+          { id: "floor-change", label: "Floor-change tent" },
+        ],
+        dynamicAnswer: "tentComparisonLeast",
+        visualType: "tentComparison",
+        requiredConstruction: "savedTentPlan",
+        reasoningPrompt: "Why does that tent use the least fabric?",
+        reasoningConcepts: [["fabric"], ["square", "feet"], ["surface", "area"]],
+        hint: "Compare the three square-foot estimates, including the floor in each design.",
+        correctFeedback: "Correct. You identified a design with the smallest total panel area.",
+        incorrectFeedback: "Compare all three fabric estimates and choose the smallest total.",
+      },
+      {
+        id: "most-fabric",
+        label: "3. Most fabric",
+        prompt: "Which tent design uses the most fabric?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "own", label: "Your tent" },
+          { id: "height-change", label: "Height-change tent" },
+          { id: "floor-change", label: "Floor-change tent" },
+        ],
+        dynamicAnswer: "tentComparisonMost",
+        visualType: "tentComparison",
+        requiredConstruction: "savedTentPlan",
+        reasoningPrompt: "Why does that tent use the most fabric?",
+        reasoningConcepts: [["fabric"], ["square", "feet"], ["surface", "area"]],
+        hint: "Compare all three totals rather than only one dimension.",
+        correctFeedback: "Correct. You identified a design with the largest total panel area.",
+        incorrectFeedback: "Compare all three fabric estimates and choose the largest total.",
+      },
+      {
+        id: "largest-impact",
+        label: "4. Greatest impact",
+        prompt: "Which change from your tent has the greater effect on the amount of fabric needed?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "height-change", label: "Changing the height" },
+          { id: "floor-change", label: "Changing the floor dimensions" },
+        ],
+        dynamicAnswer: "tentComparisonImpact",
+        visualType: "tentComparison",
+        requiredConstruction: "savedTentPlan",
+        reasoningPrompt: "Use the changes in square feet to explain your choice.",
+        reasoningConcepts: [["square", "feet"], ["fabric"], ["difference"], ["change"]],
+        hint: "Find how far each comparison estimate is from your tent's estimate, then compare the two differences.",
+        correctFeedback: "Correct. You compared the size of each change in fabric area, not just the new totals.",
+        incorrectFeedback: "Compare each alternative with your tent and choose the larger absolute change in square feet.",
+      },
     ],
-    hint: "Compare tent shape, base measurements, height, floor, and number of side panels. Surface-area calculations should support the comparison.",
-    correctFeedback: "Reflection saved. A strong follow-up explains the design, justifies the fabric estimate, and compares which design choices increase or reduce surface area.",
-    incorrectFeedback: "Add comparison details about fabric estimates and the design choices that changed surface area.",
   },
 ];
 
@@ -1798,21 +4250,21 @@ const teachVerifiedCropPaths = {
   "teach-l2": "lesson-02-p001-area-grids.png",
   "teach-l3": "lesson-03-p001-region-grid-area.png",
   "teach-l4": "lesson-04-p001-parallelogram-examples.png",
-  "teach-l5": "lesson-05-p003-bases-heights.png",
-  "teach-l6": "lesson-06-p001-area-parallelograms.png",
+  "teach-l5": "lesson-05-p002-height-examples-5-2.png",
+  "teach-l6": "lesson-06-p001-area-parallelograms-6-2.png",
   "teach-l7": "lesson-07-p001-same-parallelograms.png",
   "teach-l8": "lesson-08-p001-composing-parallelograms.png",
   "teach-l9": "lesson-09-p002-triangle-formula.png",
   "teach-l10": "lesson-10-p002-triangle-heights.png",
   "teach-l11": "lesson-11-p002-polygons.png",
   "teach-l12": "lesson-12-p002-snap-cubes.png",
-  "teach-l13": "lesson-13-p001-polyhedra-sort.png",
-  "teach-l14": "lesson-14-p001-net-matching.png",
-  "teach-l15": "lesson-15-p002-box-nets.png",
+  "teach-l13": null,
+  "teach-l14": null,
+  "teach-l15": null,
   "teach-l16": null,
   "teach-l17": "lesson-17-p001-perfect-squares-cubes.png",
   "teach-l18": null,
-  "teach-l19": "lesson-19-p002-tent-specs.png",
+  "teach-l19": null,
   "teach-l2-2": null,
   "teach-l2-3": null,
   "teach-l3-2": "lesson-03-p001-on-grid-3-2.png",
@@ -1835,11 +4287,11 @@ const teachVerifiedCropPaths = {
   "teach-l11-4": "lesson-11-p004-pinwheel-11-4.png",
   "teach-l12-1": null,
   "teach-l12-2": null,
-  "teach-l13-2": "lesson-13-p002-prisms-pyramids-13-2.png",
-  "teach-l13-3": "lesson-13-p003-assembling-polyhedra-net-a-blackline.png",
-  "teach-l14-2": "lesson-14-p001-using-nets-surface-area-14-2.png",
-  "teach-l15-1": "lesson-15-p001-wrapping-paper-15-1.png",
-  "teach-l15-2": "lesson-15-p001-polyhedron-drawings-blackline.png",
+  "teach-l13-2": null,
+  "teach-l13-3": null,
+  "teach-l14-2": null,
+  "teach-l15-1": null,
+  "teach-l15-2": null,
   "teach-l16-2": null,
   "teach-l16-3": null,
   "teach-l17-2": null,
@@ -1847,7 +4299,7 @@ const teachVerifiedCropPaths = {
   "teach-l17-4": null,
   "teach-l18-1": null,
   "teach-l18-3": null,
-  "teach-l19-2": "lesson-19-p003-tent-planning-sheet-blackline.png",
+  "teach-l19-2": null,
 };
 
 unit1TeachCards.forEach((card) => {
@@ -1907,6 +4359,225 @@ const tentMessages = {
     message: "A design constraint matters. Some tents need floor fabric and some only need the outside covering.",
   },
 };
+
+const standardSleepingBag = Object.freeze({ lengthInches: 74, widthInches: 34 });
+
+const tentDesignerOptions = Object.freeze({
+  capacity: [
+    { id: "1", label: "1 camper" },
+    { id: "2", label: "2 campers" },
+    { id: "3", label: "3 campers" },
+    { id: "4", label: "4 campers" },
+  ],
+  arrangement: [
+    { id: "side-by-side", label: "Side by side" },
+    { id: "two-rows", label: "Up to 2 per row" },
+  ],
+  height: [
+    { id: "3", label: "3 ft · sit or crawl" },
+    { id: "4", label: "4 ft · kneel" },
+    { id: "5", label: "5 ft · stoop" },
+    { id: "6", label: "6 ft · stand" },
+    { id: "7", label: "7 ft · roam" },
+  ],
+  style: [
+    { id: "a-frame", label: "A-frame" },
+    { id: "wall", label: "Wall tent" },
+  ],
+});
+
+function tentPlanField(cardId = "teach-l19") {
+  return state.teachCustomResponses[cardId] || {};
+}
+
+function tentBagGrid(capacity, arrangement) {
+  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 4) return { rows: 0, columns: 0 };
+  if (arrangement === "two-rows") {
+    return { rows: Math.ceil(capacity / 2), columns: Math.min(capacity, 2) };
+  }
+  if (arrangement === "side-by-side") return { rows: 1, columns: capacity };
+  return { rows: 0, columns: 0 };
+}
+
+function tentRequiredFloor(capacity, arrangement) {
+  const grid = tentBagGrid(capacity, arrangement);
+  const length = grid.rows * standardSleepingBag.lengthInches / 12;
+  const width = grid.columns * standardSleepingBag.widthInches / 12;
+  return {
+    ...grid,
+    length,
+    width,
+    recommendedLength: Math.ceil(length),
+    recommendedWidth: Math.ceil(width),
+  };
+}
+
+function tentPlanFromResponse(response = tentPlanField()) {
+  const capacity = Number(response.tentCapacity);
+  const height = Number(response.tentHeight);
+  const arrangement = tentDesignerOptions.arrangement.some((option) => option.id === response.tentArrangement)
+    ? response.tentArrangement
+    : "";
+  const style = tentDesignerOptions.style.some((option) => option.id === response.tentStyle)
+    ? response.tentStyle
+    : "";
+  const floorLength = Number(response.tentFloorLength);
+  const floorWidth = Number(response.tentFloorWidth);
+  const requiredFloor = tentRequiredFloor(capacity, arrangement);
+  const complete = Number.isInteger(capacity) && capacity >= 1 && capacity <= 4
+    && Number.isInteger(height) && height >= 3 && height <= 7
+    && Boolean(arrangement) && Boolean(style)
+    && Number.isInteger(floorLength) && floorLength >= 3 && floorLength <= 30
+    && Number.isInteger(floorWidth) && floorWidth >= 3 && floorWidth <= 30;
+  const floorFits = complete
+    && floorLength + 1e-9 >= requiredFloor.length
+    && floorWidth + 1e-9 >= requiredFloor.width;
+  return {
+    capacity,
+    height,
+    arrangement,
+    style,
+    floorLength,
+    floorWidth,
+    requiredFloor,
+    complete,
+    floorFits,
+    valid: complete && floorFits,
+  };
+}
+
+function tentPlanForCard(card) {
+  return tentPlanFromResponse(tentPlanField(card?.id === "teach-l19-2" ? "teach-l19" : "teach-l19"));
+}
+
+function roundTentMeasure(value) {
+  return Math.round(value * 10) / 10;
+}
+
+function formatTentMeasure(value) {
+  return Number.isFinite(value) ? String(roundTentMeasure(value)) : "—";
+}
+
+function tentFabricDetails(plan) {
+  if (!plan?.valid) return null;
+  const { floorLength: length, floorWidth: width, height, style } = plan;
+  const floor = length * width;
+  if (style === "a-frame") {
+    const slant = Math.sqrt((width / 2) ** 2 + height ** 2);
+    const roofPair = 2 * length * slant;
+    const endPair = width * height;
+    return {
+      floor,
+      slant,
+      roofPair,
+      endPair,
+      total: floor + roofPair + endPair,
+      parts: [floor, roofPair, endPair],
+    };
+  }
+  const roof = length * width;
+  const longWalls = 2 * length * height;
+  const endWalls = 2 * width * height;
+  return {
+    floor,
+    roof,
+    longWalls,
+    endWalls,
+    total: floor + roof + longWalls + endWalls,
+    parts: [floor, roof, longWalls, endWalls],
+  };
+}
+
+function tentFabricTotal(plan) {
+  return tentFabricDetails(plan)?.total ?? null;
+}
+
+function tentDesignLabel(designId) {
+  return {
+    own: "your tent",
+    "height-change": "the height-change tent",
+    "floor-change": "the floor-change tent",
+  }[designId] || "the selected tent";
+}
+
+function tentComparisonDesigns() {
+  const own = tentPlanFromResponse(tentPlanField("teach-l19"));
+  if (!own.valid) return [];
+  const changedHeight = own.height === 3 ? 7 : 3;
+  return [
+    { ...own, id: "own", label: "Your tent", change: "Your 19.1 design" },
+    {
+      ...own,
+      id: "height-change",
+      label: "Height-change tent",
+      height: changedHeight,
+      change: `Same floor and style; height changed to ${changedHeight} ft`,
+    },
+    {
+      ...own,
+      id: "floor-change",
+      label: "Floor-change tent",
+      floorLength: own.floorLength + 2,
+      floorWidth: own.floorWidth + 2,
+      change: "Same height and style; floor is 2 ft longer and 2 ft wider",
+    },
+  ].map((design) => ({ ...design, fabric: tentFabricTotal({ ...design, valid: true }) }));
+}
+
+function tentComparisonAnswerIds(mode) {
+  const designs = tentComparisonDesigns();
+  if (!designs.length) return [];
+  if (mode === "impact") {
+    const own = designs.find((design) => design.id === "own");
+    const heightChange = designs.find((design) => design.id === "height-change");
+    const floorChange = designs.find((design) => design.id === "floor-change");
+    const heightDifference = Math.abs(heightChange.fabric - own.fabric);
+    const floorDifference = Math.abs(floorChange.fabric - own.fabric);
+    const greatest = Math.max(heightDifference, floorDifference);
+    return [
+      Math.abs(heightDifference - greatest) < 0.05 ? "height-change" : "",
+      Math.abs(floorDifference - greatest) < 0.05 ? "floor-change" : "",
+    ].filter(Boolean);
+  }
+  const target = mode === "least"
+    ? Math.min(...designs.map((design) => design.fabric))
+    : Math.max(...designs.map((design) => design.fabric));
+  return designs.filter((design) => Math.abs(design.fabric - target) < 0.05).map((design) => design.id);
+}
+
+function tentPlanHasInteraction() {
+  const response = tentPlanField("teach-l19");
+  return ["tentCapacity", "tentArrangement", "tentHeight", "tentStyle", "tentFloorLength", "tentFloorWidth"]
+    .some((field) => String(response[field] || "").length > 0);
+}
+
+function tentPartOneQuestion(questionId) {
+  const card = unit1TeachCards.find((entry) => entry.id === "teach-l19");
+  return card?.questions?.find((question) => question.id === questionId) || null;
+}
+
+function tentPlanIsSavedFor(card) {
+  const plan = tentPlanFromResponse(tentPlanField("teach-l19"));
+  const partOne = unit1TeachCards.find((entry) => entry.id === "teach-l19");
+  const buildQuestion = tentPartOneQuestion("build-plan");
+  if (!plan.valid || !partOne || !buildQuestion
+    || !isTeachQuestionSubmitted(partOne, buildQuestion.id)
+    || !questionSetQuestionIsCorrect(partOne, buildQuestion)) return false;
+  if (card.id !== "teach-l19-2") return true;
+  const fabricQuestion = tentPartOneQuestion("fabric-estimate");
+  return Boolean(fabricQuestion
+    && isTeachQuestionSubmitted(partOne, fabricQuestion.id)
+    && questionSetQuestionIsCorrect(partOne, fabricQuestion));
+}
+
+function invalidateTentPlanSubmissions() {
+  for (const cardId of ["teach-l19", "teach-l19-2"]) {
+    const card = unit1TeachCards.find((entry) => entry.id === cardId);
+    (card?.questions || []).forEach((question) => {
+      state.teachQuestionSubmitted[teachQuestionStateKey(cardId, question.id)] = false;
+    });
+  }
+}
 
 const vocabularyTerms = [
   {
@@ -2040,6 +4711,14 @@ function escapeHtml(value) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function enforceTextareaValueLimit(input) {
+  const value = String(input?.value ?? "");
+  if (input?.tagName !== "TEXTAREA") return value;
+  const limitedValue = value.slice(0, TEXTAREA_MAX_LENGTH);
+  if (value !== limitedValue) input.value = limitedValue;
+  return limitedValue;
 }
 
 const tangramStage = {
@@ -2326,6 +5005,131 @@ function quadrilateralIsDiagonal(segmentValue) {
   return (a === 0 && b === 2) || (a === 2 && b === 0) || (a === 1 && b === 3) || (a === 3 && b === 1);
 }
 
+function quadrilateralExtensionPoints(card) {
+  const value = getTeachCustomResponse(card).extensionPoints;
+  if (!Array.isArray(value)) return [];
+  return value.filter((point) => (
+    Array.isArray(point)
+    && point.length === 2
+    && point.every((coordinate) => Number.isFinite(coordinate))
+  )).slice(0, 4);
+}
+
+function quadrilateralExtensionDistanceSquared(pointA, pointB) {
+  return (pointA[0] - pointB[0]) ** 2 + (pointA[1] - pointB[1]) ** 2;
+}
+
+function quadrilateralExtensionTriangleSignature(points, indexes) {
+  return [
+    quadrilateralExtensionDistanceSquared(points[indexes[0]], points[indexes[1]]),
+    quadrilateralExtensionDistanceSquared(points[indexes[1]], points[indexes[2]]),
+    quadrilateralExtensionDistanceSquared(points[indexes[2]], points[indexes[0]]),
+  ].sort((a, b) => a - b);
+}
+
+function quadrilateralExtensionEvaluation(card) {
+  const points = quadrilateralExtensionPoints(card);
+  const response = getTeachCustomResponse(card);
+  const diagonal = response.extensionDiagonal;
+  const rule = normalizeAnswer(response.extensionRule);
+  if (points.length !== 4 || !["0-2", "1-3"].includes(diagonal)) {
+    return { complete: false, congruent: false, ruleStrong: false };
+  }
+  const triangleIndexes = diagonal === "0-2"
+    ? [[0, 1, 2], [0, 2, 3]]
+    : [[1, 2, 3], [1, 3, 0]];
+  const first = quadrilateralExtensionTriangleSignature(points, triangleIndexes[0]);
+  const second = quadrilateralExtensionTriangleSignature(points, triangleIndexes[1]);
+  const congruent = first.every((length, index) => length === second[index]);
+  const ruleStrong = rule.includes("parallelogram") || (rule.includes("opposite") && rule.includes("parallel"));
+  return { complete: true, congruent, ruleStrong };
+}
+
+function quadrilateralExtensionFeedback(card) {
+  const questionId = "optional-extension";
+  if (!isTeachQuestionSubmitted(card, questionId)) {
+    return "Build a quadrilateral, choose a diagonal, write a rule, and submit when you want feedback.";
+  }
+  const evaluation = quadrilateralExtensionEvaluation(card);
+  if (!evaluation.complete) return "Place four vertices and choose one diagonal before submitting the optional challenge.";
+  if (!normalizeAnswer(getTeachCustomResponse(card).extensionRule)) {
+    return "Add a rule about quadrilaterals that can be decomposed into two identical triangles.";
+  }
+  if (!evaluation.congruent) {
+    return "This diagonal does not make two identical triangles. Adjust the vertices or test the other diagonal, then revise your rule.";
+  }
+  if (!evaluation.ruleStrong) {
+    return "Your drawing works. Strengthen the rule by connecting it to parallelograms or to both pairs of opposite sides being parallel.";
+  }
+  return "Your diagonal makes two triangles with the same three side lengths. A parallelogram always works because either diagonal splits it into two identical triangles.";
+}
+
+function renderQuadrilateralExtension(card) {
+  const points = quadrilateralExtensionPoints(card);
+  const response = getTeachCustomResponse(card);
+  const diagonal = response.extensionDiagonal;
+  const polygon = points.length >= 2
+    ? `<polyline class="quadrilateral-extension-outline" points="${points.map(([x, y]) => `${x},${y}`).join(" ")}${points.length === 4 ? ` ${points[0][0]},${points[0][1]}` : ""}"></polyline>`
+    : "";
+  const segmentIndexes = diagonal?.split("-").map(Number) || [];
+  const segment = points.length === 4 && segmentIndexes.length === 2
+    ? `<line class="quadrilateral-extension-segment" x1="${points[segmentIndexes[0]][0]}" y1="${points[segmentIndexes[0]][1]}" x2="${points[segmentIndexes[1]][0]}" y2="${points[segmentIndexes[1]][1]}"></line>`
+    : "";
+  const submitted = isTeachQuestionSubmitted(card, "optional-extension");
+  const evaluation = quadrilateralExtensionEvaluation(card);
+  const feedbackClass = submitted ? (evaluation.complete && evaluation.congruent && evaluation.ruleStrong ? "is-correct" : "is-incorrect") : "";
+  return `
+    <section class="quadrilateral-extension">
+      <button class="hint-button quadrilateral-extension-toggle" type="button" data-quadrilateral-extension-toggle="${card.id}" aria-expanded="${state.teachQuadrilateralExtensionOpen}">
+        ${state.teachQuadrilateralExtensionOpen ? "Hide optional challenge" : "Optional: Draw another quadrilateral and test a rule"}
+      </button>
+      ${state.teachQuadrilateralExtensionOpen ? `
+      <p>On the grid, click four vertices in order around a new quadrilateral. Choose a diagonal and test whether it decomposes the shape into two identical triangles.</p>
+      <svg class="quadrilateral-extension-board" viewBox="0 0 360 280" role="button" tabindex="0" aria-label="Grid for placing four quadrilateral vertices" data-quadrilateral-extension-board="${card.id}">
+        <rect x="1" y="1" width="358" height="278" class="quadrilateral-board"></rect>
+        <g aria-hidden="true">${gridLines(20, 20, 8, 6, 40)}</g>
+        ${polygon}
+        ${segment}
+        ${points.map(([x, y], index) => `<circle class="quadrilateral-extension-point" cx="${x}" cy="${y}" r="7"><title>Vertex ${index + 1}</title></circle>`).join("")}
+      </svg>
+      <p class="teach-question-note">Placed ${points.length} of 4 vertices.</p>
+      <div class="practice-actions">
+        <button class="hint-button" type="button" data-quadrilateral-extension-undo="${card.id}" ${points.length ? "" : "disabled"}>Undo point</button>
+        <button class="hint-button" type="button" data-quadrilateral-extension-clear="${card.id}" ${points.length ? "" : "disabled"}>Clear</button>
+      </div>
+      <div class="guided-choice-row" role="group" aria-label="Choose a diagonal">
+        ${[
+          ["0-2", "Connect vertices 1 and 3"],
+          ["1-3", "Connect vertices 2 and 4"],
+        ].map(([value, label]) => `
+          <button
+            class="page-chip guided-choice-button ${diagonal === value ? "is-active" : ""}"
+            type="button"
+            data-quadrilateral-extension-diagonal="${card.id}"
+            data-diagonal="${value}"
+            aria-pressed="${diagonal === value}"
+            ${points.length === 4 ? "" : "disabled"}
+          >${label}</button>
+        `).join("")}
+      </div>
+      <label class="reasoning-field">
+        What must be true about a quadrilateral for your rule to guarantee two identical triangles?
+        <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-quadrilateral-extension-input="${card.id}" placeholder="Write your rule.">${escapeHtml(response.extensionRule || "")}</textarea>
+      </label>
+      <div class="practice-actions">
+        <button class="practice-submit" type="button" data-quadrilateral-extension-submit="${card.id}">Submit optional challenge</button>
+      </div>
+      <p class="practice-feedback teach-question-feedback ${feedbackClass}" data-quadrilateral-extension-feedback aria-live="polite">${escapeHtml(quadrilateralExtensionFeedback(card))}</p>
+      ` : ""}
+    </section>
+  `;
+}
+
+function quadrilateralObservationsAreStrong(card) {
+  const observation = normalizeAnswer(getTeachCustomResponse(card).observations);
+  return observation.includes("parallelogram") || (observation.includes("opposite") && observation.includes("parallel"));
+}
+
 function quadrilateralToggleWorking(cardId, shapeId) {
   const response = state.teachCustomResponses[cardId] || {};
   const current = quadrilateralWorkingValues(response);
@@ -2454,45 +5258,56 @@ function renderQuadrilateralDecompositionWorkspace(card) {
   `;
 }
 
-function parallelogramExploreDefault(card, field) {
-  const defaults = card.defaultParallelogram || {};
-  return Number(defaults[field]) || 0;
+function parallelogramExploreQuestion(card, questionId) {
+  const requested = questionSetDefinition(card, questionId);
+  if (requested?.model) return requested;
+  return card.questions?.find((question) => question.model?.editable)
+    || card.questions?.find((question) => question.model)
+    || null;
 }
 
-function parallelogramExploreValue(card, field) {
+function parallelogramExploreField(questionId, field) {
+  return `parallelogram_${questionId}_${field}`;
+}
+
+function parallelogramExploreDefault(card, questionId, field) {
+  const question = parallelogramExploreQuestion(card, questionId);
+  return Number(question?.model?.[field]) || 0;
+}
+
+function parallelogramExploreValue(card, questionId, field) {
   const response = getTeachCustomResponse(card);
-  const parsed = Number(response[field]);
+  const parsed = Number(response[parallelogramExploreField(questionId, field)]);
   if (Number.isFinite(parsed)) return parsed;
-  return parallelogramExploreDefault(card, field);
+  return parallelogramExploreDefault(card, questionId, field);
 }
 
-function parallelogramExploreShape(card) {
-  const base = clampNumber(parallelogramExploreValue(card, "base"), 3, 12);
-  const height = clampNumber(parallelogramExploreValue(card, "height"), 2, 8);
-  const slant = clampNumber(parallelogramExploreValue(card, "slant"), -4, 5);
-  return { base, height, slant, area: base * height };
+function parallelogramExploreShape(card, questionId = questionSetActiveId(card)) {
+  const modelQuestion = parallelogramExploreQuestion(card, questionId);
+  const modelQuestionId = modelQuestion?.id || questionId;
+  const base = clampNumber(parallelogramExploreValue(card, modelQuestionId, "base"), 3, 10);
+  const height = clampNumber(parallelogramExploreValue(card, modelQuestionId, "height"), 2, 8);
+  const slant = clampNumber(parallelogramExploreValue(card, modelQuestionId, "slant"), 1, 5);
+  return { base, height, slant, area: base * height, questionId: modelQuestionId };
 }
 
-function hasParallelogramAdjustment(response) {
-  return ["base", "height", "slant"].some((field) => Object.prototype.hasOwnProperty.call(response, field));
-}
-
-function hasParallelogramExploreResponse(card) {
+function parallelogramExploreWasAdjusted(card, questionId) {
+  const question = parallelogramExploreQuestion(card, questionId);
+  if (!question?.requireAdjustment) return true;
   const response = getTeachCustomResponse(card);
-  return hasParallelogramAdjustment(response)
-    && response.showArea === "yes"
-    && normalizeAnswer(response.areaAnswer).length > 0
-    && normalizeAnswer(response.parallelogramReasoning).length > 0;
+  return ["base", "height", "slant"].some((field) => (
+    Object.prototype.hasOwnProperty.call(response, parallelogramExploreField(question.id, field))
+      && parallelogramExploreValue(card, question.id, field) !== parallelogramExploreDefault(card, question.id, field)
+  ));
 }
 
-function isParallelogramExploreCorrect(card) {
-  const response = getTeachCustomResponse(card);
-  const shape = parallelogramExploreShape(card);
-  return answerMatches(response.areaAnswer, String(shape.area));
+function parallelogramExploreStrategy(card, questionId) {
+  const value = getTeachCustomResponse(card)[parallelogramExploreField(questionId, "strategy")];
+  return ["decompose", "enclose"].includes(value) ? value : "none";
 }
 
-function renderParallelogramRangeField(card, field, label, min, max) {
-  const value = parallelogramExploreValue(card, field);
+function renderParallelogramRangeField(card, questionId, field, label, min, max) {
+  const value = parallelogramExploreValue(card, questionId, field);
   return `
     <label class="parallelogram-range-field">
       <span>${escapeHtml(label)}: <strong>${value}</strong></span>
@@ -2502,58 +5317,77 @@ function renderParallelogramRangeField(card, field, label, min, max) {
         max="${max}"
         step="1"
         value="${value}"
-        data-teach-custom-input="${card.id}"
-        data-teach-custom-field="${field}"
-        data-rerender-on-input="true"
+        data-parallelogram-input="${card.id}"
+        data-question-id="${escapeHtml(questionId)}"
+        data-parallelogram-field="${field}"
       >
     </label>
   `;
 }
 
 function renderParallelogramExploreWorkspace(card) {
-  const response = getTeachCustomResponse(card);
-  const shape = parallelogramExploreShape(card);
-  const cell = 32;
-  const baseY = 282;
-  const leftX = 182;
+  const activeQuestionId = questionSetActiveId(card);
+  const modelQuestion = parallelogramExploreQuestion(card, activeQuestionId);
+  if (!modelQuestion) return "";
+  const shape = parallelogramExploreShape(card, modelQuestion.id);
+  const strategy = parallelogramExploreStrategy(card, modelQuestion.id);
+  const cell = 28;
+  const baseY = 280;
+  const leftX = 160;
   const topY = baseY - shape.height * cell;
   const topLeftX = leftX + shape.slant * cell;
   const topRightX = topLeftX + shape.base * cell;
   const bottomRightX = leftX + shape.base * cell;
-  const areaVisible = response.showArea === "yes";
   const heightX = topLeftX + Math.max(1, Math.min(shape.base - 1, Math.round(shape.base / 2))) * cell;
-  const checkOverlay = areaVisible ? `
-    <rect
-      class="parallelogram-area-rectangle"
-      x="${leftX}"
-      y="${topY}"
-      width="${shape.base * cell}"
-      height="${shape.height * cell}"
-    ></rect>
-    <text class="parallelogram-area-label" x="${leftX + (shape.base * cell) / 2}" y="${topY + (shape.height * cell) / 2}" text-anchor="middle" dominant-baseline="middle">
-      area = ${shape.base} x ${shape.height} = ${shape.area}
-    </text>
+  const editable = Boolean(modelQuestion.model?.editable);
+  const decompositionOverlay = strategy === "decompose" ? `
+    <rect class="parallelogram-related-rectangle" x="${topLeftX}" y="${topY}" width="${shape.base * cell}" height="${shape.height * cell}"></rect>
+    <line class="parallelogram-tool-line" x1="${topLeftX}" y1="${topY}" x2="${topLeftX}" y2="${baseY}"></line>
+    <polygon class="parallelogram-tool-piece is-original" points="${leftX},${baseY} ${topLeftX},${topY} ${topLeftX},${baseY}"></polygon>
+    <polygon class="parallelogram-tool-piece is-moved" points="${bottomRightX},${baseY} ${topRightX},${topY} ${topRightX},${baseY}"></polygon>
   ` : "";
-  const areaText = areaVisible
-    ? `Area check is visible: base ${shape.base} times height ${shape.height} equals ${shape.area} square units.`
-    : "Area check is hidden. Calculate first, then use Show Area in the response panel.";
+  const enclosureOverlay = strategy === "enclose" ? `
+    <rect class="parallelogram-related-rectangle" x="${leftX}" y="${topY}" width="${(shape.base + shape.slant) * cell}" height="${shape.height * cell}"></rect>
+    <polygon class="parallelogram-tool-piece is-extra" points="${leftX},${topY} ${topLeftX},${topY} ${leftX},${baseY}"></polygon>
+    <polygon class="parallelogram-tool-piece is-extra" points="${bottomRightX},${baseY} ${topRightX},${topY} ${topRightX},${baseY}"></polygon>
+  ` : "";
+  const strategyCaption = strategy === "decompose"
+    ? "The triangle tool shows a side piece moved to complete a related rectangle."
+    : strategy === "enclose"
+      ? "The rectangle and triangle tools show an enclosure with two extra corner regions."
+      : "Choose a polygon tool to visualize a source strategy without revealing the area.";
   return `
     <section class="parallelogram-explore-workspace" aria-label="Interactive parallelogram area applet recreation">
+      <div class="parallelogram-tool-row" role="group" aria-label="Polygon tools">
+        <button class="page-chip ${strategy === "decompose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="decompose" aria-pressed="${strategy === "decompose"}">Decompose and rearrange</button>
+        <button class="page-chip ${strategy === "enclose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="enclose" aria-pressed="${strategy === "enclose"}">Enclose and subtract</button>
+      </div>
       <svg class="parallelogram-explore-stage" viewBox="0 0 760 340" role="img" aria-label="${escapeHtml(card.visualAlt)}">
         <rect x="1" y="1" width="758" height="338" class="parallelogram-explore-board"></rect>
-        <g aria-hidden="true">${gridLines(34, 26, 21, 9, 32)}</g>
-        ${checkOverlay}
+        <g aria-hidden="true">${gridLines(20, 28, 25, 9, 28)}</g>
+        ${enclosureOverlay}
         <polygon
           class="parallelogram-explore-shape"
           points="${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}"
         ></polygon>
+        ${decompositionOverlay}
         <line class="parallelogram-height-line" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
         <path class="parallelogram-right-angle" d="M ${heightX} ${baseY - 15} L ${heightX + 15} ${baseY - 15} L ${heightX + 15} ${baseY}"></path>
-        <line class="parallelogram-base-line" x1="${leftX}" y1="${baseY + 18}" x2="${bottomRightX}" y2="${baseY + 18}"></line>
-        <text class="parallelogram-measure-label" x="${leftX + (shape.base * cell) / 2}" y="${baseY + 45}" text-anchor="middle">base ${shape.base}</text>
-        <text class="parallelogram-measure-label" x="${heightX + 14}" y="${(topY + baseY) / 2}" dominant-baseline="middle">height ${shape.height}</text>
+        ${editable ? `
+          <circle class="parallelogram-vertex-handle" cx="${leftX}" cy="${baseY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle" cx="${bottomRightX}" cy="${baseY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle" cx="${topRightX}" cy="${topY}" r="7"></circle>
+          <circle class="parallelogram-vertex-handle" cx="${topLeftX}" cy="${topY}" r="7"></circle>
+        ` : ""}
       </svg>
-      <p class="parallelogram-explore-caption">${escapeHtml(areaText)}</p>
+      ${editable ? `
+        <div class="parallelogram-explore-controls" aria-label="Move the green vertices">
+          ${renderParallelogramRangeField(card, modelQuestion.id, "base", "Horizontal span", 3, 10)}
+          ${renderParallelogramRangeField(card, modelQuestion.id, "height", "Vertical span", 2, 8)}
+          ${renderParallelogramRangeField(card, modelQuestion.id, "slant", "Horizontal shift", 1, 5)}
+        </div>
+      ` : `<p class="parallelogram-fixed-note">This first source parallelogram is fixed. Use a polygon tool to investigate it.</p>`}
+      <p class="parallelogram-explore-caption">${escapeHtml(strategyCaption)}</p>
     </section>
   `;
 }
@@ -2634,7 +5468,6 @@ function renderParallelogramCutSliderWorkspace(card) {
         ${renderCutSliderControl(card, "tylerStage", "Tyler slider")}
         ${renderCutSliderControl(card, "elenaStage", "Elena slider")}
       </div>
-      <p class="cut-slider-caption">Each slider reveals stages from the source visual without showing the whole solution sequence at once.</p>
     </section>
   `;
 }
@@ -2789,13 +5622,49 @@ function trianglePairObservationValue(response, pairId, shapeType) {
   return response[trianglePairObservationField(pairId, shapeType)] === "yes";
 }
 
+function trianglePairTestedValues(response) {
+  return String(response.testedPairs || "").split("|").filter((pairId) => trianglePairDefinitions.some((pair) => pair.id === pairId));
+}
+
+function markTrianglePairTested(pairId) {
+  const card = unit1TeachCards.find((entry) => entry.responseType === "trianglePairsCompose");
+  if (!card || !trianglePairDefinitions.some((pair) => pair.id === pairId)) return;
+  const response = getTeachCustomResponse(card);
+  const tested = trianglePairTestedValues(response);
+  state.teachCustomResponses[card.id] = {
+    ...response,
+    testedPairs: trianglePairDefinitions
+      .map((pair) => pair.id)
+      .filter((id) => id === pairId || tested.includes(id))
+      .join("|"),
+  };
+  state.teachSubmitted[card.id] = false;
+  document.querySelector(`[data-triangle-pair-select="${pairId}"]`)?.classList.add("is-tested");
+  const progress = document.querySelector(".triangle-pair-test-progress");
+  if (progress) progress.textContent = `Tested ${trianglePairTestedValues(state.teachCustomResponses[card.id]).length} of ${trianglePairDefinitions.length} pairs.`;
+}
+
+function trianglePairReasoningIsStrong(response) {
+  const reasoning = normalizeAnswer(response.trianglePairReasoning);
+  const namesRectangleExample = reasoning.includes("rectangle") && /\b(r|u|right triangle)\b/.test(reasoning);
+  const explainsParallelogram = reasoning.includes("parallelogram") && (
+    reasoning.includes("matching")
+    || reasoning.includes("join")
+    || reasoning.includes("copy")
+    || reasoning.includes("identical")
+  );
+  return namesRectangleExample && explainsParallelogram;
+}
+
 function renderTrianglePairWorkspace() {
   const activePairId = state.teachTrianglePairActive || "P";
   const activePair = trianglePairById(activePairId);
   const selectedPiece = state.teachTrianglePairSelectedPiece || "copy-a";
+  const response = getTeachCustomResponse(unit1TeachCards.find((entry) => entry.responseType === "trianglePairsCompose") || { id: "" });
+  const testedPairs = trianglePairTestedValues(response);
   const pairButtons = trianglePairDefinitions.map((pair) => `
     <button
-      class="page-chip triangle-pair-select-button ${pair.id === activePairId ? "is-active" : ""}"
+      class="page-chip triangle-pair-select-button ${pair.id === activePairId ? "is-active" : ""} ${testedPairs.includes(pair.id) ? "is-tested" : ""}"
       type="button"
       data-triangle-pair-select="${pair.id}"
       aria-pressed="${pair.id === activePairId}"
@@ -2827,6 +5696,7 @@ function renderTrianglePairWorkspace() {
         <div class="triangle-pair-selectors" role="group" aria-label="Choose a triangle pair">
           ${pairButtons}
         </div>
+        <p class="triangle-pair-test-progress">Tested ${testedPairs.length} of ${trianglePairDefinitions.length} pairs.</p>
         <div class="triangle-pair-actions" role="group" aria-label="Triangle pair controls">
           <button class="hint-button" type="button" data-triangle-pair-rotate="-15">Turn left</button>
           <button class="hint-button" type="button" data-triangle-pair-rotate="15">Turn right</button>
@@ -2850,6 +5720,173 @@ function renderTrianglePairWorkspace() {
         ${pieces}
       </svg>
       <p class="triangle-pair-caption">The workspace uses the student cutout set from Blackline p.1.</p>
+    </section>
+  `;
+}
+
+const decomposeStage = { width: 760, height: 410 };
+
+const decomposeParallelograms = {
+  A: {
+    label: "Parallelogram A",
+    vertices: { tl: [40, 0], tr: [200, 0], br: [160, 128], bl: [0, 128] },
+    base: 10,
+    height: 8,
+  },
+  B: {
+    label: "Parallelogram B",
+    vertices: { tl: [0, 0], tr: [80, 0], br: [80, 192], bl: [0, 192] },
+    base: 5,
+    height: 12,
+  },
+  C: {
+    label: "Parallelogram C",
+    vertices: { tl: [0, 0], tr: [200, 0], br: [260, 120], bl: [60, 120] },
+    base: 10,
+    height: 6,
+  },
+  D: {
+    label: "Parallelogram D",
+    vertices: { tl: [64, 0], tr: [128, 0], br: [64, 160], bl: [0, 160] },
+    base: 4,
+    height: 10,
+  },
+};
+
+function decomposeVariant(card) {
+  const variantId = getTeachCustomResponse(card).parallelogram;
+  return decomposeParallelograms[variantId] ? variantId : "A";
+}
+
+function midpoint([x1, y1], [x2, y2]) {
+  return [(x1 + x2) / 2, (y1 + y2) / 2];
+}
+
+function decomposeGeometry(variantId) {
+  const definition = decomposeParallelograms[variantId] || decomposeParallelograms.A;
+  const { tl, tr, br, bl } = definition.vertices;
+  const leftMidpoint = midpoint(tl, bl);
+  const diagonalMidpoint = midpoint(tl, br);
+  return {
+    ...definition,
+    outline: [tl, tr, br, bl],
+    large: [tl, tr, br],
+    small: [tl, leftMidpoint, diagonalMidpoint],
+    trapezoid: [leftMidpoint, bl, br, diagonalMidpoint],
+    leftMidpoint,
+    diagonalMidpoint,
+  };
+}
+
+function polygonPoints(points) {
+  return points.map(([x, y]) => `${x},${y}`).join(" ");
+}
+
+function polygonCentroid(points) {
+  return points.reduce((total, [x, y]) => ({ x: total.x + x / points.length, y: total.y + y / points.length }), { x: 0, y: 0 });
+}
+
+function initialDecomposePieces(variantId) {
+  const geometry = decomposeGeometry(variantId);
+  const tall = geometry.height >= 10;
+  return {
+    small: { x: 410, y: tall ? 42 : 58, angle: 0 },
+    trapezoid: { x: 430, y: tall ? 150 : 178, angle: 0 },
+  };
+}
+
+function getDecomposePieces(variantId) {
+  if (!state.teachDecomposePieces) state.teachDecomposePieces = {};
+  if (!state.teachDecomposePieces[variantId]) {
+    state.teachDecomposePieces[variantId] = initialDecomposePieces(variantId);
+  }
+  return state.teachDecomposePieces[variantId];
+}
+
+function resetDecomposePieces(card) {
+  const variantId = decomposeVariant(card);
+  if (!state.teachDecomposePieces) state.teachDecomposePieces = {};
+  state.teachDecomposePieces[variantId] = initialDecomposePieces(variantId);
+  state.teachDecomposeSelectedPiece = "small";
+  const response = getTeachCustomResponse(card);
+  state.teachCustomResponses[card.id] = {
+    ...response,
+    decomposeSmallUsed: "",
+    decomposeTrapezoidUsed: "",
+  };
+  state.teachSubmitted[card.id] = false;
+}
+
+function markDecomposePieceUsed(card, pieceId) {
+  if (!card || !["small", "trapezoid"].includes(pieceId)) return;
+  const response = getTeachCustomResponse(card);
+  state.teachCustomResponses[card.id] = {
+    ...response,
+    [pieceId === "small" ? "decomposeSmallUsed" : "decomposeTrapezoidUsed"]: "yes",
+  };
+  state.teachSubmitted[card.id] = false;
+}
+
+function decomposePieceTransform(variantId, pieceId) {
+  const geometry = decomposeGeometry(variantId);
+  const piece = getDecomposePieces(variantId)[pieceId];
+  const center = polygonCentroid(geometry[pieceId]);
+  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${center.x} ${center.y})`;
+}
+
+function renderDecomposeParallelogramWorkspace(card) {
+  const variantId = decomposeVariant(card);
+  const geometry = decomposeGeometry(variantId);
+  const response = getTeachCustomResponse(card);
+  const selectedPiece = state.teachDecomposeSelectedPiece || "small";
+  const sourceTransform = `translate(${variantId === "C" ? 26 : 72} 94)`;
+  const pieceNames = { small: "Small triangle", trapezoid: "Trapezoid" };
+  const pieces = ["small", "trapezoid"].map((pieceId) => {
+    const center = polygonCentroid(geometry[pieceId]);
+    return `
+      <g
+        class="decompose-piece-group"
+        data-decompose-piece="${pieceId}"
+        data-decompose-variant="${variantId}"
+        transform="${decomposePieceTransform(variantId, pieceId)}"
+        role="button"
+        tabindex="0"
+        aria-label="${escapeHtml(pieceNames[pieceId])}, draggable and rotatable"
+      >
+        <polygon points="${polygonPoints(geometry[pieceId])}" class="decompose-piece decompose-${pieceId} ${selectedPiece === pieceId ? "is-selected" : ""}"></polygon>
+        <text x="${center.x}" y="${center.y + 5}" text-anchor="middle">${escapeHtml(pieceId === "small" ? "small triangle" : "trapezoid")}</text>
+      </g>
+    `;
+  }).join("");
+  const usedCount = [response.decomposeSmallUsed, response.decomposeTrapezoidUsed].filter((value) => value === "yes").length;
+  return `
+    <section class="decompose-workspace" aria-label="Interactive decomposition workspace for ${escapeHtml(geometry.label)}">
+      <div class="decompose-toolbar">
+        <p><strong>${escapeHtml(geometry.label)}</strong>: base ${geometry.base} cm, height ${geometry.height} cm</p>
+        <div class="decompose-actions" role="group" aria-label="Cut-piece controls">
+          ${["small", "trapezoid"].map((pieceId) => `<button class="page-chip ${selectedPiece === pieceId ? "is-active" : ""}" type="button" data-decompose-select="${pieceId}" aria-pressed="${selectedPiece === pieceId}">${escapeHtml(pieceNames[pieceId])}</button>`).join("")}
+          <button class="hint-button" type="button" data-decompose-rotate="-15">Turn left</button>
+          <button class="hint-button" type="button" data-decompose-rotate="15">Turn right</button>
+          <button class="hint-button" type="button" data-decompose-reset="${card.id}">Reset pieces</button>
+        </div>
+      </div>
+      <svg class="decompose-stage" data-decompose-stage viewBox="0 0 ${decomposeStage.width} ${decomposeStage.height}" role="img" aria-label="Original ${escapeHtml(geometry.label)} and two movable cut pieces">
+        <rect x="1" y="1" width="${decomposeStage.width - 2}" height="${decomposeStage.height - 2}" class="decompose-board"></rect>
+        <text x="170" y="42" text-anchor="middle" class="decompose-heading">Original with source cut lines</text>
+        <text x="565" y="42" text-anchor="middle" class="decompose-heading">Rearrange these two pieces</text>
+        <g transform="${sourceTransform}">
+          <polygon points="${polygonPoints(geometry.large)}" class="decompose-large"></polygon>
+          <polygon points="${polygonPoints(geometry.small)}" class="decompose-small"></polygon>
+          <polygon points="${polygonPoints(geometry.trapezoid)}" class="decompose-trapezoid"></polygon>
+          <polygon points="${polygonPoints(geometry.outline)}" class="decompose-outline"></polygon>
+          <line x1="${geometry.outline[0][0]}" y1="${geometry.outline[0][1]}" x2="${geometry.outline[2][0]}" y2="${geometry.outline[2][1]}" class="decompose-cut"></line>
+          <line x1="${geometry.leftMidpoint[0]}" y1="${geometry.leftMidpoint[1]}" x2="${geometry.diagonalMidpoint[0]}" y2="${geometry.diagonalMidpoint[1]}" class="decompose-cut"></line>
+        </g>
+        <line x1="365" y1="54" x2="365" y2="360" class="decompose-divider"></line>
+        ${pieces}
+        <text x="565" y="382" text-anchor="middle" class="decompose-progress">Pieces tested: ${usedCount} of 2</text>
+      </svg>
+      <p class="decompose-caption">Drag and turn the small triangle and trapezoid to explore a different parallelogram. The large triangle stays behind from the original cut.</p>
     </section>
   `;
 }
@@ -3034,6 +6071,45 @@ const triangleHeightDiagrams = [
   },
 ];
 
+const triangleHeightRounds = {
+  round1: {
+    label: "Round 1: sides a-c",
+    ids: ["side-a", "side-b", "side-c"],
+    width: 760,
+    height: 590,
+    positions: {
+      "side-a": [250, 24],
+      "side-b": [250, 196],
+      "side-c": [250, 376],
+    },
+  },
+  round2: {
+    label: "Round 2: triangles A-F",
+    ids: ["A", "B", "C", "D", "E", "F"],
+    width: 760,
+    height: 520,
+    positions: {
+      A: [10, 34],
+      B: [258, 24],
+      C: [510, 20],
+      D: [10, 274],
+      E: [258, 264],
+      F: [510, 276],
+    },
+  },
+};
+
+function triangleHeightRoundCompleted(response, roundId) {
+  return triangleHeightRounds[roundId].ids.every((diagramId) => normalizeAnswer(triangleHeightSegmentValue(response, diagramId)).length > 0);
+}
+
+function triangleHeightReasoningIsStrong(card) {
+  const reasoning = normalizeAnswer(getTeachCustomResponse(card).heightReasoning);
+  const namesPerpendicular = reasoning.includes("perpendicular") || reasoning.includes("right angle");
+  const connectsCorrectObjects = reasoning.includes("opposite") && (reasoning.includes("base") || reasoning.includes("base line"));
+  return namesPerpendicular && connectsCorrectObjects;
+}
+
 function triangleHeightField(diagramId) {
   return `${diagramId}Height`;
 }
@@ -3097,6 +6173,7 @@ function resetTriangleHeights(cardId) {
   });
   state.teachCustomResponses[cardId] = response;
   state.teachTriangleHeightStartPoint = null;
+  state.teachTriangleHeightRound = "round1";
   state.teachSubmitted[cardId] = false;
   state.sourceModalItemId = null;
 }
@@ -3104,7 +6181,12 @@ function resetTriangleHeights(cardId) {
 function renderTriangleHeightWorkspace(card) {
   const response = getTeachCustomResponse(card);
   const markedCount = triangleHeightDiagrams.filter((diagram) => triangleHeightSegmentValue(response, diagram.id)).length;
-  const diagrams = triangleHeightDiagrams.map((diagram) => {
+  const round1Complete = triangleHeightRoundCompleted(response, "round1");
+  const requestedRound = state.teachTriangleHeightRound || "round1";
+  const roundId = requestedRound === "round2" && round1Complete ? "round2" : "round1";
+  const round = triangleHeightRounds[roundId];
+  const visibleDiagrams = round.ids.map((diagramId) => triangleHeightDiagramById(diagramId));
+  const diagrams = visibleDiagrams.map((diagram) => {
     const pointMap = triangleHeightPointMap(diagram);
     const segmentPointIds = triangleHeightPointIds(triangleHeightSegmentValue(response, diagram.id));
     const segmentPoints = segmentPointIds.map((pointId) => pointMap[pointId]).filter(Boolean);
@@ -3139,7 +6221,7 @@ function renderTriangleHeightWorkspace(card) {
       ? `<text class="triangle-height-id" x="0" y="20">${escapeHtml(diagram.id)}</text>`
       : `<text class="triangle-height-side-label" x="0" y="20">${escapeHtml(diagram.label)}:</text>`;
     return `
-      <g class="triangle-height-diagram" transform="translate(${diagram.x} ${diagram.y})" data-triangle-height-diagram="${diagram.id}">
+      <g class="triangle-height-diagram" transform="translate(${round.positions[diagram.id][0]} ${round.positions[diagram.id][1]})" data-triangle-height-diagram="${diagram.id}">
         ${baseLabel}
         <polygon class="triangle-height-triangle" points="${diagram.vertices.map(([x, y]) => `${x},${y}`).join(" ")}"></polygon>
         ${extension}
@@ -3154,13 +6236,17 @@ function renderTriangleHeightWorkspace(card) {
     <section class="triangle-height-workspace" aria-label="Interactive triangle height marking workspace">
       <div class="triangle-height-toolbar">
         <p>Click an opposite vertex, then click the matching point on the base line to draw a height.</p>
+        <div class="triangle-height-rounds" role="group" aria-label="Activity rounds">
+          <button class="page-chip ${roundId === "round1" ? "is-active" : ""}" type="button" data-triangle-height-round="round1" aria-pressed="${roundId === "round1"}">Round 1: sides a-c</button>
+          <button class="page-chip ${roundId === "round2" ? "is-active" : ""}" type="button" data-triangle-height-round="round2" aria-pressed="${roundId === "round2"}" ${round1Complete ? "" : "disabled"}>Round 2: triangles A-F</button>
+        </div>
         <button class="hint-button" type="button" data-triangle-height-reset="${card.id}">Reset heights</button>
       </div>
-      <svg class="triangle-height-stage" viewBox="0 0 ${triangleHeightStage.width} ${triangleHeightStage.height}" role="img" aria-label="Triangle diagrams for marking corresponding heights.">
-        <rect x="1" y="1" width="${triangleHeightStage.width - 2}" height="${triangleHeightStage.height - 2}" class="triangle-height-board"></rect>
+      <svg class="triangle-height-stage" viewBox="0 0 ${round.width} ${round.height}" role="img" aria-label="${escapeHtml(round.label)} diagrams for marking corresponding heights.">
+        <rect x="1" y="1" width="${round.width - 2}" height="${round.height - 2}" class="triangle-height-board"></rect>
         ${diagrams}
       </svg>
-      <p class="triangle-height-caption">${markedCount} of ${triangleHeightDiagrams.length} height segments marked.</p>
+      <p class="triangle-height-caption">${round.ids.filter((diagramId) => triangleHeightSegmentValue(response, diagramId)).length} of ${round.ids.length} marked in this round. ${markedCount} of ${triangleHeightDiagrams.length} total.${roundId === "round1" && round1Complete ? " Round 2 is now unlocked." : ""}</p>
     </section>
   `;
 }
@@ -4024,7 +7110,7 @@ function renderAnswerControl(item) {
     ? `
       <label class="reasoning-field">
         ${escapeHtml(item.reasoningPrompt)}
-        <textarea data-practice-reasoning="${item.id}" placeholder="Explain your reasoning.">${escapeHtml(state.practiceReasoning[item.id] || "")}</textarea>
+        <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-practice-reasoning="${item.id}" placeholder="Explain your reasoning.">${escapeHtml(state.practiceReasoning[item.id] || "")}</textarea>
       </label>
     `
     : "";
@@ -4041,7 +7127,7 @@ function renderAnswerControl(item) {
     return `
       <label>
         ${escapeHtml(item.reasoningPrompt || "Your reasoning")}
-        <textarea data-practice-input="${item.id}" placeholder="Explain your reasoning.">${escapeHtml(getPracticeValue(item))}</textarea>
+        <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-practice-input="${item.id}" placeholder="Explain your reasoning.">${escapeHtml(getPracticeValue(item))}</textarea>
       </label>
     `;
   }
@@ -4199,10 +7285,52 @@ function activeTeachCardForGroup(group) {
 function renderTeachLessonNav() {
   const nav = document.getElementById("teachLessonNav");
   if (!nav) return;
-  nav.innerHTML = teachLessonGroups().map((group) => {
+  const unitIsSelected = state.view === "unit1";
+  nav.hidden = !unitIsSelected;
+  document.getElementById("unit1NavButton")?.setAttribute("aria-expanded", String(unitIsSelected));
+
+  const links = teachLessonGroups().map((group) => {
     const card = group.cards[0];
-    return `<a href="#${teachLessonDomId(group.lessonNumber)}" aria-label="Lesson ${group.lessonNumber}: ${escapeHtml(card.title)}" title="Lesson ${group.lessonNumber}: ${escapeHtml(card.title)}">Lesson ${group.lessonNumber}</a>`;
-  }).join("");
+    const link = document.createElement("a");
+    const isActive = group.lessonNumber === state.teachActiveLesson;
+    link.href = `#${teachLessonDomId(group.lessonNumber)}`;
+    link.dataset.teachLessonLink = String(group.lessonNumber);
+    link.textContent = `Lesson ${group.lessonNumber}`;
+    link.setAttribute("aria-label", `Lesson ${group.lessonNumber}: ${card.title}`);
+    link.title = `Lesson ${group.lessonNumber}: ${card.title}`;
+    link.classList.toggle("is-active", isActive);
+    if (isActive) link.setAttribute("aria-current", "page");
+    return link;
+  });
+  nav.replaceChildren(...links);
+}
+
+function scrollToTeachLesson(lessonNumber) {
+  const target = document.getElementById(teachLessonDomId(lessonNumber));
+  const deck = document.getElementById("teachLessonDeck");
+  if (!target || !deck) return;
+
+  const precedingImages = [...deck.querySelectorAll("img")].filter((image) => (
+    image.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
+  ));
+  const imageLoads = precedingImages.map((image) => {
+    image.loading = "eager";
+    if (image.complete) return Promise.resolve();
+    return new Promise((resolve) => {
+      image.addEventListener("load", resolve, { once: true });
+      image.addEventListener("error", resolve, { once: true });
+    });
+  });
+
+  Promise.all(imageLoads).then(() => {
+    if (state.view !== "unit1" || state.mode !== "teach" || state.teachActiveLesson !== lessonNumber) return;
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+  });
 }
 
 function teachPartLabel(card) {
@@ -4229,50 +7357,2365 @@ function renderTeachLessonGroup(group) {
 }
 
 function renderTeachVisualContent(card) {
+  if (card.customVisual === "questionSetVisual") return renderQuestionSetVisual(card);
+  if (card.customVisual === "polygonClassification") return renderPolygonClassificationVisual(card);
   if (card.customVisual === "tangram") return renderTangramWorkspace(card);
+  if (card.customVisual === "gridFigureAreas") return renderGridFigureAreaVisual(card);
   if (card.customVisual === "quadrilateralDecompose") return renderQuadrilateralDecompositionWorkspace(card);
   if (card.customVisual === "trianglePairs") return renderTrianglePairWorkspace(card);
+  if (card.customVisual === "decomposeParallelogram") return renderDecomposeParallelogramWorkspace(card);
   if (card.customVisual === "parallelogramExplore") return renderParallelogramExploreWorkspace(card);
   if (card.customVisual === "parallelogramCutSliders") return renderParallelogramCutSliderWorkspace(card);
   if (card.customVisual === "area12Triangle") return renderArea12TriangleWorkspace(card);
   if (card.customVisual === "triangleHeights") return renderTriangleHeightWorkspace(card);
   if (card.customVisual === "prismBuilder") return renderPrismBuilderWorkspace(card);
   if (!card.cropPath) return "";
+  const visualWidth = Number.isInteger(card.visualWidth) && card.visualWidth > 0 ? card.visualWidth : null;
+  const visualHeight = Number.isInteger(card.visualHeight) && card.visualHeight > 0 ? card.visualHeight : null;
+  const requestedMaxWidth = Number.isInteger(card.visualDisplayMaxWidth) && card.visualDisplayMaxWidth > 0
+    ? card.visualDisplayMaxWidth
+    : visualWidth;
+  const visualMaxWidth = requestedMaxWidth && visualWidth ? Math.min(requestedMaxWidth, visualWidth) : requestedMaxWidth;
+  const visualStyle = visualMaxWidth ? ` style="--teach-visual-max-width: ${visualMaxWidth}px;"` : "";
+  const visualDimensions = visualWidth && visualHeight ? ` width="${visualWidth}" height="${visualHeight}"` : "";
   return `
-    <figure class="teach-visual-frame">
+    <figure class="teach-visual-frame"${visualStyle}>
       <img
         src="${teachCropUrl(card)}"
         alt="${escapeHtml(card.visualAlt)}"
+        ${visualDimensions}
         loading="lazy"
       >
     </figure>
   `;
 }
 
+function renderPolygonClassificationVisual(card) {
+  const cropUrl = (filename) => encodeURI(`artifacts/unit 1/_teachme-crops/${filename}`);
+  return `
+    <section class="polygon-classification-visual" aria-label="${escapeHtml(card.visualAlt)}">
+      <section class="polygon-reference-group">
+        <h4>Five source examples of polygons</h4>
+        <img src="${cropUrl("lesson-11-p002-polygon-examples.png")}" width="1590" height="235" alt="Five source polygon examples." loading="lazy">
+      </section>
+      <section class="polygon-reference-group">
+        <h4>Six source examples that are not polygons</h4>
+        <img src="${cropUrl("lesson-11-p002-nonpolygon-examples.png")}" width="1550" height="250" alt="Six source non-polygon examples." loading="lazy">
+      </section>
+      <section class="polygon-reference-group polygon-candidates-group">
+        <h4>Figures A-J to classify</h4>
+        <img src="${cropUrl("lesson-11-p002-polygon-candidates.png")}" width="1485" height="610" alt="Source candidate figures A through J." loading="lazy">
+      </section>
+    </section>
+  `;
+}
+
+function renderQuestionSetVisual(card) {
+  const question = questionSetDefinition(card, questionSetActiveId(card));
+  if (question?.visualType === "parallelogramPair") return renderParallelogramPairWorkspace(card, question);
+  if (question?.visualType === "cabinetDimensions") return renderCabinetDimensionsVisual(question);
+  if (question?.visualType === "cabinetRow") return renderCabinetRowVisual(question);
+  if (question?.visualType === "polyhedronSort") return renderPolyhedronSortVisual(card);
+  if (question?.visualType === "polyhedronExamples") return renderPolyhedronExamplesVisual();
+  if (question?.visualType === "pyramidFamilyNet") return renderPyramidNetVisual(card, question);
+  if (question?.visualType === "polyhedronFold") return renderPolyhedronFoldVisual(card);
+  if (question?.visualType === "surfaceNetFold") return renderSurfaceNetFoldVisual(card, question);
+  if (question?.visualType === "rectangularPrismNet") return renderRectangularPrismNetVisual(card);
+  if (question?.visualType === "cubeNetBuilder") return renderCubeNetBuilder(card);
+  if (question?.visualType === "labeledCubeNet") return renderLabeledCubeNetBuilder(card, question);
+  if (question?.visualType === "cubeMetricReference") return renderCubeMetricReference(question);
+  if (question?.visualType === "measurementUnitBank") return renderMeasurementUnitBank(question);
+  if (question?.visualType === "exponentReference") return renderExponentReferenceVisual();
+  if (question?.visualType === "expressionComparison") return renderExpressionComparisonVisual(question);
+  if (question?.visualType === "eightCubeBuilder") return renderEightCubeBuilder(card, question);
+  if (question?.visualType === "snapCubeBuilder") return renderSnapCubeBuilder(card, question);
+  if (question?.visualType === "prismDimensions") return renderPrismDimensionsVisual(question);
+  if (question?.visualType === "prismDimensionSet") return renderPrismDimensionSetVisual();
+  if (question?.visualType === "prismPairExamples") return renderPrismPairExamplesVisual();
+  if (question?.visualType === "tentDesigner") return renderTentDesigner(card);
+  if (question?.visualType === "tentComparison") return renderTentComparison(card);
+  const cropPath = question?.visualCropPath || card.cropPath;
+  if (!question || !cropPath) return "";
+  const positiveInteger = (value) => Number.isInteger(value) && value > 0 && value <= 4096 ? value : null;
+  const width = positiveInteger(question.visualWidth);
+  const height = positiveInteger(question.visualHeight);
+  const maxWidth = positiveInteger(question.visualDisplayMaxWidth) || width || 640;
+  const dimensions = width && height ? ` width="${width}" height="${height}"` : "";
+  return `
+    <figure class="teach-visual-frame question-set-visual" style="--question-visual-max-width: ${Math.min(maxWidth, width || maxWidth)}px;">
+      ${question.visualDirections ? `<figcaption>${escapeHtml(question.visualDirections)}</figcaption>` : ""}
+      ${renderQuestionSetReferenceVisual(question)}
+      <img
+        src="${encodeURI(`artifacts/unit 1/_teachme-crops/${cropPath}`)}"
+        alt="${escapeHtml(question.visualAlt || card.visualAlt)}"
+        ${dimensions}
+        loading="lazy"
+      >
+    </figure>
+  `;
+}
+
+function renderQuestionSetReferenceVisual(question) {
+  const cropPath = String(question?.visualReferenceCropPath || "");
+  if (!/^[a-z0-9._-]+\.png$/i.test(cropPath)) return "";
+  const dimension = (value, fallback) => Number.isInteger(value) && value > 0 && value <= 4096 ? value : fallback;
+  const width = dimension(question.visualReferenceWidth, 320);
+  const height = dimension(question.visualReferenceHeight, 240);
+  const label = String(question.visualReferenceLabel || "Source figure");
+  const sourceLabel = String(question.visualReferenceSourceLabel || "Source reference");
+  const alt = String(question.visualReferenceAlt || `${sourceLabel}: ${label}.`);
+  return `
+    <div class="question-set-object-reference" aria-label="${escapeHtml(`${label}, ${sourceLabel}`)}">
+      <div class="question-set-object-reference-label">
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(sourceLabel)}</span>
+      </div>
+      <img
+        class="question-set-object-reference-image"
+        src="${encodeURI(`artifacts/unit 1/_teachme-crops/${cropPath}`)}"
+        width="${width}"
+        height="${height}"
+        alt="${escapeHtml(alt)}"
+        loading="lazy"
+      >
+    </div>
+  `;
+}
+
+function renderTentChoiceGroup(card, field, label, optionKey) {
+  const response = tentPlanField("teach-l19");
+  const options = tentDesignerOptions[optionKey] || [];
+  const selected = String(response[field] || "");
+  return `
+    <fieldset class="tent-choice-group">
+      <legend>${escapeHtml(label)}</legend>
+      <div class="tent-choice-options">
+        ${options.map((option) => `
+          <button
+            class="page-chip tent-choice-button ${selected === option.id ? "is-active" : ""}"
+            type="button"
+            data-tent-designer-choice="${card.id}"
+            data-tent-field="${escapeHtml(field)}"
+            data-option-id="${escapeHtml(option.id)}"
+            aria-pressed="${selected === option.id}"
+          >${escapeHtml(option.label)}</button>
+        `).join("")}
+      </div>
+    </fieldset>
+  `;
+}
+
+function renderTentFloorStepper(card, field, label, value, disabled) {
+  const shownValue = Number.isInteger(value) ? value : "Not set";
+  return `
+    <div class="tent-stepper">
+      <span>${escapeHtml(label)}</span>
+      <div class="tent-stepper-controls">
+        <button type="button" data-tent-step="${card.id}" data-tent-field="${escapeHtml(field)}" data-step="-1" aria-label="Decrease ${escapeHtml(label)}" ${disabled ? "disabled" : ""}>-</button>
+        <output>${escapeHtml(shownValue)} ft</output>
+        <button type="button" data-tent-step="${card.id}" data-tent-field="${escapeHtml(field)}" data-step="1" aria-label="Increase ${escapeHtml(label)}" ${disabled ? "disabled" : ""}>+</button>
+      </div>
+    </div>
+  `;
+}
+
+function tentFloorBagPositions(plan, originX, originY, scale) {
+  const positions = [];
+  const grid = tentBagGrid(plan.capacity, plan.arrangement);
+  for (let index = 0; index < plan.capacity; index += 1) {
+    const row = plan.arrangement === "two-rows" ? Math.floor(index / grid.columns) : 0;
+    const column = plan.arrangement === "two-rows" ? index % grid.columns : index;
+    positions.push({
+      x: originX + row * (standardSleepingBag.lengthInches / 12) * scale,
+      y: originY + column * (standardSleepingBag.widthInches / 12) * scale,
+    });
+  }
+  return positions;
+}
+
+function renderTentFloorPlan(plan) {
+  if (!Number.isInteger(plan.capacity) || !plan.arrangement) {
+    return `
+      <figure class="tent-design-figure tent-floor-figure">
+        <figcaption>Bottom panel and sleeping-bag locations</figcaption>
+        <div class="tent-empty-model">Choose a capacity and bag arrangement to begin the floor plan.</div>
+      </figure>
+    `;
+  }
+  const floorLength = Number.isInteger(plan.floorLength) ? plan.floorLength : plan.requiredFloor.recommendedLength;
+  const floorWidth = Number.isInteger(plan.floorWidth) ? plan.floorWidth : plan.requiredFloor.recommendedWidth;
+  const displayLength = Math.max(floorLength, plan.requiredFloor.length);
+  const displayWidth = Math.max(floorWidth, plan.requiredFloor.width);
+  const scale = Math.min(410 / displayLength, 175 / displayWidth);
+  const originX = (520 - displayLength * scale) / 2;
+  const originY = 48 + (175 - displayWidth * scale) / 2;
+  const floorPixelLength = floorLength * scale;
+  const floorPixelWidth = floorWidth * scale;
+  const bagLength = standardSleepingBag.lengthInches / 12 * scale;
+  const bagWidth = standardSleepingBag.widthInches / 12 * scale;
+  const bagPositions = tentFloorBagPositions(plan, originX, originY, scale);
+  const floorClass = plan.complete && !plan.floorFits ? " is-too-small" : "";
+  return `
+    <figure class="tent-design-figure tent-floor-figure">
+      <figcaption>Bottom panel and sleeping-bag locations</figcaption>
+      <svg viewBox="0 0 520 270" role="img" aria-label="Floor plan for ${plan.capacity} standard sleeping bags in a ${floorLength} by ${floorWidth} foot tent floor.">
+        <rect class="tent-floor-panel${floorClass}" x="${originX}" y="${originY}" width="${floorPixelLength}" height="${floorPixelWidth}"></rect>
+        <rect class="tent-required-floor" x="${originX}" y="${originY}" width="${plan.requiredFloor.length * scale}" height="${plan.requiredFloor.width * scale}"></rect>
+        ${bagPositions.map((position, index) => `
+          <g class="tent-sleeping-bag">
+            <rect x="${position.x + 2}" y="${position.y + 2}" width="${Math.max(4, bagLength - 4)}" height="${Math.max(4, bagWidth - 4)}" rx="5"></rect>
+            <circle cx="${position.x + bagLength - Math.min(13, bagLength * 0.18)}" cy="${position.y + bagWidth / 2}" r="${Math.min(8, bagWidth * 0.2)}"></circle>
+            <text x="${position.x + 9}" y="${position.y + bagWidth / 2 + 5}">${index + 1}</text>
+          </g>
+        `).join("")}
+        <text class="tent-dimension-label" x="260" y="246" text-anchor="middle">floor length ${floorLength} ft</text>
+        <text class="tent-dimension-label" x="18" y="136" transform="rotate(-90 18 136)" text-anchor="middle">floor width ${floorWidth} ft</text>
+      </svg>
+      <p class="tent-floor-status ${plan.floorFits ? "is-valid" : ""}">
+        ${plan.floorFits
+          ? `All ${plan.capacity} sleeping bags fit. Each bag is 74 in by 34 in.`
+          : `The bags require at least ${formatTentMeasure(plan.requiredFloor.length)} ft by ${formatTentMeasure(plan.requiredFloor.width)} ft.`}
+      </p>
+    </figure>
+  `;
+}
+
+function renderTentModelSvg(plan, compact = false) {
+  const length = Number.isInteger(plan.floorLength) ? plan.floorLength : plan.requiredFloor?.recommendedLength;
+  const width = Number.isInteger(plan.floorWidth) ? plan.floorWidth : plan.requiredFloor?.recommendedWidth;
+  const height = Number.isInteger(plan.height) ? plan.height : null;
+  if (!plan.style || !length || !width || !height) {
+    return `<div class="tent-empty-model">Choose a height and tent style to build the model.</div>`;
+  }
+  const className = compact ? "tent-model-svg is-compact" : "tent-model-svg";
+  if (plan.style === "a-frame") {
+    return `
+      <svg class="${className}" viewBox="0 0 520 270" role="img" aria-label="A-frame tent model with floor ${length} by ${width} feet and height ${height} feet.">
+        <polygon class="tent-model-floor" points="98,220 290,220 420,174 228,174"></polygon>
+        <polygon class="tent-model-roof tent-model-roof-left" points="194,60 98,220 290,220 324,115"></polygon>
+        <polygon class="tent-model-roof tent-model-roof-right" points="194,60 324,115 420,174 290,220"></polygon>
+        <polyline class="tent-model-outline" points="98,220 194,60 290,220 98,220 228,174 324,115 420,174 290,220"></polyline>
+        <line class="tent-model-dimension" x1="194" y1="60" x2="194" y2="220"></line>
+        <text class="tent-model-label" x="204" y="142">height ${height} ft</text>
+        <text class="tent-model-label" x="194" y="245" text-anchor="middle">width ${width} ft</text>
+        <text class="tent-model-label" x="368" y="214" transform="rotate(-20 368 214)">length ${length} ft</text>
+      </svg>
+    `;
+  }
+  return `
+    <svg class="${className}" viewBox="0 0 520 270" role="img" aria-label="Wall tent model with floor ${length} by ${width} feet and height ${height} feet.">
+      <polygon class="tent-model-floor" points="100,220 310,220 420,170 210,170"></polygon>
+      <polygon class="tent-model-wall tent-model-wall-front" points="100,90 310,90 310,220 100,220"></polygon>
+      <polygon class="tent-model-wall tent-model-wall-side" points="310,90 420,40 420,170 310,220"></polygon>
+      <polygon class="tent-model-roof" points="100,90 210,40 420,40 310,90"></polygon>
+      <polyline class="tent-model-outline" points="100,220 100,90 210,40 420,40 420,170 310,220 100,220 310,220 310,90 100,90"></polyline>
+      <line class="tent-model-dimension" x1="84" y1="90" x2="84" y2="220"></line>
+      <text class="tent-model-label" x="74" y="158" transform="rotate(-90 74 158)" text-anchor="middle">height ${height} ft</text>
+      <text class="tent-model-label" x="205" y="245" text-anchor="middle">width ${width} ft</text>
+      <text class="tent-model-label" x="373" y="216" transform="rotate(-24 373 216)">length ${length} ft</text>
+    </svg>
+  `;
+}
+
+function renderTentPanelOrganizer(plan) {
+  if (!plan.valid) {
+    return `<aside class="tent-panel-organizer"><h4>Fabric panel organizer</h4><p>Complete a floor-fitting design to see the panel dimensions.</p></aside>`;
+  }
+  if (plan.style === "a-frame") {
+    const slant = tentFabricDetails(plan).slant;
+    return `
+      <aside class="tent-panel-organizer">
+        <h4>Fabric panel organizer</h4>
+        <ul>
+          <li><strong>Floor:</strong> ${plan.floorLength} ft × ${plan.floorWidth} ft</li>
+          <li><strong>2 roof panels:</strong> ${plan.floorLength} ft × ${formatTentMeasure(slant)} ft slant</li>
+          <li><strong>2 triangular ends:</strong> base ${plan.floorWidth} ft, height ${plan.height} ft</li>
+        </ul>
+        <p>Add every panel area. The floor is required.</p>
+      </aside>
+    `;
+  }
+  return `
+    <aside class="tent-panel-organizer">
+      <h4>Fabric panel organizer</h4>
+      <ul>
+        <li><strong>Floor and roof:</strong> each ${plan.floorLength} ft × ${plan.floorWidth} ft</li>
+        <li><strong>2 long walls:</strong> each ${plan.floorLength} ft × ${plan.height} ft</li>
+        <li><strong>2 end walls:</strong> each ${plan.floorWidth} ft × ${plan.height} ft</li>
+      </ul>
+      <p>Add every panel area. The floor is required.</p>
+    </aside>
+  `;
+}
+
+function renderTentDesigner(card) {
+  const plan = tentPlanFromResponse(tentPlanField("teach-l19"));
+  const controlsReady = Number.isInteger(plan.capacity) && Boolean(plan.arrangement);
+  return `
+    <section class="tent-designer" aria-label="Interactive tent designer">
+      <figure class="tent-source-inspiration">
+        <figcaption>Source tent styles for inspiration</figcaption>
+        <img src="${encodeURI("artifacts/unit 1/_teachme-crops/lesson-19-p001-tent-styles.png")}" width="1300" height="620" alt="Five tent styles shown in the source material." loading="lazy">
+      </figure>
+      <div class="tent-designer-controls">
+        ${renderTentChoiceGroup(card, "tentCapacity", "Capacity", "capacity")}
+        ${renderTentChoiceGroup(card, "tentArrangement", "Sleeping-bag arrangement", "arrangement")}
+        ${renderTentChoiceGroup(card, "tentHeight", "Height specification", "height")}
+        ${renderTentChoiceGroup(card, "tentStyle", "Tent style", "style")}
+        <fieldset class="tent-floor-controls">
+          <legend>Bottom panel dimensions</legend>
+          <p>Adjust in whole feet. The diagram checks the exact 74-by-34-inch bag measurements.</p>
+          <div class="tent-stepper-grid">
+            ${renderTentFloorStepper(card, "tentFloorLength", "Length", plan.floorLength, !controlsReady)}
+            ${renderTentFloorStepper(card, "tentFloorWidth", "Width", plan.floorWidth, !controlsReady)}
+          </div>
+        </fieldset>
+      </div>
+      <div class="tent-design-views">
+        ${renderTentFloorPlan(plan)}
+        <figure class="tent-design-figure tent-model-figure">
+          <figcaption>Overall tent design</figcaption>
+          ${renderTentModelSvg(plan)}
+        </figure>
+      </div>
+      ${renderTentPanelOrganizer(plan)}
+    </section>
+  `;
+}
+
+function renderTentComparison(card) {
+  if (!tentPlanIsSavedFor(card)) {
+    return `
+      <section class="tent-comparison-empty" aria-label="Tent comparison not ready">
+        <h4>Finish Tent Design - Part 1</h4>
+        <p>Submit a valid plan and correct fabric estimate in 19.1. The app will then provide two comparable tents for the same number of campers.</p>
+      </section>
+    `;
+  }
+  const designs = tentComparisonDesigns();
+  const own = designs.find((design) => design.id === "own");
+  return `
+    <section class="tent-comparison" aria-label="Three tent designs for ${own.capacity} campers">
+      <p class="tent-comparison-intro">All three tents hold ${own.capacity} ${own.capacity === 1 ? "camper" : "campers"} and include a floor.</p>
+      <div class="tent-comparison-grid">
+        ${designs.map((design) => {
+          const difference = design.id === "own" ? 0 : design.fabric - own.fabric;
+          const differenceText = design.id === "own"
+            ? "Reference design"
+            : `${difference >= 0 ? "+" : "−"}${formatTentMeasure(Math.abs(difference))} sq ft compared with your tent`;
+          return `
+            <article class="tent-comparison-card" data-tent-comparison-design="${escapeHtml(design.id)}">
+              <h4>${escapeHtml(design.label)}</h4>
+              <p>${escapeHtml(design.change)}</p>
+              ${renderTentModelSvg(design, true)}
+              <dl>
+                <div><dt>Floor</dt><dd>${design.floorLength} ft × ${design.floorWidth} ft</dd></div>
+                <div><dt>Height</dt><dd>${design.height} ft</dd></div>
+                <div><dt>Style</dt><dd>${design.style === "a-frame" ? "A-frame" : "Wall tent"}</dd></div>
+                <div><dt>Fabric</dt><dd>${formatTentMeasure(design.fabric)} sq ft</dd></div>
+              </dl>
+              <p class="tent-comparison-difference">${escapeHtml(differenceText)}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function teachCropImage(filename, width, height, alt) {
+  return `<img src="${encodeURI(`artifacts/unit 1/_teachme-crops/${filename}`)}" width="${width}" height="${height}" alt="${escapeHtml(alt)}" loading="lazy">`;
+}
+
+function renderPolyhedronExamplesVisual() {
+  return `
+    <section class="polyhedron-examples" aria-label="Source examples and non-examples of polyhedra">
+      <figure>
+        <figcaption>Source examples of polyhedra</figcaption>
+        ${teachCropImage("lesson-13-p001-polyhedra-examples.png", 2080, 430, "Five source examples of polyhedra.")}
+      </figure>
+      <figure>
+        <figcaption>Source examples that are not polyhedra</figcaption>
+        ${teachCropImage("lesson-13-p001-nonpolyhedra-examples.png", 1900, 440, "Four source examples that are not polyhedra.")}
+      </figure>
+    </section>
+  `;
+}
+
+const polyhedronModelIds = Object.freeze(["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O"]);
+const polyhedronClassificationValues = Object.freeze(["polyhedron", "not-polyhedron"]);
+const polyhedronClassificationExplanations = Object.freeze({
+  A: "Its 2 triangles and 3 rectangles meet edge to edge and enclose a triangular prism.",
+  B: "Its 6 squares meet edge to edge and enclose a cube.",
+  C: "Its 2 parallelograms and 4 rectangles meet edge to edge and enclose a prism.",
+  D: "Its 2 trapezoids and 4 rectangles meet edge to edge and enclose a prism.",
+  E: "Its 4 triangles meet edge to edge and enclose a tetrahedron.",
+  F: "Its square base and 4 triangular faces meet edge to edge and enclose a pyramid.",
+  G: "Its pentagonal base and 5 triangular faces meet edge to edge and enclose a pyramid.",
+  H: "Its 4 triangular and 4 quadrilateral faces meet edge to edge and enclose a region.",
+  J: "Its 2 pentagons and 10 triangles meet edge to edge and enclose a region.",
+  K: "Its source panel set has edges that do not join into one closed surface, so it does not enclose a region.",
+  L: "A sphere has a curved surface instead of flat polygon faces.",
+  M: "A cylinder has a curved side instead of only flat polygon faces.",
+  N: "The joined twisted strip does not enclose a three-dimensional region with polygon faces.",
+  O: "The polygon panels leave the top open, so the figure is not closed.",
+});
+
+function polyhedronClassificationQuestion(card) {
+  const question = questionSetDefinition(card, "sort");
+  return question?.dynamicAnswer === "polyhedronPerFigure" ? question : null;
+}
+
+function polyhedronClassificationValue(card, modelId) {
+  if (!polyhedronModelIds.includes(modelId)) return "";
+  const value = questionSetValue(card, "sort", modelId);
+  return polyhedronClassificationValues.includes(value) ? value : "";
+}
+
+function polyhedronClassificationExpected(card, modelId) {
+  const question = polyhedronClassificationQuestion(card);
+  return question?.answerKey?.includes(modelId) ? "polyhedron" : "not-polyhedron";
+}
+
+function polyhedronClassificationSubmitted(card, modelId) {
+  return isTeachQuestionSubmitted(card, `sort:${modelId}`);
+}
+
+function polyhedronClassificationIsCorrect(card, modelId) {
+  return polyhedronClassificationValue(card, modelId) === polyhedronClassificationExpected(card, modelId);
+}
+
+function polyhedronClassificationProgress(card) {
+  const submittedIds = polyhedronModelIds.filter((modelId) => polyhedronClassificationSubmitted(card, modelId));
+  const correctIds = submittedIds.filter((modelId) => polyhedronClassificationIsCorrect(card, modelId));
+  return {
+    submittedCount: submittedIds.length,
+    correctCount: correctIds.length,
+    totalCount: polyhedronModelIds.length,
+  };
+}
+
+function polyhedronSelectedModel(card) {
+  const selected = String(getTeachCustomResponse(card).polyhedronModel || "A");
+  return polyhedronModelIds.includes(selected) ? selected : "A";
+}
+
+function renderPolyhedronSortVisual(card) {
+  const selected = polyhedronSelectedModel(card);
+  return `
+    <section class="polyhedron-sort-workspace" aria-label="Source-derived virtual figures to inspect and sort">
+      <div class="polyhedron-source-strip" aria-label="Source examples and non-examples">
+        <figure>
+          <figcaption>Source examples</figcaption>
+          ${teachCropImage("lesson-13-p001-polyhedra-examples.png", 2080, 430, "Five source examples of polyhedra.")}
+        </figure>
+        <figure>
+          <figcaption>Source non-examples</figcaption>
+          ${teachCropImage("lesson-13-p001-nonpolyhedra-examples.png", 1900, 440, "Four source examples that are not polyhedra.")}
+        </figure>
+      </div>
+      <div class="polyhedron-inspector-heading">
+        <div>
+          <p class="polyhedron-workspace-title">Inspect the assigned figures</p>
+          <p>Choose a letter, then drag the model to turn it. Use the mouse wheel, trackpad, or zoom controls to inspect another view.</p>
+        </div>
+        <span class="polyhedron-selected-label" aria-live="polite">Figure ${selected}</span>
+      </div>
+      <div class="polyhedron-model-picker" role="listbox" aria-label="Assigned figures">
+        ${polyhedronModelIds.map((modelId) => {
+          const submitted = polyhedronClassificationSubmitted(card, modelId);
+          const correct = submitted && polyhedronClassificationIsCorrect(card, modelId);
+          const statusClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+          const statusText = submitted ? (correct ? "correct" : "needs revision") : "not submitted";
+          return `
+          <button
+            class="page-chip polyhedron-model-button ${selected === modelId ? "is-active" : ""} ${statusClass}"
+            type="button"
+            role="option"
+            data-polyhedron-model-select="${card.id}"
+            data-model-id="${modelId}"
+            aria-selected="${selected === modelId}"
+            aria-label="Figure ${modelId}, ${statusText}"
+          >${modelId}</button>
+        `;
+        }).join("")}
+      </div>
+      <div class="polyhedron-canvas-shell">
+        <canvas
+          class="polyhedron-canvas"
+          width="900"
+          height="520"
+          tabindex="0"
+          data-polyhedron-canvas
+          data-polyhedron-model="${selected}"
+          aria-label="Figure ${selected}. Drag or use the arrow keys to rotate this source-derived virtual figure."
+        ></canvas>
+      </div>
+      <div class="polyhedron-view-controls" aria-label="Figure view controls">
+        <button class="hint-button" type="button" data-polyhedron-view="left">Turn left</button>
+        <button class="hint-button" type="button" data-polyhedron-view="right">Turn right</button>
+        <button class="hint-button" type="button" data-polyhedron-view="up">Tilt up</button>
+        <button class="hint-button polyhedron-symbol-button" type="button" data-polyhedron-view="zoom-in" aria-label="Zoom in" title="Zoom in">+</button>
+        <button class="hint-button polyhedron-symbol-button" type="button" data-polyhedron-view="zoom-out" aria-label="Zoom out" title="Zoom out">-</button>
+        <button class="hint-button" type="button" data-polyhedron-view="reset">Reset view</button>
+      </div>
+    </section>
+  `;
+}
+
+const pyramidNetPieceTypes = ["shortTriangle", "tallTriangle", "square", "rectangle", "pentagon", "hexagon"];
+const pyramidNetBoard = { width: 760, height: 430, maxPieces: 15 };
+const pyramidNetPieceMargin = 102;
+const pyramidNetTargetIds = ["Q", "R", "S"];
+const pyramidNetTargetDefinitions = {
+  Q: {
+    label: "Square pyramid",
+    baseType: "square",
+    triangleType: "shortTriangle",
+    triangleDescription: "short triangular side faces",
+    triangleCount: 4,
+    referenceViewBox: "340 8 310 374",
+  },
+  R: {
+    label: "Pentagonal pyramid",
+    baseType: "pentagon",
+    triangleType: "tallTriangle",
+    triangleDescription: "tall triangular side faces",
+    triangleCount: 5,
+    referenceViewBox: "655 8 345 374",
+  },
+  S: {
+    label: "Hexagonal pyramid",
+    baseType: "hexagon",
+    triangleType: "tallTriangle",
+    triangleDescription: "tall triangular side faces",
+    triangleCount: 6,
+    referenceViewBox: "1000 8 430 374",
+  },
+};
+const pyramidNetPieceDefinitions = {
+  shortTriangle: {
+    label: "Short triangle",
+    plural: "short triangles",
+    limit: 8,
+    points: [[0, -40.415], [35, 20.207], [-35, 20.207]],
+  },
+  tallTriangle: {
+    label: "Tall triangle",
+    plural: "tall triangles",
+    limit: 8,
+    points: [[0, -93.333], [35, 46.667], [-35, 46.667]],
+  },
+  square: {
+    label: "Square",
+    plural: "squares",
+    limit: 6,
+    points: [[-35, -35], [35, -35], [35, 35], [-35, 35]],
+  },
+  rectangle: {
+    label: "Rectangle",
+    plural: "rectangles",
+    limit: 6,
+    points: [[-52.5, -35], [52.5, -35], [52.5, 35], [-52.5, 35]],
+  },
+  pentagon: {
+    label: "Pentagon",
+    plural: "pentagons",
+    limit: 4,
+    points: [[0, -59.554], [56.63, -18.402], [35, 48.183], [-35, 48.183], [-56.63, -18.402]],
+  },
+  hexagon: {
+    label: "Hexagon",
+    plural: "hexagons",
+    limit: 4,
+    points: [[0, -70], [60.622, -35], [60.622, 35], [0, 70], [-60.622, 35], [-60.622, -35]],
+  },
+};
+
+function normalizePyramidNetAngle(value) {
+  const angle = Number(value);
+  return Number.isFinite(angle) ? ((angle % 360) + 360) % 360 : 0;
+}
+
+function pyramidNetTargetId(card) {
+  const target = String(getTeachCustomResponse(card).pyramidNetTarget || "Q");
+  return pyramidNetTargetIds.includes(target) ? target : "Q";
+}
+
+function pyramidNetTargetDefinition(target) {
+  return pyramidNetTargetDefinitions[pyramidNetTargetIds.includes(target) ? target : "Q"];
+}
+
+function pyramidNetWorkspace(card, requestedTarget = pyramidNetTargetId(card)) {
+  const target = pyramidNetTargetIds.includes(requestedTarget) ? requestedTarget : "Q";
+  const response = getTeachCustomResponse(card);
+  const storedWorkspaces = response.pyramidNetWorkspaces && typeof response.pyramidNetWorkspaces === "object"
+    ? response.pyramidNetWorkspaces
+    : {};
+  const legacyWorkspace = target === "Q" ? {
+    pieces: response.pyramidNetPieces,
+    selectedId: response.pyramidNetSelectedId,
+    savedSignatures: response.pyramidNetSavedSignatures,
+  } : {};
+  const sourceWorkspace = storedWorkspaces[target] && typeof storedWorkspaces[target] === "object"
+    ? storedWorkspaces[target]
+    : legacyWorkspace;
+  const source = Array.isArray(sourceWorkspace.pieces) ? sourceWorkspace.pieces : [];
+  const seen = new Set();
+  const pieces = source.slice(0, pyramidNetBoard.maxPieces).flatMap((piece) => {
+    const id = String(piece?.id || "");
+    const type = String(piece?.type || "");
+    if (!/^pyramid-piece-\d+$/.test(id) || seen.has(id) || !pyramidNetPieceTypes.includes(type)) return [];
+    seen.add(id);
+    return [{
+      id,
+      type,
+      x: clampNumber(Number(piece.x) || 0, pyramidNetPieceMargin, pyramidNetBoard.width - pyramidNetPieceMargin),
+      y: clampNumber(Number(piece.y) || 0, pyramidNetPieceMargin, pyramidNetBoard.height - pyramidNetPieceMargin),
+      angle: normalizePyramidNetAngle(piece.angle),
+    }];
+  });
+  const savedSignatures = Array.isArray(sourceWorkspace.savedSignatures)
+    ? [...new Set(sourceWorkspace.savedSignatures.map(String).filter((value) => /^[BSPHT(),]+$/.test(value)))].slice(0, 6)
+    : [];
+  const selectedId = pieces.some((piece) => piece.id === String(sourceWorkspace.selectedId || ""))
+    ? String(sourceWorkspace.selectedId)
+    : "";
+  const workspace = {
+    pieces,
+    selectedId,
+    savedSignatures,
+    submitted: Boolean(sourceWorkspace.submitted),
+  };
+  state.teachCustomResponses[card.id] = {
+    ...response,
+    pyramidNetTarget: pyramidNetTargetIds.includes(response.pyramidNetTarget) ? response.pyramidNetTarget : "Q",
+    pyramidNetWorkspaces: { ...storedWorkspaces, [target]: workspace },
+  };
+  return workspace;
+}
+
+function setPyramidNetWorkspace(card, target, changes) {
+  const current = pyramidNetWorkspace(card, target);
+  const response = getTeachCustomResponse(card);
+  const storedWorkspaces = response.pyramidNetWorkspaces && typeof response.pyramidNetWorkspaces === "object"
+    ? response.pyramidNetWorkspaces
+    : {};
+  const next = { ...current, ...changes };
+  state.teachCustomResponses[card.id] = {
+    ...response,
+    pyramidNetWorkspaces: { ...storedWorkspaces, [target]: next },
+  };
+  return next;
+}
+
+function pyramidNetPieces(card, target = pyramidNetTargetId(card)) {
+  return pyramidNetWorkspace(card, target).pieces;
+}
+
+function pyramidNetSavedSignatures(card, target = pyramidNetTargetId(card)) {
+  return pyramidNetWorkspace(card, target).savedSignatures;
+}
+
+function pyramidNetSelectedPieceId(card, target = pyramidNetTargetId(card)) {
+  return pyramidNetWorkspace(card, target).selectedId;
+}
+
+function pyramidNetAnySaved(card) {
+  return pyramidNetTargetIds.some((target) => pyramidNetSavedSignatures(card, target).length > 0);
+}
+
+function markPyramidNetChanged(card, target = pyramidNetTargetId(card)) {
+  setPyramidNetWorkspace(card, target, { submitted: false });
+  state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "compose-q")] = pyramidNetAnySaved(card);
+}
+
+function rotateSelectedPyramidNetPiece(card, delta, target = pyramidNetTargetId(card)) {
+  if (![-15, 15].includes(delta)) return false;
+  const workspace = pyramidNetWorkspace(card, target);
+  if (!workspace.selectedId || !workspace.pieces.some((piece) => piece.id === workspace.selectedId)) return false;
+  const pieces = workspace.pieces.map((piece) => (
+    piece.id === workspace.selectedId
+      ? { ...piece, angle: normalizePyramidNetAngle(piece.angle + delta) }
+      : piece
+  ));
+  setPyramidNetWorkspace(card, target, { pieces, submitted: false });
+  markPyramidNetChanged(card, target);
+  return true;
+}
+
+function pyramidNetPieceTransform(piece) {
+  return `translate(${piece.x.toFixed(2)} ${piece.y.toFixed(2)}) rotate(${piece.angle.toFixed(2)})`;
+}
+
+function pyramidNetWorldPoints(piece) {
+  const radians = normalizePyramidNetAngle(piece.angle) * Math.PI / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  return pyramidNetPieceDefinitions[piece.type].points.map(([x, y]) => ({
+    x: piece.x + x * cosine - y * sine,
+    y: piece.y + x * sine + y * cosine,
+  }));
+}
+
+function pyramidNetEdges(points) {
+  return points.map((point, index) => [point, points[(index + 1) % points.length]]);
+}
+
+function pyramidNetDistance(first, second) {
+  return Math.hypot(first.x - second.x, first.y - second.y);
+}
+
+function pyramidNetEdgesMatch(first, second, tolerance = 2.5) {
+  return (pyramidNetDistance(first[0], second[1]) <= tolerance
+      && pyramidNetDistance(first[1], second[0]) <= tolerance)
+    || (pyramidNetDistance(first[0], second[0]) <= tolerance
+      && pyramidNetDistance(first[1], second[1]) <= tolerance);
+}
+
+function pyramidNetPolygonsOverlap(first, second) {
+  const axes = [...pyramidNetEdges(first), ...pyramidNetEdges(second)].map(([start, end]) => ({
+    x: -(end.y - start.y),
+    y: end.x - start.x,
+  }));
+  return axes.every((axis) => {
+    const length = Math.hypot(axis.x, axis.y) || 1;
+    const unit = { x: axis.x / length, y: axis.y / length };
+    const firstProjection = first.map((point) => point.x * unit.x + point.y * unit.y);
+    const secondProjection = second.map((point) => point.x * unit.x + point.y * unit.y);
+    const overlap = Math.min(Math.max(...firstProjection), Math.max(...secondProjection))
+      - Math.max(Math.min(...firstProjection), Math.min(...secondProjection));
+    return overlap > 1.5;
+  });
+}
+
+function pyramidNetTreeSignature(pieces, adjacency, baseType) {
+  const root = pieces.findIndex((piece) => piece.type === baseType);
+  if (root < 0) return "";
+  const visit = (index, parent) => {
+    const children = [...adjacency[index]]
+      .filter((neighbor) => neighbor !== parent)
+      .map((neighbor) => visit(neighbor, index))
+      .sort();
+    return `${pieces[index].type === baseType ? "B" : "T"}(${children.join("")})`;
+  };
+  return visit(root, -1);
+}
+
+function pyramidNetPieceIsTriangle(piece) {
+  return piece?.type === "shortTriangle" || piece?.type === "tallTriangle";
+}
+
+function pyramidNetJoinRolesAreValid(join, pieces, baseType) {
+  const first = pieces[join.first];
+  const second = pieces[join.second];
+  if (pyramidNetPieceIsTriangle(first) && pyramidNetPieceIsTriangle(second)) {
+    if (first.type === "shortTriangle" && second.type === "shortTriangle") return true;
+    return join.firstEdgeIndex !== 1 && join.secondEdgeIndex !== 1;
+  }
+  if (pyramidNetPieceIsTriangle(first) && second.type === baseType) {
+    return first.type === "shortTriangle" || join.firstEdgeIndex === 1;
+  }
+  if (pyramidNetPieceIsTriangle(second) && first.type === baseType) {
+    return second.type === "shortTriangle" || join.secondEdgeIndex === 1;
+  }
+  return false;
+}
+
+function pyramidNetAnalysis(card, target = pyramidNetTargetId(card)) {
+  const targetDefinition = pyramidNetTargetDefinition(target);
+  const pieces = pyramidNetPieces(card, target);
+  const inventory = Object.fromEntries(pyramidNetPieceTypes.map((type) => [type, 0]));
+  pieces.forEach((piece) => { inventory[piece.type] += 1; });
+  const worldPoints = pieces.map(pyramidNetWorldPoints);
+  const adjacency = pieces.map(() => new Set());
+  const joins = [];
+  let overlap = false;
+  for (let first = 0; first < pieces.length; first += 1) {
+    for (let second = first + 1; second < pieces.length; second += 1) {
+      if (pyramidNetPolygonsOverlap(worldPoints[first], worldPoints[second])) overlap = true;
+      const firstEdges = pyramidNetEdges(worldPoints[first]);
+      const secondEdges = pyramidNetEdges(worldPoints[second]);
+      let joined = null;
+      for (let firstEdgeIndex = 0; firstEdgeIndex < firstEdges.length && !joined; firstEdgeIndex += 1) {
+        for (let secondEdgeIndex = 0; secondEdgeIndex < secondEdges.length; secondEdgeIndex += 1) {
+          if (!pyramidNetEdgesMatch(firstEdges[firstEdgeIndex], secondEdges[secondEdgeIndex])) continue;
+          joined = { first, second, firstEdgeIndex, secondEdgeIndex };
+          break;
+        }
+      }
+      if (joined) {
+        adjacency[first].add(second);
+        adjacency[second].add(first);
+        joins.push(joined);
+      }
+    }
+  }
+  const visited = new Set();
+  const pending = pieces.length ? [0] : [];
+  while (pending.length) {
+    const index = pending.pop();
+    if (visited.has(index)) continue;
+    visited.add(index);
+    adjacency[index].forEach((neighbor) => pending.push(neighbor));
+  }
+  const inventoryCorrect = pieces.length === targetDefinition.triangleCount + 1
+    && inventory[targetDefinition.baseType] === 1
+    && inventory[targetDefinition.triangleType] === targetDefinition.triangleCount
+    && pyramidNetPieceTypes.every((type) => (
+      type === targetDefinition.triangleType || type === targetDefinition.baseType || inventory[type] === 0
+    ));
+  const connected = pieces.length > 0 && visited.size === pieces.length;
+  const joinRolesValid = joins.every((join) => (
+    pyramidNetJoinRolesAreValid(join, pieces, targetDefinition.baseType)
+  ));
+  const valid = inventoryCorrect
+    && !overlap
+    && connected
+    && joinRolesValid
+    && joins.length === pieces.length - 1;
+  return {
+    target,
+    targetDefinition,
+    pieces,
+    inventory,
+    inventoryCorrect,
+    overlap,
+    connected,
+    joins,
+    joinRolesValid,
+    valid,
+    signature: valid ? pyramidNetTreeSignature(pieces, adjacency, targetDefinition.baseType) : "",
+  };
+}
+
+function pyramidNetInventoryText(inventory) {
+  const entries = pyramidNetPieceTypes
+    .filter((type) => inventory[type] > 0)
+    .map((type) => {
+      const count = inventory[type];
+      const definition = pyramidNetPieceDefinitions[type];
+      return `${count} ${count === 1 ? definition.label.toLowerCase() : definition.plural}`;
+    });
+  return entries.length ? entries.join(", ") : "none yet";
+}
+
+function pyramidNetOpenPosition(index) {
+  const positions = [
+    [105, 110], [240, 110], [380, 110], [520, 110], [655, 110],
+    [105, 220], [240, 220], [380, 220], [520, 220], [655, 220],
+    [105, 330], [240, 330], [380, 330], [520, 330], [655, 330],
+  ];
+  return positions[index % positions.length];
+}
+
+function addPyramidNetPiece(card, type) {
+  if (!pyramidNetPieceTypes.includes(type)) return;
+  const target = pyramidNetTargetId(card);
+  const pieces = pyramidNetPieces(card, target);
+  const definition = pyramidNetPieceDefinitions[type];
+  if (pieces.length >= pyramidNetBoard.maxPieces || pieces.filter((piece) => piece.type === type).length >= definition.limit) return;
+  const nextNumber = pieces.reduce((highest, piece) => Math.max(highest, Number(piece.id.split("-").pop()) || 0), 0) + 1;
+  const [x, y] = pyramidNetOpenPosition(pieces.length);
+  const piece = { id: `pyramid-piece-${nextNumber}`, type, x, y, angle: 0 };
+  setPyramidNetWorkspace(card, target, {
+    pieces: [...pieces, piece],
+    selectedId: piece.id,
+    submitted: false,
+  });
+  markPyramidNetChanged(card, target);
+}
+
+function pyramidNetCandidateInsideBoard(piece) {
+  return pyramidNetWorldPoints(piece).every((point) => (
+    point.x >= 8 && point.x <= pyramidNetBoard.width - 8
+      && point.y >= 8 && point.y <= pyramidNetBoard.height - 8
+  ));
+}
+
+function snapPyramidNetPiece(card, pieceId, target = pyramidNetTargetId(card)) {
+  const pieces = pyramidNetPieces(card, target);
+  const moving = pieces.find((piece) => piece.id === pieceId);
+  if (!moving) return;
+  const localEdges = pyramidNetEdges(pyramidNetPieceDefinitions[moving.type].points.map(([x, y]) => ({ x, y })));
+  let best = null;
+  pieces.filter((piece) => piece.id !== pieceId).forEach((target) => {
+    pyramidNetEdges(pyramidNetWorldPoints(target)).forEach((targetEdge) => {
+      const targetLength = pyramidNetDistance(targetEdge[0], targetEdge[1]);
+      localEdges.forEach((localEdge) => {
+        const localLength = pyramidNetDistance(localEdge[0], localEdge[1]);
+        if (Math.abs(targetLength - localLength) > 1.5) return;
+        const desiredAngle = Math.atan2(
+          targetEdge[0].y - targetEdge[1].y,
+          targetEdge[0].x - targetEdge[1].x
+        ) - Math.atan2(localEdge[1].y - localEdge[0].y, localEdge[1].x - localEdge[0].x);
+        const cosine = Math.cos(desiredAngle);
+        const sine = Math.sin(desiredAngle);
+        const rotatedStart = {
+          x: localEdge[0].x * cosine - localEdge[0].y * sine,
+          y: localEdge[0].x * sine + localEdge[0].y * cosine,
+        };
+        const candidate = {
+          ...moving,
+          x: targetEdge[1].x - rotatedStart.x,
+          y: targetEdge[1].y - rotatedStart.y,
+          angle: normalizePyramidNetAngle(desiredAngle * 180 / Math.PI),
+        };
+        const movement = Math.hypot(candidate.x - moving.x, candidate.y - moving.y);
+        if (movement > 72 || !pyramidNetCandidateInsideBoard(candidate)) return;
+        const candidatePoints = pyramidNetWorldPoints(candidate);
+        const collides = pieces.some((piece) => (
+          piece.id !== pieceId && pyramidNetPolygonsOverlap(candidatePoints, pyramidNetWorldPoints(piece))
+        ));
+        if (collides || (best && best.movement <= movement)) return;
+        best = { candidate, movement };
+      });
+    });
+  });
+  if (best) Object.assign(moving, best.candidate);
+}
+
+function pyramidNetPieceIcon(type) {
+  const points = pyramidNetPieceDefinitions[type].points.map(([x, y]) => `${x},${y}`).join(" ");
+  const viewBox = type === "tallTriangle" ? "-130 -130 260 260" : "-100 -100 200 200";
+  return `<svg viewBox="${viewBox}" aria-hidden="true"><polygon points="${points}"></polygon></svg>`;
+}
+
+function pyramidNetTargetStatus(card, target) {
+  const workspace = pyramidNetWorkspace(card, target);
+  if (workspace.savedSignatures.length) return { className: "is-complete", text: "Valid net saved" };
+  if (workspace.submitted) return { className: "is-revise", text: "Revise" };
+  if (workspace.pieces.length) return { className: "is-started", text: "In progress" };
+  return { className: "", text: "Not tried" };
+}
+
+function renderPyramidNetTargetReference(target) {
+  const definition = pyramidNetTargetDefinition(target);
+  const sourcePath = encodeURI("artifacts/unit 1/_teachme-crops/lesson-13-p002-pyramid-examples.png");
+  const [clipX, clipY, clipWidth, clipHeight] = definition.referenceViewBox.split(" ").map(Number);
+  const cropStyle = [
+    `--pyramid-crop-ratio: ${clipWidth} / ${clipHeight}`,
+    `--pyramid-source-width: ${(1450 / clipWidth * 100).toFixed(4)}%`,
+    `--pyramid-source-left: ${(-clipX / clipWidth * 100).toFixed(4)}%`,
+    `--pyramid-source-top: ${(-clipY / clipHeight * 100).toFixed(4)}%`,
+  ].join("; ");
+  return `
+    <div class="question-set-object-reference pyramid-target-reference" aria-label="${escapeHtml(`${definition.label}, source Figure ${target}`)}">
+      <div class="question-set-object-reference-label">
+        <strong>${escapeHtml(definition.label)}</strong>
+        <span>Source Figure ${target}</span>
+      </div>
+      <div
+        class="pyramid-target-reference-visual"
+        style="${cropStyle}"
+        role="img"
+        aria-label="Source drawing of Figure ${target}, a ${definition.label.toLowerCase()}."
+        data-pyramid-target-figure="${target}"
+      >
+        <img src="${sourcePath}" width="1450" height="390" alt="" aria-hidden="true">
+      </div>
+    </div>
+  `;
+}
+
+function renderPyramidNetVisual(card) {
+  const target = pyramidNetTargetId(card);
+  const targetDefinition = pyramidNetTargetDefinition(target);
+  const analysis = pyramidNetAnalysis(card, target);
+  const selectedId = pyramidNetSelectedPieceId(card, target);
+  const selectedPiece = analysis.pieces.find((piece) => piece.id === selectedId);
+  const savedCount = pyramidNetSavedSignatures(card, target).length;
+  const completedTargets = pyramidNetTargetIds.filter((targetId) => pyramidNetSavedSignatures(card, targetId).length > 0);
+  return `
+    <section class="pyramid-net-workspace" aria-label="Choose loose polygons and compose a net for source Figure ${target}">
+      <div class="pyramid-net-target-picker" role="group" aria-label="Choose a source pyramid">
+        ${pyramidNetTargetIds.map((targetId) => {
+          const definition = pyramidNetTargetDefinition(targetId);
+          const status = pyramidNetTargetStatus(card, targetId);
+          return `
+            <button
+              class="pyramid-net-target-button ${target === targetId ? "is-active" : ""} ${status.className}"
+              type="button"
+              data-pyramid-net-target="${targetId}"
+              aria-pressed="${target === targetId}"
+            >
+              <strong>Figure ${targetId}</strong>
+              <span>${escapeHtml(definition.label)}</span>
+              <small>${escapeHtml(status.text)}</small>
+            </button>
+          `;
+        }).join("")}
+      </div>
+      ${renderPyramidNetTargetReference(target)}
+      <p>Choose loose cut-outs for Figure ${target}. Drag and rotate them so joined faces share complete edges. The workspace starts empty, and you may remove any piece you do not need.</p>
+      <div class="pyramid-polygon-bank" role="group" aria-label="Mixed polygon supply from Blackline Master pages 3 and 4">
+        ${pyramidNetPieceTypes.map((type) => {
+          const definition = pyramidNetPieceDefinitions[type];
+          const count = analysis.inventory[type];
+          const disabled = analysis.pieces.length >= pyramidNetBoard.maxPieces || count >= definition.limit;
+          return `
+            <button class="pyramid-piece-add pyramid-piece-${type}" type="button" data-pyramid-piece-add="${type}" ${disabled ? "disabled" : ""}>
+              ${pyramidNetPieceIcon(type)}
+              <span>Add ${definition.label.toLowerCase()}</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+      <div class="pyramid-net-stage-shell">
+        <svg class="pyramid-net-stage" viewBox="0 0 ${pyramidNetBoard.width} ${pyramidNetBoard.height}" role="group" aria-label="Polygon net construction workspace for source Figure ${target}" data-pyramid-net-stage="${target}">
+          <rect class="pyramid-net-board" x="1" y="1" width="758" height="428" rx="6"></rect>
+          ${analysis.pieces.map((piece) => {
+          const points = pyramidNetPieceDefinitions[piece.type].points.map(([x, y]) => `${x},${y}`).join(" ");
+          const label = pyramidNetPieceDefinitions[piece.type].label;
+          const pieceNumber = analysis.pieces.filter((entry) => entry.type === piece.type).findIndex((entry) => entry.id === piece.id) + 1;
+          return `
+            <g
+              class="pyramid-net-piece pyramid-piece-${piece.type} ${selectedId === piece.id ? "is-selected" : ""}"
+              transform="${pyramidNetPieceTransform(piece)}"
+              role="button"
+              tabindex="0"
+              data-pyramid-net-piece="${piece.id}"
+              aria-label="${label} cut-out ${pieceNumber}. Drag to move; use the controls to rotate or remove."
+              aria-pressed="${selectedId === piece.id}"
+            >
+              <polygon points="${points}"></polygon>
+              <circle cx="0" cy="0" r="4"></circle>
+            </g>
+          `;
+          }).join("")}
+        </svg>
+        ${analysis.pieces.length ? "" : `
+          <div class="pyramid-net-empty-message" aria-hidden="true">
+            <strong class="pyramid-net-empty-title">Your workspace is empty</strong>
+            <span>Choose a polygon above to begin.</span>
+          </div>
+        `}
+      </div>
+      <div class="pyramid-net-status" aria-live="polite">
+        <span><strong>On workspace:</strong> ${escapeHtml(pyramidNetInventoryText(analysis.inventory))}</span>
+        <span>${savedCount ? `${savedCount} valid ${savedCount === 1 ? "net" : "nets"} saved for Figure ${target}` : `No net saved for Figure ${target}`}</span>
+        ${completedTargets.length ? `<span><strong>Completed targets:</strong> ${completedTargets.join(", ")}</span>` : ""}
+      </div>
+      <div class="pyramid-net-controls" aria-label="Selected polygon controls">
+        <span>${selectedPiece ? `Selected: ${escapeHtml(pyramidNetPieceDefinitions[selectedPiece.type].label)}` : "Select a piece to move, rotate, or remove it."}</span>
+        <div class="pyramid-net-control-buttons">
+          <button class="hint-button" type="button" data-pyramid-net-rotate="-15" ${selectedPiece ? "" : "disabled"}>Rotate left</button>
+          <button class="hint-button" type="button" data-pyramid-net-rotate="15" ${selectedPiece ? "" : "disabled"}>Rotate right</button>
+          <button class="hint-button" type="button" data-pyramid-net-remove ${selectedPiece ? "" : "disabled"}>Remove piece</button>
+          <button class="hint-button" type="button" data-pyramid-net-reset ${analysis.pieces.length ? "" : "disabled"}>${analysis.valid && savedCount ? `Build another Figure ${target} net` : "Clear workspace"}</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function polyhedronFoldStep(card) {
+  return clampNumber(Number(getTeachCustomResponse(card).polyhedronFoldStep) || 0, 0, 3);
+}
+
+function renderPolyhedronFoldVisual(card) {
+  const step = polyhedronFoldStep(card);
+  const stepText = [
+    "Start with the flat shaded faces. Dotted glue flaps are not faces.",
+    "The two triangles lift to become the parallel bases.",
+    "The three rectangles wrap around and connect the triangular bases.",
+    "Net A is fully assembled as a triangular prism.",
+  ][step];
+  return `
+    <section class="polyhedron-fold-workspace" aria-label="Fold Net A into a polyhedron">
+      <svg viewBox="0 0 760 400" role="img" aria-label="Net A and its staged fold into a triangular prism, currently at step ${step} of 3.">
+        <rect class="polyhedron-fold-board" x="1" y="1" width="758" height="398" rx="6"></rect>
+        <g class="fold-flat-net ${step >= 3 ? "is-muted" : ""}">
+          <rect x="150" y="42" width="110" height="100"></rect>
+          <rect x="150" y="142" width="110" height="100"></rect>
+          <rect x="150" y="242" width="110" height="100"></rect>
+          <polygon class="fold-triangle ${step >= 1 ? "is-active" : ""}" points="150,142 150,242 62,192"></polygon>
+          <polygon class="fold-triangle ${step >= 1 ? "is-active" : ""}" points="260,142 260,242 348,192"></polygon>
+          ${step >= 1 ? '<path class="fold-arrow" d="M92 174 Q120 120 162 130"></path><path class="fold-arrow" d="M318 174 Q290 120 248 130"></path>' : ""}
+          ${step >= 2 ? '<path class="fold-arrow" d="M205 58 Q305 42 392 122"></path><path class="fold-arrow" d="M205 326 Q305 342 392 262"></path>' : ""}
+        </g>
+        <g class="folded-prism ${step >= 2 ? "is-visible" : ""} ${step >= 3 ? "is-complete" : ""}">
+          <polygon class="folded-prism-side side-one" points="470,116 590,66 550,226 430,276"></polygon>
+          <polygon class="folded-prism-side side-two" points="470,116 590,66 670,226 550,276"></polygon>
+          <polygon class="folded-prism-side side-three" points="430,276 550,226 670,226 550,276"></polygon>
+          <polygon class="folded-prism-base" points="470,116 430,276 550,276"></polygon>
+          <polygon class="folded-prism-base" points="590,66 550,226 670,226"></polygon>
+        </g>
+        <text class="polyhedron-fold-label" x="205" y="374" text-anchor="middle">Net A</text>
+        <text class="polyhedron-fold-label" x="568" y="374" text-anchor="middle">assembled polyhedron</text>
+      </svg>
+      <p class="polyhedron-fold-caption">${escapeHtml(stepText)}</p>
+      <div class="polyhedron-fold-controls">
+        <button class="hint-button" type="button" data-polyhedron-fold-delta="-1" ${step === 0 ? "disabled" : ""}>Previous fold step</button>
+        <span>Fold step ${step} of 3</span>
+        <button class="practice-submit" type="button" data-polyhedron-fold-delta="1" ${step === 3 ? "disabled" : ""}>Next fold step</button>
+        <button class="hint-button" type="button" data-polyhedron-fold-reset ${step === 0 ? "disabled" : ""}>Reset</button>
+      </div>
+    </section>
+  `;
+}
+
+const surfaceNetFoldSpecifications = {
+  A: {
+    dimensions: "6x5x1",
+    faceInventory: "6x5:2|6x1:2|5x1:2",
+    captions: [
+      "Use the source grid to identify all six faces before folding.",
+      "Pair the two 6 by 5 faces, the two 6 by 1 faces, and the two 5 by 1 faces. The bold shared edges act as hinges.",
+      "The 1-unit side faces are raised. Follow the arrow to close the remaining 6 by 5 face.",
+      "All six source faces now meet along matching edges. Use those same face dimensions in your surface-area calculation.",
+    ],
+  },
+  B: {
+    dimensions: "base4x4|triangles-base4-height4",
+    faceInventory: "square4x4:1|triangle-base4-height4:4",
+    captions: [
+      "Use the source grid to identify the square base and four congruent triangular faces.",
+      "Each triangle has a 4-unit base and a 4-unit face height. Fold each triangle along one edge of the 4 by 4 square.",
+      "Three triangular faces are raised. Follow the arrow to close the fourth face without overlapping another face.",
+      "The square base and all four source triangles now form one closed solid. Use all five face areas in your calculation.",
+    ],
+  },
+  C: {
+    dimensions: "right-triangle3-4-5|length3",
+    faceInventory: "right-triangle3-4-5:2|3x3:1|3x4:1|3x5:1",
+    captions: [
+      "Use the source grid to identify two 3-4-5 right triangles and three rectangles with a common 3-unit length.",
+      "Match the 3 by 3, 3 by 4, and 3 by 5 rectangles to the 3-, 4-, and 5-unit edges of each triangle.",
+      "The 3 by 3 square is the support face. The 3 by 4 and 3 by 5 rectangles meet above it. Follow the arrow to close the second triangular end.",
+      "The completed prism rests on its 3 by 3 square face and keeps the source's two 3-4-5 right-triangle ends. Use all five source faces in your calculation.",
+    ],
+  },
+};
+
+const surfaceNetBCanonicalProjection = Object.freeze({
+  viewBox: "0 0 310 260",
+  base: "29,171|112,225|265,215|192,160",
+  apex: "143,28",
+});
+
+const surfaceNetCCanonicalProjection = Object.freeze({
+  supportFace: "45,225|135,225|185,185|95,185",
+  frontTriangle: "45,225|135,225|45,105",
+  backTriangle: "95,185|185,185|95,65",
+});
+
+function surfaceNetFoldStep(card, netId) {
+  const rawStep = getTeachCustomResponse(card)[`surfaceNetFold${netId}`];
+  if (rawStep === "folded") return 3;
+  return clampNumber(Number(rawStep) || 0, 0, 3);
+}
+
+function surfaceNetSvgOpen(netId, step, extraAttributes = "", viewBox = "0 0 340 280") {
+  const specification = surfaceNetFoldSpecifications[netId];
+  return `<svg
+    class="surface-net-model"
+    viewBox="${viewBox}"
+    role="img"
+    aria-label="Fold step ${step} for source Net ${netId}."
+    data-surface-net-model="${netId}"
+    data-fold-step="${step}"
+    data-source-dimensions="${specification.dimensions}"
+    data-face-inventory="${specification.faceInventory}"
+    ${extraAttributes}
+  >`;
+}
+
+function surfaceNetArrowDefinition(netId, step) {
+  const markerId = `surface-net-arrow-${netId.toLowerCase()}-${step}`;
+  return {
+    markerId,
+    markup: `<defs>
+      <marker id="${markerId}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path class="surface-net-arrow-head" d="M0,0 L8,4 L0,8 Z"></path>
+      </marker>
+    </defs>`,
+  };
+}
+
+function renderSurfaceNetFlatMap(netId) {
+  const { markerId, markup: markerMarkup } = surfaceNetArrowDefinition(netId, 1);
+  if (netId === "A") {
+    return `${surfaceNetSvgOpen(netId, 1, 'data-fold-state="hinges"')}
+      ${markerMarkup}
+      <g class="surface-net-flat-map">
+        <rect class="surface-net-face surface-net-face-main" data-face-dimensions="6x5" x="122" y="68" width="96" height="80"></rect>
+        <rect class="surface-net-face surface-net-face-main" data-face-dimensions="6x5" x="122" y="164" width="96" height="80"></rect>
+        <rect class="surface-net-face surface-net-face-accent" data-face-dimensions="6x1" x="122" y="52" width="96" height="16"></rect>
+        <rect class="surface-net-face surface-net-face-accent" data-face-dimensions="6x1" x="122" y="148" width="96" height="16"></rect>
+        <rect class="surface-net-face surface-net-face-side" data-face-dimensions="5x1" x="106" y="68" width="16" height="80"></rect>
+        <rect class="surface-net-face surface-net-face-side" data-face-dimensions="5x1" x="218" y="68" width="16" height="80"></rect>
+        <path class="surface-net-hinge" d="M122 68H218 M122 148H218 M122 164H218 M122 68V148 M218 68V148"></path>
+        <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M96 108C70 108 70 72 102 72"></path>
+        <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M244 108C270 108 270 72 238 72"></path>
+        <text class="surface-net-face-label" x="170" y="112">6 by 5</text>
+        <text class="surface-net-face-label" x="170" y="208">6 by 5</text>
+        <text class="surface-net-small-label" x="170" y="64">6 by 1</text>
+        <text class="surface-net-small-label" x="170" y="160">6 by 1</text>
+        <text class="surface-net-small-label" transform="translate(118 108) rotate(-90)">5 by 1</text>
+        <text class="surface-net-small-label" transform="translate(230 108) rotate(-90)">5 by 1</text>
+      </g>
+    </svg>`;
+  }
+  if (netId === "B") {
+    return `${surfaceNetSvgOpen(netId, 1, 'data-fold-state="hinges"')}
+      ${markerMarkup}
+      <g class="surface-net-flat-map">
+        <rect class="surface-net-face surface-net-face-base" data-face-dimensions="4x4" x="130" y="100" width="80" height="80"></rect>
+        <polygon class="surface-net-face surface-net-face-main" data-face-dimensions="triangle-base4-height4" points="130,100 210,100 170,20"></polygon>
+        <polygon class="surface-net-face surface-net-face-accent" data-face-dimensions="triangle-base4-height4" points="210,100 210,180 290,140"></polygon>
+        <polygon class="surface-net-face surface-net-face-main" data-face-dimensions="triangle-base4-height4" points="130,180 210,180 170,260"></polygon>
+        <polygon class="surface-net-face surface-net-face-accent" data-face-dimensions="triangle-base4-height4" points="130,100 130,180 50,140"></polygon>
+        <path class="surface-net-hinge" d="M130 100H210V180H130Z"></path>
+        <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M170 12C212 12 224 48 208 82"></path>
+        <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M298 140C298 98 262 86 228 102"></path>
+        <text class="surface-net-face-label" x="170" y="144">4 by 4</text>
+        <text class="surface-net-small-label" x="170" y="62">base 4, height 4</text>
+      </g>
+    </svg>`;
+  }
+  return `${surfaceNetSvgOpen(netId, 1, 'data-fold-state="hinges" data-triangle-sides="3,4,5"')}
+    ${markerMarkup}
+    <g class="surface-net-flat-map">
+      <rect class="surface-net-face surface-net-face-side" data-face-dimensions="3x5" x="140" y="18" width="60" height="100"></rect>
+      <rect class="surface-net-face surface-net-face-main" data-face-dimensions="3x3" x="140" y="118" width="60" height="60"></rect>
+      <rect class="surface-net-face surface-net-face-accent" data-face-dimensions="3x4" x="140" y="178" width="60" height="80"></rect>
+      <polygon class="surface-net-face surface-net-face-main" data-face-dimensions="right-triangle3-4-5" points="140,118 140,178 60,178"></polygon>
+      <polygon class="surface-net-face surface-net-face-main" data-face-dimensions="right-triangle3-4-5" points="200,118 200,178 280,178"></polygon>
+      <path class="surface-net-hinge" d="M140 118H200 M140 178H200 M140 118V178 M200 118V178"></path>
+      <path class="surface-net-right-angle" d="M140 166H128V178"></path>
+      <path class="surface-net-right-angle" d="M200 166H212V178"></path>
+      <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M48 178C42 138 82 112 122 126"></path>
+      <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M292 178C298 138 258 112 218 126"></path>
+      <text class="surface-net-small-label" x="170" y="70">3 by 5</text>
+      <text class="surface-net-small-label" x="170" y="151">3 by 3</text>
+      <text class="surface-net-small-label" x="170" y="222">3 by 4</text>
+      <text class="surface-net-small-label" x="91" y="192">3-4-5</text>
+      <text class="surface-net-small-label" x="249" y="192">3-4-5</text>
+    </g>
+  </svg>`;
+}
+
+function renderSurfaceNetOpenShell(netId) {
+  const { markerId, markup: markerMarkup } = surfaceNetArrowDefinition(netId, 2);
+  if (netId === "A") {
+    return `${surfaceNetSvgOpen(netId, 2, 'data-fold-state="open-shell"')}
+      ${markerMarkup}
+      <polygon class="surface-net-solid-base" data-face-dimensions="6x5" points="45,180 225,180 300,130 120,130"></polygon>
+      <polygon class="surface-net-solid-front" data-face-dimensions="6x1" points="45,180 225,180 225,210 45,210"></polygon>
+      <polygon class="surface-net-solid-side" data-face-dimensions="5x1" points="225,180 300,130 300,160 225,210"></polygon>
+      <polygon class="surface-net-open-face" data-face-dimensions="6x5" points="120,130 300,130 300,30 120,30"></polygon>
+      <path class="surface-net-hinge" d="M120 130H300"></path>
+      <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M205 58C184 90 190 118 224 139"></path>
+      <text class="surface-net-face-label" x="210" y="86">6 by 5</text>
+      <text class="surface-net-small-label" x="135" y="192">6 by 1</text>
+      <text class="surface-net-small-label" x="264" y="177">5 by 1</text>
+    </svg>`;
+  }
+  if (netId === "B") {
+    return `${surfaceNetSvgOpen(
+      netId,
+      2,
+      `data-fold-state="open-shell" data-view-style="source-wireframe" data-source-figure="lesson-14.1-figure-3" data-base-projection="${surfaceNetBCanonicalProjection.base}" data-apex-projection="${surfaceNetBCanonicalProjection.apex}" data-open-face-apex-projection="95,73"`,
+      surfaceNetBCanonicalProjection.viewBox
+    )}
+      ${markerMarkup}
+      <polygon class="surface-net-source-wireframe-base" data-face-dimensions="4x4" points="29,171 112,225 265,215 192,160"></polygon>
+      <polygon class="surface-net-source-wireframe-face surface-net-raised-face" data-face-dimensions="triangle-base4-height4" points="143,28 192,160 265,215"></polygon>
+      <polygon class="surface-net-source-wireframe-face surface-net-raised-face" data-face-dimensions="triangle-base4-height4" points="143,28 112,225 265,215"></polygon>
+      <polygon class="surface-net-source-wireframe-face surface-net-raised-face" data-face-dimensions="triangle-base4-height4" points="143,28 29,171 112,225"></polygon>
+      <polygon class="surface-net-source-wireframe-open-face" data-face-dimensions="triangle-base4-height4" points="29,171 192,160 95,73"></polygon>
+      <path class="surface-net-source-wireframe-edge" d="M143 28L29 171L112 225L265 215 M143 28L112 225 M143 28L265 215"></path>
+      <path class="surface-net-source-wireframe-hidden-edge" d="M143 28L192 160L265 215 M29 171L192 160"></path>
+      <path class="surface-net-source-wireframe-open-edge" d="M29 171L95 73L192 160"></path>
+      <path class="surface-net-source-wireframe-hinge" d="M192 160L29 171"></path>
+      <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M99 72C111 52 127 36 140 30"></path>
+    </svg>`;
+  }
+  return `${surfaceNetSvgOpen(
+    netId,
+    2,
+    `data-fold-state="open-shell" data-triangle-sides="3,4,5" data-prism-length="3" data-support-face="3x3" data-support-face-projection="${surfaceNetCCanonicalProjection.supportFace}" data-front-triangle-projection="${surfaceNetCCanonicalProjection.frontTriangle}" data-back-triangle-projection="${surfaceNetCCanonicalProjection.backTriangle}"`
+  )}
+    ${markerMarkup}
+    <polygon class="surface-net-open-face" data-face-dimensions="right-triangle3-4-5" data-folding-face="back-triangle" points="95,185 185,185 270,80"></polygon>
+    <polygon class="surface-net-solid-base surface-net-support-face" data-face-dimensions="3x3" data-support-face="true" points="45,225 135,225 185,185 95,185"></polygon>
+    <polygon class="surface-net-solid-side" data-face-dimensions="3x4" points="45,225 45,105 95,65 95,185"></polygon>
+    <polygon class="surface-net-solid-top" data-face-dimensions="3x5" points="45,105 135,225 185,185 95,65"></polygon>
+    <polygon class="surface-net-solid-front" data-face-dimensions="right-triangle3-4-5" data-folded-face="front-triangle" points="45,225 135,225 45,105"></polygon>
+    <path class="surface-net-right-angle" d="M45 213H57V225"></path>
+    <path class="surface-net-hinge" d="M95 185H185"></path>
+    <path class="surface-net-fold-arrow" marker-end="url(#${markerId})" d="M264 78C228 46 155 43 99 63"></path>
+    <text class="surface-net-small-label" x="115" y="207" data-support-face-label="3x3">3 by 3 base</text>
+    <text class="surface-net-dimension" x="31" y="169" data-edge-length="4">4</text>
+    <text class="surface-net-dimension" x="90" y="242" data-edge-length="3">3</text>
+    <text class="surface-net-dimension" transform="translate(94 158) rotate(53)" data-edge-length="5">5</text>
+  </svg>`;
+}
+
+function renderSurfaceNetCompleteSolid(netId) {
+  if (netId === "A") {
+    return `${surfaceNetSvgOpen(netId, 3, 'data-fold-state="complete"')}
+      <polygon class="surface-net-solid-back surface-net-solid-hidden" points="120,145 300,145 300,115 120,115"></polygon>
+      <polygon class="surface-net-solid-top" data-face-dimensions="6x5" points="45,165 225,165 300,115 120,115"></polygon>
+      <polygon class="surface-net-solid-front" data-face-dimensions="6x1" points="45,165 225,165 225,195 45,195"></polygon>
+      <polygon class="surface-net-solid-side" data-face-dimensions="5x1" points="225,165 300,115 300,145 225,195"></polygon>
+      <path class="surface-net-solid-hidden-edge" d="M45 195L120 145H300"></path>
+      <text class="surface-net-dimension" x="135" y="218" data-edge-length="6">6</text>
+      <text class="surface-net-dimension" x="270" y="184" data-edge-length="5">5</text>
+      <text class="surface-net-dimension" x="31" y="184" data-edge-length="1">1</text>
+    </svg>`;
+  }
+  if (netId === "B") {
+    const specification = surfaceNetFoldSpecifications[netId];
+    return `
+      <div
+        class="surface-net-model surface-net-source-solid"
+        data-surface-net-model="${netId}"
+        data-fold-step="3"
+        data-fold-state="complete"
+        data-source-dimensions="${specification.dimensions}"
+        data-face-inventory="${specification.faceInventory}"
+        data-view-style="source-wireframe"
+        data-source-figure="lesson-14.1-figure-3"
+        data-base-projection="${surfaceNetBCanonicalProjection.base}"
+        data-apex-projection="${surfaceNetBCanonicalProjection.apex}"
+      >
+        <img
+          src="artifacts/unit 1/_teachme-crops/lesson-14-square-pyramid-assembled-source.png"
+          width="310"
+          height="260"
+          alt="Source wireframe view of Net B in its completed folded state."
+        >
+      </div>
+    `;
+  }
+  return `${surfaceNetSvgOpen(
+    netId,
+    3,
+    `data-fold-state="complete" data-triangle-sides="3,4,5" data-prism-length="3" data-support-face="3x3" data-support-face-projection="${surfaceNetCCanonicalProjection.supportFace}" data-front-triangle-projection="${surfaceNetCCanonicalProjection.frontTriangle}" data-back-triangle-projection="${surfaceNetCCanonicalProjection.backTriangle}"`
+  )}
+    <polygon class="surface-net-solid-back" data-face-dimensions="right-triangle3-4-5" data-folded-face="back-triangle" points="95,185 185,185 95,65"></polygon>
+    <polygon class="surface-net-solid-base surface-net-support-face" data-face-dimensions="3x3" data-support-face="true" points="45,225 135,225 185,185 95,185"></polygon>
+    <polygon class="surface-net-solid-side" data-face-dimensions="3x4" points="45,225 45,105 95,65 95,185"></polygon>
+    <polygon class="surface-net-solid-top" data-face-dimensions="3x5" points="45,105 135,225 185,185 95,65"></polygon>
+    <polygon class="surface-net-solid-front" data-face-dimensions="right-triangle3-4-5" data-folded-face="front-triangle" points="45,225 135,225 45,105"></polygon>
+    <path class="surface-net-right-angle" d="M45 213H57V225"></path>
+    <text class="surface-net-small-label" x="115" y="207" data-support-face-label="3x3">3 by 3 base</text>
+    <text class="surface-net-dimension" x="31" y="169" data-edge-length="4">4</text>
+    <text class="surface-net-dimension" x="90" y="242" data-edge-length="3">3</text>
+    <text class="surface-net-dimension" transform="translate(94 158) rotate(53)" data-edge-length="5">5</text>
+  </svg>`;
+}
+
+function renderSurfaceNetStage(netId, step) {
+  if (step === 1) return renderSurfaceNetFlatMap(netId);
+  if (step === 2) return renderSurfaceNetOpenShell(netId);
+  if (step === 3) return renderSurfaceNetCompleteSolid(netId);
+  return `
+    <div class="surface-net-fold-intro">
+      <span>Flat source net</span>
+      <p>Study the shaded faces and grid. Select <strong>Next fold step</strong> when you are ready to trace how the faces meet.</p>
+    </div>
+  `;
+}
+
+function renderSurfaceNetFoldVisual(card, question) {
+  const netId = ["A", "B", "C"].includes(question?.netId) ? question.netId : "A";
+  const step = surfaceNetFoldStep(card, netId);
+  const specification = surfaceNetFoldSpecifications[netId];
+  return `
+    <section class="surface-net-fold-workspace" aria-label="Fold source Net ${netId}">
+      <figure class="surface-net-source">
+        <figcaption>Source Net ${netId}: every shaded region is a face of the solid.</figcaption>
+        <img
+          src="${encodeURI(`artifacts/unit 1/_teachme-crops/${question.visualCropPath}`)}"
+          width="${Number(question.visualWidth)}"
+          height="${Number(question.visualHeight)}"
+          alt="${escapeHtml(question.visualAlt)}"
+          loading="lazy"
+        >
+      </figure>
+      <div class="surface-net-assembly" data-surface-net-stage="${step}" aria-live="polite">
+        <div class="surface-net-stage-heading">
+          <span>Fold step ${step} of 3</span>
+          <strong>${step === 0 ? "Inspect the flat net" : step === 1 ? "Match faces and hinges" : step === 2 ? "Build the open shell" : "Check the closed solid"}</strong>
+        </div>
+        ${renderSurfaceNetStage(netId, step)}
+        <p>${specification.captions[step]}</p>
+      </div>
+      <div class="surface-net-fold-controls">
+        <button
+          class="hint-button"
+          type="button"
+          data-surface-net-fold-delta="-1"
+          data-surface-net-id="${netId}"
+          data-question-id="${escapeHtml(question.id)}"
+          ${step === 0 ? "disabled" : ""}
+        >Previous fold step</button>
+        <span aria-label="Current fold progress">Step ${step} of 3</span>
+        <button
+          class="practice-submit"
+          type="button"
+          data-surface-net-fold-delta="1"
+          data-surface-net-id="${netId}"
+          data-question-id="${escapeHtml(question.id)}"
+          ${step === 3 ? "disabled" : ""}
+        >Next fold step</button>
+        <button
+          class="hint-button"
+          type="button"
+          data-surface-net-fold-reset
+          data-surface-net-id="${netId}"
+          data-question-id="${escapeHtml(question.id)}"
+          ${step === 0 ? "disabled" : ""}
+        >Reset net</button>
+      </div>
+    </section>
+  `;
+}
+
+const rectangularPrismNetSlotOrder = ["center", "north", "south", "far-south", "west", "east"];
+const rectangularPrismNetFaceTypes = ["13x5", "13x4", "5x4"];
+
+function rectangularPrismNetAssignments(card) {
+  const assignments = {};
+  String(getTeachCustomResponse(card).prismNetAssignments || "").split("|").forEach((entry) => {
+    const [slot, faceType] = entry.split(":");
+    if (rectangularPrismNetSlotOrder.includes(slot) && rectangularPrismNetFaceTypes.includes(faceType)) {
+      assignments[slot] = faceType;
+    }
+  });
+  return assignments;
+}
+
+function rectangularPrismNetSignature(assignments) {
+  return rectangularPrismNetSlotOrder
+    .filter((slot) => rectangularPrismNetFaceTypes.includes(assignments[slot]))
+    .map((slot) => `${slot}:${assignments[slot]}`)
+    .join("|");
+}
+
+function renderRectangularPrismNetVisual(card) {
+  const assignments = rectangularPrismNetAssignments(card);
+  const selectedType = rectangularPrismNetFaceTypes.includes(getTeachCustomResponse(card).prismNetFaceType)
+    ? getTeachCustomResponse(card).prismNetFaceType
+    : rectangularPrismNetFaceTypes[0];
+  const slots = [
+    { id: "center", x: 220, y: 190, width: 260, height: 100 },
+    { id: "north", x: 220, y: 110, width: 260, height: 80 },
+    { id: "south", x: 220, y: 290, width: 260, height: 80 },
+    { id: "far-south", x: 220, y: 370, width: 260, height: 100 },
+    { id: "west", x: 140, y: 190, width: 80, height: 100 },
+    { id: "east", x: 480, y: 190, width: 80, height: 100 },
+  ];
+  const assignedCount = rectangularPrismNetSlotOrder.filter((slot) => assignments[slot]).length;
+  return `
+    <section class="rectangular-prism-net-workspace" aria-label="Build and label a net for assigned Polyhedron C">
+      <p>Choose a face size, then select a blank graph-paper face to label it. Every shared edge must have the same length on both attached faces.</p>
+      <div class="rectangular-prism-net-palette" role="group" aria-label="Face dimension labels">
+        ${rectangularPrismNetFaceTypes.map((faceType) => {
+          const label = faceType.replace("x", " by ");
+          return `<button class="option-button ${selectedType === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${selectedType === faceType}">${label}</button>`;
+        }).join("")}
+      </div>
+      <svg viewBox="0 0 700 500" role="img" aria-label="Graph-paper net with ${assignedCount} of 6 faces labeled.">
+        <defs>
+          <pattern id="rectangular-prism-net-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0H0V20" fill="none" stroke="#c9d5da" stroke-width="1"></path>
+          </pattern>
+        </defs>
+        <rect class="rectangular-prism-net-board" x="1" y="1" width="698" height="498" rx="6"></rect>
+        <rect x="20" y="20" width="660" height="460" fill="url(#rectangular-prism-net-grid)"></rect>
+        ${slots.map((slot) => {
+          const faceType = assignments[slot.id] || "";
+          return `
+            <g
+              class="rectangular-prism-net-slot ${faceType ? "is-assigned" : ""}"
+              role="button"
+              tabindex="0"
+              data-prism-net-slot="${slot.id}"
+              aria-label="${slot.id.replace("-", " ")} face: ${faceType ? faceType.replace("x", " by ") : "not labeled"}"
+            >
+              <rect x="${slot.x}" y="${slot.y}" width="${slot.width}" height="${slot.height}"></rect>
+              <text x="${slot.x + slot.width / 2}" y="${slot.y + slot.height / 2 + 7}" text-anchor="middle">${faceType ? faceType.replace("x", " x ") : "select to label"}</text>
+            </g>
+          `;
+        }).join("")}
+      </svg>
+      <div class="rectangular-prism-net-status">
+        <span>${assignedCount} of 6 faces labeled</span>
+        <button class="hint-button" type="button" data-prism-net-reset ${assignedCount === 0 ? "disabled" : ""}>Reset net</button>
+      </div>
+    </section>
+  `;
+}
+
+function cubeNetCells(card) {
+  const seen = new Set();
+  return String(getTeachCustomResponse(card).cubeNetCells || "").split("|").map((entry) => {
+    const [x, y] = entry.split(",").map(Number);
+    return { x, y };
+  }).filter(({ x, y }) => {
+    const key = `${x},${y}`;
+    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 6 || y < 0 || y > 6 || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function cubeNetCellString(cells) {
+  return [...cells].sort((a, b) => a.y - b.y || a.x - b.x).map(({ x, y }) => `${x},${y}`).join("|");
+}
+
+function cubeNetVectorEquals(a, b) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+function cubeNetNegate(vector) {
+  return vector.map((value) => -value);
+}
+
+function cubeNetFoldOrientation(orientation, dx, dy) {
+  if (dx === 1) return { n: orientation.u, u: cubeNetNegate(orientation.n), v: orientation.v };
+  if (dx === -1) return { n: cubeNetNegate(orientation.u), u: orientation.n, v: orientation.v };
+  if (dy === 1) return { n: orientation.v, u: orientation.u, v: cubeNetNegate(orientation.n) };
+  return { n: cubeNetNegate(orientation.v), u: orientation.u, v: orientation.n };
+}
+
+function cubeNetIsValid(cells) {
+  if (!Array.isArray(cells) || cells.length !== 6) return false;
+  const cellKeys = new Set(cells.map(({ x, y }) => `${x},${y}`));
+  if (cellKeys.size !== 6) return false;
+  const startKey = `${cells[0].x},${cells[0].y}`;
+  const orientations = new Map([[startKey, { n: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0] }]]);
+  const queue = [cells[0]];
+  const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  while (queue.length) {
+    const cell = queue.shift();
+    const orientation = orientations.get(`${cell.x},${cell.y}`);
+    for (const [dx, dy] of directions) {
+      const neighbor = { x: cell.x + dx, y: cell.y + dy };
+      const neighborKey = `${neighbor.x},${neighbor.y}`;
+      if (!cellKeys.has(neighborKey)) continue;
+      const expected = cubeNetFoldOrientation(orientation, dx, dy);
+      const existing = orientations.get(neighborKey);
+      if (existing) {
+        if (!cubeNetVectorEquals(existing.n, expected.n)
+          || !cubeNetVectorEquals(existing.u, expected.u)
+          || !cubeNetVectorEquals(existing.v, expected.v)) return false;
+      } else {
+        orientations.set(neighborKey, expected);
+        queue.push(neighbor);
+      }
+    }
+  }
+  if (orientations.size !== 6) return false;
+  return new Set([...orientations.values()].map(({ n }) => n.join(","))).size === 6;
+}
+
+function cubeNetCanonicalSignature(cells) {
+  const transforms = [
+    ({ x, y }) => [x, y],
+    ({ x, y }) => [-y, x],
+    ({ x, y }) => [-x, -y],
+    ({ x, y }) => [y, -x],
+    ({ x, y }) => [-x, y],
+    ({ x, y }) => [x, -y],
+    ({ x, y }) => [y, x],
+    ({ x, y }) => [-y, -x],
+  ];
+  return transforms.map((transform) => {
+    const transformed = cells.map(transform);
+    const minX = Math.min(...transformed.map(([x]) => x));
+    const minY = Math.min(...transformed.map(([, y]) => y));
+    return transformed.map(([x, y]) => [x - minX, y - minY])
+      .sort((a, b) => a[1] - b[1] || a[0] - b[0])
+      .map(([x, y]) => `${x},${y}`)
+      .join(";");
+  }).sort()[0];
+}
+
+const cubeNetFigureCSignature = cubeNetCanonicalSignature([
+  { x: 2, y: 0 }, { x: 3, y: 0 }, { x: 0, y: 1 },
+  { x: 1, y: 1 }, { x: 2, y: 1 }, { x: 1, y: 2 },
+]);
+
+function cubeNetSavedSignatures(card) {
+  return String(getTeachCustomResponse(card).cubeNetSavedSignatures || "")
+    .split("||")
+    .filter((signature) => /^\d,\d(?:;\d,\d){5}$/.test(signature))
+    .slice(0, 3);
+}
+
+function renderCubeNetThumbnail(signature, index) {
+  const cells = signature.split(";").map((entry) => entry.split(",").map(Number));
+  return `
+    <figure class="cube-net-thumbnail">
+      <svg viewBox="0 0 100 100" role="img" aria-label="Saved valid cube net ${index + 1}">
+        ${cells.map(([x, y]) => `<rect x="${8 + x * 18}" y="${8 + y * 18}" width="18" height="18"></rect>`).join("")}
+      </svg>
+      <figcaption>Saved net ${index + 1}</figcaption>
+    </figure>
+  `;
+}
+
+function renderCubeNetBuilder(card) {
+  const cells = cubeNetCells(card);
+  const selected = new Set(cells.map(({ x, y }) => `${x},${y}`));
+  const saved = cubeNetSavedSignatures(card);
+  const message = String(getTeachCustomResponse(card).cubeNetMessage || "Select exactly six edge-connected squares, then test and save the net.");
+  const gridCells = [];
+  for (let y = 0; y < 7; y += 1) {
+    for (let x = 0; x < 7; x += 1) {
+      const key = `${x},${y}`;
+      gridCells.push(`
+        <rect
+          class="cube-net-grid-cell ${selected.has(key) ? "is-selected" : ""}"
+          x="${15 + x * 50}"
+          y="${15 + y * 50}"
+          width="48"
+          height="48"
+          role="button"
+          tabindex="0"
+          data-cube-net-cell="${key}"
+          aria-label="Grid square column ${x + 1}, row ${y + 1}"
+          aria-pressed="${selected.has(key)}"
+        ></rect>
+      `);
+    }
+  }
+  return `
+    <section class="cube-net-builder" aria-label="Build three different valid cube nets">
+      <figure class="cube-net-reference">
+        <figcaption>Source Figure C is already one cube net. Build different arrangements.</figcaption>
+        ${teachCropImage("lesson-15-p003-cube-net-reference.png", 335, 225, "Source Figure C cube net with six 3 by 3 square faces.")}
+      </figure>
+      <div class="cube-net-construction">
+        <p>Select six squares. Squares must connect along full edges.</p>
+        <svg viewBox="0 0 380 380" role="img" aria-label="Seven by seven square grid with ${cells.length} squares selected.">
+          ${gridCells.join("")}
+        </svg>
+        <div class="cube-net-builder-actions">
+          <button class="practice-submit" type="button" data-cube-net-save ${cells.length !== 6 || saved.length >= 3 ? "disabled" : ""}>Test and save net</button>
+          <button class="hint-button" type="button" data-cube-net-clear ${cells.length === 0 ? "disabled" : ""}>Clear grid</button>
+          <button class="hint-button" type="button" data-cube-net-reset-all ${saved.length === 0 && cells.length === 0 ? "disabled" : ""}>Reset saved nets</button>
+        </div>
+        <p class="cube-net-builder-message" aria-live="polite">${escapeHtml(message)}</p>
+      </div>
+      <div class="cube-net-saved" aria-label="Saved cube nets">
+        <p>${saved.length} of 3 different valid nets saved</p>
+        <div>${saved.map(renderCubeNetThumbnail).join("")}</div>
+      </div>
+    </section>
+  `;
+}
+
+function labeledCubeNetStateId(question) {
+  const raw = String(question?.netStateId || question?.id || "net");
+  const safe = raw.replace(/[^a-z0-9-]/gi, "").slice(0, 48);
+  return safe || "net";
+}
+
+function labeledCubeNetCellsField(question) {
+  return `labeledCubeNet_${labeledCubeNetStateId(question)}_cells`;
+}
+
+function labeledCubeNetMessageField(question) {
+  return `labeledCubeNet_${labeledCubeNetStateId(question)}_message`;
+}
+
+function labeledCubeNetCells(card, question) {
+  const seen = new Set();
+  return String(getTeachCustomResponse(card)[labeledCubeNetCellsField(question)] || "").split("|").map((entry) => {
+    const [x, y] = entry.split(",").map(Number);
+    return { x, y };
+  }).filter(({ x, y }) => {
+    const key = `${x},${y}`;
+    if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 6 || y < 0 || y > 6 || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 6);
+}
+
+function labeledCubeNetQuestionsSharingState(card, question) {
+  const stateId = labeledCubeNetStateId(question);
+  return (card.questions || []).filter((entry) => entry.visualType === "labeledCubeNet" && labeledCubeNetStateId(entry) === stateId);
+}
+
+function renderLabeledCubeNetBuilder(card, question) {
+  const cells = labeledCubeNetCells(card, question);
+  const selected = new Set(cells.map(({ x, y }) => `${x},${y}`));
+  const labelField = String(question?.netLabelField || "");
+  const faceLabel = labelField ? questionSetValue(card, question.id, labelField).slice(0, 18) : "";
+  const labelOffsetY = question?.netLabelPosition === "center" ? 44 : 29;
+  const message = String(getTeachCustomResponse(card)[labeledCubeNetMessageField(question)]
+    || "Select exactly six squares connected along full edges, then test the net.");
+  const gridCells = [];
+  for (let y = 0; y < 7; y += 1) {
+    for (let x = 0; x < 7; x += 1) {
+      const key = `${x},${y}`;
+      gridCells.push(`
+        <rect
+          class="cube-net-grid-cell ${selected.has(key) ? "is-selected" : ""}"
+          x="${15 + x * 50}"
+          y="${15 + y * 50}"
+          width="48"
+          height="48"
+          role="button"
+          tabindex="0"
+          data-labeled-cube-net-cell="${key}"
+          data-question-id="${escapeHtml(question.id)}"
+          aria-label="Grid square column ${x + 1}, row ${y + 1}"
+          aria-pressed="${selected.has(key)}"
+        ></rect>
+        ${selected.has(key) && faceLabel ? `<text class="labeled-cube-net-label" x="${39 + x * 50}" y="${labelOffsetY + y * 50}" text-anchor="middle">${escapeHtml(faceLabel)}</text>` : ""}
+      `);
+    }
+  }
+  return `
+    <section class="cube-net-builder labeled-cube-net-builder" aria-label="Draw and test a cube net">
+      <div class="cube-net-construction">
+        <p>Select six equal squares. A valid net must fold into six different faces without overlap.</p>
+        <svg viewBox="0 0 380 380" role="img" aria-label="Seven by seven square grid with ${cells.length} squares selected.">
+          ${gridCells.join("")}
+        </svg>
+        <div class="cube-net-builder-actions">
+          <button class="practice-submit" type="button" data-labeled-cube-net-test data-question-id="${escapeHtml(question.id)}" ${cells.length === 6 ? "" : "disabled"}>Test net</button>
+          <button class="hint-button" type="button" data-labeled-cube-net-clear data-question-id="${escapeHtml(question.id)}" ${cells.length === 0 ? "disabled" : ""}>Clear grid</button>
+        </div>
+        <p class="cube-net-builder-message" aria-live="polite">${escapeHtml(message)}</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderCubeMetricReference(question) {
+  const edgeLabel = String(question?.edgeLabel || "edge length").slice(0, 24);
+  return `
+    <figure class="cube-metric-reference">
+      <figcaption>Cube with edge length ${escapeHtml(edgeLabel)}</figcaption>
+      <svg viewBox="0 0 520 350" role="img" aria-label="Cube with three visible edges labeled ${escapeHtml(edgeLabel)}.">
+        <polygon class="cube-metric-top" points="130,98 300,46 408,112 238,164"></polygon>
+        <polygon class="cube-metric-front" points="130,98 238,164 238,314 130,248"></polygon>
+        <polygon class="cube-metric-side" points="238,164 408,112 408,262 238,314"></polygon>
+        <text x="177" y="143" text-anchor="middle">${escapeHtml(edgeLabel)}</text>
+        <text x="325" y="302" text-anchor="middle">${escapeHtml(edgeLabel)}</text>
+        <text x="430" y="194">${escapeHtml(edgeLabel)}</text>
+      </svg>
+    </figure>
+  `;
+}
+
+function renderMeasurementUnitBank(question) {
+  const quantities = [
+    ["parking-lot", "Perimeter of a parking lot"],
+    ["semi-truck", "Volume of a semi truck"],
+    ["refrigerator", "Surface area of a refrigerator"],
+    ["eyelash", "Length of an eyelash"],
+    ["state-area", "Area of a state"],
+    ["ocean-volume", "Volume of an ocean"],
+    ["miles-example", "A quantity measured in miles"],
+    ["cubic-meters-example", "A quantity measured in cubic meters"],
+  ];
+  return `
+    <section class="measurement-unit-bank" aria-label="Source quantities and unit bank">
+      <div>
+        <h4>Quantities</h4>
+        <ol>
+          ${quantities.map(([id, label]) => `<li class="${question?.id === id ? "is-active" : ""}">${escapeHtml(label)}</li>`).join("")}
+        </ol>
+      </div>
+      <div>
+        <h4>Source unit bank</h4>
+        <ul>
+          ${measurementUnitChoices.map((choice) => `<li>${escapeHtml(choice.label)}</li>`).join("")}
+        </ul>
+      </div>
+    </section>
+  `;
+}
+
+function renderExponentReferenceVisual() {
+  return `
+    <section class="exponent-reference" aria-label="Exponent reference for square area and cube volume">
+      <article>
+        <p class="exponent-reference-label">Squaring</p>
+        <p class="exponent-reference-expression">5 × 5 = 5<sup>2</sup></p>
+        <p>Two equal factors describe a square's area. Area uses square units, such as in<sup>2</sup>.</p>
+      </article>
+      <article>
+        <p class="exponent-reference-label">Cubing</p>
+        <p class="exponent-reference-expression">4 × 4 × 4 = 4<sup>3</sup></p>
+        <p>Three equal factors describe a cube's volume. Volume uses cubic units, such as cm<sup>3</sup>.</p>
+      </article>
+    </section>
+  `;
+}
+
+function renderExpressionComparisonVisual(question) {
+  const pairs = [
+    { id: "ten-times-three", left: "10 × 3", right: "10³" },
+    { id: "thirteen-squared", left: "13²", right: "12 × 12" },
+    { id: "six-groups-of-97", left: "97 + 97 + 97 + 97 + 97 + 97", right: "5 × 97" },
+  ];
+  return `
+    <section class="expression-comparison" aria-label="Source expression pairs">
+      <p>Compare structure, not calculated values.</p>
+      <ol>
+        ${pairs.map((pair) => `
+          <li class="${question?.id === pair.id ? "is-active" : ""}">
+            <span>${escapeHtml(pair.left)}</span>
+            <strong>or</strong>
+            <span>${escapeHtml(pair.right)}</span>
+          </li>
+        `).join("")}
+      </ol>
+    </section>
+  `;
+}
+
+function eightCubeShapeCells(card, shapeId) {
+  const field = shapeId === "B" ? "eightCubeShapeBCells" : "eightCubeShapeACells";
+  const seen = new Set();
+  return String(getTeachCustomResponse(card)[field] || "").split("|").map((entry) => {
+    const [x, y, z] = entry.split(",").map(Number);
+    return { x, y, z };
+  }).filter(({ x, y, z }) => {
+    const key = `${x},${y},${z}`;
+    if (!Number.isInteger(x) || !Number.isInteger(y) || !Number.isInteger(z)
+      || x < 0 || x > 3 || y < 0 || y > 3 || z < 0 || z > 7 || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function eightCubeShapeCellString(cells) {
+  return [...cells].sort((a, b) => a.z - b.z || a.y - b.y || a.x - b.x)
+    .map(({ x, y, z }) => `${x},${y},${z}`)
+    .join("|");
+}
+
+function eightCubeShapeIsConnected(cells) {
+  if (!Array.isArray(cells) || cells.length !== 8) return false;
+  const keys = new Set(cells.map(({ x, y, z }) => `${x},${y},${z}`));
+  if (keys.size !== 8) return false;
+  const visited = new Set([`${cells[0].x},${cells[0].y},${cells[0].z}`]);
+  const queue = [cells[0]];
+  const directions = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  while (queue.length) {
+    const cell = queue.shift();
+    for (const [dx, dy, dz] of directions) {
+      const neighbor = { x: cell.x + dx, y: cell.y + dy, z: cell.z + dz };
+      const key = `${neighbor.x},${neighbor.y},${neighbor.z}`;
+      if (keys.has(key) && !visited.has(key)) {
+        visited.add(key);
+        queue.push(neighbor);
+      }
+    }
+  }
+  return visited.size === 8;
+}
+
+function eightCubeShapeCanonicalSignature(cells) {
+  const permutations = [
+    [0, 1, 2], [0, 2, 1], [1, 0, 2],
+    [1, 2, 0], [2, 0, 1], [2, 1, 0],
+  ];
+  const signatures = [];
+  for (const permutation of permutations) {
+    for (const sx of [-1, 1]) {
+      for (const sy of [-1, 1]) {
+        for (const sz of [-1, 1]) {
+          const transformed = cells.map(({ x, y, z }) => {
+            const values = [x, y, z];
+            return [values[permutation[0]] * sx, values[permutation[1]] * sy, values[permutation[2]] * sz];
+          });
+          const mins = [0, 1, 2].map((axis) => Math.min(...transformed.map((point) => point[axis])));
+          signatures.push(transformed.map((point) => point.map((value, axis) => value - mins[axis]))
+            .sort((a, b) => a[2] - b[2] || a[1] - b[1] || a[0] - b[0])
+            .map((point) => point.join(","))
+            .join(";"));
+        }
+      }
+    }
+  }
+  return signatures.sort()[0] || "";
+}
+
+function eightCubeShapeSurfaceArea(cells) {
+  const keys = new Set(cells.map(({ x, y, z }) => `${x},${y},${z}`));
+  let exposed = 0;
+  const directions = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  cells.forEach(({ x, y, z }) => {
+    directions.forEach(([dx, dy, dz]) => {
+      if (!keys.has(`${x + dx},${y + dy},${z + dz}`)) exposed += 1;
+    });
+  });
+  return exposed;
+}
+
+function eightCubeShapeValidity(card) {
+  const shapeA = eightCubeShapeCells(card, "A");
+  const shapeB = eightCubeShapeCells(card, "B");
+  const shapeAValid = eightCubeShapeIsConnected(shapeA);
+  const shapeBConnected = eightCubeShapeIsConnected(shapeB);
+  const different = !shapeAValid || eightCubeShapeCanonicalSignature(shapeA) !== eightCubeShapeCanonicalSignature(shapeB);
+  return {
+    eightCubeShapeAValid: String(shapeAValid),
+    eightCubeShapeBValid: String(shapeBConnected && different),
+  };
+}
+
+function renderEightCubeSolid(cells, label) {
+  if (!cells.length) {
+    return `<g class="eight-cube-placeholder"><rect x="55" y="55" width="310" height="235" rx="6"></rect><text x="210" y="172" text-anchor="middle">Build ${escapeHtml(label)} on the layer grid.</text></g>`;
+  }
+  const cubes = [...cells].sort((a, b) => a.x + a.y + a.z - (b.x + b.y + b.z));
+  return cubes.map(({ x, y, z }) => {
+    const centerX = 210 + (x - y) * 34;
+    const baseY = 270 + (x + y) * 17 - z * 42;
+    return `
+      <g class="eight-cube-solid-cube">
+        <polygon class="eight-cube-top" points="${centerX},${baseY - 42} ${centerX + 30},${baseY - 27} ${centerX},${baseY - 12} ${centerX - 30},${baseY - 27}"></polygon>
+        <polygon class="eight-cube-left" points="${centerX - 30},${baseY - 27} ${centerX},${baseY - 12} ${centerX},${baseY + 25} ${centerX - 30},${baseY + 10}"></polygon>
+        <polygon class="eight-cube-right" points="${centerX},${baseY - 12} ${centerX + 30},${baseY - 27} ${centerX + 30},${baseY + 10} ${centerX},${baseY + 25}"></polygon>
+      </g>
+    `;
+  }).join("");
+}
+
+function renderEightCubePreview(cells, label) {
+  return `
+    <figure class="eight-cube-preview">
+      <figcaption>${escapeHtml(label)}: ${cells.length} of 8 cubes placed</figcaption>
+      <svg viewBox="0 0 420 340" role="img" aria-label="${escapeHtml(label)} with ${cells.length} cubes placed.">
+        ${renderEightCubeSolid(cells, label)}
+      </svg>
+    </figure>
+  `;
+}
+
+function renderEightCubeBuilder(card, question) {
+  if (question?.shapeId === "compare") {
+    return `
+      <section class="eight-cube-comparison" aria-label="Compare built Shapes A and B">
+        ${renderEightCubePreview(eightCubeShapeCells(card, "A"), "Shape A")}
+        ${renderEightCubePreview(eightCubeShapeCells(card, "B"), "Shape B")}
+      </section>
+    `;
+  }
+  const shapeId = question?.shapeId === "B" ? "B" : "A";
+  const cells = eightCubeShapeCells(card, shapeId);
+  const response = getTeachCustomResponse(card);
+  const layerField = shapeId === "B" ? "eightCubeShapeBLayer" : "eightCubeShapeALayer";
+  const activeLayer = clampNumber(Number(response[layerField]) || 0, 0, 7);
+  const selected = new Set(cells.map(({ x, y, z }) => `${x},${y},${z}`));
+  const gridCells = [];
+  for (let y = 0; y < 4; y += 1) {
+    for (let x = 0; x < 4; x += 1) {
+      const key = `${x},${y},${activeLayer}`;
+      gridCells.push(`
+        <rect
+          class="eight-cube-grid-cell ${selected.has(key) ? "is-selected" : ""}"
+          x="${15 + x * 62}"
+          y="${15 + y * 62}"
+          width="60"
+          height="60"
+          role="button"
+          tabindex="0"
+          data-eight-cube-cell="${key}"
+          data-shape-id="${shapeId}"
+          aria-label="Shape ${shapeId}, layer ${activeLayer + 1}, column ${x + 1}, row ${y + 1}"
+          aria-pressed="${selected.has(key)}"
+        ></rect>
+      `);
+    }
+  }
+  const connected = eightCubeShapeIsConnected(cells);
+  return `
+    <section class="eight-cube-builder" aria-label="Build Shape ${shapeId} from 8 unit cubes">
+      <div class="eight-cube-layer-board">
+        <p>Select cube positions on each layer. New cubes must eventually form one connected shape.</p>
+        <div class="eight-cube-layer-controls">
+          <button class="hint-button" type="button" data-eight-cube-layer-delta="-1" data-shape-id="${shapeId}" ${activeLayer === 0 ? "disabled" : ""}>Previous layer</button>
+          <span>Layer ${activeLayer + 1} of 8</span>
+          <button class="hint-button" type="button" data-eight-cube-layer-delta="1" data-shape-id="${shapeId}" ${activeLayer === 7 ? "disabled" : ""}>Next layer</button>
+        </div>
+        <svg viewBox="0 0 278 278" role="img" aria-label="Four by four selection grid for layer ${activeLayer + 1}.">${gridCells.join("")}</svg>
+        <div class="eight-cube-builder-status">
+          <span>${cells.length} of 8 cubes placed${connected ? "; connected" : ""}</span>
+          <button class="hint-button" type="button" data-eight-cube-reset data-shape-id="${shapeId}" ${cells.length === 0 ? "disabled" : ""}>Reset Shape ${shapeId}</button>
+        </div>
+      </div>
+      ${renderEightCubePreview(cells, `Shape ${shapeId}`)}
+    </section>
+  `;
+}
+
+function snapCubeInventory(question) {
+  return question?.cubeInventory === 64 ? 64 : 32;
+}
+
+function snapCubeCellsField(inventory) {
+  return inventory === 64 ? "snapCube64Cells" : "snapCube32Cells";
+}
+
+function snapCubeLayerField(inventory) {
+  return inventory === 64 ? "snapCube64Layer" : "snapCube32Layer";
+}
+
+function snapCubeCells(card, inventory) {
+  const seen = new Set();
+  return String(getTeachCustomResponse(card)[snapCubeCellsField(inventory)] || "").split("|").map((entry) => {
+    const [x, y, z] = entry.split(",").map(Number);
+    return { x, y, z };
+  }).filter(({ x, y, z }) => {
+    const key = `${x},${y},${z}`;
+    if (![x, y, z].every(Number.isInteger)
+      || x < 0 || x > 3 || y < 0 || y > 3 || z < 0 || z > 3 || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, inventory);
+}
+
+function snapCubeCellString(cells) {
+  return [...cells]
+    .sort((a, b) => a.z - b.z || a.y - b.y || a.x - b.x)
+    .map(({ x, y, z }) => `${x},${y},${z}`)
+    .join("|");
+}
+
+function snapCubeLargestEdge(inventory) {
+  return Math.floor(Math.cbrt(inventory) + 1e-9);
+}
+
+function snapCubeIsLargestCompleteCube(cells, inventory) {
+  const edge = snapCubeLargestEdge(inventory);
+  if (cells.length !== edge ** 3) return false;
+  const xs = [...new Set(cells.map(({ x }) => x))].sort((a, b) => a - b);
+  const ys = [...new Set(cells.map(({ y }) => y))].sort((a, b) => a - b);
+  const zs = [...new Set(cells.map(({ z }) => z))].sort((a, b) => a - b);
+  const consecutive = (values) => values.length === edge
+    && values.every((value, index) => index === 0 || value === values[index - 1] + 1);
+  if (![xs, ys, zs].every(consecutive)) return false;
+  const keys = new Set(cells.map(({ x, y, z }) => `${x},${y},${z}`));
+  return xs.every((x) => ys.every((y) => zs.every((z) => keys.has(`${x},${y},${z}`))));
+}
+
+function renderSnapCubeSolid(cells, inventory) {
+  if (!cells.length) {
+    return `<g class="eight-cube-placeholder"><rect x="55" y="55" width="310" height="235" rx="6"></rect><text x="210" y="162" text-anchor="middle">Build with the ${inventory}-cube inventory.</text><text x="210" y="188" text-anchor="middle">Unused cubes stay in the hidden stack.</text></g>`;
+  }
+  return [...cells].sort((a, b) => a.x + a.y + a.z - (b.x + b.y + b.z)).map(({ x, y, z }) => {
+    const centerX = 210 + (x - y) * 24;
+    const baseY = 245 + (x + y) * 12 - z * 29;
+    return `
+      <g class="eight-cube-solid-cube">
+        <polygon class="eight-cube-top" points="${centerX},${baseY - 30} ${centerX + 21},${baseY - 20} ${centerX},${baseY - 10} ${centerX - 21},${baseY - 20}"></polygon>
+        <polygon class="eight-cube-left" points="${centerX - 21},${baseY - 20} ${centerX},${baseY - 10} ${centerX},${baseY + 18} ${centerX - 21},${baseY + 8}"></polygon>
+        <polygon class="eight-cube-right" points="${centerX},${baseY - 10} ${centerX + 21},${baseY - 20} ${centerX + 21},${baseY + 8} ${centerX},${baseY + 18}"></polygon>
+      </g>
+    `;
+  }).join("");
+}
+
+function renderSnapCubeBuilder(card, question) {
+  const inventory = snapCubeInventory(question);
+  const cells = snapCubeCells(card, inventory);
+  const response = getTeachCustomResponse(card);
+  const activeLayer = clampNumber(Number(response[snapCubeLayerField(inventory)]) || 0, 0, 3);
+  const selected = new Set(cells.map(({ x, y, z }) => `${x},${y},${z}`));
+  const gridCells = [];
+  const missingLayerCells = [];
+  for (let y = 0; y < 4; y += 1) {
+    for (let x = 0; x < 4; x += 1) {
+      const key = `${x},${y},${activeLayer}`;
+      if (!selected.has(key)) missingLayerCells.push({ x, y, z: activeLayer });
+      gridCells.push(`
+        <rect
+          class="eight-cube-grid-cell ${selected.has(key) ? "is-selected" : ""}"
+          x="${15 + x * 62}"
+          y="${15 + y * 62}"
+          width="60"
+          height="60"
+          role="button"
+          tabindex="0"
+          data-snap-cube-cell="${key}"
+          data-cube-inventory="${inventory}"
+          aria-label="${inventory}-cube workspace, layer ${activeLayer + 1}, column ${x + 1}, row ${y + 1}"
+          aria-pressed="${selected.has(key)}"
+        ></rect>
+      `);
+    }
+  }
+  const validCube = snapCubeIsLargestCompleteCube(cells, inventory);
+  const canFillLayer = missingLayerCells.length > 0 && cells.length + missingLayerCells.length <= inventory;
+  return `
+    <section class="snap-cube-builder eight-cube-builder" aria-label="Build the largest cube from ${inventory} unit cubes">
+      <div class="eight-cube-layer-board">
+        <p>${inventory === 64 ? "Optional extension" : "Required build"}: place cubes one layer at a time. The hidden stack has ${inventory} cubes.</p>
+        <div class="eight-cube-layer-controls">
+          <button class="hint-button" type="button" data-snap-cube-layer-delta="-1" data-cube-inventory="${inventory}" ${activeLayer === 0 ? "disabled" : ""}>Previous layer</button>
+          <span>Layer ${activeLayer + 1} of 4</span>
+          <button class="hint-button" type="button" data-snap-cube-layer-delta="1" data-cube-inventory="${inventory}" ${activeLayer === 3 ? "disabled" : ""}>Next layer</button>
+        </div>
+        <svg viewBox="0 0 278 278" role="img" aria-label="Four by four selection grid for layer ${activeLayer + 1}.">${gridCells.join("")}</svg>
+        <div class="snap-cube-layer-actions">
+          <button class="hint-button" type="button" data-snap-cube-fill-layer data-cube-inventory="${inventory}" ${canFillLayer ? "" : "disabled"}>Fill current layer</button>
+          <button class="hint-button" type="button" data-snap-cube-clear-layer data-cube-inventory="${inventory}" ${missingLayerCells.length === 16 ? "disabled" : ""}>Clear current layer</button>
+        </div>
+        <div class="eight-cube-builder-status">
+          <span>${cells.length} placed; ${inventory - cells.length} in hidden stack${validCube ? "; largest complete cube built" : ""}</span>
+          <button class="hint-button" type="button" data-snap-cube-reset data-cube-inventory="${inventory}" ${cells.length === 0 ? "disabled" : ""}>Reset build</button>
+        </div>
+      </div>
+      <figure class="eight-cube-preview snap-cube-preview">
+        <figcaption>Current construction: ${cells.length} cubes</figcaption>
+        <svg viewBox="0 0 420 340" role="img" aria-label="Current construction with ${cells.length} cubes.">${renderSnapCubeSolid(cells, inventory)}</svg>
+      </figure>
+    </section>
+  `;
+}
+
+function resetSnapCubeQuestionSubmissions(card, inventory) {
+  (card.questions || []).filter((question) => snapCubeInventory(question) === inventory).forEach((question) => {
+    state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+  });
+}
+
+function validPrismDimensions(dimensions) {
+  return dimensions && [dimensions.l, dimensions.w, dimensions.h]
+    .every((value) => Number.isInteger(value) && value > 0 && value <= 20);
+}
+
+function renderPrismDimensionsVisual(question) {
+  const shape = validPrismDimensions(question?.dimensions) ? question.dimensions : { l: 1, w: 1, h: 1 };
+  const cell = Math.max(14, Math.min(34, 280 / shape.l));
+  return `
+    <figure class="prism-dimensions-visual">
+      <figcaption>Prism ${escapeHtml(question.prismLabel)}: ${shape.l} cm by ${shape.w} cm by ${shape.h} cm</figcaption>
+      <svg viewBox="0 0 700 330" role="img" aria-label="Prism ${escapeHtml(question.prismLabel)} with dimensions ${shape.l} by ${shape.w} by ${shape.h} centimeters.">
+        ${renderIsometricPrism(shape, 130, 260, cell, `Prism ${question.prismLabel}: ${shape.l} x ${shape.w} x ${shape.h}`)}
+      </svg>
+    </figure>
+  `;
+}
+
+function renderPrismDimensionSetVisual() {
+  return `
+    <section class="prism-dimension-set" aria-label="Source dimensions for Prisms A, B, and C">
+      <div><strong>Prism A</strong><span>1 cm x 1 cm x 11 cm</span></div>
+      <div><strong>Prism B</strong><span>1 cm x 2 cm x 7 cm</span></div>
+      <div><strong>Prism C</strong><span>1 cm x 3 cm x 5 cm</span></div>
+    </section>
+  `;
+}
+
+function renderPrismPairExamplesVisual() {
+  return `
+    <section class="prism-pair-example-visual" aria-label="Compare two student-created rectangular prisms">
+      <div><strong>First prism</strong><span>Enter three whole-number dimensions.</span></div>
+      <div><strong>Second prism</strong><span>Enter three whole-number dimensions.</span></div>
+      <p>Goal: equal surface areas and different volumes.</p>
+    </section>
+  `;
+}
+
+function renderCabinetDimensionsVisual(question) {
+  return `
+    <figure class="teach-visual-frame cabinet-dimensions-visual">
+      <figcaption>${escapeHtml(question.visualDirections || "Cabinet dimensions in sticky-note units.")}</figcaption>
+      <svg viewBox="0 0 680 430" role="img" aria-label="Cabinet modeled as a rectangular prism, 24 sticky notes high, 12 sticky notes wide, and 6 sticky notes deep.">
+        <defs>
+          <marker id="cabinet-arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#1f2d35"></path>
+          </marker>
+        </defs>
+        <polygon class="cabinet-face cabinet-top" points="170,100 455,100 540,52 255,52"></polygon>
+        <polygon class="cabinet-face cabinet-side" points="455,100 540,52 540,298 455,350"></polygon>
+        <rect class="cabinet-face cabinet-front" x="170" y="100" width="285" height="250"></rect>
+        <line class="cabinet-door-line" x1="312.5" y1="100" x2="312.5" y2="350"></line>
+        <circle class="cabinet-handle" cx="302" cy="230" r="5"></circle>
+        <circle class="cabinet-handle" cx="323" cy="230" r="5"></circle>
+        <line class="cabinet-measure" x1="138" y1="100" x2="138" y2="350" marker-start="url(#cabinet-arrow)" marker-end="url(#cabinet-arrow)"></line>
+        <text class="cabinet-measure-label" x="111" y="230" text-anchor="middle" transform="rotate(-90 111 230)">height 24</text>
+        <line class="cabinet-measure" x1="170" y1="382" x2="455" y2="382" marker-start="url(#cabinet-arrow)" marker-end="url(#cabinet-arrow)"></line>
+        <text class="cabinet-measure-label" x="312" y="414" text-anchor="middle">width 12</text>
+        <line class="cabinet-measure" x1="475" y1="82" x2="550" y2="38" marker-start="url(#cabinet-arrow)" marker-end="url(#cabinet-arrow)"></line>
+        <text class="cabinet-measure-label" x="556" y="87">depth 6</text>
+        <text class="cabinet-face-label" x="314" y="290" text-anchor="middle">front</text>
+        <text class="cabinet-face-label" x="498" y="215" text-anchor="middle" transform="rotate(-6 498 215)">side</text>
+        <text class="cabinet-face-label" x="355" y="82" text-anchor="middle">top</text>
+        <text class="cabinet-bottom-note" x="312" y="370" text-anchor="middle">bottom is not covered</text>
+      </svg>
+    </figure>
+  `;
+}
+
+function renderCabinetRowVisual(question) {
+  const cabinets = [0, 1, 2].map((index) => {
+    const x = 120 + index * 145;
+    return `
+      <g transform="translate(${x} 92)">
+        <rect class="cabinet-row-front" x="0" y="0" width="120" height="220"></rect>
+        <line class="cabinet-door-line" x1="60" y1="0" x2="60" y2="220"></line>
+        <circle class="cabinet-handle" cx="54" cy="110" r="4"></circle>
+        <circle class="cabinet-handle" cx="66" cy="110" r="4"></circle>
+        ${index < 2 ? `<line class="cabinet-shared-face" x1="132" y1="8" x2="132" y2="212"></line>` : ""}
+      </g>
+    `;
+  }).join("");
+  return `
+    <figure class="teach-visual-frame cabinet-dimensions-visual cabinet-row-visual">
+      <figcaption>${escapeHtml(question.visualDirections || "Cabinets pushed together share inside faces.")}</figcaption>
+      <svg viewBox="0 0 680 390" role="img" aria-label="Three identical cabinets pushed side by side, with the shared side faces marked inside the row.">
+        ${cabinets}
+        <text class="cabinet-measure-label" x="340" y="348" text-anchor="middle">Shared side faces are inside, so they are not part of the outside surface.</text>
+      </svg>
+    </figure>
+  `;
+}
+
+const parallelogramPairDefaults = {
+  P: { base: 4, height: 4, shift: 2 },
+  Q: { base: 5, height: 3, shift: 3 },
+};
+
+function parallelogramPairField(shapeId, field) {
+  return `parallelogramPair_${shapeId}_${field}`;
+}
+
+function parallelogramPairValue(card, shapeId, field) {
+  const fallback = parallelogramPairDefaults[shapeId]?.[field] || 1;
+  const parsed = Number(getTeachCustomResponse(card)[parallelogramPairField(shapeId, field)]);
+  if (!Number.isFinite(parsed)) return fallback;
+  const limits = field === "base" ? [2, 10] : field === "height" ? [2, 8] : [1, 5];
+  return clampNumber(parsed, limits[0], limits[1]);
+}
+
+function parallelogramPairHasInteraction(card) {
+  const response = getTeachCustomResponse(card);
+  return ["P", "Q"].every((shapeId) => ["base", "height", "shift"].some((field) => (
+    Object.prototype.hasOwnProperty.call(response, parallelogramPairField(shapeId, field))
+  )));
+}
+
+function parallelogramPairIsCorrect(card) {
+  const shapes = ["P", "Q"].map((shapeId) => ({
+    base: parallelogramPairValue(card, shapeId, "base"),
+    height: parallelogramPairValue(card, shapeId, "height"),
+    shift: parallelogramPairValue(card, shapeId, "shift"),
+  }));
+  const [shapeP, shapeQ] = shapes;
+  const bothArea20 = shapes.every((shape) => shape.base * shape.height === 20 && shape.shift > 0);
+  const different = ["base", "height", "shift"].some((field) => shapeP[field] !== shapeQ[field]);
+  return bothArea20 && different;
+}
+
+function renderParallelogramPairRange(card, shapeId, field, label, min, max) {
+  const value = parallelogramPairValue(card, shapeId, field);
+  return `
+    <label class="parallelogram-pair-range">
+      <span>${escapeHtml(label)}: <strong>${value}</strong></span>
+      <input
+        type="range"
+        min="${min}"
+        max="${max}"
+        step="1"
+        value="${value}"
+        data-parallelogram-pair-input="${card.id}"
+        data-shape-id="${shapeId}"
+        data-pair-field="${field}"
+      >
+    </label>
+  `;
+}
+
+function renderParallelogramPairShape(card, shapeId, originX) {
+  const base = parallelogramPairValue(card, shapeId, "base");
+  const height = parallelogramPairValue(card, shapeId, "height");
+  const shift = parallelogramPairValue(card, shapeId, "shift");
+  const cell = 20;
+  const baseY = 250;
+  const topY = baseY - height * cell;
+  const leftX = originX;
+  const topLeftX = leftX + shift * 12;
+  const bottomRightX = leftX + base * cell;
+  const topRightX = topLeftX + base * cell;
+  const heightX = topLeftX + Math.min(base - 1, 2) * cell;
+  return `
+    <g class="parallelogram-pair-shape" data-pair-shape="${shapeId}">
+      <text class="parallelogram-pair-name" x="${originX + 110}" y="42" text-anchor="middle">${shapeId}</text>
+      <polygon points="${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}"></polygon>
+      <line class="parallelogram-height-line" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
+      <path class="parallelogram-right-angle" d="M ${heightX} ${baseY - 13} L ${heightX + 13} ${baseY - 13} L ${heightX + 13} ${baseY}"></path>
+      <text class="parallelogram-pair-measure" x="${leftX + base * cell / 2}" y="278" text-anchor="middle">base ${base}</text>
+      <text class="parallelogram-pair-measure" x="${heightX + 10}" y="${topY + height * cell / 2}" text-anchor="start">height ${height}</text>
+    </g>
+  `;
+}
+
+function renderParallelogramPairWorkspace(card, question) {
+  return `
+    <figure class="teach-visual-frame parallelogram-pair-workspace">
+      <figcaption>${escapeHtml(question.visualDirections)}</figcaption>
+      <svg class="parallelogram-pair-stage" viewBox="0 0 760 300" role="img" aria-label="Two adjustable non-rectangular parallelograms P and Q on square grids.">
+        <rect x="1" y="1" width="758" height="298" class="parallelogram-explore-board"></rect>
+        <g aria-hidden="true">${gridLines(20, 10, 36, 14, 20)}</g>
+        ${renderParallelogramPairShape(card, "P", 55)}
+        ${renderParallelogramPairShape(card, "Q", 420)}
+      </svg>
+      <div class="parallelogram-pair-controls">
+        ${["P", "Q"].map((shapeId) => `
+          <fieldset>
+            <legend>Parallelogram ${shapeId}</legend>
+            ${renderParallelogramPairRange(card, shapeId, "base", "Base", 2, 10)}
+            ${renderParallelogramPairRange(card, shapeId, "height", "Height", 2, 8)}
+            ${renderParallelogramPairRange(card, shapeId, "shift", "Horizontal shift", 1, 5)}
+          </fieldset>
+        `).join("")}
+      </div>
+    </figure>
+  `;
+}
+
 function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lessonNumber }) {
   const visualContent = renderTeachVisualContent(card);
+  const usesIndependentSubmission = card.responseType === "areaMeaning"
+    || card.responseType === "gridFigureAreas"
+    || card.responseType === "questionSet";
   return `
     <article class="teach-lesson-card teach-card" id="${teachCardDomId(card)}" data-teach-card="${card.id}" data-teach-lesson="${card.lessonNumber}">
       <div class="teach-lesson-copy">
         <p class="eyebrow">${escapeHtml(card.idea)} · Section ${escapeHtml(card.section)} · Lesson ${card.lessonNumber}</p>
-        <h2>${escapeHtml(card.title)}</h2>
-        ${renderTeachCardSourceLinks(card)}
-        ${renderTeachPartSwitcher(group, card)}
+        <div class="teach-card-heading">
+          <div class="teach-title-group">
+            <h2>${escapeHtml(card.title)}</h2>
+            ${renderTeachPartSwitcher(group, card)}
+          </div>
+          <div class="teach-card-toolbar">
+            ${renderTeachCardSourceLinks(card)}
+          </div>
+        </div>
         ${card.activityTitle ? `<p class="teach-activity-title">${escapeHtml(card.activityTitle)}</p>` : ""}
         ${card.sourceContext ? `<p class="teach-source-context">${escapeHtml(card.sourceContext)}</p>` : ""}
-        <p class="teach-prompt">${escapeHtml(card.prompt)}</p>
       </div>
-      <div class="teach-workspace">
+      <div class="teach-card-body ${card.sourceDirections ? "has-visual-directions" : ""}">
         ${card.sourceDirections ? `<p class="teach-visual-directions">${escapeHtml(card.sourceDirections)}</p>` : ""}
-        ${visualContent}
+        <div class="teach-workspace">
+          ${visualContent}
+        </div>
         <div class="answer-panel teach-answer-panel">
           ${renderTeachResponseControl(card)}
-          <div class="practice-actions teach-actions">
-            <button class="practice-submit" type="button" data-teach-submit="${card.id}">Submit</button>
-            <button class="hint-button" type="button" data-teach-hint="${card.id}">${state.teachHints[card.id] ? "Hide hint" : "Show hint"}</button>
-          </div>
-          ${renderTeachFeedback(card)}
-          ${renderTeachHint(card)}
+          ${usesIndependentSubmission ? "" : `
+            <div class="practice-actions teach-actions">
+              <button class="practice-submit" type="button" data-teach-submit="${card.id}">Submit</button>
+              <button class="hint-button" type="button" data-teach-hint="${card.id}">${state.teachHints[card.id] ? "Hide hint" : "Show hint"}</button>
+            </div>
+            ${renderTeachFeedback(card)}
+            ${renderTeachHint(card)}
+          `}
         </div>
       </div>
     </article>
@@ -4280,10 +9723,12 @@ function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lesso
 }
 
 function renderTeachMe() {
+  window.Unit1Polyhedra?.disposeAll();
   renderTeachLessonNav();
   const deck = document.getElementById("teachLessonDeck");
   if (!deck) return;
   deck.innerHTML = teachLessonGroups().map(renderTeachLessonGroup).join("");
+  window.requestAnimationFrame(() => window.Unit1Polyhedra?.mountAll(deck));
 }
 
 function renderTeachCardSourceLinks(card) {
@@ -4307,6 +9752,996 @@ function renderTeachCardSourceLinks(card) {
 
 function getTeachCustomResponse(card) {
   return state.teachCustomResponses[card.id] || {};
+}
+
+const areaMeaningQuestionIds = ["drawings", "definition"];
+
+function isAreaMeaningQuestionId(questionId) {
+  return areaMeaningQuestionIds.includes(questionId);
+}
+
+function teachQuestionStateKey(cardId, questionId) {
+  return `${cardId}:${questionId}`;
+}
+
+function isTeachQuestionSubmitted(card, questionId) {
+  return Boolean(state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)]);
+}
+
+function isTeachQuestionHintVisible(card, questionId) {
+  return Boolean(state.teachQuestionHints[teachQuestionStateKey(card.id, questionId)]);
+}
+
+function questionSetDefinition(card, questionId) {
+  return card.questions?.find((question) => question.id === questionId) || null;
+}
+
+function questionSetActiveId(card) {
+  const activeId = state.teachQuestionSetActive[card.id];
+  const activeQuestion = questionSetDefinition(card, activeId);
+  if (activeQuestion && questionSetQuestionUnlocked(card, activeQuestion)) return activeQuestion.id;
+  return card.questions?.find((question) => questionSetQuestionUnlocked(card, question))?.id || "";
+}
+
+function questionSetField(questionId, field) {
+  return `questionSet_${questionId}_${field}`;
+}
+
+function questionSetValue(card, questionId, field = "answer") {
+  return String(getTeachCustomResponse(card)[questionSetField(questionId, field)] || "");
+}
+
+function questionSetSelections(card, question) {
+  const selected = questionSetValue(card, question.id).split("|").filter(Boolean);
+  return (question.choices || []).map((choice) => choice.id).filter((id) => selected.includes(id));
+}
+
+function questionSetFieldMatches(card, question, field, expected) {
+  const value = questionSetValue(card, question.id, field.id);
+  const acceptedValues = Array.isArray(expected) ? expected : [expected];
+  if (field.responseType === "number") {
+    return acceptedValues.some((accepted) => answerMatches(value, String(accepted)));
+  }
+  return acceptedValues.some((accepted) => normalizeAnswer(value) === normalizeAnswer(String(accepted)));
+}
+
+function questionSetWholeNumber(card, question, fieldId) {
+  const value = parseMathNumber(questionSetValue(card, question.id, fieldId));
+  return Number.isInteger(value) && value > 0 && value <= 20 ? value : null;
+}
+
+function prismDimensionSignature(l, w, h) {
+  return [l, w, h].sort((a, b) => a - b).join("x");
+}
+
+function questionSetNonnegativeInteger(card, question, fieldId) {
+  const value = parseMathNumber(questionSetValue(card, question.id, fieldId));
+  return Number.isInteger(value) && value >= 0 && value <= 1000000 ? value : null;
+}
+
+function isPerfectWholeNumberPower(value, power) {
+  if (!Number.isInteger(value) || value < 0 || !Number.isInteger(power) || power < 2) return false;
+  const root = Math.round(value ** (1 / power));
+  return root ** power === value;
+}
+
+function questionSetPowerExamplesAreCorrect(card, question, power, excludedValues = []) {
+  const powerFieldIds = power === 2
+    ? ["square1", "square2", "square3", "square4"]
+    : ["cube1", "cube2", "cube3", "cube4"];
+  const nonPowerFieldIds = power === 2
+    ? ["notSquare1", "notSquare2"]
+    : ["notCube1", "notCube2"];
+  const values = [...powerFieldIds, ...nonPowerFieldIds]
+    .map((fieldId) => questionSetNonnegativeInteger(card, question, fieldId));
+  if (values.some((value) => value === null) || new Set(values).size !== values.length) return false;
+  const powerValues = values.slice(0, powerFieldIds.length);
+  const nonPowerValues = values.slice(powerFieldIds.length);
+  return powerValues.every((value) => isPerfectWholeNumberPower(value, power) && !excludedValues.includes(value))
+    && nonPowerValues.every((value) => !isPerfectWholeNumberPower(value, power));
+}
+
+function questionSetPerfectSquareAndCubeExamplesAreCorrect(card, question) {
+  const tokens = normalizeAnswer(questionSetValue(card, question.id)).split(/[\s,;]+/).filter(Boolean);
+  if (!tokens.length || !tokens.every((token) => /^\d+$/.test(token))) return false;
+  const values = tokens.map(Number);
+  return new Set(values).size === values.length
+    && values.every((value) => value !== 15625
+      && value <= 1000000
+      && isPerfectWholeNumberPower(value, 2)
+      && isPerfectWholeNumberPower(value, 3));
+}
+
+function tentFabricUnitsAreCorrect(card, question) {
+  const units = normalizeAnswer(questionSetValue(card, question.id, "units"));
+  return ["square feet", "square foot", "sq ft", "ft^2", "ft²", "square ft"]
+    .some((accepted) => units === normalizeAnswer(accepted));
+}
+
+function tentFabricEstimateIsCorrect(card, question) {
+  const plan = tentPlanFromResponse(tentPlanField("teach-l19"));
+  const total = tentFabricTotal(plan);
+  const estimate = parseMathNumber(questionSetValue(card, question.id, "estimate"));
+  if (total === null || estimate === null || !tentFabricUnitsAreCorrect(card, question)) return false;
+  return Math.abs(estimate - roundTentMeasure(total)) <= 0.11;
+}
+
+function tentComparisonSelectionIsCorrect(card, question, mode) {
+  const selected = questionSetSelections(card, question)[0];
+  return Boolean(selected && tentComparisonAnswerIds(mode).includes(selected));
+}
+
+function questionSetAnswerIsCorrect(card, question) {
+  const answerKey = Array.isArray(question.answerKey) ? question.answerKey : [];
+  if (question.dynamicAnswer === "polyhedronPerFigure") {
+    return polyhedronModelIds.every((modelId) => (
+      polyhedronClassificationSubmitted(card, modelId)
+      && polyhedronClassificationIsCorrect(card, modelId)
+    ));
+  }
+  if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
+    return pyramidNetAnySaved(card) || pyramidNetAnalysis(card).valid;
+  }
+  if (question.dynamicAnswer === "perfectSquareExamples") {
+    return questionSetPowerExamplesAreCorrect(card, question, 2);
+  }
+  if (question.dynamicAnswer === "perfectCubeExamples") {
+    return questionSetPowerExamplesAreCorrect(card, question, 3, [27]);
+  }
+  if (question.dynamicAnswer === "perfectSquareAndCubeExamples") {
+    return questionSetPerfectSquareAndCubeExamplesAreCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "tentPlanReady") {
+    return tentPlanFromResponse(tentPlanField("teach-l19")).valid;
+  }
+  if (question.dynamicAnswer === "tentFabricEstimate") {
+    return tentFabricEstimateIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "tentComparisonLeast") {
+    return tentComparisonSelectionIsCorrect(card, question, "least");
+  }
+  if (question.dynamicAnswer === "tentComparisonMost") {
+    return tentComparisonSelectionIsCorrect(card, question, "most");
+  }
+  if (question.dynamicAnswer === "tentComparisonImpact") {
+    return tentComparisonSelectionIsCorrect(card, question, "impact");
+  }
+  if (question.dynamicAnswer === "validCubeNet") {
+    return cubeNetIsValid(labeledCubeNetCells(card, question));
+  }
+  if (question.responseType === "construction" && question.dynamicAnswer === "parallelogramPairArea20") {
+    return parallelogramPairIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "eightCubeShapeMetrics") {
+    const shapeId = question.shapeId === "B" ? "B" : "A";
+    const cells = eightCubeShapeCells(card, shapeId);
+    return eightCubeShapeIsConnected(cells)
+      && normalizeAnswer(questionSetValue(card, question.id, "name")).length >= 2
+      && answerMatches(questionSetValue(card, question.id, "volume"), "8")
+      && answerMatches(questionSetValue(card, question.id, "surfaceArea"), String(eightCubeShapeSurfaceArea(cells)));
+  }
+  if (question.dynamicAnswer === "sameSurfaceDifferentVolume") {
+    const values = ["aL", "aW", "aH", "bL", "bW", "bH"].map((fieldId) => questionSetWholeNumber(card, question, fieldId));
+    if (values.some((value) => value === null)) return false;
+    const [aL, aW, aH, bL, bW, bH] = values;
+    const first = { l: aL, w: aW, h: aH };
+    const second = { l: bL, w: bW, h: bH };
+    const sourceSignatures = new Set(["1x1x11", "1x2x7", "1x3x5"]);
+    const includesNewPrism = !sourceSignatures.has(prismDimensionSignature(aL, aW, aH))
+      || !sourceSignatures.has(prismDimensionSignature(bL, bW, bH));
+    return includesNewPrism
+      && prismSurfaceArea(first) === prismSurfaceArea(second)
+      && prismVolume(first) !== prismVolume(second);
+  }
+  if (Array.isArray(question.fields) && question.fields.length > 0) {
+    const acceptedSets = Array.isArray(question.acceptedFieldSets) ? question.acceptedFieldSets : [];
+    if (acceptedSets.length > 0) {
+      return acceptedSets.some((acceptedSet) => question.fields.every((field) => (
+        Object.prototype.hasOwnProperty.call(acceptedSet, field.id)
+          && questionSetFieldMatches(card, question, field, acceptedSet[field.id])
+      )));
+    }
+    return question.fields.every((field) => questionSetFieldMatches(card, question, field, field.answerKey || []));
+  }
+  if (question.responseType === "singleChoice") {
+    return questionSetSelections(card, question)[0] === answerKey[0];
+  }
+  if (question.responseType === "multiSelect") {
+    const selected = [...questionSetSelections(card, question)].sort();
+    const expected = [...answerKey].sort();
+    return selected.length === expected.length && selected.every((value, index) => value === expected[index]);
+  }
+  const value = questionSetValue(card, question.id);
+  if (question.responseType === "number") {
+    if (question.estimate) {
+      const estimate = parseMathNumber(value);
+      return estimate !== null && estimate > 0;
+    }
+    if (question.dynamicAnswer === "parallelogramArea") {
+      return answerMatches(value, String(parallelogramExploreShape(card, question.id).area));
+    }
+    return answerKey.some((accepted) => answerMatches(value, accepted));
+  }
+  if (question.responseType === "shortAnswer") {
+    const normalized = normalizeAnswer(value);
+    return answerKey.some((accepted) => normalized === normalizeAnswer(String(accepted)));
+  }
+  const normalized = normalizeAnswer(value);
+  const concepts = Array.isArray(question.answerConcepts) ? question.answerConcepts : [];
+  const minimumLength = Number.isInteger(question.minLength) ? question.minLength : 1;
+  if (question.acceptAnyResponse) return normalized.length >= minimumLength;
+  return normalized.length >= minimumLength && concepts.some((concept) => (
+    Array.isArray(concept) && concept.length > 0
+      && concept.every((term) => normalized.includes(String(term).toLowerCase()))
+  ));
+}
+
+function questionSetQuestionUnlocked(card, question) {
+  if (!question?.unlockedAfterQuestionId) return true;
+  const prerequisite = questionSetDefinition(card, question.unlockedAfterQuestionId);
+  return Boolean(prerequisite
+    && isTeachQuestionSubmitted(card, prerequisite.id)
+    && questionSetQuestionIsCorrect(card, prerequisite));
+}
+
+function questionSetHasAnswer(card, question) {
+  if (question.dynamicAnswer === "polyhedronPerFigure") {
+    return polyhedronModelIds.every((modelId) => polyhedronClassificationValue(card, modelId));
+  }
+  if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
+    return pyramidNetTargetIds.some((target) => (
+      pyramidNetPieces(card, target).length > 0 || pyramidNetSavedSignatures(card, target).length > 0
+    ));
+  }
+  if (question.responseType === "construction" && question.dynamicAnswer === "tentPlanReady") {
+    return tentPlanHasInteraction();
+  }
+  if (question.responseType === "construction" && question.dynamicAnswer === "parallelogramPairArea20") {
+    return parallelogramPairHasInteraction(card);
+  }
+  if (question.responseType === "construction" && question.dynamicAnswer === "validCubeNet") {
+    return labeledCubeNetCells(card, question).length > 0;
+  }
+  if (Array.isArray(question.fields) && question.fields.length > 0) {
+    return question.fields.every((field) => normalizeAnswer(questionSetValue(card, question.id, field.id)).length > 0);
+  }
+  if (question.responseType === "singleChoice" || question.responseType === "multiSelect") {
+    return questionSetSelections(card, question).length > 0;
+  }
+  return normalizeAnswer(questionSetValue(card, question.id)).length > 0;
+}
+
+function questionSetReasoningEvaluation(card, question) {
+  const reasoning = normalizeAnswer(questionSetValue(card, question.id, "reasoning"));
+  if (!question.reasoningPrompt) return { answered: true, correct: true };
+  const concepts = Array.isArray(question.reasoningConcepts) ? question.reasoningConcepts : [];
+  const correct = reasoning.length > 0 && (concepts.length === 0 || concepts.some((concept) => (
+    Array.isArray(concept) && concept.length > 0
+      && concept.every((term) => reasoning.includes(String(term).toLowerCase()))
+  )));
+  return { answered: reasoning.length > 0, correct };
+}
+
+function questionSetRequiredStateSatisfied(card, question) {
+  if (question.requiredConstruction === "sourceNetFoldComplete") {
+    return surfaceNetFoldStep(card, question.netId) === 3;
+  }
+  if (question.requiredConstruction === "largestCube") {
+    const inventory = snapCubeInventory(question);
+    return snapCubeIsLargestCompleteCube(snapCubeCells(card, inventory), inventory);
+  }
+  if (question.requiredConstruction === "validCubeNet") {
+    return cubeNetIsValid(labeledCubeNetCells(card, question));
+  }
+  if (question.requiredConstruction === "savedTentPlan") {
+    return tentPlanIsSavedFor(card);
+  }
+  const requirements = question.requiredCustomState || {};
+  const entries = Object.entries(requirements);
+  if (!entries.length) return true;
+  const response = getTeachCustomResponse(card);
+  return entries.every(([field, expected]) => String(response[field] ?? "") === String(expected));
+}
+
+function questionSetQuestionIsCorrect(card, question) {
+  const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
+  return adjustmentSatisfied
+    && questionSetRequiredStateSatisfied(card, question)
+    && questionSetAnswerIsCorrect(card, question)
+    && questionSetReasoningEvaluation(card, question).correct;
+}
+
+function questionSetStatus(card, question) {
+  if (!questionSetQuestionUnlocked(card, question)) return { className: "", text: "Locked" };
+  if (question.dynamicAnswer === "polyhedronPerFigure") {
+    const progress = polyhedronClassificationProgress(card);
+    if (progress.correctCount === progress.totalCount) return { className: "is-correct", text: "Correct" };
+    if (progress.submittedCount === progress.totalCount) return { className: "is-incorrect", text: "Revise" };
+    if (progress.submittedCount > 0) return { className: "", text: `${progress.correctCount}/${progress.totalCount} correct` };
+    return { className: "", text: "Not submitted" };
+  }
+  const submitted = isTeachQuestionSubmitted(card, question.id);
+  if (!submitted) return { className: "", text: question.optional ? "Optional" : "Not submitted" };
+  if (questionSetQuestionIsCorrect(card, question)) return { className: "is-correct", text: question.estimate || question.recordResponse ? "Recorded" : "Correct" };
+  return { className: "is-incorrect", text: "Revise" };
+}
+
+function questionSetCompletedCount(card) {
+  const correctCount = (card.questions || []).filter((question) => !question.optional && (
+    isTeachQuestionSubmitted(card, question.id) && questionSetQuestionIsCorrect(card, question)
+  )).length;
+  return Math.min(correctCount, questionSetRequiredCount(card));
+}
+
+function questionSetRequiredCount(card) {
+  const availableCount = (card.questions || []).filter((question) => !question.optional).length;
+  if (Number.isInteger(card.minimumRequiredCount)) {
+    return Math.max(0, Math.min(card.minimumRequiredCount, availableCount));
+  }
+  return availableCount;
+}
+
+function tentFabricCalculationExplanation(plan) {
+  const details = tentFabricDetails(plan);
+  if (!details) return "Complete a valid tent plan before calculating fabric.";
+  if (plan.style === "a-frame") {
+    return `The slanted roof width is ${formatTentMeasure(details.slant)} ft. Floor: ${plan.floorLength} × ${plan.floorWidth} = ${formatTentMeasure(details.floor)}; two roof panels: 2 × ${plan.floorLength} × ${formatTentMeasure(details.slant)} = ${formatTentMeasure(details.roofPair)}; two triangular ends: ${plan.floorWidth} × ${plan.height} = ${formatTentMeasure(details.endPair)}. Total: ${formatTentMeasure(details.total)} square feet.`;
+  }
+  return `Floor: ${plan.floorLength} × ${plan.floorWidth} = ${formatTentMeasure(details.floor)}; roof: ${plan.floorLength} × ${plan.floorWidth} = ${formatTentMeasure(details.roof)}; two long walls: 2 × ${plan.floorLength} × ${plan.height} = ${formatTentMeasure(details.longWalls)}; two end walls: 2 × ${plan.floorWidth} × ${plan.height} = ${formatTentMeasure(details.endWalls)}. Total: ${formatTentMeasure(details.total)} square feet.`;
+}
+
+function tentComparisonFeedback(mode) {
+  const designs = tentComparisonDesigns();
+  const correctIds = tentComparisonAnswerIds(mode);
+  if (!designs.length || !correctIds.length) return "Complete 19.1 before comparing the tents.";
+  if (mode === "impact") {
+    const own = designs.find((design) => design.id === "own");
+    const height = designs.find((design) => design.id === "height-change");
+    const floor = designs.find((design) => design.id === "floor-change");
+    return `Changing height changes the estimate by ${formatTentMeasure(Math.abs(height.fabric - own.fabric))} square feet. Changing the floor dimensions changes it by ${formatTentMeasure(Math.abs(floor.fabric - own.fabric))} square feet. The greater impact comes from ${correctIds.map(tentDesignLabel).join(" or ")}.`;
+  }
+  const summaries = correctIds.map((id) => {
+    const design = designs.find((entry) => entry.id === id);
+    return `${tentDesignLabel(id)} (${formatTentMeasure(design.fabric)} square feet)`;
+  });
+  return `The ${mode === "least" ? "smallest" : "largest"} estimate is ${summaries.join(" or ")}.`;
+}
+
+function pyramidNetRequiredInventoryText(targetDefinition) {
+  return `1 ${targetDefinition.baseType} base and ${targetDefinition.triangleCount} ${targetDefinition.triangleDescription}`;
+}
+
+function pyramidNetFeedbackText(card) {
+  const target = pyramidNetTargetId(card);
+  const targetDefinition = pyramidNetTargetDefinition(target);
+  const workspace = pyramidNetWorkspace(card, target);
+  const analysis = pyramidNetAnalysis(card, target);
+  const savedCount = workspace.savedSignatures.length;
+  const completedTargets = pyramidNetTargetIds.filter((targetId) => pyramidNetSavedSignatures(card, targetId).length > 0);
+  if (!workspace.submitted) {
+    if (savedCount && !analysis.pieces.length) {
+      return `${savedCount === 1 ? "One valid net is" : `${savedCount} valid nets are`} saved for Figure ${target}. Choose loose polygons when you are ready to try another arrangement.`;
+    }
+    if (completedTargets.length) {
+      return `Question 3 is complete with Figure ${completedTargets.join(", ")}. Build and submit the active Figure ${target} workspace to test this pyramid too.`;
+    }
+    return "Submit Question 3 when you are ready for feedback on the active source pyramid.";
+  }
+  if (!analysis.pieces.length) {
+    return `Choose polygons for Figure ${target} from the supply and place them on the workspace before submitting.`;
+  }
+  if (analysis.valid) {
+    const another = savedCount > 1
+      ? ` You have saved ${savedCount} different valid net structures for Figure ${target}.`
+      : ` Clear the workspace to find another net or switch to Figure ${pyramidNetTargetIds.find((targetId) => targetId !== target) || "Q"}.`;
+    return `Correct. Figure ${target}, the ${targetDefinition.label.toLowerCase()}, needs ${pyramidNetRequiredInventoryText(targetDefinition)}, and your pieces form one connected, non-overlapping net.${another}`;
+  }
+  if (!analysis.inventoryCorrect) {
+    return `The selected face set needs revision. Figure ${target}, the ${targetDefinition.label.toLowerCase()}, has ${pyramidNetRequiredInventoryText(targetDefinition)} and no other faces.`;
+  }
+  if (analysis.overlap) {
+    return "Your face set is correct, but at least two cut-outs overlap. Move the pieces so faces meet only along complete edges.";
+  }
+  if (!analysis.connected) {
+    return "Your face set is correct, but the pieces are not all connected. Join every cut-out to one growing net along complete edges.";
+  }
+  if (!analysis.joinRolesValid) {
+    return "Your face set is correct, but two triangular faces meet along base edges. A triangle's base edge belongs against the polygon base; triangular side faces join one another along their sloping edges.";
+  }
+  return "Your face set is correct, but the arrangement is not yet one flat net. Check for exactly one complete-edge connection between each new face and the growing figure.";
+}
+
+function questionSetResolvedFeedback(card, question, correct) {
+  if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
+    return pyramidNetFeedbackText(card);
+  }
+  if (question.dynamicAnswer === "tentPlanReady") {
+    const plan = tentPlanFromResponse(tentPlanField("teach-l19"));
+    if (correct) {
+      return `Your ${plan.floorLength}-by-${plan.floorWidth}-foot floor fits ${plan.capacity} standard ${plan.capacity === 1 ? "sleeping bag" : "sleeping bags"}, and your ${plan.height}-foot ${plan.style === "a-frame" ? "A-frame" : "wall"} tent includes a floor.`;
+    }
+    if (!plan.complete) return "Choose a capacity, bag arrangement, height, tent style, and both floor dimensions.";
+    return `The ${plan.capacity} sleeping bags require at least ${formatTentMeasure(plan.requiredFloor.length)} by ${formatTentMeasure(plan.requiredFloor.width)} feet in this arrangement. Enlarge the floor and submit again.`;
+  }
+  if (question.dynamicAnswer === "tentFabricEstimate") {
+    const explanation = tentFabricCalculationExplanation(tentPlanFromResponse(tentPlanField("teach-l19")));
+    return correct
+      ? `Correct. ${explanation}`
+      : `Recheck the estimate and use square feet. ${explanation}`;
+  }
+  if (question.dynamicAnswer === "tentComparisonLeast") {
+    return `${correct ? "Correct. " : "Compare the totals again. "}${tentComparisonFeedback("least")}`;
+  }
+  if (question.dynamicAnswer === "tentComparisonMost") {
+    return `${correct ? "Correct. " : "Compare the totals again. "}${tentComparisonFeedback("most")}`;
+  }
+  if (question.dynamicAnswer === "tentComparisonImpact") {
+    return `${correct ? "Correct. " : "Compare each change with your tent. "}${tentComparisonFeedback("impact")}`;
+  }
+  return correct ? question.correctFeedback : question.incorrectFeedback;
+}
+
+function renderQuestionSetFeedback(card, question) {
+  if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
+    const target = pyramidNetTargetId(card);
+    const workspace = pyramidNetWorkspace(card, target);
+    const analysis = pyramidNetAnalysis(card, target);
+    const feedbackClass = workspace.submitted
+      ? analysis.valid ? "is-correct" : "is-incorrect"
+      : pyramidNetAnySaved(card) ? "is-correct" : "";
+    return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(pyramidNetFeedbackText(card))}</p>`;
+  }
+  const submitted = isTeachQuestionSubmitted(card, question.id);
+  const answered = questionSetHasAnswer(card, question);
+  const answerCorrect = answered && questionSetAnswerIsCorrect(card, question);
+  const reasoning = questionSetReasoningEvaluation(card, question);
+  const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
+  const requiredStateSatisfied = questionSetRequiredStateSatisfied(card, question);
+  const correct = submitted && adjustmentSatisfied && requiredStateSatisfied && answerCorrect && reasoning.correct;
+  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  const feedbackText = !submitted
+    ? `Submit ${question.label} when you are ready for feedback.`
+    : !answered
+      ? question.missingResponseFeedback || `Choose or enter an answer for ${question.label}, then submit again.`
+      : !adjustmentSatisfied
+        ? question.adjustmentFeedback || "Change the model before submitting this question."
+      : !requiredStateSatisfied
+        ? question.requiredStateFeedback || "Complete the required workspace action before submitting this question."
+      : answerCorrect && question.reasoningPrompt && !reasoning.answered
+        ? question.reasoningRequiredFeedback || "Your answer is correct. Add your reasoning, then submit again."
+        : answerCorrect && question.reasoningPrompt && !reasoning.correct
+          ? question.reasoningRevisionFeedback || "Your answer is correct, but strengthen the explanation and submit again."
+          : correct
+            ? questionSetResolvedFeedback(card, question, true)
+            : questionSetResolvedFeedback(card, question, false);
+  return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+}
+
+function renderQuestionSetHint(card, question) {
+  if (!isTeachQuestionHintVisible(card, question.id)) return "";
+  return `<p class="practice-hints teach-question-hint" data-question-set-hint-content="${escapeHtml(question.id)}"><strong>Hint:</strong> ${escapeHtml(question.hint)}</p>`;
+}
+
+function renderQuestionSetAnswer(card, question) {
+  if (question.responseType === "construction") {
+    return `<p class="teach-question-note">${escapeHtml(question.constructionNote || "Use the construction controls in the workspace, then submit this question.")}</p>`;
+  }
+  if (Array.isArray(question.fields) && question.fields.length > 0) {
+    return `
+      <div class="question-set-field-grid">
+        ${question.fields.map((field) => `
+          <label class="question-set-input-label">
+            ${escapeHtml(field.label)}
+            <input
+              type="text"
+              inputmode="${field.responseType === "number" ? "decimal" : "text"}"
+              maxlength="${field.responseType === "number" ? 24 : 120}"
+              autocomplete="off"
+              data-question-set-input="${card.id}"
+              data-question-id="${escapeHtml(question.id)}"
+              data-question-field="${escapeHtml(field.id)}"
+              value="${escapeHtml(questionSetValue(card, question.id, field.id))}"
+              placeholder="${escapeHtml(field.placeholder || "Type answer")}"
+            >
+          </label>
+        `).join("")}
+      </div>
+    `;
+  }
+  if (question.responseType === "singleChoice" || question.responseType === "multiSelect") {
+    const selected = questionSetSelections(card, question);
+    return `
+      <div class="option-grid teach-option-grid question-set-choice-grid ${question.visualType === "polyhedronSort" ? "polyhedron-sort-choice-grid" : ""}" role="group" aria-label="${escapeHtml(question.prompt)}">
+        ${(question.choices || []).map((choice) => `
+          <button
+            class="option-button ${selected.includes(choice.id) ? "is-selected" : ""}"
+            type="button"
+            data-question-set-choice="${card.id}"
+            data-question-id="${escapeHtml(question.id)}"
+            data-option-id="${escapeHtml(choice.id)}"
+            aria-pressed="${selected.includes(choice.id)}"
+          >${escapeHtml(choice.label)}</button>
+        `).join("")}
+      </div>
+    `;
+  }
+  if (question.responseType === "openResponse") {
+    return `
+      <label class="reasoning-field question-set-long-answer">
+        ${escapeHtml(question.inputLabel || "Answer")}
+        <textarea
+          maxlength="${TEXTAREA_MAX_LENGTH}"
+          data-question-set-input="${card.id}"
+          data-question-id="${escapeHtml(question.id)}"
+          data-question-field="answer"
+          placeholder="${escapeHtml(question.placeholder || "Type your answer")}"
+        >${escapeHtml(questionSetValue(card, question.id))}</textarea>
+      </label>
+    `;
+  }
+  const inputMode = question.responseType === "number" ? "decimal" : "text";
+  return `
+    <label class="question-set-input-label">
+      ${escapeHtml(question.inputLabel || "Answer")}
+      <input
+        type="text"
+        inputmode="${inputMode}"
+        maxlength="${question.responseType === "number" ? 24 : 500}"
+        autocomplete="off"
+        data-question-set-input="${card.id}"
+        data-question-id="${escapeHtml(question.id)}"
+        data-question-field="answer"
+        value="${escapeHtml(questionSetValue(card, question.id))}"
+        placeholder="${escapeHtml(question.placeholder || "Type your answer")}"
+      >
+    </label>
+  `;
+}
+
+function renderPolyhedronClassificationControl(card, question) {
+  const modelId = polyhedronSelectedModel(card);
+  const selectedValue = polyhedronClassificationValue(card, modelId);
+  const submitted = polyhedronClassificationSubmitted(card, modelId);
+  const correct = submitted && polyhedronClassificationIsCorrect(card, modelId);
+  const progress = polyhedronClassificationProgress(card);
+  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  let feedbackText = `Choose a classification for Figure ${modelId}, then submit it for feedback.`;
+  if (submitted && !selectedValue) {
+    feedbackText = `Choose Polyhedron or Not a polyhedron for Figure ${modelId}, then submit it again.`;
+  } else if (submitted) {
+    const expectedLabel = polyhedronClassificationExpected(card, modelId) === "polyhedron"
+      ? "a polyhedron"
+      : "not a polyhedron";
+    feedbackText = `${correct ? "Correct." : `Not quite. Figure ${modelId} is ${expectedLabel}.`} ${polyhedronClassificationExplanations[modelId]}`;
+  }
+  return `
+    <div class="polyhedron-classification" data-polyhedron-classification="${modelId}">
+      <div class="polyhedron-classification-heading">
+        <p class="polyhedron-classification-prompt">Is Figure ${modelId} a polyhedron?</p>
+        <p class="polyhedron-classification-progress" data-polyhedron-classification-progress>${progress.correctCount} of ${progress.totalCount} figures completed correctly.</p>
+      </div>
+      <div class="option-grid teach-option-grid polyhedron-classification-options" role="group" aria-label="Classify Figure ${modelId}">
+        ${(question.choices || []).map((choice) => `
+          <button
+            class="option-button ${selectedValue === choice.id ? "is-selected" : ""}"
+            type="button"
+            data-polyhedron-classification-choice="${card.id}"
+            data-model-id="${modelId}"
+            data-classification="${escapeHtml(choice.id)}"
+            aria-pressed="${selectedValue === choice.id}"
+          >${escapeHtml(choice.label)}</button>
+        `).join("")}
+      </div>
+      <div class="practice-actions teach-question-actions">
+        <button class="practice-submit" type="button" data-polyhedron-classification-submit="${card.id}" data-model-id="${modelId}">Submit Figure ${modelId}</button>
+        <button class="hint-button" type="button" data-question-set-hint="${card.id}" data-question-id="${escapeHtml(question.id)}">${isTeachQuestionHintVisible(card, question.id) ? "Hide hint" : "Show hint"}</button>
+      </div>
+      <p class="practice-feedback teach-question-feedback ${feedbackClass}" data-polyhedron-classification-feedback="${modelId}" aria-live="polite">${escapeHtml(feedbackText)}</p>
+      ${renderQuestionSetHint(card, question)}
+    </div>
+  `;
+}
+
+function renderQuestionSetControl(card) {
+  const activeId = questionSetActiveId(card);
+  const question = questionSetDefinition(card, activeId);
+  if (!question) return "";
+  const completed = questionSetCompletedCount(card);
+  const requiredCount = questionSetRequiredCount(card);
+  const hasOptional = requiredCount !== (card.questions || []).length;
+  return `
+    <div class="question-set-response" data-question-set-response="${escapeHtml(activeId)}">
+      <div class="question-set-progress" role="tablist" aria-label="Required questions">
+        ${(card.questions || []).map((entry) => {
+          const status = questionSetStatus(card, entry);
+          const unlocked = questionSetQuestionUnlocked(card, entry);
+          return `
+            <button
+              class="question-set-progress-item ${entry.id === activeId ? "is-active" : ""} ${status.className}"
+              type="button"
+              role="tab"
+              data-question-set-select="${card.id}"
+              data-question-id="${escapeHtml(entry.id)}"
+              aria-selected="${entry.id === activeId}"
+              ${unlocked ? "" : "disabled"}
+            >
+              <strong>${escapeHtml(entry.label)}</strong>
+              <span>${escapeHtml(status.text)}</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+      <p class="teach-question-note" data-question-set-completion>Completed ${completed} of ${requiredCount}${hasOptional ? " required" : ""} questions.</p>
+      <section class="teach-independent-question question-set-question" aria-labelledby="${card.id}-${activeId}-prompt">
+        <p class="teach-question-number">${escapeHtml(question.label)}</p>
+        <p class="teach-response-prompt" id="${card.id}-${activeId}-prompt">${escapeHtml(question.prompt)}</p>
+        ${question.dynamicAnswer === "polyhedronPerFigure" ? renderPolyhedronClassificationControl(card, question) : `
+          ${renderQuestionSetAnswer(card, question)}
+          ${question.reasoningPrompt ? `
+            <label class="reasoning-field">
+              ${escapeHtml(question.reasoningPrompt)}
+              <textarea
+                maxlength="${TEXTAREA_MAX_LENGTH}"
+                data-question-set-input="${card.id}"
+                data-question-id="${escapeHtml(question.id)}"
+                data-question-field="reasoning"
+                placeholder="Explain your thinking."
+              >${escapeHtml(questionSetValue(card, question.id, "reasoning"))}</textarea>
+            </label>
+          ` : ""}
+          <div class="practice-actions teach-question-actions">
+            <button class="practice-submit" type="button" data-question-set-submit="${card.id}" data-question-id="${escapeHtml(question.id)}">Submit ${escapeHtml(question.label)}</button>
+            <button class="hint-button" type="button" data-question-set-hint="${card.id}" data-question-id="${escapeHtml(question.id)}">${isTeachQuestionHintVisible(card, question.id) ? "Hide hint" : "Show hint"}</button>
+          </div>
+          ${renderQuestionSetFeedback(card, question)}
+          ${renderQuestionSetHint(card, question)}
+        `}
+      </section>
+    </div>
+  `;
+}
+
+function areaMeaningDrawingSelections(card) {
+  const selected = String(getTeachCustomResponse(card).drawingSelections || "").split("|").filter(Boolean);
+  return card.drawingChoices.filter((choice) => selected.includes(choice));
+}
+
+function areaMeaningDrawingsAreCorrect(card) {
+  const selected = [...areaMeaningDrawingSelections(card)].sort();
+  const expected = [...card.drawingAnswerKey].sort();
+  return selected.length === expected.length && selected.every((choice, index) => choice === expected[index]);
+}
+
+function areaDefinitionEvaluation(value) {
+  const answer = normalizeAnswer(value);
+  const hasSquareUnits = /\b(square units?|unit squares?|same[- ]size squares?)\b/.test(answer);
+  const hasCovering = /\b(cover|covers|covered|covering|fill|fills|filled|filling|tile|tiles|tiled|tiling)\b/.test(answer);
+  const hasNoGaps = /\b(no|without)\b.{0,45}\bgaps?\b/.test(answer)
+    || /\b(completely|fully|entirely)\b/.test(answer);
+  const hasNoOverlaps = /\b(no|without)\b.{0,45}\boverlaps?\b/.test(answer)
+    || /\b(do not|does not|don't|doesn't)\s+overlap\b/.test(answer)
+    || /\bnon[- ]?overlapping\b/.test(answer);
+  const missing = [];
+  if (!hasSquareUnits) missing.push("square units or same-size unit squares");
+  if (!hasCovering) missing.push("covering the region");
+  if (!hasNoGaps) missing.push("no gaps");
+  if (!hasNoOverlaps) missing.push("no overlaps");
+  return {
+    answered: answer.length > 0,
+    correct: missing.length === 0,
+    missing,
+  };
+}
+
+function renderAreaMeaningQuestionFeedback(card, questionId) {
+  const submitted = isTeachQuestionSubmitted(card, questionId);
+  let correct = false;
+  let feedbackText = `Submit Question ${questionId === "drawings" ? "1" : "2"} when you are ready for feedback.`;
+
+  if (submitted && questionId === "drawings") {
+    const selected = areaMeaningDrawingSelections(card);
+    correct = areaMeaningDrawingsAreCorrect(card);
+    if (!selected.length) {
+      feedbackText = "Select at least one drawing, then submit Question 1 again.";
+    } else {
+      const explanation = "A and D can be counted using a consistent square unit. B also works because four of its small squares equal one large square. C does not work because its squares overlap and leave part of the region uncovered.";
+      feedbackText = correct
+        ? `Correct. The drawings are A, B, and D. ${explanation}`
+        : `Not quite. The correct drawings are A, B, and D. ${explanation}`;
+    }
+  }
+
+  if (submitted && questionId === "definition") {
+    const evaluation = areaDefinitionEvaluation(getTeachCustomResponse(card).areaDefinition);
+    correct = evaluation.correct;
+    const modelDefinition = "Area is the number of unit squares that cover a two-dimensional region without gaps or overlaps.";
+    if (!evaluation.answered) {
+      feedbackText = "Write your definition of area, then submit Question 2 again.";
+    } else if (evaluation.correct) {
+      feedbackText = `Correct. ${modelDefinition}`;
+    } else {
+      feedbackText = `Not quite. ${modelDefinition} Your definition still needs to include: ${evaluation.missing.join(", ")}.`;
+    }
+  }
+
+  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-teach-question-feedback="${questionId}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+}
+
+function renderAreaMeaningQuestionHint(card, questionId) {
+  if (!isTeachQuestionHintVisible(card, questionId)) return "";
+  const hint = questionId === "drawings" ? card.drawingHint : card.definitionHint;
+  return `<p class="practice-hints teach-question-hint" data-teach-question-hint-content="${questionId}"><strong>Hint:</strong> ${escapeHtml(hint)}</p>`;
+}
+
+function renderAreaMeaningControl(card) {
+  const selected = areaMeaningDrawingSelections(card);
+  const definition = getTeachCustomResponse(card).areaDefinition || "";
+  return `
+    <div class="area-meaning-response">
+      <section class="teach-independent-question" data-teach-question-section="drawings" aria-labelledby="${card.id}-drawings-prompt">
+        <p class="teach-question-number">Question 1</p>
+        <p class="teach-response-prompt" id="${card.id}-drawings-prompt">${escapeHtml(card.prompt)}</p>
+        <p class="teach-question-note">Be prepared to explain your reasoning.</p>
+        <div class="area-meaning-choice-grid" role="group" aria-label="Drawings whose squares could be used to find area">
+          ${card.drawingChoices.map((choice) => `
+            <button
+              class="option-button area-meaning-choice ${selected.includes(choice) ? "is-selected" : ""}"
+              type="button"
+              data-area-meaning-choice="${card.id}"
+              data-drawing-id="${choice}"
+              aria-pressed="${selected.includes(choice)}"
+            >
+              Drawing ${choice}
+            </button>
+          `).join("")}
+        </div>
+        <div class="practice-actions teach-question-actions">
+          <button class="practice-submit" type="button" data-teach-question-submit="${card.id}" data-question-id="drawings">Submit Question 1</button>
+          <button class="hint-button" type="button" data-teach-question-hint="${card.id}" data-question-id="drawings">${isTeachQuestionHintVisible(card, "drawings") ? "Hide hint" : "Show hint"}</button>
+        </div>
+        ${renderAreaMeaningQuestionFeedback(card, "drawings")}
+        ${renderAreaMeaningQuestionHint(card, "drawings")}
+      </section>
+      <section class="teach-independent-question" data-teach-question-section="definition" aria-labelledby="${card.id}-definition-prompt">
+        <p class="teach-question-number">Question 2</p>
+        <label class="reasoning-field" id="${card.id}-definition-prompt">
+          ${escapeHtml(card.definitionPrompt)}
+          <textarea
+            data-teach-question-input="${card.id}"
+            data-question-id="definition"
+            maxlength="${TEXTAREA_MAX_LENGTH}"
+            placeholder="Write your definition."
+          >${escapeHtml(definition)}</textarea>
+        </label>
+        <div class="practice-actions teach-question-actions">
+          <button class="practice-submit" type="button" data-teach-question-submit="${card.id}" data-question-id="definition">Submit Question 2</button>
+          <button class="hint-button" type="button" data-teach-question-hint="${card.id}" data-question-id="definition">${isTeachQuestionHintVisible(card, "definition") ? "Hide hint" : "Show hint"}</button>
+        </div>
+        ${renderAreaMeaningQuestionFeedback(card, "definition")}
+        ${renderAreaMeaningQuestionHint(card, "definition")}
+      </section>
+    </div>
+  `;
+}
+
+function gridFigureAreaDefinition(card, figureId) {
+  return card.figures?.find((figure) => figure.id === figureId) || null;
+}
+
+function gridFigureAreaActiveId(card) {
+  const activeId = state.teachGridAreaActive[card.id];
+  return gridFigureAreaDefinition(card, activeId)?.id || card.figures?.[0]?.id || "";
+}
+
+function gridFigureAreaField(figureId, field) {
+  return `figure${figureId}${field === "area" ? "Area" : "Reasoning"}`;
+}
+
+function gridFigureAreaValue(card, figureId, field) {
+  return getTeachCustomResponse(card)[gridFigureAreaField(figureId, field)] || "";
+}
+
+function isGridFigureAreaAnswerCorrect(card, figureId) {
+  const figure = gridFigureAreaDefinition(card, figureId);
+  const value = gridFigureAreaValue(card, figureId, "area");
+  return Boolean(figure && normalizeAnswer(value).length > 0 && answerMatches(value, figure.answer));
+}
+
+function gridFigureAreaReasoningEvaluation(card, figureId) {
+  const figure = gridFigureAreaDefinition(card, figureId);
+  const reasoning = gridFigureAreaValue(card, figureId, "reasoning").trim().toLowerCase();
+  if (!card.requireReasoning) return { answered: reasoning.length > 0, correct: true };
+  const concepts = Array.isArray(figure?.reasoningConcepts) ? figure.reasoningConcepts : [];
+  const conceptMatch = concepts.length === 0 || concepts.some((concept) => (
+    Array.isArray(concept) && concept.length > 0
+      && concept.every((term) => typeof term === "string" && reasoning.includes(term.toLowerCase()))
+  ));
+  return {
+    answered: reasoning.length > 0,
+    correct: reasoning.length > 0 && conceptMatch,
+  };
+}
+
+function isGridFigureAreaCorrect(card, figureId) {
+  if (!isGridFigureAreaAnswerCorrect(card, figureId)) return false;
+  return gridFigureAreaReasoningEvaluation(card, figureId).correct;
+}
+
+function gridFigureAreaStatus(card, figureId) {
+  const submitted = isTeachQuestionSubmitted(card, figureId);
+  if (!submitted) return { className: "", text: "Not submitted" };
+  if (isGridFigureAreaCorrect(card, figureId)) return { className: "is-correct", text: "Correct" };
+  return { className: "is-incorrect", text: "Revise" };
+}
+
+function gridFigureAreaCompletedCount(card) {
+  return (card.figures || []).filter((figure) => (
+    isTeachQuestionSubmitted(card, figure.id) && isGridFigureAreaCorrect(card, figure.id)
+  )).length;
+}
+
+function gridFigureAreaVisualConfig(card) {
+  const positiveInteger = (value, fallback) => (
+    Number.isInteger(value) && value > 0 && value <= 4096 ? value : fallback
+  );
+  const validWeights = (weights, fallback) => (
+    Array.isArray(weights) && weights.length > 0 && weights.length <= 6
+      && weights.every((weight) => Number.isFinite(weight) && weight > 0 && weight <= 100)
+      ? weights
+      : fallback
+  );
+  const width = positiveInteger(card.visualWidth, 427);
+  const height = positiveInteger(card.visualHeight, 350);
+  return {
+    width,
+    height,
+    displayMaxWidth: Math.min(positiveInteger(card.visualDisplayMaxWidth, width), width),
+    columns: validWeights(card.visualColumnWeights, [1, 1]).map((weight) => `${weight}fr`).join(" "),
+    rows: validWeights(card.visualRowWeights, [1, 1]).map((weight) => `${weight}fr`).join(" "),
+  };
+}
+
+function gridFigureAreaPrompt(card, figureId) {
+  const prompt = card.figurePrompt || "Find the area of the shaded region in Figure {figure} without counting every square.";
+  return prompt.split("{figure}").join(figureId);
+}
+
+function gridFigureAreaHitStyle(figure) {
+  const validIndex = (value) => Number.isInteger(value) && value >= 1 && value <= 6;
+  if (!validIndex(figure.visualRow) || !validIndex(figure.visualColumn)) return "";
+  const columnSpan = validIndex(figure.visualColumnSpan) ? figure.visualColumnSpan : 1;
+  const rowSpan = validIndex(figure.visualRowSpan) ? figure.visualRowSpan : 1;
+  return ` style="grid-row: ${figure.visualRow} / span ${rowSpan}; grid-column: ${figure.visualColumn} / span ${columnSpan};"`;
+}
+
+function renderGridFigureAreaVisual(card) {
+  const activeId = gridFigureAreaActiveId(card);
+  const visual = gridFigureAreaVisualConfig(card);
+  return `
+    <figure class="teach-visual-frame grid-area-visual">
+      <div
+        class="grid-area-image-shell"
+        style="--figure-area-max-width: ${visual.displayMaxWidth}px; --figure-area-columns: ${visual.columns}; --figure-area-rows: ${visual.rows};"
+      >
+        <img
+          src="${teachCropUrl(card)}"
+          alt="${escapeHtml(card.visualAlt)}"
+          width="${visual.width}"
+          height="${visual.height}"
+          loading="lazy"
+        >
+        <div class="grid-area-hit-grid" role="group" aria-label="Select a figure to answer">
+          ${(card.figures || []).map((figure) => {
+            const status = gridFigureAreaStatus(card, figure.id);
+            return `
+              <button
+                class="grid-area-figure-button ${figure.id === activeId ? "is-active" : ""} ${status.className}"
+                type="button"
+                data-grid-area-select="${card.id}"
+                data-grid-area-figure="${figure.id}"
+                aria-label="Select Figure ${figure.id}. ${status.text}."
+                aria-pressed="${figure.id === activeId}"
+                ${gridFigureAreaHitStyle(figure)}
+              ></button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    </figure>
+  `;
+}
+
+function renderGridFigureAreaFeedback(card, figure) {
+  const submitted = isTeachQuestionSubmitted(card, figure.id);
+  const answered = normalizeAnswer(gridFigureAreaValue(card, figure.id, "area")).length > 0;
+  const areaCorrect = answered && isGridFigureAreaAnswerCorrect(card, figure.id);
+  const reasoning = gridFigureAreaReasoningEvaluation(card, figure.id);
+  const correct = submitted && answered && isGridFigureAreaCorrect(card, figure.id);
+  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  const reasoningRequiredFeedback = (card.reasoningRequiredFeedback || "Your area is correct. Add your reasoning, then submit Figure {figure} again.")
+    .split("{figure}").join(figure.id);
+  const feedbackText = !submitted
+    ? `Submit Figure ${figure.id} when you are ready for feedback.`
+    : !answered
+      ? `Enter the area of Figure ${figure.id}, then submit again.`
+      : areaCorrect && card.requireReasoning && !reasoning.answered
+        ? reasoningRequiredFeedback
+      : areaCorrect && card.requireReasoning && !reasoning.correct
+        ? figure.reasoningRevisionFeedback || reasoningRequiredFeedback
+      : correct
+        ? figure.correctFeedback
+        : figure.incorrectFeedback;
+  return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-grid-area-feedback="${figure.id}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+}
+
+function renderGridFigureAreaHint(card, figure) {
+  if (!isTeachQuestionHintVisible(card, figure.id)) return "";
+  return `<p class="practice-hints teach-question-hint" data-grid-area-hint-content="${figure.id}"><strong>Hint:</strong> ${escapeHtml(figure.hint)}</p>`;
+}
+
+function renderGridFigureAreaControl(card) {
+  const activeId = gridFigureAreaActiveId(card);
+  const figure = gridFigureAreaDefinition(card, activeId);
+  if (!figure) return "";
+  const area = gridFigureAreaValue(card, activeId, "area");
+  const reasoning = gridFigureAreaValue(card, activeId, "reasoning");
+  const completed = gridFigureAreaCompletedCount(card);
+  const progressColumnCount = Math.min(Math.max((card.figures || []).length, 1), 4);
+  const unitLabel = card.unitLabel || "square units";
+  return `
+    <div class="grid-area-response" data-grid-area-response="${activeId}">
+      <div class="grid-area-progress" role="list" aria-label="Progress for required figures" style="--figure-area-count: ${progressColumnCount};">
+        ${(card.figures || []).map((entry) => {
+          const status = gridFigureAreaStatus(card, entry.id);
+          return `
+            <span class="grid-area-progress-item ${entry.id === activeId ? "is-active" : ""} ${status.className}" role="listitem" data-grid-area-progress="${entry.id}">
+              <strong>Figure ${entry.id}</strong>
+              <span class="grid-area-progress-status">${status.text}</span>
+            </span>
+          `;
+        }).join("")}
+      </div>
+      <p class="teach-question-note" data-grid-area-completion>Completed ${completed} of ${(card.figures || []).length} figures.</p>
+      <section class="teach-independent-question grid-area-question" aria-labelledby="${card.id}-${activeId}-prompt">
+        <p class="teach-question-number">Figure ${activeId}</p>
+        <p class="teach-response-prompt" id="${card.id}-${activeId}-prompt">${escapeHtml(gridFigureAreaPrompt(card, activeId))}</p>
+        <label class="grid-area-number-label">
+          Area of Figure ${activeId}
+          <span class="grid-area-number-control">
+            <input
+              type="text"
+              inputmode="decimal"
+              maxlength="24"
+              autocomplete="off"
+              data-grid-area-input="${card.id}"
+              data-grid-area-figure="${activeId}"
+              data-grid-area-field="area"
+              value="${escapeHtml(area)}"
+              placeholder="Type area"
+            >
+            <span>${escapeHtml(unitLabel)}</span>
+          </span>
+        </label>
+        <label class="reasoning-field">
+          ${escapeHtml(card.reasoningPrompt)}
+          <textarea
+            maxlength="${TEXTAREA_MAX_LENGTH}"
+            data-grid-area-input="${card.id}"
+            data-grid-area-figure="${activeId}"
+            data-grid-area-field="reasoning"
+            placeholder="Explain your strategy."
+          >${escapeHtml(reasoning)}</textarea>
+        </label>
+        <div class="practice-actions teach-question-actions">
+          <button class="practice-submit" type="button" data-grid-area-submit="${card.id}" data-grid-area-figure="${activeId}">Submit Figure ${activeId}</button>
+          <button class="hint-button" type="button" data-grid-area-hint="${card.id}" data-grid-area-figure="${activeId}">${isTeachQuestionHintVisible(card, activeId) ? "Hide hint" : "Show hint"}</button>
+        </div>
+        ${renderGridFigureAreaFeedback(card, figure)}
+        ${renderGridFigureAreaHint(card, figure)}
+      </section>
+    </div>
+  `;
 }
 
 function answerMatches(value, accepted) {
@@ -4339,6 +10774,7 @@ function customReasoningField(card, field, label) {
     <label class="reasoning-field">
       ${escapeHtml(label)}
       <textarea
+        maxlength="${TEXTAREA_MAX_LENGTH}"
         data-teach-custom-input="${card.id}"
         data-teach-custom-field="${field}"
         placeholder="Explain your thinking."
@@ -4388,6 +10824,7 @@ function renderGuidedField(card, field) {
       <label class="guided-field reasoning-field">
         ${escapeHtml(field.label)}
         <textarea
+          maxlength="${TEXTAREA_MAX_LENGTH}"
           data-teach-custom-input="${card.id}"
           data-teach-custom-field="${field.id}"
           placeholder="${escapeHtml(field.placeholder || "Explain your thinking.")}"
@@ -4421,6 +10858,7 @@ function renderGuidedFieldsControl(card) {
     <div class="guided-fields-panel">
       ${renderTeachResponsePrompt(card)}
       ${card.guidedFields.map((field) => renderGuidedField(card, field)).join("")}
+      ${renderGuidedOptionalChallenge(card)}
     </div>
   `;
 }
@@ -4460,17 +10898,64 @@ function guidedFieldMatches(value, expected, field = {}) {
 }
 
 function hasGuidedFieldsResponse(card) {
-  return card.guidedFields.every((field) => field.optional || guidedFieldAnswered(card, field));
+  const response = getTeachCustomResponse(card);
+  const workspaceReady = Object.entries(card.requiredWorkspaceState || {}).every(([field, expected]) => String(response[field] || "") === String(expected));
+  return workspaceReady && card.guidedFields.every((field) => field.optional || guidedFieldAnswered(card, field));
+}
+
+function guidedReasoningIsStrong(card) {
+  return (card.guidedReasoningRequirements || []).every((requirement) => {
+    const value = normalizeAnswer(guidedFieldValue(card, requirement.field));
+    return (requirement.concepts || []).some((concept) => concept.every((term) => value.includes(String(term).toLowerCase())));
+  });
 }
 
 function isGuidedFieldsCorrect(card) {
   if (!hasGuidedFieldsResponse(card)) return false;
   if (card.guidedOpenEnded) return true;
   const answers = guidedAnswerMap(card);
-  return Object.entries(answers).every(([fieldId, expected]) => {
+  return guidedReasoningIsStrong(card) && Object.entries(answers).every(([fieldId, expected]) => {
     const field = card.guidedFields.find((entry) => entry.id === fieldId);
     return guidedFieldMatches(guidedFieldValue(card, fieldId), expected, field);
   });
+}
+
+function guidedOptionalChallengeIsCorrect(card) {
+  const challenge = card.optionalChallenge;
+  if (!challenge) return false;
+  const value = normalizeAnswer(guidedFieldValue(card, challenge.field));
+  const minimumLength = Number.isInteger(challenge.minLength) ? challenge.minLength : 1;
+  return value.length >= minimumLength && (challenge.answerConcepts || []).some((concept) => (
+    concept.every((term) => value.includes(String(term).toLowerCase()))
+  ));
+}
+
+function renderGuidedOptionalChallenge(card) {
+  const challenge = card.optionalChallenge;
+  if (!challenge) return "";
+  const submitted = isTeachQuestionSubmitted(card, challenge.id);
+  const correct = submitted && guidedOptionalChallengeIsCorrect(card);
+  const feedback = !submitted
+    ? "Submit the optional challenge when you are ready for feedback."
+    : correct
+      ? challenge.correctFeedback
+      : challenge.incorrectFeedback;
+  return `
+    <section class="guided-optional-challenge" aria-labelledby="${card.id}-${challenge.id}-prompt">
+      <p class="teach-question-number">Optional challenge</p>
+      <p class="teach-response-prompt" id="${card.id}-${challenge.id}-prompt">${escapeHtml(challenge.prompt)}</p>
+      <label class="reasoning-field">
+        ${escapeHtml(challenge.inputLabel || "Describe your construction.")}
+        <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-teach-custom-input="${card.id}" data-teach-custom-field="${challenge.field}" placeholder="Explain your thinking.">${escapeHtml(guidedFieldValue(card, challenge.field))}</textarea>
+      </label>
+      <div class="practice-actions">
+        <button class="practice-submit" type="button" data-guided-optional-submit="${card.id}">Submit optional challenge</button>
+        <button class="hint-button" type="button" data-guided-optional-hint="${card.id}">${isTeachQuestionHintVisible(card, challenge.id) ? "Hide hint" : "Show hint"}</button>
+      </div>
+      <p class="practice-feedback teach-question-feedback ${submitted ? (correct ? "is-correct" : "is-incorrect") : ""}" data-guided-optional-feedback aria-live="polite">${escapeHtml(feedback)}</p>
+      ${isTeachQuestionHintVisible(card, challenge.id) ? `<p class="practice-hints"><strong>Hint:</strong> ${escapeHtml(challenge.hint)}</p>` : ""}
+    </section>
+  `;
 }
 
 function renderTangramComposeControl(card) {
@@ -4497,19 +10982,19 @@ function renderTangramComposeControl(card) {
 function renderTangramAreasControl(card) {
   return `
     <div class="tangram-response-panel">
-      <p class="tangram-response-prompt">Record the area of each triangle in square units.</p>
+      <p class="tangram-response-prompt">Record the area of the small triangle, the medium triangle, and the large triangle in square units.</p>
       <div class="tangram-area-grid">
         ${customTextField(card, "smallTriangle", "Small triangle area", {
           inputmode: "decimal",
-          placeholder: "Use a fraction or decimal",
+          placeholder: "Fraction or decimal",
         })}
         ${customTextField(card, "mediumTriangle", "Medium triangle area", {
           inputmode: "decimal",
-          placeholder: "Use a fraction or decimal",
+          placeholder: "Fraction or decimal",
         })}
         ${customTextField(card, "largeTriangle", "Large triangle area", {
           inputmode: "decimal",
-          placeholder: "Use a fraction or decimal",
+          placeholder: "Fraction or decimal",
         })}
       </div>
     </div>
@@ -4541,6 +11026,7 @@ function renderQuadrilateralDecompositionControl(card) {
         }).join("")}
       </div>
       ${customReasoningField(card, "observations", "What do the quadrilaterals that worked have in common?")}
+      ${renderQuadrilateralExtension(card)}
     </div>
   `;
 }
@@ -4904,7 +11390,8 @@ function hasTeachResponse(card) {
       trianglePairObservationValue(response, pair.id, "rectangle")
       || trianglePairObservationValue(response, pair.id, "parallelogram")
     ));
-    return hasPairObservations
+    return trianglePairTestedValues(response).length === trianglePairDefinitions.length
+      && hasPairObservations
       && normalizeAnswer(response.rectangleConclusion).length > 0
       && normalizeAnswer(response.parallelogramConclusion).length > 0
       && normalizeAnswer(response.trianglePairReasoning).length > 0;
@@ -4953,7 +11440,7 @@ function isTeachCorrect(card) {
       .sort();
     const selectionsCorrect = selected.length === expected.length && selected.every((value, index) => value === expected[index]);
     const workingSegmentsCorrect = expected.every((shapeId) => quadrilateralIsDiagonal(quadrilateralSegmentValue(response, shapeId)));
-    return selectionsCorrect && workingSegmentsCorrect;
+    return selectionsCorrect && workingSegmentsCorrect && quadrilateralObservationsAreStrong(card);
   }
   if (card.responseType === "trianglePairsCompose") {
     const response = getTeachCustomResponse(card);
@@ -4961,16 +11448,19 @@ function isTeachCorrect(card) {
       trianglePairObservationValue(response, pair.id, "rectangle") === pair.rectangle
       && trianglePairObservationValue(response, pair.id, "parallelogram") === pair.parallelogram
     ));
-    return observationsCorrect
+    return trianglePairTestedValues(response).length === trianglePairDefinitions.length
+      && observationsCorrect
       && response.rectangleConclusion === "some"
-      && response.parallelogramConclusion === "all";
+      && response.parallelogramConclusion === "all"
+      && trianglePairReasoningIsStrong(response);
   }
   if (card.responseType === "parallelogramExplore") {
     return isParallelogramExploreCorrect(card);
   }
   if (card.responseType === "triangleHeightMarks") {
     const response = getTeachCustomResponse(card);
-    return triangleHeightDiagrams.every((diagram) => triangleHeightIsCorrect(response, diagram));
+    return triangleHeightDiagrams.every((diagram) => triangleHeightIsCorrect(response, diagram))
+      && triangleHeightReasoningIsStrong(card);
   }
   if (card.responseType === "prismBuild") {
     return isPrismBuildCorrect(card);
@@ -5020,6 +11510,15 @@ function renderTeachVariantControl(card) {
 }
 
 function renderTeachResponseControl(card) {
+  if (card.responseType === "questionSet") {
+    return renderQuestionSetControl(card);
+  }
+  if (card.responseType === "areaMeaning") {
+    return renderAreaMeaningControl(card);
+  }
+  if (card.responseType === "gridFigureAreas") {
+    return renderGridFigureAreaControl(card);
+  }
   if (card.responseType === "tangramCompose") {
     return renderTangramComposeControl(card);
   }
@@ -5050,7 +11549,7 @@ function renderTeachResponseControl(card) {
       ${renderTeachVariantControl(card)}
       <label class="reasoning-field">
         ${escapeHtml(card.reasoningPrompt || "Show or explain your reasoning.")}
-        <textarea data-teach-input="${card.id}" placeholder="Explain your thinking.">${escapeHtml(state.teachResponses[card.id] || "")}</textarea>
+        <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-teach-input="${card.id}" placeholder="Explain your thinking.">${escapeHtml(state.teachResponses[card.id] || "")}</textarea>
       </label>
     `;
   }
@@ -5086,7 +11585,7 @@ function renderTeachReasoning(card) {
   return `
     <label class="reasoning-field">
       ${escapeHtml(card.reasoningPrompt)}
-      <textarea data-teach-reasoning="${card.id}" placeholder="Explain your thinking.">${escapeHtml(state.teachReasoning[card.id] || "")}</textarea>
+      <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-teach-reasoning="${card.id}" placeholder="Explain your thinking.">${escapeHtml(state.teachReasoning[card.id] || "")}</textarea>
     </label>
   `;
 }
@@ -5108,7 +11607,7 @@ function renderTeachFeedback(card) {
           : card.responseType === "prismBuild"
             ? "Complete the build choices, measurements, and reasoning, then submit again."
             : card.responseType === "guidedFields"
-              ? "Complete the required fields, then submit again."
+              ? card.missingResponseFeedback || "Complete the required fields, then submit again."
               : "Choose or enter an answer first, then submit again.";
   const feedbackText = !submitted
     ? card.variants?.length && !hasVariant
@@ -5262,11 +11761,21 @@ function updateTeachCustomResponse(input) {
   const id = input.dataset.teachCustomInput;
   const field = input.dataset.teachCustomField;
   if (!id || !field) return false;
+  const card = teachCardById(id);
+  const isOptionalChallengeField = card?.optionalChallenge?.field === field;
   state.teachCustomResponses[id] = {
     ...(state.teachCustomResponses[id] || {}),
-    [field]: input.type === "checkbox" ? (input.checked ? "yes" : "") : input.value,
+    [field]: input.type === "checkbox" ? (input.checked ? "yes" : "") : enforceTextareaValueLimit(input),
   };
-  state.teachSubmitted[id] = false;
+  if (!isOptionalChallengeField) state.teachSubmitted[id] = false;
+  if (isOptionalChallengeField) {
+    state.teachQuestionSubmitted[teachQuestionStateKey(id, card.optionalChallenge.id)] = false;
+  }
+  (card?.questions || []).forEach((question) => {
+    if (Object.prototype.hasOwnProperty.call(question.requiredCustomState || {}, field)) {
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
+    }
+  });
   state.sourceModalItemId = null;
   return true;
 }
@@ -5410,6 +11919,7 @@ function updateTrianglePairPointer(event) {
   if (!piece) return false;
   piece.x = clampNumber(trianglePairPointer.startPiece.x + dx, -40, trianglePairStage.width - 32);
   piece.y = clampNumber(trianglePairPointer.startPiece.y + dy, -40, trianglePairStage.height - 32);
+  if (Math.abs(dx) >= 2 || Math.abs(dy) >= 2) markTrianglePairTested(trianglePairPointer.pairId);
   updateTrianglePairPieceDom(trianglePairPointer.pairId, trianglePairPointer.pieceId);
   event.preventDefault();
   return true;
@@ -5428,6 +11938,162 @@ function rotateSelectedTrianglePairPiece(delta) {
   const piece = pieces[pieceId];
   if (!piece) return;
   piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  if (delta) markTrianglePairTested(pairId);
+}
+
+function updateDecomposePieceDom(variantId, pieceId) {
+  document.querySelectorAll(`[data-decompose-variant="${variantId}"][data-decompose-piece="${pieceId}"]`).forEach((pieceNode) => {
+    pieceNode.setAttribute("transform", decomposePieceTransform(variantId, pieceId));
+  });
+}
+
+function updateDecomposeSelectionDom() {
+  document.querySelectorAll("[data-decompose-piece]").forEach((pieceNode) => {
+    const selected = pieceNode.dataset.decomposePiece === state.teachDecomposeSelectedPiece;
+    pieceNode.querySelector(".decompose-piece")?.classList.toggle("is-selected", selected);
+  });
+  document.querySelectorAll("[data-decompose-select]").forEach((button) => {
+    const selected = button.dataset.decomposeSelect === state.teachDecomposeSelectedPiece;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function startDecomposePointer(event) {
+  const pieceNode = event.target.closest("[data-decompose-piece]");
+  if (!pieceNode) return false;
+  const svgNode = pieceNode.closest("[data-decompose-stage]");
+  const card = teachCardById(pieceNode.closest("[data-teach-card]")?.dataset.teachCard);
+  if (!svgNode || !card || card.customVisual !== "decomposeParallelogram") return false;
+  const variantId = pieceNode.dataset.decomposeVariant;
+  const pieceId = pieceNode.dataset.decomposePiece;
+  const piece = getDecomposePieces(variantId)[pieceId];
+  if (!piece) return false;
+  state.teachDecomposeSelectedPiece = pieceId;
+  decomposePointer = {
+    pointerId: event.pointerId ?? "mouse",
+    cardId: card.id,
+    variantId,
+    pieceId,
+    startPointer: tangramSvgPoint(svgNode, event),
+    startPiece: { ...piece },
+  };
+  if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
+  updateDecomposeSelectionDom();
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updateDecomposePointer(event) {
+  if (!decomposePointer || (event.pointerId ?? "mouse") !== decomposePointer.pointerId) return false;
+  const svgNode = document.querySelector("[data-decompose-stage]");
+  if (!svgNode) return false;
+  const pointer = tangramSvgPoint(svgNode, event);
+  const dx = pointer.x - decomposePointer.startPointer.x;
+  const dy = pointer.y - decomposePointer.startPointer.y;
+  const piece = getDecomposePieces(decomposePointer.variantId)[decomposePointer.pieceId];
+  piece.x = clampNumber(decomposePointer.startPiece.x + dx, -80, decomposeStage.width - 30);
+  piece.y = clampNumber(decomposePointer.startPiece.y + dy, -80, decomposeStage.height - 30);
+  if (Math.abs(dx) >= 2 || Math.abs(dy) >= 2) {
+    markDecomposePieceUsed(teachCardById(decomposePointer.cardId), decomposePointer.pieceId);
+  }
+  updateDecomposePieceDom(decomposePointer.variantId, decomposePointer.pieceId);
+  event.preventDefault();
+  return true;
+}
+
+function endDecomposePointer(event) {
+  if (!decomposePointer || (event.pointerId ?? "mouse") !== decomposePointer.pointerId) return false;
+  decomposePointer = null;
+  return true;
+}
+
+function rotateSelectedDecomposePiece(card, delta) {
+  const variantId = decomposeVariant(card);
+  const pieceId = state.teachDecomposeSelectedPiece || "small";
+  const piece = getDecomposePieces(variantId)[pieceId];
+  if (!piece) return;
+  piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  if (delta) markDecomposePieceUsed(card, pieceId);
+}
+
+function updatePyramidNetPieceDom(piece) {
+  document.querySelectorAll(`[data-pyramid-net-piece="${piece.id}"]`).forEach((pieceNode) => {
+    pieceNode.setAttribute("transform", pyramidNetPieceTransform(piece));
+  });
+}
+
+function updatePyramidNetSelectionDom(card, target = pyramidNetTargetId(card)) {
+  const selectedId = pyramidNetSelectedPieceId(card, target);
+  document.querySelectorAll("[data-pyramid-net-piece]").forEach((pieceNode) => {
+    const selected = pieceNode.dataset.pyramidNetPiece === selectedId;
+    pieceNode.classList.toggle("is-selected", selected);
+    pieceNode.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function startPyramidNetPointer(event) {
+  const pieceNode = event.target.closest("[data-pyramid-net-piece]");
+  if (!pieceNode) return false;
+  const svgNode = pieceNode.closest("[data-pyramid-net-stage]");
+  const card = teachCardById(pieceNode.closest("[data-teach-card]")?.dataset.teachCard);
+  if (!svgNode || !card || card.id !== "teach-l13-2") return false;
+  const target = svgNode.dataset.pyramidNetStage;
+  if (!pyramidNetTargetIds.includes(target) || target !== pyramidNetTargetId(card)) return false;
+  const pieceId = pieceNode.dataset.pyramidNetPiece;
+  const pieces = pyramidNetPieces(card, target);
+  const piece = pieces.find((entry) => entry.id === pieceId);
+  if (!piece) return false;
+  setPyramidNetWorkspace(card, target, { pieces, selectedId: pieceId });
+  pyramidNetPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    cardId: card.id,
+    target,
+    pieceId,
+    startPointer: tangramSvgPoint(svgNode, event),
+    startPiece: { ...piece },
+    moved: false,
+  };
+  if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
+  updatePyramidNetSelectionDom(card, target);
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updatePyramidNetPointer(event) {
+  if (!pyramidNetPointer || (event.pointerId ?? "mouse") !== pyramidNetPointer.pointerId) return false;
+  const card = teachCardById(pyramidNetPointer.cardId);
+  const svgNode = document.querySelector(`[data-pyramid-net-stage="${pyramidNetPointer.target}"]`);
+  if (!card || !svgNode) return false;
+  const pointer = tangramSvgPoint(svgNode, event);
+  const dx = pointer.x - pyramidNetPointer.startPointer.x;
+  const dy = pointer.y - pyramidNetPointer.startPointer.y;
+  const piece = pyramidNetPieces(card, pyramidNetPointer.target).find((entry) => entry.id === pyramidNetPointer.pieceId);
+  if (!piece) return false;
+  piece.x = clampNumber(pyramidNetPointer.startPiece.x + dx, pyramidNetPieceMargin, pyramidNetBoard.width - pyramidNetPieceMargin);
+  piece.y = clampNumber(pyramidNetPointer.startPiece.y + dy, pyramidNetPieceMargin, pyramidNetBoard.height - pyramidNetPieceMargin);
+  if (Math.abs(dx) >= 2 || Math.abs(dy) >= 2) pyramidNetPointer.moved = true;
+  updatePyramidNetPieceDom(piece);
+  event.preventDefault();
+  return true;
+}
+
+function endPyramidNetPointer(event) {
+  if (!pyramidNetPointer || (event.pointerId ?? "mouse") !== pyramidNetPointer.pointerId) return false;
+  const card = teachCardById(pyramidNetPointer.cardId);
+  const target = pyramidNetPointer.target;
+  const pieceId = pyramidNetPointer.pieceId;
+  const moved = pyramidNetPointer.moved;
+  pyramidNetPointer = null;
+  if (!card) return true;
+  if (moved) {
+    snapPyramidNetPiece(card, pieceId, target);
+    markPyramidNetChanged(card, target);
+  }
+  renderTeachMe();
+  return true;
 }
 
 function gridLines(x, y, columns, rows, cell, attribute = "") {
@@ -5799,8 +12465,10 @@ function bindEvents() {
     renderVocabulary();
   });
   document.addEventListener("pointerdown", (event) => {
+    if (startPyramidNetPointer(event)) return;
     if (startTangramPointer(event)) return;
     if (startTrianglePairPointer(event)) return;
+    if (startDecomposePointer(event)) return;
     const resizeHandle = event.target.closest("[data-source-resize-handle]");
     if (resizeHandle) {
       startSourceModalPointer(event, "resize");
@@ -5812,18 +12480,24 @@ function bindEvents() {
     }
   });
   document.addEventListener("pointermove", (event) => {
+    if (updatePyramidNetPointer(event)) return;
     if (updateTangramPointer(event)) return;
     if (updateTrianglePairPointer(event)) return;
+    if (updateDecomposePointer(event)) return;
     updateSourceModalPointer(event);
   });
   document.addEventListener("pointerup", (event) => {
+    if (endPyramidNetPointer(event)) return;
     if (endTangramPointer(event)) return;
     if (endTrianglePairPointer(event)) return;
+    if (endDecomposePointer(event)) return;
     endSourceModalPointer(event);
   });
   document.addEventListener("pointercancel", (event) => {
+    if (endPyramidNetPointer(event)) return;
     if (endTangramPointer(event)) return;
     if (endTrianglePairPointer(event)) return;
+    if (endDecomposePointer(event)) return;
     endSourceModalPointer(event);
   });
   document.addEventListener("mousedown", (event) => {
@@ -5847,6 +12521,20 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("click", (event) => {
+    const teachLessonLink = event.target.closest("[data-teach-lesson-link]");
+    if (teachLessonLink) {
+      event.preventDefault();
+      const lessonNumber = Number(teachLessonLink.dataset.teachLessonLink);
+      if (!teachLessonGroups().some((group) => group.lessonNumber === lessonNumber)) return;
+      state.view = "unit1";
+      state.mode = "teach";
+      state.teachActiveLesson = lessonNumber;
+      state.sourceModalItemId = null;
+      renderView();
+      window.history.replaceState(null, "", `#${teachLessonDomId(lessonNumber)}`);
+      scrollToTeachLesson(lessonNumber);
+      return;
+    }
     const teachSourceButton = event.target.closest("[data-teach-source]");
     if (teachSourceButton) {
       const source = teachMeSources.find((entry) => entry.id === teachSourceButton.dataset.teachSource);
@@ -5899,6 +12587,812 @@ function bindEvents() {
       renderPractice();
       return;
     }
+    const pyramidNetTargetButton = event.target.closest("[data-pyramid-net-target]");
+    if (pyramidNetTargetButton) {
+      const card = teachCardById(pyramidNetTargetButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const target = pyramidNetTargetButton.dataset.pyramidNetTarget;
+      if (!card || !pyramidNetTargetIds.includes(target)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        pyramidNetTarget: target,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "compose-q")] = pyramidNetAnySaved(card);
+      renderTeachMe();
+      return;
+    }
+    const pyramidPieceAdd = event.target.closest("[data-pyramid-piece-add]");
+    if (pyramidPieceAdd) {
+      const card = teachCardById(pyramidPieceAdd.closest("[data-teach-card]")?.dataset.teachCard);
+      const type = pyramidPieceAdd.dataset.pyramidPieceAdd;
+      if (!card || !pyramidNetPieceTypes.includes(type)) return;
+      addPyramidNetPiece(card, type);
+      renderTeachMe();
+      return;
+    }
+    const pyramidNetRotate = event.target.closest("[data-pyramid-net-rotate]");
+    if (pyramidNetRotate) {
+      const card = teachCardById(pyramidNetRotate.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const target = pyramidNetTargetId(card);
+      const delta = Number(pyramidNetRotate.dataset.pyramidNetRotate);
+      if (!rotateSelectedPyramidNetPiece(card, delta, target)) return;
+      renderTeachMe();
+      return;
+    }
+    const pyramidNetRemove = event.target.closest("[data-pyramid-net-remove]");
+    if (pyramidNetRemove) {
+      const card = teachCardById(pyramidNetRemove.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const target = pyramidNetTargetId(card);
+      const selectedId = pyramidNetSelectedPieceId(card, target);
+      setPyramidNetWorkspace(card, target, {
+        pieces: pyramidNetPieces(card, target).filter((piece) => piece.id !== selectedId),
+        selectedId: "",
+        submitted: false,
+      });
+      markPyramidNetChanged(card, target);
+      renderTeachMe();
+      return;
+    }
+    const pyramidNetReset = event.target.closest("[data-pyramid-net-reset]");
+    if (pyramidNetReset) {
+      const card = teachCardById(pyramidNetReset.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const target = pyramidNetTargetId(card);
+      setPyramidNetWorkspace(card, target, { pieces: [], selectedId: "", submitted: false });
+      markPyramidNetChanged(card, target);
+      renderTeachMe();
+      return;
+    }
+    const prismNetFaceTypeButton = event.target.closest("[data-prism-net-face-type]");
+    if (prismNetFaceTypeButton) {
+      const card = teachCardById(prismNetFaceTypeButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const faceType = prismNetFaceTypeButton.dataset.prismNetFaceType;
+      if (!card || !rectangularPrismNetFaceTypes.includes(faceType)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        prismNetFaceType: faceType,
+      };
+      renderTeachMe();
+      return;
+    }
+    const prismNetSlot = event.target.closest("[data-prism-net-slot]");
+    if (prismNetSlot) {
+      const card = teachCardById(prismNetSlot.closest("[data-teach-card]")?.dataset.teachCard);
+      const slot = prismNetSlot.dataset.prismNetSlot;
+      const faceType = card && rectangularPrismNetFaceTypes.includes(getTeachCustomResponse(card).prismNetFaceType)
+        ? getTeachCustomResponse(card).prismNetFaceType
+        : rectangularPrismNetFaceTypes[0];
+      if (!card || !rectangularPrismNetSlotOrder.includes(slot)) return;
+      const assignments = rectangularPrismNetAssignments(card);
+      assignments[slot] = faceType;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        prismNetAssignments: rectangularPrismNetSignature(assignments),
+      };
+      for (const questionId of ["build-net", "surface-area"]) {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      }
+      renderTeachMe();
+      return;
+    }
+    const prismNetReset = event.target.closest("[data-prism-net-reset]");
+    if (prismNetReset) {
+      const card = teachCardById(prismNetReset.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        prismNetAssignments: "",
+      };
+      for (const questionId of ["build-net", "surface-area"]) {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      }
+      renderTeachMe();
+      return;
+    }
+    const labeledCubeNetCell = event.target.closest("[data-labeled-cube-net-cell]");
+    if (labeledCubeNetCell) {
+      const card = teachCardById(labeledCubeNetCell.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, labeledCubeNetCell.dataset.questionId) : null;
+      const [x, y] = String(labeledCubeNetCell.dataset.labeledCubeNetCell || "").split(",").map(Number);
+      if (!card || question?.visualType !== "labeledCubeNet"
+        || !Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 6 || y < 0 || y > 6) return;
+      const cells = labeledCubeNetCells(card, question);
+      const key = `${x},${y}`;
+      const selected = cells.some((cell) => `${cell.x},${cell.y}` === key);
+      const nextCells = selected
+        ? cells.filter((cell) => `${cell.x},${cell.y}` !== key)
+        : cells.length < 6 ? [...cells, { x, y }] : cells;
+      const message = !selected && cells.length >= 6
+        ? "A cube net uses exactly six squares. Remove one before choosing another."
+        : `${nextCells.length} of 6 squares selected.`;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [labeledCubeNetCellsField(question)]: cubeNetCellString(nextCells),
+        [labeledCubeNetMessageField(question)]: message,
+      };
+      labeledCubeNetQuestionsSharingState(card, question).forEach((entry) => {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, entry.id)] = false;
+      });
+      renderTeachMe();
+      return;
+    }
+    const labeledCubeNetTest = event.target.closest("[data-labeled-cube-net-test]");
+    if (labeledCubeNetTest) {
+      const card = teachCardById(labeledCubeNetTest.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, labeledCubeNetTest.dataset.questionId) : null;
+      if (!card || question?.visualType !== "labeledCubeNet") return;
+      const cells = labeledCubeNetCells(card, question);
+      const message = cells.length !== 6
+        ? "Select exactly six squares before testing the net."
+        : cubeNetIsValid(cells)
+          ? "Valid cube net. This arrangement folds into six different faces without overlap."
+          : "This arrangement does not fold into six different cube faces. Revise it and test again.";
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [labeledCubeNetMessageField(question)]: message,
+      };
+      renderTeachMe();
+      return;
+    }
+    const labeledCubeNetClear = event.target.closest("[data-labeled-cube-net-clear]");
+    if (labeledCubeNetClear) {
+      const card = teachCardById(labeledCubeNetClear.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, labeledCubeNetClear.dataset.questionId) : null;
+      if (!card || question?.visualType !== "labeledCubeNet") return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [labeledCubeNetCellsField(question)]: "",
+        [labeledCubeNetMessageField(question)]: "Grid cleared. Select exactly six edge-connected squares.",
+      };
+      labeledCubeNetQuestionsSharingState(card, question).forEach((entry) => {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, entry.id)] = false;
+      });
+      renderTeachMe();
+      return;
+    }
+    const cubeNetCell = event.target.closest("[data-cube-net-cell]");
+    if (cubeNetCell) {
+      const card = teachCardById(cubeNetCell.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      const [x, y] = String(cubeNetCell.dataset.cubeNetCell || "").split(",").map(Number);
+      if (!card || question?.visualType !== "cubeNetBuilder" || !Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 6 || y < 0 || y > 6) return;
+      const cells = cubeNetCells(card);
+      const key = `${x},${y}`;
+      const selected = cells.some((cell) => `${cell.x},${cell.y}` === key);
+      const nextCells = selected ? cells.filter((cell) => `${cell.x},${cell.y}` !== key) : cells.length < 6 ? [...cells, { x, y }] : cells;
+      const message = !selected && cells.length >= 6
+        ? "A cube net uses exactly six squares. Remove one before choosing another."
+        : `${nextCells.length} of 6 squares selected.`;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        cubeNetCells: cubeNetCellString(nextCells),
+        cubeNetMessage: message,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+      renderTeachMe();
+      return;
+    }
+    const cubeNetSave = event.target.closest("[data-cube-net-save]");
+    if (cubeNetSave) {
+      const card = teachCardById(cubeNetSave.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      if (!card || question?.visualType !== "cubeNetBuilder") return;
+      const cells = cubeNetCells(card);
+      const saved = cubeNetSavedSignatures(card);
+      const signature = cells.length === 6 ? cubeNetCanonicalSignature(cells) : "";
+      let nextSaved = saved;
+      let message = "Select exactly six squares before testing the net.";
+      if (cells.length === 6 && !cubeNetIsValid(cells)) {
+        message = "This arrangement does not fold into six different cube faces. Revise the connected squares and try again.";
+      } else if (signature === cubeNetFigureCSignature) {
+        message = "This arrangement is equivalent to source Figure C after a rotation or reflection. Build a different cube net.";
+      } else if (saved.includes(signature)) {
+        message = "You already saved this arrangement or one of its rotations or reflections. Build a different net.";
+      } else if (signature) {
+        nextSaved = [...saved, signature].slice(0, 3);
+        message = `Valid cube net saved. ${nextSaved.length} of 3 different nets complete.`;
+      }
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        cubeNetCells: nextSaved.length > saved.length ? "" : cubeNetCellString(cells),
+        cubeNetSavedSignatures: nextSaved.join("||"),
+        cubeNetSavedCount: String(nextSaved.length),
+        cubeNetMessage: message,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+      renderTeachMe();
+      return;
+    }
+    const cubeNetClear = event.target.closest("[data-cube-net-clear]");
+    if (cubeNetClear) {
+      const card = teachCardById(cubeNetClear.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      if (!card || question?.visualType !== "cubeNetBuilder") return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        cubeNetCells: "",
+        cubeNetMessage: "Grid cleared. Select exactly six edge-connected squares.",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+      renderTeachMe();
+      return;
+    }
+    const cubeNetResetAll = event.target.closest("[data-cube-net-reset-all]");
+    if (cubeNetResetAll) {
+      const card = teachCardById(cubeNetResetAll.closest("[data-teach-card]")?.dataset.teachCard);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      if (!card || question?.visualType !== "cubeNetBuilder") return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        cubeNetCells: "",
+        cubeNetSavedSignatures: "",
+        cubeNetSavedCount: "0",
+        cubeNetMessage: "Saved nets reset. Build three arrangements different from source Figure C.",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+      renderTeachMe();
+      return;
+    }
+    const snapCubeCell = event.target.closest("[data-snap-cube-cell]");
+    if (snapCubeCell) {
+      const card = teachCardById(snapCubeCell.closest("[data-teach-card]")?.dataset.teachCard);
+      const inventory = Number(snapCubeCell.dataset.cubeInventory);
+      const [x, y, z] = String(snapCubeCell.dataset.snapCubeCell || "").split(",").map(Number);
+      const hasBuilder = card?.questions?.some((question) => question.visualType === "snapCubeBuilder" && snapCubeInventory(question) === inventory);
+      if (!card || !hasBuilder || ![32, 64].includes(inventory)
+        || ![x, y, z].every(Number.isInteger) || x < 0 || x > 3 || y < 0 || y > 3 || z < 0 || z > 3) return;
+      const cells = snapCubeCells(card, inventory);
+      const key = `${x},${y},${z}`;
+      const selected = cells.some((cell) => `${cell.x},${cell.y},${cell.z}` === key);
+      const nextCells = selected
+        ? cells.filter((cell) => `${cell.x},${cell.y},${cell.z}` !== key)
+        : cells.length < inventory ? [...cells, { x, y, z }] : cells;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [snapCubeCellsField(inventory)]: snapCubeCellString(nextCells),
+      };
+      resetSnapCubeQuestionSubmissions(card, inventory);
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const snapCubeLayerButton = event.target.closest("[data-snap-cube-layer-delta]");
+    if (snapCubeLayerButton) {
+      const card = teachCardById(snapCubeLayerButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const inventory = Number(snapCubeLayerButton.dataset.cubeInventory);
+      if (!card || ![32, 64].includes(inventory)) return;
+      const field = snapCubeLayerField(inventory);
+      const nextLayer = clampNumber(
+        (Number(getTeachCustomResponse(card)[field]) || 0) + Number(snapCubeLayerButton.dataset.snapCubeLayerDelta),
+        0,
+        3
+      );
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [field]: String(nextLayer),
+      };
+      renderTeachMe();
+      return;
+    }
+    const snapCubeFillLayer = event.target.closest("[data-snap-cube-fill-layer]");
+    if (snapCubeFillLayer) {
+      const card = teachCardById(snapCubeFillLayer.closest("[data-teach-card]")?.dataset.teachCard);
+      const inventory = Number(snapCubeFillLayer.dataset.cubeInventory);
+      if (!card || ![32, 64].includes(inventory)) return;
+      const cells = snapCubeCells(card, inventory);
+      const layer = clampNumber(Number(getTeachCustomResponse(card)[snapCubeLayerField(inventory)]) || 0, 0, 3);
+      const keys = new Set(cells.map(({ x, y, z }) => `${x},${y},${z}`));
+      const additions = [];
+      for (let y = 0; y < 4; y += 1) {
+        for (let x = 0; x < 4; x += 1) {
+          if (!keys.has(`${x},${y},${layer}`)) additions.push({ x, y, z: layer });
+        }
+      }
+      if (cells.length + additions.length > inventory) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [snapCubeCellsField(inventory)]: snapCubeCellString([...cells, ...additions]),
+      };
+      resetSnapCubeQuestionSubmissions(card, inventory);
+      renderTeachMe();
+      return;
+    }
+    const snapCubeClearLayer = event.target.closest("[data-snap-cube-clear-layer]");
+    if (snapCubeClearLayer) {
+      const card = teachCardById(snapCubeClearLayer.closest("[data-teach-card]")?.dataset.teachCard);
+      const inventory = Number(snapCubeClearLayer.dataset.cubeInventory);
+      if (!card || ![32, 64].includes(inventory)) return;
+      const layer = clampNumber(Number(getTeachCustomResponse(card)[snapCubeLayerField(inventory)]) || 0, 0, 3);
+      const nextCells = snapCubeCells(card, inventory).filter(({ z }) => z !== layer);
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [snapCubeCellsField(inventory)]: snapCubeCellString(nextCells),
+      };
+      resetSnapCubeQuestionSubmissions(card, inventory);
+      renderTeachMe();
+      return;
+    }
+    const snapCubeReset = event.target.closest("[data-snap-cube-reset]");
+    if (snapCubeReset) {
+      const card = teachCardById(snapCubeReset.closest("[data-teach-card]")?.dataset.teachCard);
+      const inventory = Number(snapCubeReset.dataset.cubeInventory);
+      if (!card || ![32, 64].includes(inventory)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [snapCubeCellsField(inventory)]: "",
+        [snapCubeLayerField(inventory)]: "0",
+      };
+      resetSnapCubeQuestionSubmissions(card, inventory);
+      renderTeachMe();
+      return;
+    }
+    const eightCubeCell = event.target.closest("[data-eight-cube-cell]");
+    if (eightCubeCell) {
+      const card = teachCardById(eightCubeCell.closest("[data-teach-card]")?.dataset.teachCard);
+      const shapeId = eightCubeCell.dataset.shapeId === "B" ? "B" : "A";
+      const [x, y, z] = String(eightCubeCell.dataset.eightCubeCell || "").split(",").map(Number);
+      if (!card || ![x, y, z].every(Number.isInteger) || x < 0 || x > 3 || y < 0 || y > 3 || z < 0 || z > 7) return;
+      const cells = eightCubeShapeCells(card, shapeId);
+      const previousShapeBValid = getTeachCustomResponse(card).eightCubeShapeBValid;
+      const key = `${x},${y},${z}`;
+      const selected = cells.some((cell) => `${cell.x},${cell.y},${cell.z}` === key);
+      const nextCells = selected ? cells.filter((cell) => `${cell.x},${cell.y},${cell.z}` !== key) : cells.length < 8 ? [...cells, { x, y, z }] : cells;
+      const cellField = shapeId === "B" ? "eightCubeShapeBCells" : "eightCubeShapeACells";
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [cellField]: eightCubeShapeCellString(nextCells),
+      };
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        ...eightCubeShapeValidity(card),
+      };
+      const resetQuestionIds = shapeId === "A" ? ["shape-a", "compare-shapes"] : ["shape-b", "compare-shapes"];
+      if (shapeId === "A" && previousShapeBValid !== getTeachCustomResponse(card).eightCubeShapeBValid) resetQuestionIds.push("shape-b");
+      for (const questionId of resetQuestionIds) {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      }
+      renderTeachMe();
+      return;
+    }
+    const eightCubeLayerButton = event.target.closest("[data-eight-cube-layer-delta]");
+    if (eightCubeLayerButton) {
+      const card = teachCardById(eightCubeLayerButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const shapeId = eightCubeLayerButton.dataset.shapeId === "B" ? "B" : "A";
+      if (!card) return;
+      const layerField = shapeId === "B" ? "eightCubeShapeBLayer" : "eightCubeShapeALayer";
+      const nextLayer = clampNumber((Number(getTeachCustomResponse(card)[layerField]) || 0) + Number(eightCubeLayerButton.dataset.eightCubeLayerDelta), 0, 7);
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [layerField]: String(nextLayer),
+      };
+      renderTeachMe();
+      return;
+    }
+    const eightCubeReset = event.target.closest("[data-eight-cube-reset]");
+    if (eightCubeReset) {
+      const card = teachCardById(eightCubeReset.closest("[data-teach-card]")?.dataset.teachCard);
+      const shapeId = eightCubeReset.dataset.shapeId === "B" ? "B" : "A";
+      if (!card) return;
+      const previousShapeBValid = getTeachCustomResponse(card).eightCubeShapeBValid;
+      const cellField = shapeId === "B" ? "eightCubeShapeBCells" : "eightCubeShapeACells";
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [cellField]: "",
+      };
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        ...eightCubeShapeValidity(card),
+      };
+      const resetQuestionIds = shapeId === "A" ? ["shape-a", "compare-shapes"] : ["shape-b", "compare-shapes"];
+      if (shapeId === "A" && previousShapeBValid !== getTeachCustomResponse(card).eightCubeShapeBValid) resetQuestionIds.push("shape-b");
+      for (const questionId of resetQuestionIds) {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      }
+      renderTeachMe();
+      return;
+    }
+    const surfaceNetFoldStepButton = event.target.closest("[data-surface-net-fold-delta]");
+    if (surfaceNetFoldStepButton) {
+      const card = teachCardById(surfaceNetFoldStepButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const questionId = surfaceNetFoldStepButton.dataset.questionId;
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      const netId = surfaceNetFoldStepButton.dataset.surfaceNetId;
+      if (!card || question?.visualType !== "surfaceNetFold" || question.netId !== netId || !["A", "B", "C"].includes(netId)) return;
+      const field = `surfaceNetFold${netId}`;
+      const nextStep = clampNumber(surfaceNetFoldStep(card, netId) + Number(surfaceNetFoldStepButton.dataset.surfaceNetFoldDelta), 0, 3);
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [field]: String(nextStep),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+      renderTeachMe();
+      return;
+    }
+    const surfaceNetFoldResetButton = event.target.closest("[data-surface-net-fold-reset]");
+    if (surfaceNetFoldResetButton) {
+      const card = teachCardById(surfaceNetFoldResetButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const questionId = surfaceNetFoldResetButton.dataset.questionId;
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      const netId = surfaceNetFoldResetButton.dataset.surfaceNetId;
+      if (!card || question?.visualType !== "surfaceNetFold" || question.netId !== netId || !["A", "B", "C"].includes(netId)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [`surfaceNetFold${netId}`]: "0",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+      renderTeachMe();
+      return;
+    }
+    const polyhedronFoldButton = event.target.closest("[data-polyhedron-fold-delta]");
+    if (polyhedronFoldButton) {
+      const card = teachCardById(polyhedronFoldButton.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const nextStep = clampNumber(polyhedronFoldStep(card) + Number(polyhedronFoldButton.dataset.polyhedronFoldDelta), 0, 3);
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        polyhedronFoldStep: String(nextStep),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "assemble-a")] = false;
+      renderTeachMe();
+      return;
+    }
+    const polyhedronFoldReset = event.target.closest("[data-polyhedron-fold-reset]");
+    if (polyhedronFoldReset) {
+      const card = teachCardById(polyhedronFoldReset.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        polyhedronFoldStep: "0",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "assemble-a")] = false;
+      renderTeachMe();
+      return;
+    }
+    const parallelogramStrategyButton = event.target.closest("[data-parallelogram-strategy]");
+    if (parallelogramStrategyButton) {
+      const id = parallelogramStrategyButton.dataset.parallelogramStrategy;
+      const questionId = parallelogramStrategyButton.dataset.questionId;
+      const strategyId = parallelogramStrategyButton.dataset.strategyId;
+      const card = teachCardById(id);
+      const question = card ? parallelogramExploreQuestion(card, questionId) : null;
+      if (!card || card.customVisual !== "parallelogramExplore" || !question || !["decompose", "enclose"].includes(strategyId)) return;
+      const field = parallelogramExploreField(question.id, "strategy");
+      const current = parallelogramExploreStrategy(card, question.id);
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [field]: current === strategyId ? "none" : strategyId,
+      };
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const quadrilateralExtensionToggle = event.target.closest("[data-quadrilateral-extension-toggle]");
+    if (quadrilateralExtensionToggle) {
+      const card = teachCardById(quadrilateralExtensionToggle.dataset.quadrilateralExtensionToggle);
+      if (!card || card.responseType !== "quadrilateralDecompose") return;
+      state.teachQuadrilateralExtensionOpen = !state.teachQuadrilateralExtensionOpen;
+      renderTeachMe();
+      return;
+    }
+    const quadrilateralExtensionUndo = event.target.closest("[data-quadrilateral-extension-undo]");
+    if (quadrilateralExtensionUndo) {
+      const card = teachCardById(quadrilateralExtensionUndo.dataset.quadrilateralExtensionUndo);
+      if (!card || card.responseType !== "quadrilateralDecompose") return;
+      const response = getTeachCustomResponse(card);
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        extensionPoints: quadrilateralExtensionPoints(card).slice(0, -1),
+        extensionDiagonal: "",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "optional-extension")] = false;
+      renderTeachMe();
+      return;
+    }
+    const quadrilateralExtensionClear = event.target.closest("[data-quadrilateral-extension-clear]");
+    if (quadrilateralExtensionClear) {
+      const card = teachCardById(quadrilateralExtensionClear.dataset.quadrilateralExtensionClear);
+      if (!card || card.responseType !== "quadrilateralDecompose") return;
+      const response = getTeachCustomResponse(card);
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        extensionPoints: [],
+        extensionDiagonal: "",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "optional-extension")] = false;
+      renderTeachMe();
+      return;
+    }
+    const quadrilateralExtensionDiagonal = event.target.closest("[data-quadrilateral-extension-diagonal]");
+    if (quadrilateralExtensionDiagonal) {
+      const card = teachCardById(quadrilateralExtensionDiagonal.dataset.quadrilateralExtensionDiagonal);
+      const diagonal = quadrilateralExtensionDiagonal.dataset.diagonal;
+      if (!card || card.responseType !== "quadrilateralDecompose" || quadrilateralExtensionPoints(card).length !== 4 || !["0-2", "1-3"].includes(diagonal)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        extensionDiagonal: diagonal,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "optional-extension")] = false;
+      renderTeachMe();
+      return;
+    }
+    const quadrilateralExtensionSubmit = event.target.closest("[data-quadrilateral-extension-submit]");
+    if (quadrilateralExtensionSubmit) {
+      const card = teachCardById(quadrilateralExtensionSubmit.dataset.quadrilateralExtensionSubmit);
+      if (!card || card.responseType !== "quadrilateralDecompose") return;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "optional-extension")] = true;
+      renderTeachMe();
+      return;
+    }
+    const quadrilateralExtensionBoard = event.target.closest("[data-quadrilateral-extension-board]");
+    if (quadrilateralExtensionBoard) {
+      const card = teachCardById(quadrilateralExtensionBoard.dataset.quadrilateralExtensionBoard);
+      if (!card || card.responseType !== "quadrilateralDecompose") return;
+      const points = quadrilateralExtensionPoints(card);
+      if (points.length >= 4) return;
+      const rawPoint = tangramSvgPoint(quadrilateralExtensionBoard, event);
+      const point = [
+        clampNumber(20 + Math.round((rawPoint.x - 20) / 40) * 40, 20, 340),
+        clampNumber(20 + Math.round((rawPoint.y - 20) / 40) * 40, 20, 260),
+      ];
+      if (points.some(([x, y]) => x === point[0] && y === point[1])) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        extensionPoints: [...points, point],
+        extensionDiagonal: "",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "optional-extension")] = false;
+      renderTeachMe();
+      return;
+    }
+    const questionSetSelectButton = event.target.closest("[data-question-set-select]");
+    if (questionSetSelectButton) {
+      const id = questionSetSelectButton.dataset.questionSetSelect;
+      const questionId = questionSetSelectButton.dataset.questionId;
+      const card = teachCardById(id);
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      if (!card || card.responseType !== "questionSet" || !question || !questionSetQuestionUnlocked(card, question)) return;
+      state.teachQuestionSetActive[id] = questionId;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const polyhedronModelSelectButton = event.target.closest("[data-polyhedron-model-select]");
+    if (polyhedronModelSelectButton) {
+      const id = polyhedronModelSelectButton.dataset.polyhedronModelSelect;
+      const modelId = polyhedronModelSelectButton.dataset.modelId;
+      const card = teachCardById(id);
+      if (!card || card.id !== "teach-l13" || !polyhedronModelIds.includes(modelId)) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        polyhedronModel: modelId,
+      };
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const polyhedronViewButton = event.target.closest("[data-polyhedron-view]");
+    if (polyhedronViewButton) {
+      window.Unit1Polyhedra?.control(polyhedronViewButton);
+      return;
+    }
+    const polyhedronClassificationChoice = event.target.closest("[data-polyhedron-classification-choice]");
+    if (polyhedronClassificationChoice) {
+      const id = polyhedronClassificationChoice.dataset.polyhedronClassificationChoice;
+      const modelId = polyhedronClassificationChoice.dataset.modelId;
+      const classification = polyhedronClassificationChoice.dataset.classification;
+      const card = teachCardById(id);
+      const question = card ? polyhedronClassificationQuestion(card) : null;
+      if (!card
+        || card.id !== "teach-l13"
+        || !question
+        || !polyhedronModelIds.includes(modelId)
+        || !polyhedronClassificationValues.includes(classification)) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [questionSetField(question.id, modelId)]: classification,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, `${question.id}:${modelId}`)] = false;
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const polyhedronClassificationSubmit = event.target.closest("[data-polyhedron-classification-submit]");
+    if (polyhedronClassificationSubmit) {
+      const id = polyhedronClassificationSubmit.dataset.polyhedronClassificationSubmit;
+      const modelId = polyhedronClassificationSubmit.dataset.modelId;
+      const card = teachCardById(id);
+      const question = card ? polyhedronClassificationQuestion(card) : null;
+      if (!card || card.id !== "teach-l13" || !question || !polyhedronModelIds.includes(modelId)) return;
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, `${question.id}:${modelId}`)] = true;
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = polyhedronModelIds.every((entryId) => (
+        polyhedronClassificationSubmitted(card, entryId)
+      ));
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const questionSetChoiceButton = event.target.closest("[data-question-set-choice]");
+    if (questionSetChoiceButton) {
+      const id = questionSetChoiceButton.dataset.questionSetChoice;
+      const questionId = questionSetChoiceButton.dataset.questionId;
+      const optionId = questionSetChoiceButton.dataset.optionId;
+      const card = teachCardById(id);
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      if (!card || card.responseType !== "questionSet" || !question?.choices?.some((choice) => choice.id === optionId)) return;
+      const current = questionSetSelections(card, question);
+      const next = question.responseType === "multiSelect"
+        ? current.includes(optionId)
+          ? current.filter((value) => value !== optionId)
+          : [...current, optionId]
+        : [optionId];
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [questionSetField(questionId, "answer")]: next.join("|"),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const questionSetSubmitButton = event.target.closest("[data-question-set-submit]");
+    if (questionSetSubmitButton) {
+      const id = questionSetSubmitButton.dataset.questionSetSubmit;
+      const questionId = questionSetSubmitButton.dataset.questionId;
+      const card = teachCardById(id);
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      if (!card || card.responseType !== "questionSet" || !question) return;
+      if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
+        const target = pyramidNetTargetId(card);
+        const analysis = pyramidNetAnalysis(card, target);
+        const saved = pyramidNetSavedSignatures(card, target);
+        const savedSignatures = analysis.valid && analysis.signature && !saved.includes(analysis.signature)
+          ? [...saved, analysis.signature]
+          : saved;
+        setPyramidNetWorkspace(card, target, { savedSignatures, submitted: true });
+      }
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = true;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const questionSetHintButton = event.target.closest("[data-question-set-hint]");
+    if (questionSetHintButton) {
+      const id = questionSetHintButton.dataset.questionSetHint;
+      const questionId = questionSetHintButton.dataset.questionId;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "questionSet" || !questionSetDefinition(card, questionId)) return;
+      const key = teachQuestionStateKey(id, questionId);
+      state.teachQuestionHints[key] = !state.teachQuestionHints[key];
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const gridAreaSelectButton = event.target.closest("[data-grid-area-select]");
+    if (gridAreaSelectButton) {
+      const id = gridAreaSelectButton.dataset.gridAreaSelect;
+      const figureId = gridAreaSelectButton.dataset.gridAreaFigure;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "gridFigureAreas" || !gridFigureAreaDefinition(card, figureId)) return;
+      state.teachGridAreaActive[id] = figureId;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const gridAreaSubmitButton = event.target.closest("[data-grid-area-submit]");
+    if (gridAreaSubmitButton) {
+      const id = gridAreaSubmitButton.dataset.gridAreaSubmit;
+      const figureId = gridAreaSubmitButton.dataset.gridAreaFigure;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "gridFigureAreas" || !gridFigureAreaDefinition(card, figureId)) return;
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, figureId)] = true;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const gridAreaHintButton = event.target.closest("[data-grid-area-hint]");
+    if (gridAreaHintButton) {
+      const id = gridAreaHintButton.dataset.gridAreaHint;
+      const figureId = gridAreaHintButton.dataset.gridAreaFigure;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "gridFigureAreas" || !gridFigureAreaDefinition(card, figureId)) return;
+      const key = teachQuestionStateKey(id, figureId);
+      state.teachQuestionHints[key] = !state.teachQuestionHints[key];
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const areaMeaningChoiceButton = event.target.closest("[data-area-meaning-choice]");
+    if (areaMeaningChoiceButton) {
+      const id = areaMeaningChoiceButton.dataset.areaMeaningChoice;
+      const drawingId = areaMeaningChoiceButton.dataset.drawingId;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "areaMeaning" || !card.drawingChoices.includes(drawingId)) return;
+      const current = areaMeaningDrawingSelections(card);
+      const next = current.includes(drawingId)
+        ? current.filter((choice) => choice !== drawingId)
+        : [...current, drawingId];
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        drawingSelections: card.drawingChoices.filter((choice) => next.includes(choice)).join("|"),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, "drawings")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const teachQuestionSubmitButton = event.target.closest("[data-teach-question-submit]");
+    if (teachQuestionSubmitButton) {
+      const id = teachQuestionSubmitButton.dataset.teachQuestionSubmit;
+      const questionId = teachQuestionSubmitButton.dataset.questionId;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "areaMeaning" || !isAreaMeaningQuestionId(questionId)) return;
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = true;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const teachQuestionHintButton = event.target.closest("[data-teach-question-hint]");
+    if (teachQuestionHintButton) {
+      const id = teachQuestionHintButton.dataset.teachQuestionHint;
+      const questionId = teachQuestionHintButton.dataset.questionId;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "areaMeaning" || !isAreaMeaningQuestionId(questionId)) return;
+      const key = teachQuestionStateKey(id, questionId);
+      state.teachQuestionHints[key] = !state.teachQuestionHints[key];
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const tentChoiceButton = event.target.closest("[data-tent-designer-choice]");
+    if (tentChoiceButton) {
+      const card = teachCardById(tentChoiceButton.dataset.tentDesignerChoice);
+      const field = tentChoiceButton.dataset.tentField;
+      const optionId = tentChoiceButton.dataset.optionId;
+      const optionKeyByField = {
+        tentCapacity: "capacity",
+        tentArrangement: "arrangement",
+        tentHeight: "height",
+        tentStyle: "style",
+      };
+      const optionKey = optionKeyByField[field];
+      const options = optionKey ? tentDesignerOptions[optionKey] : [];
+      if (!card || card.id !== "teach-l19" || !options.some((option) => option.id === optionId)) return;
+      const response = { ...tentPlanField("teach-l19"), [field]: optionId };
+      if (["tentCapacity", "tentArrangement"].includes(field)) {
+        const capacity = Number(response.tentCapacity);
+        const arrangement = response.tentArrangement;
+        const required = tentRequiredFloor(capacity, arrangement);
+        if (required.rows > 0 && required.columns > 0) {
+          response.tentFloorLength = String(required.recommendedLength);
+          response.tentFloorWidth = String(required.recommendedWidth);
+        }
+      }
+      state.teachCustomResponses[card.id] = response;
+      invalidateTentPlanSubmissions();
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const tentStepButton = event.target.closest("[data-tent-step]");
+    if (tentStepButton) {
+      const card = teachCardById(tentStepButton.dataset.tentStep);
+      const field = tentStepButton.dataset.tentField;
+      const step = Number(tentStepButton.dataset.step);
+      if (!card || card.id !== "teach-l19"
+        || !["tentFloorLength", "tentFloorWidth"].includes(field)
+        || ![-1, 1].includes(step)) return;
+      const response = { ...tentPlanField("teach-l19") };
+      const current = Number(response[field]);
+      if (!Number.isInteger(current)) return;
+      response[field] = String(Math.max(3, Math.min(30, current + step)));
+      state.teachCustomResponses[card.id] = response;
+      invalidateTentPlanSubmissions();
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
     const teachDropdownOptionButton = event.target.closest("[data-teach-dropdown-option]");
     if (teachDropdownOptionButton) {
       const id = teachDropdownOptionButton.dataset.teachDropdownOption;
@@ -5928,6 +13422,48 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const decomposeSelectButton = event.target.closest("[data-decompose-select]");
+    if (decomposeSelectButton) {
+      const card = teachCardById(decomposeSelectButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const pieceId = decomposeSelectButton.dataset.decomposeSelect;
+      if (!card || card.customVisual !== "decomposeParallelogram" || !["small", "trapezoid"].includes(pieceId)) return;
+      state.teachDecomposeSelectedPiece = pieceId;
+      renderTeachMe();
+      return;
+    }
+    const decomposeRotateButton = event.target.closest("[data-decompose-rotate]");
+    if (decomposeRotateButton) {
+      const card = teachCardById(decomposeRotateButton.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card || card.customVisual !== "decomposeParallelogram") return;
+      rotateSelectedDecomposePiece(card, Number(decomposeRotateButton.dataset.decomposeRotate) || 0);
+      renderTeachMe();
+      return;
+    }
+    const decomposeResetButton = event.target.closest("[data-decompose-reset]");
+    if (decomposeResetButton) {
+      const card = teachCardById(decomposeResetButton.dataset.decomposeReset);
+      if (!card || card.customVisual !== "decomposeParallelogram") return;
+      resetDecomposePieces(card);
+      renderTeachMe();
+      return;
+    }
+    const guidedOptionalSubmitButton = event.target.closest("[data-guided-optional-submit]");
+    if (guidedOptionalSubmitButton) {
+      const card = teachCardById(guidedOptionalSubmitButton.dataset.guidedOptionalSubmit);
+      if (!card?.optionalChallenge) return;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, card.optionalChallenge.id)] = true;
+      renderTeachMe();
+      return;
+    }
+    const guidedOptionalHintButton = event.target.closest("[data-guided-optional-hint]");
+    if (guidedOptionalHintButton) {
+      const card = teachCardById(guidedOptionalHintButton.dataset.guidedOptionalHint);
+      if (!card?.optionalChallenge) return;
+      const key = teachQuestionStateKey(card.id, card.optionalChallenge.id);
+      state.teachQuestionHints[key] = !state.teachQuestionHints[key];
+      renderTeachMe();
+      return;
+    }
     const teachGuidedChoiceButton = event.target.closest("[data-teach-guided-choice]");
     if (teachGuidedChoiceButton) {
       const id = teachGuidedChoiceButton.dataset.teachGuidedChoice;
@@ -5948,6 +13484,11 @@ function bindEvents() {
         ...response,
         [field]: nextValue,
       };
+      if (card.customVisual === "decomposeParallelogram" && field === "parallelogram") {
+        state.teachCustomResponses[id].decomposeSmallUsed = "";
+        state.teachCustomResponses[id].decomposeTrapezoidUsed = "";
+        state.teachDecomposeSelectedPiece = "small";
+      }
       state.teachSubmitted[id] = false;
       state.teachOpenDropdown = null;
       state.sourceModalItemId = null;
@@ -6032,6 +13573,17 @@ function bindEvents() {
         resetQuadrilateralDecomposition(id);
         renderTeachMe();
       }
+      return;
+    }
+    const triangleHeightRoundButton = event.target.closest("[data-triangle-height-round]");
+    if (triangleHeightRoundButton) {
+      const card = teachCardById(triangleHeightRoundButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const roundId = triangleHeightRoundButton.dataset.triangleHeightRound;
+      if (!card || card.responseType !== "triangleHeightMarks" || !triangleHeightRounds[roundId]) return;
+      if (roundId === "round2" && !triangleHeightRoundCompleted(getTeachCustomResponse(card), "round1")) return;
+      state.teachTriangleHeightRound = roundId;
+      state.teachTriangleHeightStartPoint = null;
+      renderTeachMe();
       return;
     }
     const triangleHeightPointButton = event.target.closest("[data-triangle-height-point]");
@@ -6192,6 +13744,138 @@ function bindEvents() {
     }
   });
   document.addEventListener("input", (event) => {
+    enforceTextareaValueLimit(event.target);
+    const quadrilateralExtensionInput = event.target.closest("[data-quadrilateral-extension-input]");
+    if (quadrilateralExtensionInput) {
+      const card = teachCardById(quadrilateralExtensionInput.dataset.quadrilateralExtensionInput);
+      if (!card || card.responseType !== "quadrilateralDecompose") return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        extensionRule: enforceTextareaValueLimit(quadrilateralExtensionInput),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "optional-extension")] = false;
+      return;
+    }
+    const parallelogramPairInput = event.target.closest("[data-parallelogram-pair-input]");
+    if (parallelogramPairInput) {
+      const id = parallelogramPairInput.dataset.parallelogramPairInput;
+      const shapeId = parallelogramPairInput.dataset.shapeId;
+      const field = parallelogramPairInput.dataset.pairField;
+      const card = teachCardById(id);
+      const question = card ? questionSetDefinition(card, "pair-build") : null;
+      if (!card || question?.dynamicAnswer !== "parallelogramPairArea20" || !["P", "Q"].includes(shapeId) || !["base", "height", "shift"].includes(field)) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [parallelogramPairField(shapeId, field)]: parallelogramPairInput.value,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const parallelogramInput = event.target.closest("[data-parallelogram-input]");
+    if (parallelogramInput) {
+      const id = parallelogramInput.dataset.parallelogramInput;
+      const questionId = parallelogramInput.dataset.questionId;
+      const field = parallelogramInput.dataset.parallelogramField;
+      const card = teachCardById(id);
+      const question = card ? parallelogramExploreQuestion(card, questionId) : null;
+      if (!card || card.customVisual !== "parallelogramExplore" || !question?.model?.editable || !["base", "height", "slant"].includes(field)) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [parallelogramExploreField(question.id, field)]: parallelogramInput.value,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, question.id)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const questionSetInput = event.target.closest("[data-question-set-input]");
+    if (questionSetInput) {
+      const id = questionSetInput.dataset.questionSetInput;
+      const questionId = questionSetInput.dataset.questionId;
+      const field = questionSetInput.dataset.questionField;
+      const card = teachCardById(id);
+      const question = card ? questionSetDefinition(card, questionId) : null;
+      const configuredField = question?.fields?.find((entry) => entry.id === field);
+      if (!card || card.responseType !== "questionSet" || !question || (!configuredField && !["answer", "reasoning"].includes(field))) return;
+      const maxLength = field === "reasoning" || question.responseType === "openResponse"
+        ? TEXTAREA_MAX_LENGTH
+        : configuredField?.responseType === "number" || question.responseType === "number"
+          ? 24
+          : configuredField ? 120 : 500;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [questionSetField(questionId, field)]: enforceTextareaValueLimit(questionSetInput).slice(0, maxLength),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
+      state.sourceModalItemId = null;
+      const cardNode = questionSetInput.closest("[data-teach-card]");
+      const feedback = cardNode?.querySelector(`[data-question-set-feedback="${questionId}"]`);
+      if (feedback) {
+        feedback.textContent = `Submit ${question.label} when you are ready for feedback.`;
+        feedback.classList.remove("is-correct", "is-incorrect");
+      }
+      const progress = cardNode?.querySelector(`[data-question-set-select="${id}"][data-question-id="${questionId}"]`);
+      progress?.classList.remove("is-correct", "is-incorrect");
+      const progressStatus = progress?.querySelector("span");
+      if (progressStatus) progressStatus.textContent = "Not submitted";
+      const completion = cardNode?.querySelector("[data-question-set-completion]");
+      if (completion) {
+        const requiredCount = questionSetRequiredCount(card);
+        const hasOptional = requiredCount !== (card.questions || []).length;
+        completion.textContent = `Completed ${questionSetCompletedCount(card)} of ${requiredCount}${hasOptional ? " required" : ""} questions.`;
+      }
+      return;
+    }
+    const gridAreaInput = event.target.closest("[data-grid-area-input]");
+    if (gridAreaInput) {
+      const id = gridAreaInput.dataset.gridAreaInput;
+      const figureId = gridAreaInput.dataset.gridAreaFigure;
+      const field = gridAreaInput.dataset.gridAreaField;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "gridFigureAreas" || !gridFigureAreaDefinition(card, figureId) || !["area", "reasoning"].includes(field)) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [gridFigureAreaField(figureId, field)]: gridAreaInput.value.slice(0, field === "area" ? 24 : TEXTAREA_MAX_LENGTH),
+      };
+      state.sourceModalItemId = null;
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, figureId)] = false;
+      const cardNode = gridAreaInput.closest("[data-teach-card]");
+      const feedback = cardNode?.querySelector(`[data-grid-area-feedback="${figureId}"]`);
+      if (feedback) {
+        feedback.textContent = `Submit Figure ${figureId} when you are ready for feedback.`;
+        feedback.classList.remove("is-correct", "is-incorrect");
+      }
+      const selectButton = cardNode?.querySelector(`[data-grid-area-select="${id}"][data-grid-area-figure="${figureId}"]`);
+      selectButton?.classList.remove("is-correct", "is-incorrect");
+      const progress = cardNode?.querySelector(`[data-grid-area-progress="${figureId}"]`);
+      progress?.classList.remove("is-correct", "is-incorrect");
+      const progressStatus = progress?.querySelector(".grid-area-progress-status");
+      if (progressStatus) progressStatus.textContent = "Not submitted";
+      const completion = cardNode?.querySelector("[data-grid-area-completion]");
+      if (completion) completion.textContent = `Completed ${gridFigureAreaCompletedCount(card)} of ${(card.figures || []).length} figures.`;
+      return;
+    }
+    const teachQuestionInput = event.target.closest("[data-teach-question-input]");
+    if (teachQuestionInput) {
+      const id = teachQuestionInput.dataset.teachQuestionInput;
+      const questionId = teachQuestionInput.dataset.questionId;
+      const card = teachCardById(id);
+      if (!card || card.responseType !== "areaMeaning" || questionId !== "definition") return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        areaDefinition: enforceTextareaValueLimit(teachQuestionInput),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
+      state.sourceModalItemId = null;
+      const feedback = teachQuestionInput.closest("[data-teach-question-section]")?.querySelector("[data-teach-question-feedback]");
+      if (feedback) {
+        feedback.textContent = "Submit Question 2 when you are ready for feedback.";
+        feedback.classList.remove("is-correct", "is-incorrect");
+      }
+      return;
+    }
     const teachCustomInput = event.target.closest("[data-teach-custom-input]");
     if (teachCustomInput) {
       updateTeachCustomResponse(teachCustomInput);
@@ -6201,7 +13885,7 @@ function bindEvents() {
     const teachReasoning = event.target.closest("[data-teach-reasoning]");
     if (teachReasoning) {
       const id = teachReasoning.dataset.teachReasoning;
-      state.teachReasoning[id] = teachReasoning.value;
+      state.teachReasoning[id] = enforceTextareaValueLimit(teachReasoning);
       state.teachSubmitted[id] = false;
       state.sourceModalItemId = null;
       return;
@@ -6209,7 +13893,7 @@ function bindEvents() {
     const reasoning = event.target.closest("[data-practice-reasoning]");
     if (reasoning) {
       const id = reasoning.dataset.practiceReasoning;
-      state.practiceReasoning[id] = reasoning.value;
+      state.practiceReasoning[id] = enforceTextareaValueLimit(reasoning);
       state.practiceSubmitted[id] = false;
       state.practiceSamples[id] = false;
       state.sourceModalItemId = null;
@@ -6218,7 +13902,7 @@ function bindEvents() {
     const teachInput = event.target.closest("[data-teach-input]");
     if (teachInput) {
       const id = teachInput.dataset.teachInput;
-      state.teachResponses[id] = teachInput.value;
+      state.teachResponses[id] = enforceTextareaValueLimit(teachInput);
       state.teachSubmitted[id] = false;
       state.sourceModalItemId = null;
       return;
@@ -6226,7 +13910,7 @@ function bindEvents() {
     const input = event.target.closest("[data-practice-input]");
     if (!input) return;
     const id = input.dataset.practiceInput;
-    state.practiceResponses[id] = input.value;
+    state.practiceResponses[id] = enforceTextareaValueLimit(input);
     state.practiceSubmitted[id] = false;
     state.practiceSamples[id] = false;
     state.sourceModalItemId = null;
@@ -6251,6 +13935,43 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const pyramidPiece = event.target.closest?.("[data-pyramid-net-piece]");
+    if (pyramidPiece && (event.key === "Enter" || event.key === " ")) {
+      const card = teachCardById(pyramidPiece.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const target = pyramidPiece.closest("[data-pyramid-net-stage]")?.dataset.pyramidNetStage || pyramidNetTargetId(card);
+      setPyramidNetWorkspace(card, target, { selectedId: pyramidPiece.dataset.pyramidNetPiece });
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    if (pyramidPiece && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const card = teachCardById(pyramidPiece.closest("[data-teach-card]")?.dataset.teachCard);
+      const target = card
+        ? pyramidPiece.closest("[data-pyramid-net-stage]")?.dataset.pyramidNetStage || pyramidNetTargetId(card)
+        : "Q";
+      const piece = card ? pyramidNetPieces(card, target).find((entry) => entry.id === pyramidPiece.dataset.pyramidNetPiece) : null;
+      if (!card || !piece) return;
+      const distance = event.shiftKey ? 2 : 10;
+      if (event.key === "ArrowLeft") piece.x -= distance;
+      if (event.key === "ArrowRight") piece.x += distance;
+      if (event.key === "ArrowUp") piece.y -= distance;
+      if (event.key === "ArrowDown") piece.y += distance;
+      piece.x = clampNumber(piece.x, pyramidNetPieceMargin, pyramidNetBoard.width - pyramidNetPieceMargin);
+      piece.y = clampNumber(piece.y, pyramidNetPieceMargin, pyramidNetBoard.height - pyramidNetPieceMargin);
+      setPyramidNetWorkspace(card, target, { selectedId: piece.id });
+      snapPyramidNetPiece(card, piece.id, target);
+      markPyramidNetChanged(card, target);
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    const interactiveNetTarget = event.target.closest?.("[data-prism-net-slot], [data-cube-net-cell], [data-labeled-cube-net-cell], [data-eight-cube-cell], [data-snap-cube-cell]");
+    if (interactiveNetTarget && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      interactiveNetTarget.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      return;
+    }
     if (event.key !== "Escape" || !state.sourceModalItemId) return;
     state.sourceModalItemId = null;
     renderSourceModalHost();
@@ -6268,3 +13989,4 @@ function renderAll() {
 
 bindEvents();
 renderAll();
+if (initialTeachLessonMatch) scrollToTeachLesson(initialTeachLesson);

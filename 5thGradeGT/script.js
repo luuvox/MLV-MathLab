@@ -6,7 +6,7 @@ const initialTeachLesson = Number.isInteger(initialTeachLessonNumber)
   ? initialTeachLessonNumber
   : 1;
 
-const TEXTAREA_MAX_LENGTH = 1000;
+const TEXTAREA_MAX_LENGTH = 500;
 
 const state = {
   view: "unit1",
@@ -26,7 +26,15 @@ const state = {
   teachQuestionSetActive: {},
   teachOpenDropdown: null,
   teachTangramPieces: null,
+  teachTangramWorkspaces: {},
   teachTangramSelectedPiece: "square",
+  teachGridTrianglePieces: null,
+  teachGridTriangleSelectedPiece: "triangle-1",
+  teachTilingPieces: null,
+  teachTilingSelectedPiece: "triangle-1",
+  teachEqualAreaTiling: null,
+  teachEqualAreaTilingTool: "square",
+  teachEqualAreaTilingOrientation: "horizontal",
   teachTrianglePairActive: "P",
   teachTrianglePairPieces: null,
   teachTrianglePairSelectedPiece: "copy-a",
@@ -62,9 +70,12 @@ const state = {
 
 let sourceModalPointer = null;
 let tangramPointer = null;
+let gridTrianglePointer = null;
+let tilingPiecePointer = null;
 let trianglePairPointer = null;
 let decomposePointer = null;
 let pyramidNetPointer = null;
+let baseHeightChallengePointer = null;
 
 const sourceModalBounds = {
   minWidth: 360,
@@ -351,11 +362,10 @@ const unit1TeachCards = [
     idea: "Idea 1",
     title: "Tiling the Plane",
     activityTitle: "1.1: Which One Doesn't Belong: Tilings",
-    sourceDirections: "Which pattern doesn't belong?",
     pdfPage: 1,
     cropPath: "lesson-01-p001-tilings.png",
     visualAlt: "Four source tiling patterns labeled A through D.",
-    prompt: "Which pattern is the clearest example of not covering the plane cleanly with a repeating tiling?",
+    prompt: "Which pattern doesn't belong? Choose any pattern you can support with a true observation.",
     responseType: "singleChoice",
     choices: [
       { id: "A", label: "A" },
@@ -363,10 +373,18 @@ const unit1TeachCards = [
       { id: "C", label: "C" },
       { id: "D", label: "D" },
     ],
-    answerKey: ["D"],
-    hint: "A tiling covers the plane without gaps or overlaps. Look for the pattern where the pieces stop behaving like a regular cover.",
-    correctFeedback: "Yes. Pattern D is a clear choice because the pieces leave gaps and do not make the same kind of regular plane-covering pattern as the others.",
-    incorrectFeedback: "Not quite for this check. A, B, and C still show regular plane-covering patterns. Pattern D breaks that clean tiling behavior.",
+    answerKey: ["A", "B", "C", "D"],
+    acceptAnyChoice: true,
+    reasoningPrompt: "Optional: Explain one true feature that makes your choice different from the other three.",
+    hint: "There is no single correct choice. Compare colors, kinds of polygons, sizes, gaps, and how sides meet.",
+    choiceFeedback: {
+      A: "Pattern A is a defensible choice because it is the only pattern with no yellow tiles. Patterns B, C, and D all include yellow tiles.",
+      B: "Pattern B is a defensible choice because it is the only pattern made entirely of hexagons. Patterns A, C, and D each contain tiles that are not hexagons.",
+      C: "Pattern C is a defensible choice because it is the only pattern containing octagonal tiles. Patterns A, B, and D contain no octagons.",
+      D: "Pattern D is a defensible choice because it is the only pattern with gaps between its tiles. Patterns A, B, and C cover their regions without gaps.",
+    },
+    correctFeedback: "Response recorded. This routine has no single correct pattern.",
+    incorrectFeedback: "Choose a pattern, then submit again.",
   },
   {
     id: "teach-l1-2",
@@ -375,11 +393,12 @@ const unit1TeachCards = [
     idea: "Idea 1",
     title: "Tiling the Plane",
     activityTitle: "1.2: More Red, Green, or Blue?",
-    sourceContext: "Choose one pattern to examine.",
+    sourceContext: "Choose Pattern A or Pattern B, then use the movable comparison pieces to test area relationships.",
     sourceDirections: "In your selected pattern, which shapes cover more of the plane: blue rhombuses, red trapezoids, or green triangles? Explain how you know.",
     pdfPage: 2,
     cropPath: "lesson-01-p002-pattern-a-b.png",
     visualAlt: "Source tiling patterns A and B made from blue rhombuses, red trapezoids, and green triangles.",
+    customVisual: "tilingCompare",
     variantPrompt: "Choose your pattern.",
     variants: [
       {
@@ -407,9 +426,33 @@ const unit1TeachCards = [
       { id: "green-triangles", label: "Green triangles" },
     ],
     reasoningPrompt: "Explain your reasoning.",
+    reasoningRequired: true,
+    reasoningMinLength: 12,
+    reasoningConcepts: [["trapezoid", "triangle"], ["red", "triangle"], ["9", "8"], ["72", "64"]],
     hint: "Do not compare only the number of pieces. Convert each shape to the same area unit: two green triangles match one blue rhombus, and three green triangles match one red trapezoid.",
     correctFeedback: "Correct. The red trapezoids cover the most area.",
     incorrectFeedback: "Not quite. Counting pieces alone is misleading because the pieces have different areas.",
+  },
+  {
+    id: "teach-l1-extension",
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Tiling the Plane",
+    partLabel: "Optional",
+    activityOrder: 99,
+    activityTitle: "Are You Ready for More? Equal-Area Tiling",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Create a tiling with at least two different shapes so the same amount of the plane is covered by each type of shape.",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "equalAreaTiling",
+    visualAlt: "Interactive four-by-three grid for making an equal-area tiling with squares and dominoes.",
+    prompt: "Fill the rectangle without gaps or overlaps. Use both unit squares and two-unit dominoes, with each shape type covering the same total area.",
+    responseType: "tilingDesign",
+    hint: "The board has 12 unit cells, so each shape type must cover 6 cells. A domino covers 2 cells.",
+    correctFeedback: "Correct. Your squares cover 6 square units and your dominoes cover 6 square units, and together they tile the entire rectangle without gaps or overlaps.",
+    incorrectFeedback: "Keep building. The rectangle must be completely covered, both shape types must be used, and squares and dominoes must cover equal total areas.",
   },
   {
     id: "teach-l2",
@@ -428,6 +471,10 @@ const unit1TeachCards = [
     responseType: "areaMeaning",
     drawingChoices: ["A", "B", "C", "D"],
     drawingAnswerKey: ["A", "B", "D"],
+    freeTextValidationGuidance: {
+      drawingReasoning: "write at least 12 characters and mention covering, gaps, overlaps, same-size or unit squares, or converting the square sizes in Drawing B",
+      areaDefinition: "describe a two-dimensional region, square units or same-size unit squares, covering the region, no gaps, and no overlaps",
+    },
     drawingHint: "Check whether the squares cover the whole shape without overlapping. If square sizes differ, consider whether the sizes can be converted to one common square unit.",
     definitionHint: "Include what area measures, the unit used to measure it, and how those units must cover the region.",
   },
@@ -444,18 +491,29 @@ const unit1TeachCards = [
     visualDisplayMaxWidth: 365,
     visualAlt: "Source figures comparing a square region with a shaded region that has a missing square and an attached square.",
     sourceContext: "The source provides a Blackline Master copy for students who cut or physically compare the two regions.",
-    prompt: "In Figure B, one square is removed from inside and an equal square is attached outside. How does its shaded area compare with Figure A?",
     blacklineMasters: unit1BlacklineMasters.comparingRegions,
-    responseType: "singleChoice",
-    choices: [
-      { id: "greater", label: "Figure B has greater shaded area." },
-      { id: "less", label: "Figure B has less shaded area." },
-      { id: "equal", label: "The shaded areas are equal." },
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "comparison",
+        label: "Area comparison",
+        prompt: "Is the area of Figure A greater than, less than, or equal to the area of the shaded region in Figure B?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "greater", label: "Figure A has greater area." },
+          { id: "less", label: "Figure A has less area." },
+          { id: "equal", label: "The areas are equal." },
+        ],
+        answerKey: ["equal"],
+        reasoningPrompt: "Explain or show why the areas compare that way.",
+        reasoningConcepts: [["square", "move"], ["square", "rearrang"], ["hole", "attach"], ["remove", "add"], ["match", "equal"]],
+        reasoningRequiredFeedback: "The comparison is correct. Add an explanation showing how a piece of Figure B can be rearranged to match Figure A.",
+        reasoningRevisionFeedback: "The comparison is correct, but strengthen the explanation. Track the attached square and the same-size opening, or describe how the shaded region can be rearranged to match Figure A.",
+        hint: "Imagine moving the attached square in Figure B into the square opening. Compare the resulting boundary with Figure A.",
+        correctFeedback: "Correct. The attached square in Figure B exactly fills its same-size opening. After that rearrangement, Figure B matches Figure A, so the areas are equal.",
+        incorrectFeedback: "Try rearranging the attached square in Figure B. Decide whether moving a piece changes the total amount of shaded area.",
+      },
     ],
-    answerKey: ["equal"],
-    hint: "Track the square unit that moved. A moved piece changes location, but not amount of area.",
-    correctFeedback: "Correct. The hole and the attached square are the same size, so the shaded area in B stays equal to Figure A.",
-    incorrectFeedback: "Look at the moved square. Removing one square unit and attaching one equal square unit keeps the shaded area the same.",
   },
   {
     id: "teach-l4",
@@ -589,7 +647,7 @@ const unit1TeachCards = [
     idea: "Idea 2",
     title: "Area of Parallelograms",
     activityTitle: "6.2: More Areas of Parallelograms",
-    sourceDirections: "Calculate and check the starting parallelogram, create and check three new ones, determine Height B, then explain and create equal-area pairs.",
+    sourceDirections: "Calculate the starting parallelogram, create and calculate three new ones, determine Height B, then explain and create equal-area pairs.",
     pdfPage: 1,
     pdfPages: [1, 2],
     cropPath: null,
@@ -600,7 +658,7 @@ const unit1TeachCards = [
       {
         id: "digital-start",
         label: "Starting figure",
-        prompt: "Calculate the area of the given parallelogram. Enter your calculation, then use Show Area to check it.",
+        prompt: "Calculate the area of the given parallelogram, then submit your answer for feedback.",
         responseType: "number",
         inputLabel: "Area of the starting parallelogram",
         placeholder: "Type area",
@@ -608,9 +666,6 @@ const unit1TeachCards = [
         dynamicAnswer: "parallelogramArea",
         visualType: "parallelogramExplore",
         model: { base: 8, height: 7, slant: -2, sideLabel: "7.2", editable: false, sourceAreaMode: true },
-        showAreaCheck: true,
-        requireAreaCheck: true,
-        areaCheckFeedback: "Use Show Area to check the calculation before submitting this figure.",
         hint: "The horizontal base is 8 units and its perpendicular height is 7 units. The 7.2-unit slanted side is not the corresponding height.",
         correctFeedback: "Correct. The starting parallelogram has area 8 x 7 = 56 square units. The slanted 7.2-unit side is not needed for this base-height calculation.",
         incorrectFeedback: "Not quite. Multiply the 8-unit base by its perpendicular 7-unit height.",
@@ -618,21 +673,18 @@ const unit1TeachCards = [
       {
         id: "digital-change-1",
         label: "Changed figure 1",
-        prompt: "Move at least one vertex control to create a new parallelogram. Calculate its area, then use Show Area to check it.",
+        prompt: "Move at least one vertex control to create a new parallelogram. Calculate its area, then submit your answer for feedback.",
         responseType: "number",
         inputLabel: "Area of changed figure 1",
         placeholder: "Type area",
         dynamicAnswer: "parallelogramArea",
         visualType: "parallelogramExplore",
         model: { base: 8, height: 7, slant: -2, editable: true, sourceAreaMode: true },
-        showAreaCheck: true,
-        requireAreaCheck: true,
         requireAdjustment: true,
         modelMustDifferFromQuestionIds: ["digital-start"],
         unlockedAfterQuestionId: "digital-start",
         adjustmentFeedback: "Change at least one vertex control before submitting. The source asks for a new parallelogram.",
         uniquenessFeedback: "Make this parallelogram different from the starting figure before submitting.",
-        areaCheckFeedback: "Use Show Area to check the changed figure before submitting it.",
         hint: "Read the current horizontal span and perpendicular vertical span from the controls, then multiply them.",
         correctFeedback: "Correct. Changed figure 1 has area equal to its current horizontal span times its perpendicular vertical span.",
         incorrectFeedback: "Not quite. Use the current base and perpendicular height shown by the model.",
@@ -640,21 +692,18 @@ const unit1TeachCards = [
       {
         id: "digital-change-2",
         label: "Changed figure 2",
-        prompt: "Create a second new parallelogram that differs from the figures already recorded. Calculate and check its area.",
+        prompt: "Create a second new parallelogram that differs from the figures already recorded. Calculate its area, then submit your answer for feedback.",
         responseType: "number",
         inputLabel: "Area of changed figure 2",
         placeholder: "Type area",
         dynamicAnswer: "parallelogramArea",
         visualType: "parallelogramExplore",
         model: { base: 8, height: 7, slant: -2, editable: true, sourceAreaMode: true },
-        showAreaCheck: true,
-        requireAreaCheck: true,
         requireAdjustment: true,
         modelMustDifferFromQuestionIds: ["digital-start", "digital-change-1"],
         unlockedAfterQuestionId: "digital-change-1",
         adjustmentFeedback: "Change at least one vertex control before submitting this second new figure.",
         uniquenessFeedback: "Choose a different base, height, or slant so changed figure 2 is not a copy of an earlier figure.",
-        areaCheckFeedback: "Use Show Area to check changed figure 2 before submitting it.",
         hint: "Change the horizontal span, vertical span, or slant, then multiply the current base and height.",
         correctFeedback: "Correct. Changed figure 2 is distinct and its calculated area matches the model's base-height product.",
         incorrectFeedback: "Not quite. Recheck the current horizontal span and perpendicular vertical span.",
@@ -662,21 +711,18 @@ const unit1TeachCards = [
       {
         id: "digital-change-3",
         label: "Changed figure 3",
-        prompt: "Create a third new parallelogram that differs from all earlier figures. Calculate and check its area.",
+        prompt: "Create a third new parallelogram that differs from all earlier figures. Calculate its area, then submit your answer for feedback.",
         responseType: "number",
         inputLabel: "Area of changed figure 3",
         placeholder: "Type area",
         dynamicAnswer: "parallelogramArea",
         visualType: "parallelogramExplore",
         model: { base: 8, height: 7, slant: -2, editable: true, sourceAreaMode: true },
-        showAreaCheck: true,
-        requireAreaCheck: true,
         requireAdjustment: true,
         modelMustDifferFromQuestionIds: ["digital-start", "digital-change-1", "digital-change-2"],
         unlockedAfterQuestionId: "digital-change-2",
         adjustmentFeedback: "Change at least one vertex control before submitting this third new figure.",
         uniquenessFeedback: "Choose a different base, height, or slant so changed figure 3 is not a copy of an earlier figure.",
-        areaCheckFeedback: "Use Show Area to check changed figure 3 before submitting it.",
         hint: "Use the current base-height pair. Changing only the slant can make a different-looking parallelogram without changing its area.",
         correctFeedback: "Correct. Changed figure 3 is distinct and its area matches its current base-height product.",
         incorrectFeedback: "Not quite. Multiply the current horizontal span by the perpendicular vertical span.",
@@ -1096,6 +1142,9 @@ const unit1TeachCards = [
     visualAlt: "Source triangle diagrams for drawing heights to chosen bases.",
     prompt: "Complete both source rounds: mark all nine corresponding heights, then explain what makes every segment a height.",
     responseType: "triangleHeightMarks",
+    freeTextValidationGuidance: {
+      heightReasoning: "include \"perpendicular\" or \"right angle,\" and also include \"opposite\" with \"base\" or \"base line\"",
+    },
     hint: "A height is perpendicular to the base line and reaches the opposite vertex. Sometimes the base line has to be extended.",
     correctFeedback: "Correct. Each marked height is perpendicular to the chosen base line and connects that line to the opposite vertex. Some heights land outside the triangle because the base line has to be extended.",
     incorrectFeedback: "Recheck each mark. The height must meet the base line at a right angle and reach the opposite vertex; for obtuse triangles, the foot of the height may be outside the triangle.",
@@ -1159,7 +1208,7 @@ const unit1TeachCards = [
     cropPath: null,
     customVisual: "prismBuilder",
     visualAlt: "Interactive rectangular-prism builder using 12 unit cubes.",
-    prompt: "Build a different 12-cube rectangular prism, determine its six outside faces and surface area, and explain how the rendered drawing supports your calculation.",
+    prompt: "Build a different 12-cube rectangular prism and determine its six outside faces and surface area. You may also explain how the rendered drawing supports your calculation.",
     responseType: "prismBuild",
     builderMode: "single12",
     hint: "The source prism has dimensions 3 by 2 by 2. Choose a different factor triple with product 12, then add the areas of all 6 outside faces.",
@@ -1890,7 +1939,7 @@ const teachCardEnhancements = {
   },
   "teach-l6": {
     activityTitle: "6.2: More Areas of Parallelograms",
-    sourceDirections: "Calculate and check the starting parallelogram, create and check three new ones, determine Height B, then explain and create equal-area pairs.",
+    sourceDirections: "Calculate the starting parallelogram, create and calculate three new ones, determine Height B, then explain and create equal-area pairs.",
   },
   "teach-l7": {
     activityTitle: "7.1: Same Parallelograms, Different Bases",
@@ -1959,14 +2008,101 @@ const unit1TeachAdditionalCards = [
     pdfPage: 2,
     pdfPages: [2, 3],
     cropPath: null,
-    customVisual: "tangram",
+    customVisual: "questionSetVisual",
     blacklineMaster: lesson2TangramBlacklineMaster,
     visualAlt: "Interactive Lesson 2 tangram pieces: one square, four small triangles, one medium triangle, and two large triangles.",
-    prompt: "First answer the source question about two small triangles. Then build one of the requested target shapes in the workspace and explain why its area matches the target.",
-    responseType: "tangramCompose",
-    hint: "The unit square has area 1. Two matching small triangles can compose that square, and rearranging the same pieces does not change their total area.",
-    correctFeedback: "Correct. Two small triangles compose a 1-square-unit square, and your explanation connects the workspace to the source idea: composing, decomposing, and rearranging preserve area.",
-    incorrectFeedback: "Check the unit square relationship first. If two matching small triangles exactly compose the square whose area is 1 square unit, their combined area is 1 square unit.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "two-small-square",
+        label: "Question 1",
+        prompt: "Two small triangles can be put together to make a square. What is the area of that square?",
+        responseType: "number",
+        answerKey: ["1"],
+        reasoningPrompt: "Explain why the composed square has that area.",
+        reasoningConcepts: [["two", "small", "square"], ["match", "unit square"], ["same", "area"]],
+        visualType: "tangram",
+        hint: "Compare the square made from two small triangles with the given unit square.",
+        correctFeedback: "Correct. The two-small-triangle square matches the given unit square exactly, so its area is 1 square unit.",
+        incorrectFeedback: "Compare the composed square with the given square whose area is 1 square unit.",
+      },
+      {
+        id: "area-1-not-square",
+        label: "Question 2",
+        prompt: "Use the pieces to create a new shape with area 1 square unit that is not a square.",
+        responseType: "construction",
+        dynamicAnswer: "tangramConstruction",
+        targetArea: 1,
+        minimumPieces: 2,
+        rejectSquare: true,
+        visualType: "tangram",
+        constructionNote: "Mark the pieces used in your shape, drag and turn them into one non-overlapping figure, then submit this question.",
+        hint: "The same two small triangles that make the unit square can be rearranged into a different shape without changing their combined area.",
+        correctFeedback: "Correct. Your connected, non-overlapping shape uses pieces totaling 1 square unit and is not a square.",
+        incorrectFeedback: "Revise the construction. It must use at least two pieces, form one connected shape without overlaps, total 1 square unit, and not be a square.",
+      },
+      {
+        id: "area-2-first",
+        label: "Question 3",
+        prompt: "Use the pieces to create a new shape with area 2 square units.",
+        responseType: "construction",
+        dynamicAnswer: "tangramConstruction",
+        targetArea: 2,
+        minimumPieces: 2,
+        visualType: "tangram",
+        constructionNote: "Mark the pieces used in your shape, compose one connected non-overlapping figure, then submit this question.",
+        hint: "You can combine pieces whose areas add to two unit squares, then rearrange them without changing area.",
+        correctFeedback: "Correct. Your connected, non-overlapping composition has area 2 square units.",
+        incorrectFeedback: "Revise the construction so the used pieces form one connected, non-overlapping shape with area 2 square units.",
+      },
+      {
+        id: "area-2-different",
+        label: "Question 4",
+        prompt: "Use the pieces to create a different shape with area 2 square units.",
+        responseType: "construction",
+        dynamicAnswer: "tangramConstruction",
+        targetArea: 2,
+        minimumPieces: 2,
+        differentFromQuestionId: "area-2-first",
+        visualType: "tangram",
+        constructionNote: "Build and submit an area-2 composition whose piece arrangement differs from your saved Question 3 shape.",
+        hint: "Change which pieces you use or rearrange the same pieces into a visibly different outline.",
+        correctFeedback: "Correct. This is a second, different connected composition with area 2 square units.",
+        incorrectFeedback: "Build one connected, non-overlapping area-2 shape that is meaningfully different from your saved Question 3 construction.",
+      },
+      {
+        id: "area-4",
+        label: "Question 5",
+        prompt: "Use the pieces to create a new shape with area 4 square units.",
+        responseType: "construction",
+        dynamicAnswer: "tangramConstruction",
+        targetArea: 4,
+        minimumPieces: 2,
+        visualType: "tangram",
+        constructionNote: "Mark the pieces used in your shape, compose one connected non-overlapping figure, then submit this question.",
+        hint: "A large triangle has the same area as four small triangles, or two unit squares. Combine enough pieces to make 4 square units.",
+        correctFeedback: "Correct. Your connected, non-overlapping composition has area 4 square units.",
+        incorrectFeedback: "Revise the construction so the used pieces form one connected, non-overlapping shape with area 4 square units.",
+      },
+      {
+        id: "all-pieces-square",
+        label: "Optional challenge",
+        prompt: "Use all of the pieces to compose one large square. What is the area of the large square?",
+        responseType: "construction",
+        dynamicAnswer: "tangramConstruction",
+        targetArea: 8,
+        minimumPieces: 8,
+        requireAllPieces: true,
+        requireSquare: true,
+        requireAreaAnswer: true,
+        optional: true,
+        visualType: "tangram",
+        constructionNote: "Use every piece, with no gaps or overlaps, to make one square. The app checks the construction and its total area.",
+        hint: "The complete Blackline Master set was cut from one large square. Use all eight pieces and make its outer boundary square.",
+        correctFeedback: "Correct. All eight pieces recompose the original large square, whose area is 8 square units.",
+        incorrectFeedback: "Use all eight pieces to form one connected, non-overlapping square. The full set has area 8 square units.",
+      },
+    ],
   },
   {
     id: "teach-l2-3",
@@ -1979,14 +2115,51 @@ const unit1TeachAdditionalCards = [
     sourceDirections: "Use the same pieces from 2.2 to reason about each triangle's area. You can move and rotate pieces in the workspace while you compare them with the unit square.",
     pdfPage: 4,
     cropPath: null,
-    customVisual: "tangram",
+    customVisual: "questionSetVisual",
     blacklineMaster: lesson2TangramBlacklineMaster,
     visualAlt: "Interactive Lesson 2 tangram pieces used to compare the areas of the small, medium, and large triangles.",
-    prompt: "Complete all three source statements: find the area of the small triangle, the medium triangle, and the large triangle.",
-    responseType: "tangramAreas",
-    hint: "Start from the 1-square-unit square. Two small triangles compose the unit square. A medium triangle matches one unit square. A large triangle can be decomposed into four small triangles.",
-    correctFeedback: "Correct. Small triangle: 1/2 square unit. Medium triangle: 1 square unit. Large triangle: 2 square units. Each value follows by composing, decomposing, or rearranging the same pieces.",
-    incorrectFeedback: "Use the unit square as the reference. Two small triangles make 1 square unit; the medium triangle has the same area as that square; the large triangle is four small triangles, or 2 square units.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "small-triangle",
+        label: "Small triangle",
+        prompt: "The area of the small triangle is _____ square units.",
+        responseType: "number",
+        answerKey: ["1/2", "0.5"],
+        reasoningPrompt: "I know this because...",
+        reasoningConcepts: [["two", "small", "square"], ["half", "unit square"]],
+        visualType: "tangram",
+        hint: "Two small triangles compose the unit square.",
+        correctFeedback: "Correct. Two small triangles compose 1 square unit, so one small triangle has area 1/2 square unit.",
+        incorrectFeedback: "Use the square made from two matching small triangles as the 1-square-unit reference.",
+      },
+      {
+        id: "medium-triangle",
+        label: "Medium triangle",
+        prompt: "The area of the medium triangle is _____ square units.",
+        responseType: "number",
+        answerKey: ["1"],
+        reasoningPrompt: "I know this because...",
+        reasoningConcepts: [["two", "small"], ["match", "square"], ["same", "unit square"]],
+        visualType: "tangram",
+        hint: "Compare the medium triangle with two small triangles or with the unit square.",
+        correctFeedback: "Correct. The medium triangle can be matched by two small triangles, the same pieces that compose 1 square unit.",
+        incorrectFeedback: "Compose two small triangles and compare that region with the medium triangle and the unit square.",
+      },
+      {
+        id: "large-triangle",
+        label: "Large triangle",
+        prompt: "The area of the large triangle is _____ square units.",
+        responseType: "number",
+        answerKey: ["2"],
+        reasoningPrompt: "I know this because...",
+        reasoningConcepts: [["four", "small"], ["two", "square"], ["decompos", "small"]],
+        visualType: "tangram",
+        hint: "A large triangle can be decomposed into four small triangles, which can be rearranged into two unit squares.",
+        correctFeedback: "Correct. Four small triangles compose the large triangle and can be rearranged into two unit squares, so its area is 2 square units.",
+        incorrectFeedback: "Compare one large triangle with four small triangles, then regroup those small triangles into unit squares.",
+      },
+    ],
   },
   {
     id: "teach-l3-2",
@@ -2002,11 +2175,15 @@ const unit1TeachAdditionalCards = [
     visualAlt: "Four source grid figures labeled A through D with shaded regions whose areas are to be found.",
     prompt: "Select a figure, find its area in square units, and explain an efficient strategy.",
     responseType: "gridFigureAreas",
+    requireReasoning: true,
     reasoningPrompt: "How did you find the area without counting every square?",
+    reasoningRequiredFeedback: "Your area is correct. Explain a decomposition, rearrangement, subtraction, or enclosure strategy for Figure {figure}, then submit again.",
     figures: [
       {
         id: "A",
         answer: "24",
+        reasoningConcepts: [["rectangle", "add"], ["two", "rectangle"], ["6", "2"], ["3", "4"], ["decompos", "rectangle"]],
+        reasoningRevisionFeedback: "Your area is correct, but explain how rectangles and their dimensions give 24 without counting every grid square.",
         hint: "Draw an imaginary horizontal line from the inside corner to split the shaded region into two rectangles.",
         correctFeedback: "Correct. Figure A has area 24 square units. A 6 by 2 rectangle has area 12, and the lower 3 by 4 rectangle also has area 12, so the total is 24.",
         incorrectFeedback: "Not quite. Split Figure A into a top rectangle and a lower-right rectangle. Use the grid to find each rectangle's dimensions, then add their areas.",
@@ -2014,6 +2191,8 @@ const unit1TeachAdditionalCards = [
       {
         id: "B",
         answer: "27",
+        reasoningConcepts: [["outer", "inner"], ["subtract", "square"], ["36", "9"], ["6", "3"]],
+        reasoningRevisionFeedback: "Your area is correct, but explain how subtracting the inner square from the outer square gives 27.",
         hint: "Find the area of the large outer square and subtract the area of the unshaded inner square.",
         correctFeedback: "Correct. Figure B has area 27 square units. The outer 6 by 6 square has area 36, and the 3 by 3 opening has area 9, so 36 - 9 = 27.",
         incorrectFeedback: "Not quite. Treat Figure B as a large square with a square opening. Use the grid to find both side lengths, then subtract the opening's area.",
@@ -2021,6 +2200,8 @@ const unit1TeachAdditionalCards = [
       {
         id: "C",
         answer: "16",
+        reasoningConcepts: [["pair", "triangle"], ["rearrang", "rectangle"], ["decompos", "triangle"], ["two", "rectangle"]],
+        reasoningRevisionFeedback: "Your area is correct, but explain how the shaded triangles can be paired or rearranged into rectangles with total area 16.",
         hint: "Pair matching shaded triangles and imagine rearranging each pair into a rectangle.",
         correctFeedback: "Correct. Figure C has area 16 square units. The four shaded triangles can be paired and rearranged into two 2 by 4 rectangles, each with area 8.",
         incorrectFeedback: "Not quite. The inner square's side length is not shown, so subtraction is not the efficient route. Pair and rearrange the shaded triangles into rectangles whose dimensions can be read from the grid.",
@@ -2028,11 +2209,34 @@ const unit1TeachAdditionalCards = [
       {
         id: "D",
         answer: "20",
+        reasoningConcepts: [["enclos", "subtract"], ["36", "16"], ["corner", "triangle"], ["figure c"]],
+        reasoningRevisionFeedback: "Your area is correct, but explain an enclosure-and-subtraction strategy or how the corner regions relate to Figure C.",
         hint: "Enclose Figure D in a 6 by 6 square and compare the four corner regions with the shaded regions of Figure C.",
         correctFeedback: "Correct. Figure D has area 20 square units. Its 6 by 6 enclosure has area 36, and the four corner regions have total area 16, so 36 - 16 = 20.",
         incorrectFeedback: "Not quite. Enclose Figure D in a 6 by 6 square. The four corner regions match the shaded pieces from Figure C, so subtract their total area from the enclosure.",
       },
     ],
+  },
+  {
+    id: "teach-l3-2-extension",
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Reasoning to Find Area",
+    partLabel: "Optional",
+    activityOrder: 2.5,
+    activityTitle: "3.2: Are You Ready for More?",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Rearrange the four shaded triangles from Figure C so they fit inside Figure D.",
+    pdfPage: 1,
+    cropPath: null,
+    customVisual: "gridTriangleFit",
+    visualAlt: "Four movable congruent right triangles from source Figure C and a same-size outline of source Figure D, rotated to align with the workspace.",
+    prompt: "Move all four triangles completely inside Figure D without overlaps.",
+    responseType: "triangleFit",
+    hint: "Two congruent triangles can make a 4-by-2 rectangle. Think about how two such rectangles could fit inside the rotated square.",
+    correctFeedback: "Correct. All four triangles from Figure C fit inside Figure D without overlapping. Rearranging preserves their total area of 16 square units.",
+    incorrectFeedback: "Keep rearranging. Every triangle must be completely inside Figure D, and their interiors cannot overlap.",
   },
   {
     id: "teach-l3-3",
@@ -2219,9 +2423,9 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 2",
     title: "Bases and Heights of Parallelograms",
     activityTitle: "5.1: A Parallelogram and Its Rectangles",
-    sourceDirections: "Move both sliders to compare Tyler's and Elena's rectangle strategies.",
+    sourceDirections: "Use the three stage buttons for both Tyler and Elena to compare their rectangle strategies.",
     pdfPage: 1,
-    cropPath: "lesson-05-p001-parallelogram-rectangles-5-1.png",
+    cropPath: "lesson-05-p001-starting-parallelogram.png",
     visualAlt: "Source decompositions of one parallelogram into rectangles.",
     customVisual: "parallelogramCutSliders",
     responseType: "questionSet",
@@ -2238,7 +2442,7 @@ const unit1TeachAdditionalCards = [
         ],
         answerKey: ["same-area"],
         requiredCustomState: { tylerStage: "2", elenaStage: "2" },
-        requiredStateFeedback: "Move both Tyler's and Elena's sliders to their completed rectangle views before submitting.",
+        requiredStateFeedback: "Open stage 3, Rectangle formed, for both Tyler and Elena before submitting.",
         reasoningPrompt: "Explain one measurement or area feature that stays the same.",
         reasoningConcepts: [["same", "area"], ["same", "rectangle"], ["base", "same"], ["height", "same"], ["same", "length"]],
         hint: "Compare the final rectangles and the original parallelogram. Track the side lengths and total area.",
@@ -2258,13 +2462,108 @@ const unit1TeachAdditionalCards = [
         ],
         answerKey: ["different-cut"],
         requiredCustomState: { tylerStage: "2", elenaStage: "2" },
-        requiredStateFeedback: "Move both Tyler's and Elena's sliders to their completed rectangle views before submitting.",
+        requiredStateFeedback: "Open stage 3, Rectangle formed, for both Tyler and Elena before submitting.",
         reasoningPrompt: "Explain where the cuts or moved pieces differ.",
         reasoningConcepts: [["different", "cut"], ["different", "piece"], ["left", "right"], ["tyler", "elena"]],
         hint: "Watch which side piece moves in each slider sequence.",
         reasoningRevisionFeedback: "Your choice is correct, but strengthen the explanation. Identify that Tyler and Elena cut in different places and move different side pieces.",
         correctFeedback: "Correct. Tyler and Elena cut at different locations and move different side pieces, even though both finish with an identical rectangle.",
         incorrectFeedback: "Not quite. Both use the same height and preserve the same area; the difference is where they cut and which side piece they move.",
+      },
+    ],
+  },
+  {
+    id: "teach-l5-2-extension",
+    lessonNumber: 5,
+    section: "B",
+    idea: "Idea 2",
+    title: "Bases and Heights of Parallelograms",
+    partLabel: "Optional",
+    activityOrder: 2.5,
+    activityTitle: "5.2: Are You Ready for More?",
+    sourceContext: "Optional digital source extension",
+    sourceDirections: "Experiment with the movable points. Keep the dashed height perpendicular to base b while you make each requested parallelogram.",
+    pdfPage: 2,
+    pdfPages: [2, 3],
+    cropPath: null,
+    customVisual: "questionSetVisual",
+    visualAlt: "Interactive parallelogram with a labeled base b, a perpendicular dashed height h, supporting lines, and movable green points.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "height-location",
+        label: "Height location",
+        prompt: "Can you change the parallelogram so that its height is in a different location?",
+        responseType: "construction",
+        dynamicAnswer: "baseHeightChallenge",
+        challenge: "height-location",
+        visualType: "baseHeightChallenge",
+        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        constructionNote: "Move the height handle to a different position, then submit this construction.",
+        missingResponseFeedback: "Move at least one green handle or control before submitting this construction.",
+        hint: "Slide the height along base b. It should stay perpendicular even when its location changes.",
+        correctFeedback: "Correct. The dashed height is in a different location and remains perpendicular to base b.",
+        incorrectFeedback: "Move the dashed height farther from its starting location while keeping it perpendicular to base b.",
+      },
+      {
+        id: "horizontal-sides",
+        label: "Horizontal sides",
+        prompt: "Can you change the parallelogram so that it has horizontal sides?",
+        responseType: "construction",
+        dynamicAnswer: "baseHeightChallenge",
+        challenge: "horizontal-sides",
+        visualType: "baseHeightChallenge",
+        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        constructionNote: "Turn the parallelogram until one pair of opposite sides is horizontal, then submit.",
+        missingResponseFeedback: "Rotate or adjust the parallelogram before submitting this construction.",
+        hint: "Use Rotate left until base b and its opposite side run straight across the grid.",
+        correctFeedback: "Correct. Base b and the opposite side are horizontal and parallel.",
+        incorrectFeedback: "Keep turning the parallelogram until base b and its opposite side are horizontal.",
+      },
+      {
+        id: "tall-skinny",
+        label: "Tall and skinny",
+        prompt: "Can you change the parallelogram so that it is tall and skinny?",
+        responseType: "construction",
+        dynamicAnswer: "baseHeightChallenge",
+        challenge: "tall-skinny",
+        visualType: "baseHeightChallenge",
+        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        constructionNote: "Change the base and height so the perpendicular height is at least twice the base, then submit.",
+        missingResponseFeedback: "Change the base or height before submitting this construction.",
+        hint: "Make h at least twice as large as b, such as b = 3 and h = 6.",
+        correctFeedback: "Correct. The perpendicular height is at least twice the base, so the parallelogram is tall and skinny.",
+        incorrectFeedback: "Make the perpendicular height at least twice the base length.",
+      },
+      {
+        id: "rectangle",
+        label: "Rectangle",
+        prompt: "Can you change the parallelogram so that it is also a rectangle?",
+        responseType: "construction",
+        dynamicAnswer: "baseHeightChallenge",
+        challenge: "rectangle",
+        visualType: "baseHeightChallenge",
+        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        constructionNote: "Move the upper vertex handle until the side next to base b is perpendicular to b, then submit.",
+        missingResponseFeedback: "Change the slant before submitting this construction.",
+        hint: "A rectangle has no sideways shift between its lower and upper bases.",
+        correctFeedback: "Correct. The adjacent sides are perpendicular, so this parallelogram is also a rectangle.",
+        incorrectFeedback: "Remove the sideways shift so the adjacent sides meet base b at right angles.",
+      },
+      {
+        id: "five-by-three",
+        label: "b = 5 and h = 3",
+        prompt: "Can you change the parallelogram so that it is not a rectangle, and has b = 5 and h = 3?",
+        responseType: "construction",
+        dynamicAnswer: "baseHeightChallenge",
+        challenge: "five-by-three",
+        visualType: "baseHeightChallenge",
+        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        constructionNote: "Set b to 5 and h to 3, keep a nonzero sideways shift, then submit.",
+        missingResponseFeedback: "Change the dimensions before submitting this construction.",
+        hint: "Set the base and height labels first, then make sure the upper base is shifted sideways.",
+        correctFeedback: "Correct. This non-rectangular parallelogram has base b = 5 and corresponding height h = 3.",
+        incorrectFeedback: "Check all three conditions: b must be 5, h must be 3, and the shape must keep a nonzero sideways shift.",
       },
     ],
   },
@@ -2400,7 +2699,7 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 2",
     title: "Area of Parallelograms",
     activityTitle: "6.1: Missing Dots",
-    sourceDirections: "Study the source dot arrangement, then record both the total and how you saw the groups.",
+    sourceDirections: "Study the source dot arrangement, record the total, and optionally describe how you saw the groups.",
     pdfPage: 1,
     cropPath: teachLessonCrop(6),
     visualAlt: "The source arrangement of black dots with an open region in the middle.",
@@ -2412,7 +2711,7 @@ const unit1TeachAdditionalCards = [
     questions: [
       {
         id: "count",
-        label: "Count and explain",
+        label: "Count",
         prompt: "How many dots are in the image? How do you see them?",
         responseType: "number",
         inputLabel: "Number of dots",
@@ -2424,8 +2723,8 @@ const unit1TeachAdditionalCards = [
         visualDisplayMaxWidth: 390,
         visualAlt: "The source arrangement of 30 black dots in six rows with a six-position opening across the two middle-lower rows.",
         reasoningPrompt: "How do you see them? Explain your grouping rather than counting one dot at a time.",
+        reasoningOptional: true,
         hint: "Compare the arrangement with a complete 6 by 6 array, or group the complete and partial rows.",
-        reasoningRequiredFeedback: "Your count is correct. Add how you grouped or decomposed the dots, then submit again.",
         correctFeedback: "Correct. There are 30 dots. For example, a complete 6 by 6 array has 36 dots and the opening removes 6, so 36 - 6 = 30. You can also group three full top rows, two 3-dot rows, and one full bottom row.",
         incorrectFeedback: "Not quite. The opening removes 6 positions from a complete 6 by 6 array, so the visible total is 36 - 6 = 30 dots.",
       },
@@ -2445,6 +2744,9 @@ const unit1TeachAdditionalCards = [
     visualAlt: "Interactive source quadrilaterals A through G on a grid with vertex-to-vertex segment marking.",
     prompt: "Draw decomposition segments, identify which quadrilaterals can be decomposed into two identical triangles, and describe what those quadrilaterals have in common.",
     responseType: "quadrilateralDecompose",
+    freeTextValidationGuidance: {
+      observations: "include \"parallelogram,\" or include both \"opposite\" and \"parallel\"",
+    },
     hint: "Try segments that connect opposite vertices. Rectangles, rhombuses, and parallelograms can be split by a diagonal into two identical triangles.",
     correctFeedback: "Correct. Quadrilaterals A, B, D, F, and G can be decomposed into two identical triangles. They are parallelograms, so a diagonal connects opposite vertices and makes two identical triangles.",
     incorrectFeedback: "Revise the segments, selections, or observation. The successful figures are A, B, D, F, and G. They are parallelograms: both pairs of opposite sides are parallel, and a diagonal splits each into two identical triangles. C and E do not.",
@@ -2464,6 +2766,9 @@ const unit1TeachAdditionalCards = [
     blacklineMasters: unit1BlacklineMasters.trianglePairs,
     prompt: "Use the workspace to test each pair. Then complete the source statements with all, some, or none.",
     responseType: "trianglePairsCompose",
+    freeTextValidationGuidance: {
+      trianglePairReasoning: "include \"rectangle\" and name Pair R, Pair U, or a right-triangle pair; also include \"parallelogram\" with \"matching,\" \"join,\" \"copy,\" or \"identical\"",
+    },
     hint: "Try joining the two copies along matching sides. Right-triangle pairs can make rectangles, and every pair can make at least one parallelogram.",
     correctFeedback: "Correct. Some of these pairs of identical triangles can be composed into a rectangle, and all of them can be composed into a parallelogram.",
     incorrectFeedback: "Keep testing the pairs by joining matching sides. Rectangles need right angles, but any two identical triangles can be arranged into a parallelogram.",
@@ -3494,7 +3799,7 @@ const unit1TeachAdditionalCards = [
     cropPath: null,
     customVisual: "questionSetVisual",
     visualAlt: "Source rectangular box for wrapping-paper noticing.",
-    prompt: "Submit the notice and wonder independently.",
+    prompt: "You may record the notice and wonder independently, or submit either one blank to view a model response.",
     responseType: "questionSet",
     questions: [
       {
@@ -3504,7 +3809,7 @@ const unit1TeachAdditionalCards = [
         responseType: "openResponse",
         inputLabel: "Your notice",
         placeholder: "Describe something you observe",
-        minLength: 3,
+        answerOptional: true,
         acceptAnyResponse: true,
         recordResponse: true,
         visualCropPath: "lesson-15-p001-wrapping-paper-15-1.png",
@@ -3513,6 +3818,7 @@ const unit1TeachAdditionalCards = [
         visualDisplayMaxWidth: 295,
         visualAlt: "A box of sports cards with a 4-inch front edge and a 2.5-inch depth; its height is not labeled.",
         hint: "Look at the shape, the two shown measurements, and the missing measurement.",
+        optionalEmptyFeedback: "No notice entered. One possible notice is that the box is a rectangular prism with a 4-inch length and 2.5-inch depth, while its height is not given. Those details matter when estimating wrapping paper or volume.",
         correctFeedback: "Notice recorded. The box is a rectangular prism with a 4-inch length and 2.5-inch depth, while its height is not given. Those details matter when estimating wrapping paper or volume.",
         incorrectFeedback: "Record one specific feature you can see in the source box or its labels.",
       },
@@ -3523,7 +3829,7 @@ const unit1TeachAdditionalCards = [
         responseType: "openResponse",
         inputLabel: "Your wonder",
         placeholder: "Write a question you have",
-        minLength: 3,
+        answerOptional: true,
         acceptAnyResponse: true,
         recordResponse: true,
         visualCropPath: "lesson-15-p001-wrapping-paper-15-1.png",
@@ -3532,6 +3838,7 @@ const unit1TeachAdditionalCards = [
         visualDisplayMaxWidth: 295,
         visualAlt: "A box of sports cards with a 4-inch front edge and a 2.5-inch depth; its height is not labeled.",
         hint: "You might wonder about a missing measurement, the amount of paper, or the space inside.",
+        optionalEmptyFeedback: "No wonder entered. Possible questions include how much wrapping paper the box needs or how much it can hold. Either calculation also needs an estimate or measurement for the missing height.",
         correctFeedback: "Wonder recorded. Questions about wrapping paper lead to surface area, while questions about how much the box holds lead to volume. Either calculation also needs an estimate or measurement for the missing height.",
         incorrectFeedback: "Write a question about something the source image makes you curious about.",
       },
@@ -4441,7 +4748,7 @@ const teachVerifiedCropPaths = {
   "teach-l3-3": "lesson-03-p002-off-grid-3-3.png",
   "teach-l4-2": "lesson-04-p002-area-parallelogram-4-2.png",
   "teach-l4-3": "lesson-04-p002-lots-parallelograms-4-3.png",
-  "teach-l5-1": "lesson-05-p001-parallelogram-rectangles-5-1.png",
+  "teach-l5-1": "lesson-05-p001-starting-parallelogram.png",
   "teach-l5-3": "lesson-05-p004-parallelogram-formula-5-3.png",
   "teach-l6-1": "lesson-06-p001-missing-dots-6-1.png",
   "teach-l7-2": "lesson-07-p002-two-triangles-part1-7-2.png",
@@ -4490,6 +4797,7 @@ function teachLessonCrop(lessonNumber) {
 }
 
 function teachActivityOrder(card) {
+  if (Number.isFinite(card.activityOrder)) return card.activityOrder;
   const match = card.activityTitle?.match(/^\d+\.(\d+)/);
   return match ? Number(match[1]) : 0;
 }
@@ -5001,17 +5309,28 @@ const tangramCompositionTargets = [
 function initialTangramPieces() {
   return Object.fromEntries(tangramPieceDefinitions.map((piece) => [
     piece.id,
-    { ...piece.initial },
+    { ...piece.initial, included: false },
   ]));
 }
 
-function getTangramPieces() {
-  if (!state.teachTangramPieces) state.teachTangramPieces = initialTangramPieces();
-  return state.teachTangramPieces;
+function tangramWorkspaceQuestionId(card, questionId = "") {
+  if (questionId) return questionId;
+  if (card?.responseType === "questionSet") return questionSetActiveId(card);
+  return card?.id || "legacy";
 }
 
-function resetTangramPieces() {
-  state.teachTangramPieces = initialTangramPieces();
+function tangramWorkspaceKey(card, questionId = "") {
+  return `${card?.id || "legacy"}:${tangramWorkspaceQuestionId(card, questionId)}`;
+}
+
+function getTangramPieces(card, questionId = "") {
+  const key = tangramWorkspaceKey(card, questionId);
+  if (!state.teachTangramWorkspaces[key]) state.teachTangramWorkspaces[key] = initialTangramPieces();
+  return state.teachTangramWorkspaces[key];
+}
+
+function resetTangramPieces(card, questionId = "") {
+  state.teachTangramWorkspaces[tangramWorkspaceKey(card, questionId)] = initialTangramPieces();
   state.teachTangramSelectedPiece = "square";
 }
 
@@ -5019,17 +5338,22 @@ function tangramPieceById(pieceId) {
   return tangramPieceDefinitions.find((piece) => piece.id === pieceId);
 }
 
-function tangramPieceTransform(pieceId) {
+function tangramPieceTransform(card, pieceId, questionId = "") {
   const definition = tangramPieceById(pieceId);
-  const piece = getTangramPieces()[pieceId] || definition.initial;
+  const piece = getTangramPieces(card, questionId)[pieceId] || definition.initial;
   return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${definition.centerX} ${definition.centerY})`;
 }
 
-function renderTangramWorkspace() {
+function renderTangramWorkspace(card) {
+  const questionId = tangramWorkspaceQuestionId(card);
+  const question = card?.responseType === "questionSet" ? questionSetDefinition(card, questionId) : null;
   const selectedPiece = state.teachTangramSelectedPiece;
+  const workspace = getTangramPieces(card, questionId);
+  const selectedIsIncluded = Boolean(workspace[selectedPiece]?.included);
+  const includedCount = Object.values(workspace).filter((piece) => piece.included).length;
   const selectionButtons = tangramPieceDefinitions.map((piece) => `
     <button
-      class="page-chip tangram-select-button ${piece.id === selectedPiece ? "is-active" : ""}"
+      class="page-chip tangram-select-button ${piece.id === selectedPiece ? "is-active" : ""} ${workspace[piece.id]?.included ? "is-included" : ""}"
       type="button"
       data-tangram-select="${piece.id}"
       aria-pressed="${piece.id === selectedPiece}"
@@ -5040,11 +5364,12 @@ function renderTangramWorkspace() {
   `).join("");
   const pieces = tangramPieceDefinitions.map((piece) => {
     const selected = piece.id === selectedPiece ? " is-selected" : "";
+    const included = workspace[piece.id]?.included ? " is-included" : " is-set-aside";
     return `
       <g
-        class="tangram-piece-group"
+        class="tangram-piece-group${included}"
         data-tangram-piece="${piece.id}"
-        transform="${tangramPieceTransform(piece.id)}"
+        transform="${tangramPieceTransform(card, piece.id, questionId)}"
         role="button"
         tabindex="0"
         aria-label="${escapeHtml(piece.label)}"
@@ -5058,10 +5383,12 @@ function renderTangramWorkspace() {
   return `
     <section class="tangram-workspace" aria-label="Interactive tangram workspace">
       <div class="tangram-toolbar">
+        ${question ? `<p class="tangram-active-task"><strong>${escapeHtml(question.label)}:</strong> ${escapeHtml(question.prompt)}</p>` : ""}
         <div class="tangram-selectors" role="group" aria-label="Select a tangram piece">
           ${selectionButtons}
         </div>
         <div class="tangram-actions" role="group" aria-label="Tangram controls">
+          <button class="hint-button" type="button" data-tangram-include>${selectedIsIncluded ? "Set selected aside" : "Use selected in shape"}</button>
           <button class="hint-button" type="button" data-tangram-rotate="-45">Rotate left</button>
           <button class="hint-button" type="button" data-tangram-rotate="45">Rotate right</button>
           <button class="hint-button" type="button" data-tangram-reset>Reset pieces</button>
@@ -5070,6 +5397,8 @@ function renderTangramWorkspace() {
       <svg
         class="tangram-stage"
         data-tangram-stage
+        data-tangram-card="${card?.id || ""}"
+        data-tangram-question="${escapeHtml(questionId)}"
         viewBox="0 0 ${tangramStage.width} ${tangramStage.height}"
         role="img"
         aria-label="One unit square, four small triangles, one medium triangle, and two large triangles."
@@ -5082,7 +5411,326 @@ function renderTangramWorkspace() {
         </g>
         ${pieces}
       </svg>
-      <p class="tangram-caption">The workspace uses the source set: 1 square, 4 small right triangles, 1 medium right triangle, and 2 large right triangles.</p>
+      <p class="tangram-caption">Pieces marked for the construction: ${includedCount} of ${tangramPieceDefinitions.length}. The workspace uses the source set: 1 square, 4 small right triangles, 1 medium right triangle, and 2 large right triangles.</p>
+    </section>
+  `;
+}
+
+function tangramSavedField(questionId) {
+  return `tangramSaved_${questionId}`;
+}
+
+function tangramPieceArea(pieceId) {
+  return parseMathNumber(tangramPieceById(pieceId)?.areaText) || 0;
+}
+
+function tangramTransformedPoints(card, pieceId, questionId = "") {
+  const definition = tangramPieceById(pieceId);
+  const piece = getTangramPieces(card, questionId)[pieceId];
+  if (!definition || !piece) return [];
+  const angle = piece.angle * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return definition.points.split(" ").map((entry) => {
+    const [sourceX, sourceY] = entry.split(",").map(Number);
+    const offsetX = sourceX - definition.centerX;
+    const offsetY = sourceY - definition.centerY;
+    return {
+      x: piece.x + definition.centerX + offsetX * cos - offsetY * sin,
+      y: piece.y + definition.centerY + offsetX * sin + offsetY * cos,
+    };
+  });
+}
+
+function tangramPolygonArea(points) {
+  return Math.abs(points.reduce((total, point, index) => {
+    const next = points[(index + 1) % points.length];
+    return total + point.x * next.y - next.x * point.y;
+  }, 0)) / 2;
+}
+
+function tangramProjection(points, axis) {
+  const values = points.map((point) => point.x * axis.x + point.y * axis.y);
+  return { min: Math.min(...values), max: Math.max(...values) };
+}
+
+function tangramAxes(points) {
+  return points.map((point, index) => {
+    const next = points[(index + 1) % points.length];
+    const dx = next.x - point.x;
+    const dy = next.y - point.y;
+    const length = Math.hypot(dx, dy) || 1;
+    return { x: -dy / length, y: dx / length };
+  });
+}
+
+function tangramPolygonsOverlap(first, second) {
+  return [...tangramAxes(first), ...tangramAxes(second)].every((axis) => {
+    const a = tangramProjection(first, axis);
+    const b = tangramProjection(second, axis);
+    return Math.min(a.max, b.max) - Math.max(a.min, b.min) > 3;
+  });
+}
+
+function pointToTangramSegmentDistance(point, start, end) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (!lengthSquared) return Math.hypot(point.x - start.x, point.y - start.y);
+  const amount = clampNumber(((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared, 0, 1);
+  return Math.hypot(point.x - (start.x + amount * dx), point.y - (start.y + amount * dy));
+}
+
+function tangramPointTouchesBoundary(point, polygon) {
+  return polygon.some((start, index) => pointToTangramSegmentDistance(point, start, polygon[(index + 1) % polygon.length]) <= 5);
+}
+
+function tangramPolygonsShareEdge(first, second) {
+  const firstMatches = first.filter((point) => tangramPointTouchesBoundary(point, second)).length;
+  const secondMatches = second.filter((point) => tangramPointTouchesBoundary(point, first)).length;
+  return firstMatches >= 2 || secondMatches >= 2;
+}
+
+function tangramIncludedPieceIds(card, questionId = "") {
+  const pieces = getTangramPieces(card, questionId);
+  return tangramPieceDefinitions.map((piece) => piece.id).filter((pieceId) => pieces[pieceId]?.included);
+}
+
+function tangramIncludedPiecesAreConnected(card, pieceIds, questionId = "") {
+  if (pieceIds.length < 2) return pieceIds.length === 1;
+  const polygons = Object.fromEntries(pieceIds.map((pieceId) => [pieceId, tangramTransformedPoints(card, pieceId, questionId)]));
+  const visited = new Set([pieceIds[0]]);
+  const queue = [pieceIds[0]];
+  while (queue.length) {
+    const current = queue.shift();
+    pieceIds.forEach((candidate) => {
+      if (visited.has(candidate) || !tangramPolygonsShareEdge(polygons[current], polygons[candidate])) return;
+      visited.add(candidate);
+      queue.push(candidate);
+    });
+  }
+  return visited.size === pieceIds.length;
+}
+
+function tangramConstructionSignature(card, questionId = "") {
+  const pieceIds = tangramIncludedPieceIds(card, questionId);
+  const pieces = getTangramPieces(card, questionId);
+  if (!pieceIds.length) return "";
+  const points = pieceIds.flatMap((pieceId) => tangramTransformedPoints(card, pieceId, questionId));
+  const minX = Math.min(...points.map((point) => point.x));
+  const minY = Math.min(...points.map((point) => point.y));
+  return pieceIds.map((pieceId) => {
+    const piece = pieces[pieceId];
+    return `${pieceId}:${Math.round((piece.x - minX) / 6)}:${Math.round((piece.y - minY) / 6)}:${Math.round(piece.angle / 45)}`;
+  }).sort().join("|");
+}
+
+function tangramConstructionAnalysis(card, question) {
+  const questionId = question.id;
+  const pieces = getTangramPieces(card, questionId);
+  const pieceIds = tangramIncludedPieceIds(card, questionId);
+  const polygons = Object.fromEntries(pieceIds.map((pieceId) => [pieceId, tangramTransformedPoints(card, pieceId, questionId)]));
+  const overlap = pieceIds.some((pieceId, index) => pieceIds.slice(index + 1).some((otherId) => tangramPolygonsOverlap(polygons[pieceId], polygons[otherId])));
+  const connected = pieceIds.length > 0 && tangramIncludedPiecesAreConnected(card, pieceIds, questionId);
+  const area = pieceIds.reduce((total, pieceId) => total + tangramPieceArea(pieceId), 0);
+  const moved = pieceIds.some((pieceId) => {
+    const piece = pieces[pieceId];
+    const initial = tangramPieceById(pieceId).initial;
+    return Math.abs(piece.x - initial.x) > 4 || Math.abs(piece.y - initial.y) > 4 || piece.angle !== initial.angle;
+  });
+  const allPoints = pieceIds.flatMap((pieceId) => polygons[pieceId]);
+  const width = allPoints.length ? Math.max(...allPoints.map((point) => point.x)) - Math.min(...allPoints.map((point) => point.x)) : 0;
+  const height = allPoints.length ? Math.max(...allPoints.map((point) => point.y)) - Math.min(...allPoints.map((point) => point.y)) : 0;
+  const polygonArea = pieceIds.reduce((total, pieceId) => total + tangramPolygonArea(polygons[pieceId]), 0);
+  const boundingArea = width * height;
+  const square = width > 0 && height > 0
+    && Math.abs(width - height) <= Math.max(8, Math.min(width, height) * 0.06)
+    && Math.abs(boundingArea - polygonArea) <= polygonArea * 0.08;
+  const targetArea = Number(question.targetArea);
+  const areaCorrect = Number.isFinite(targetArea) && Math.abs(area - targetArea) < 1e-9;
+  const enoughPieces = pieceIds.length >= (Number(question.minimumPieces) || 1);
+  const allPieces = !question.requireAllPieces || pieceIds.length === tangramPieceDefinitions.length;
+  const squareRule = (!question.requireSquare || square) && (!question.rejectSquare || !square);
+  const signature = tangramConstructionSignature(card, questionId);
+  const comparisonSignature = question.differentFromQuestionId
+    ? String(getTeachCustomResponse(card)[tangramSavedField(question.differentFromQuestionId)] || "")
+    : "";
+  const different = !question.differentFromQuestionId || (comparisonSignature && signature !== comparisonSignature);
+  return {
+    pieceIds,
+    area,
+    overlap,
+    connected,
+    moved,
+    square,
+    signature,
+    valid: enoughPieces && allPieces && moved && connected && !overlap && areaCorrect && squareRule && different,
+  };
+}
+
+function markTangramWorkspaceChanged(card, questionId = "") {
+  const activeQuestionId = tangramWorkspaceQuestionId(card, questionId);
+  const question = card?.responseType === "questionSet" ? questionSetDefinition(card, activeQuestionId) : null;
+  if (question?.dynamicAnswer !== "tangramConstruction") return;
+  const response = { ...getTeachCustomResponse(card) };
+  delete response[tangramSavedField(activeQuestionId)];
+  state.teachCustomResponses[card.id] = response;
+  state.teachQuestionSubmitted[teachQuestionStateKey(card.id, activeQuestionId)] = false;
+}
+
+function tangramConstructionFeedback(card, question) {
+  const saved = String(getTeachCustomResponse(card)[tangramSavedField(question.id)] || "");
+  if (saved && question.requireAreaAnswer
+    && !answerMatches(questionSetValue(card, question.id, "area"), String(question.targetArea))) {
+    return `Your construction is a valid square. Recheck its area using the areas of all ${tangramPieceDefinitions.length} source pieces.`;
+  }
+  if (saved) return question.correctFeedback;
+  const analysis = tangramConstructionAnalysis(card, question);
+  if (!analysis.pieceIds.length) return "Mark at least two pieces as used, then compose them in the workspace.";
+  if (analysis.pieceIds.length < (Number(question.minimumPieces) || 1)) return `Use at least ${question.minimumPieces} pieces in this composition.`;
+  if (question.requireAllPieces && analysis.pieceIds.length !== tangramPieceDefinitions.length) return "The optional square must use all eight source pieces.";
+  if (!analysis.moved) return "Move or turn the selected pieces to make the requested new shape before submitting.";
+  if (analysis.overlap) return "At least two used pieces overlap. Move them so their interiors do not overlap.";
+  if (!analysis.connected) return "The used pieces do not yet form one shape. Join them along complete edges.";
+  if (Math.abs(analysis.area - Number(question.targetArea)) > 1e-9) return `The pieces in this construction total ${analysis.area} square units, not ${question.targetArea}.`;
+  if (question.rejectSquare && analysis.square) return "The area is right, but the source asks for a shape that is not a square.";
+  if (question.requireSquare && !analysis.square) return "All pieces are present, but the outside boundary is not yet one square without gaps.";
+  if (question.differentFromQuestionId) return "This arrangement matches the saved Question 3 construction. Change the piece set or the relative arrangement.";
+  return question.incorrectFeedback;
+}
+
+const gridTriangleFitStage = { width: 760, height: 420 };
+const gridTriangleFitTarget = { x: 500, y: 95, size: 210 };
+const gridTriangleFitDefinitions = [
+  { id: "triangle-1", label: "Triangle 1", colorClass: "is-one", initial: { x: 30, y: 45, angle: 0 } },
+  { id: "triangle-2", label: "Triangle 2", colorClass: "is-two", initial: { x: 60, y: 220, angle: 180 } },
+  { id: "triangle-3", label: "Triangle 3", colorClass: "is-three", initial: { x: 235, y: 45, angle: 0 } },
+  { id: "triangle-4", label: "Triangle 4", colorClass: "is-four", initial: { x: 265, y: 220, angle: 180 } },
+];
+const gridTriangleFitLocalPoints = [
+  { x: 0, y: 0 },
+  { x: 180, y: 0 },
+  { x: 0, y: 90 },
+];
+const gridTriangleFitCenter = { x: 60, y: 30 };
+
+function initialGridTriangleFitPieces() {
+  return Object.fromEntries(gridTriangleFitDefinitions.map((piece) => [piece.id, { ...piece.initial }]));
+}
+
+function getGridTriangleFitPieces() {
+  if (!state.teachGridTrianglePieces) state.teachGridTrianglePieces = initialGridTriangleFitPieces();
+  return state.teachGridTrianglePieces;
+}
+
+function gridTriangleFitTransform(pieceId) {
+  const piece = getGridTriangleFitPieces()[pieceId];
+  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${gridTriangleFitCenter.x} ${gridTriangleFitCenter.y})`;
+}
+
+function gridTriangleFitPoints(pieceId) {
+  const piece = getGridTriangleFitPieces()[pieceId];
+  const angle = piece.angle * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return gridTriangleFitLocalPoints.map((point) => {
+    const offsetX = point.x - gridTriangleFitCenter.x;
+    const offsetY = point.y - gridTriangleFitCenter.y;
+    return {
+      x: piece.x + gridTriangleFitCenter.x + offsetX * cos - offsetY * sin,
+      y: piece.y + gridTriangleFitCenter.y + offsetX * sin + offsetY * cos,
+    };
+  });
+}
+
+function gridTriangleFitAnalysis() {
+  const target = gridTriangleFitTarget;
+  const polygons = Object.fromEntries(gridTriangleFitDefinitions.map((piece) => [piece.id, gridTriangleFitPoints(piece.id)]));
+  const insideIds = gridTriangleFitDefinitions.filter((piece) => polygons[piece.id].every((point) => (
+    point.x >= target.x - 1 && point.x <= target.x + target.size + 1
+      && point.y >= target.y - 1 && point.y <= target.y + target.size + 1
+  ))).map((piece) => piece.id);
+  const overlap = gridTriangleFitDefinitions.some((piece, index) => (
+    gridTriangleFitDefinitions.slice(index + 1).some((other) => tangramPolygonsOverlap(polygons[piece.id], polygons[other.id]))
+  ));
+  return {
+    insideIds,
+    overlap,
+    valid: insideIds.length === gridTriangleFitDefinitions.length && !overlap,
+  };
+}
+
+function gridTriangleFitWasChanged() {
+  const pieces = getGridTriangleFitPieces();
+  return gridTriangleFitDefinitions.some((definition) => {
+    const piece = pieces[definition.id];
+    return piece.x !== definition.initial.x || piece.y !== definition.initial.y || piece.angle !== definition.initial.angle;
+  });
+}
+
+function markGridTriangleFitChanged(cardId = "teach-l3-2-extension") {
+  state.teachSubmitted[cardId] = false;
+  state.sourceModalItemId = null;
+}
+
+function resetGridTriangleFit(cardId = "teach-l3-2-extension") {
+  state.teachGridTrianglePieces = initialGridTriangleFitPieces();
+  state.teachGridTriangleSelectedPiece = "triangle-1";
+  markGridTriangleFitChanged(cardId);
+}
+
+function gridTriangleFitFeedback() {
+  const analysis = gridTriangleFitAnalysis();
+  if (analysis.insideIds.length < gridTriangleFitDefinitions.length) {
+    return `${analysis.insideIds.length} of 4 triangles are completely inside Figure D. Move every vertex of each remaining triangle inside the outline.`;
+  }
+  if (analysis.overlap) return "All four triangles are inside Figure D, but at least two overlap. Separate their interiors before submitting again.";
+  return "All four triangles are inside Figure D without overlaps.";
+}
+
+function renderGridTriangleFitWorkspace(card) {
+  const selectedId = state.teachGridTriangleSelectedPiece;
+  const analysis = gridTriangleFitAnalysis();
+  const selectors = gridTriangleFitDefinitions.map((piece) => `
+    <button
+      class="page-chip grid-triangle-select ${piece.id === selectedId ? "is-active" : ""}"
+      type="button"
+      data-grid-triangle-select="${piece.id}"
+      aria-pressed="${piece.id === selectedId}"
+    >${escapeHtml(piece.label)}</button>
+  `).join("");
+  const pieces = gridTriangleFitDefinitions.map((piece) => `
+    <g
+      class="grid-triangle-piece-group ${piece.colorClass} ${piece.id === selectedId ? "is-selected" : ""}"
+      data-grid-triangle-piece="${piece.id}"
+      transform="${gridTriangleFitTransform(piece.id)}"
+      role="button"
+      tabindex="0"
+      aria-label="${escapeHtml(piece.label)} from Figure C"
+    >
+      <title>${escapeHtml(piece.label)} from Figure C</title>
+      <polygon points="0,0 180,0 0,90"></polygon>
+      <circle cx="60" cy="30" r="5"></circle>
+    </g>
+  `).join("");
+  return `
+    <section class="grid-triangle-fit-workspace" aria-label="Rearrange the four triangles from Figure C inside Figure D">
+      <div class="grid-triangle-fit-toolbar">
+        <div class="grid-triangle-fit-selectors" role="group" aria-label="Select a triangle">${selectors}</div>
+        <div class="grid-triangle-fit-actions" role="group" aria-label="Triangle controls">
+          <button class="hint-button" type="button" data-grid-triangle-rotate="-90">Rotate left</button>
+          <button class="hint-button" type="button" data-grid-triangle-rotate="90">Rotate right</button>
+          <button class="hint-button" type="button" data-grid-triangle-reset>Reset triangles</button>
+        </div>
+      </div>
+      <svg class="grid-triangle-fit-stage" data-grid-triangle-stage viewBox="0 0 ${gridTriangleFitStage.width} ${gridTriangleFitStage.height}" role="img" aria-label="Four movable right triangles beside Figure D, which is rotated without resizing so its sides align with the workspace.">
+        <rect class="grid-triangle-fit-board" x="1" y="1" width="758" height="418"></rect>
+        <text class="grid-triangle-fit-label" x="220" y="28" text-anchor="middle">Four triangles from Figure C</text>
+        <text class="grid-triangle-fit-label" x="605" y="68" text-anchor="middle">Figure D (rotated, not resized)</text>
+        <rect class="grid-triangle-fit-target" x="${gridTriangleFitTarget.x}" y="${gridTriangleFitTarget.y}" width="${gridTriangleFitTarget.size}" height="${gridTriangleFitTarget.size}"></rect>
+        ${pieces}
+      </svg>
+      <p class="grid-triangle-fit-status" aria-live="polite">${analysis.insideIds.length} of 4 triangles completely inside Figure D${analysis.overlap ? "; overlap detected" : ""}.</p>
     </section>
   `;
 }
@@ -5606,81 +6254,314 @@ function renderParallelogramExploreWorkspace(card) {
   `;
 }
 
-const cutSliderFrames = {
-  tyler: [
-    { x: 0, y: 174, width: 205, height: 190, label: "Tyler: choose a cut" },
-    { x: 210, y: 174, width: 205, height: 190, label: "Tyler: move the side piece" },
-    { x: 416, y: 174, width: 204, height: 190, label: "Tyler: rectangle formed" },
-  ],
-  elena: [
-    { x: 0, y: 390, width: 205, height: 184, label: "Elena: choose a cut" },
-    { x: 210, y: 390, width: 205, height: 184, label: "Elena: move the side piece" },
-    { x: 416, y: 390, width: 204, height: 184, label: "Elena: rectangle formed" },
-  ],
-};
+const baseHeightChallengeStage = { width: 760, height: 440, cell: 30 };
 
-function cutSliderValue(card, field) {
-  const parsed = Number(getTeachCustomResponse(card)[field]);
-  return Number.isFinite(parsed) ? clampNumber(parsed, 0, 2) : 0;
+function baseHeightChallengeField(questionId, field) {
+  return `baseHeight_${questionId}_${field}`;
 }
 
-function renderCutSliderFrame(card, frame, x, y, clipId) {
+function baseHeightChallengeValue(card, question, field) {
+  const stored = Number(getTeachCustomResponse(card)[baseHeightChallengeField(question.id, field)]);
+  if (Number.isFinite(stored)) return stored;
+  return Number(question.model?.[field]) || 0;
+}
+
+function baseHeightChallengeShape(card, question) {
+  return {
+    base: clampNumber(Math.round(baseHeightChallengeValue(card, question, "base")), 3, 8),
+    height: clampNumber(Math.round(baseHeightChallengeValue(card, question, "height")), 2, 7),
+    slant: clampNumber(Math.round(baseHeightChallengeValue(card, question, "slant")), -3, 3),
+    rotation: clampNumber(Math.round(baseHeightChallengeValue(card, question, "rotation") / 5) * 5, -60, 60),
+    heightPosition: clampNumber(Math.round(baseHeightChallengeValue(card, question, "heightPosition") * 10) / 10, 0.1, 0.9),
+  };
+}
+
+function baseHeightChallengeHasInteraction(card, question) {
+  return getTeachCustomResponse(card)[baseHeightChallengeField(question.id, "touched")] === "yes";
+}
+
+function baseHeightChallengeIsCorrect(card, question) {
+  if (!baseHeightChallengeHasInteraction(card, question)) return false;
+  const shape = baseHeightChallengeShape(card, question);
+  if (question.challenge === "height-location") {
+    return Math.abs(shape.heightPosition - Number(question.model?.heightPosition || 0.5)) >= 0.2;
+  }
+  if (question.challenge === "horizontal-sides") return shape.rotation === 0;
+  if (question.challenge === "tall-skinny") return shape.height >= shape.base * 2;
+  if (question.challenge === "rectangle") return shape.slant === 0;
+  if (question.challenge === "five-by-three") return shape.base === 5 && shape.height === 3 && shape.slant !== 0;
+  return false;
+}
+
+function setBaseHeightChallengeValues(card, question, updates, touched = true) {
+  const next = { ...getTeachCustomResponse(card) };
+  Object.entries(updates).forEach(([field, value]) => {
+    next[baseHeightChallengeField(question.id, field)] = String(value);
+  });
+  if (touched) next[baseHeightChallengeField(question.id, "touched")] = "yes";
+  state.teachCustomResponses[card.id] = next;
+  state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+  state.sourceModalItemId = null;
+}
+
+function resetBaseHeightChallenge(card, question) {
+  const response = { ...getTeachCustomResponse(card) };
+  ["base", "height", "slant", "rotation", "heightPosition", "touched"].forEach((field) => {
+    delete response[baseHeightChallengeField(question.id, field)];
+  });
+  state.teachCustomResponses[card.id] = response;
+  state.teachQuestionSubmitted[teachQuestionStateKey(card.id, question.id)] = false;
+}
+
+function rotateBaseHeightPoint(point, center, degrees) {
+  const radians = degrees * Math.PI / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  const dx = point.x - center.x;
+  const dy = point.y - center.y;
+  return {
+    x: center.x + dx * cosine - dy * sine,
+    y: center.y + dx * sine + dy * cosine,
+  };
+}
+
+function baseHeightChallengeGeometry(card, question) {
+  const shape = baseHeightChallengeShape(card, question);
+  const { cell, width, height } = baseHeightChallengeStage;
+  const localCenter = {
+    x: (shape.base + shape.slant) * cell / 2,
+    y: -shape.height * cell / 2,
+  };
+  const stageCenter = { x: width / 2, y: height / 2 + 8 };
+  const transform = (point) => {
+    const translated = {
+      x: point.x - localCenter.x + stageCenter.x,
+      y: point.y - localCenter.y + stageCenter.y,
+    };
+    return rotateBaseHeightPoint(translated, stageCenter, shape.rotation);
+  };
+  const baseLength = shape.base * cell;
+  const topOffset = shape.slant * cell;
+  const heightLength = shape.height * cell;
+  const heightX = shape.heightPosition * baseLength;
+  const p0 = transform({ x: 0, y: 0 });
+  const p1 = transform({ x: baseLength, y: 0 });
+  const p2 = transform({ x: baseLength + topOffset, y: -heightLength });
+  const p3 = transform({ x: topOffset, y: -heightLength });
+  const heightBottom = transform({ x: heightX, y: 0 });
+  const heightTop = transform({ x: heightX, y: -heightLength });
+  const supportStart = transform({ x: -45, y: 0 });
+  const supportEnd = transform({ x: baseLength + 45, y: 0 });
+  const oppositeStart = transform({ x: topOffset - 45, y: -heightLength });
+  const oppositeEnd = transform({ x: topOffset + baseLength + 45, y: -heightLength });
+  const rightAngle = [
+    transform({ x: heightX, y: -14 }),
+    transform({ x: heightX + 14, y: -14 }),
+    transform({ x: heightX + 14, y: 0 }),
+  ];
+  const baseLabel = transform({ x: baseLength / 2, y: 28 });
+  const heightLabel = transform({ x: heightX + 20, y: -heightLength / 2 });
+  return {
+    shape,
+    stageCenter,
+    points: [p0, p1, p2, p3],
+    heightBottom,
+    heightTop,
+    supportStart,
+    supportEnd,
+    oppositeStart,
+    oppositeEnd,
+    rightAngle,
+    baseLabel,
+    heightLabel,
+  };
+}
+
+function svgPointList(points) {
+  return points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+}
+
+function renderBaseHeightChallengeRange(card, question, field, label, min, max, value) {
   return `
-    <g class="cut-slider-view">
-      <clipPath id="${clipId}">
-        <rect x="${x}" y="${y}" width="${frame.width}" height="${frame.height}" rx="6"></rect>
-      </clipPath>
-      <image
-        href="${teachCropUrl(card)}"
-        x="${x - frame.x}"
-        y="${y - frame.y}"
-        width="620"
-        height="581"
-        clip-path="url(#${clipId})"
-      ></image>
-      <rect class="cut-slider-frame" x="${x}" y="${y}" width="${frame.width}" height="${frame.height}" rx="6"></rect>
-      <text class="cut-slider-label" x="${x + frame.width / 2}" y="${y - 12}" text-anchor="middle">${escapeHtml(frame.label)}</text>
-    </g>
-  `;
-}
-
-function renderCutSliderImage(card, strategy, x, y) {
-  const frame = cutSliderFrames[strategy][cutSliderValue(card, `${strategy}Stage`)];
-  return renderCutSliderFrame(card, frame, x, y, `${card.id}-${strategy}-clip`);
-}
-
-function renderCutSliderControl(card, field, label) {
-  const value = cutSliderValue(card, field);
-  return `
-    <label class="cut-slider-control">
-      <span>${escapeHtml(label)}: <strong>stage ${value + 1}</strong></span>
+    <label class="base-height-range-field">
+      <span>${escapeHtml(label)}: <strong data-base-height-output="${escapeHtml(field)}">${escapeHtml(value)}</strong></span>
       <input
         type="range"
-        min="0"
-        max="2"
+        min="${min}"
+        max="${max}"
         step="1"
         value="${value}"
-        data-teach-custom-input="${card.id}"
-        data-teach-custom-field="${field}"
-        data-rerender-on-input="true"
+        data-base-height-input="${card.id}"
+        data-question-id="${escapeHtml(question.id)}"
+        data-base-height-field="${escapeHtml(field)}"
       >
     </label>
   `;
 }
 
+function renderBaseHeightChallengeWorkspace(card) {
+  const question = questionSetDefinition(card, questionSetActiveId(card));
+  if (!question || question.visualType !== "baseHeightChallenge") return "";
+  const geometry = baseHeightChallengeGeometry(card, question);
+  const { shape } = geometry;
+  const handle = (id, point, label, value, min, max) => `
+    <g
+      class="base-height-handle"
+      data-base-height-handle="${id}"
+      data-card-id="${card.id}"
+      data-question-id="${escapeHtml(question.id)}"
+      role="slider"
+      tabindex="0"
+      aria-label="${escapeHtml(label)}"
+      aria-valuemin="${min}"
+      aria-valuemax="${max}"
+      aria-valuenow="${escapeHtml(value)}"
+    >
+      <circle class="base-height-handle-hit" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="19"></circle>
+      <circle class="base-height-handle-dot" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="8"></circle>
+    </g>
+  `;
+  return `
+    <section class="base-height-challenge-workspace" aria-label="Interactive base and height applet recreation">
+      <p class="base-height-challenge-directions">Drag the green points or use the controls. The dashed segment h stays perpendicular to base b.</p>
+      <svg
+        class="base-height-challenge-stage"
+        viewBox="0 0 ${baseHeightChallengeStage.width} ${baseHeightChallengeStage.height}"
+        data-base-height-stage="${card.id}"
+        data-question-id="${escapeHtml(question.id)}"
+        role="img"
+        aria-label="${escapeHtml(card.visualAlt)}"
+      >
+        <rect class="base-height-challenge-board" x="1" y="1" width="758" height="438"></rect>
+        <g aria-hidden="true">${gridLines(20, 20, 36, 20, 20)}</g>
+        <line data-base-height-support="base" class="base-height-support-line" x1="${geometry.supportStart.x.toFixed(1)}" y1="${geometry.supportStart.y.toFixed(1)}" x2="${geometry.supportEnd.x.toFixed(1)}" y2="${geometry.supportEnd.y.toFixed(1)}"></line>
+        <line data-base-height-support="opposite" class="base-height-support-line" x1="${geometry.oppositeStart.x.toFixed(1)}" y1="${geometry.oppositeStart.y.toFixed(1)}" x2="${geometry.oppositeEnd.x.toFixed(1)}" y2="${geometry.oppositeEnd.y.toFixed(1)}"></line>
+        <polygon data-base-height-shape class="base-height-challenge-shape" points="${svgPointList(geometry.points)}"></polygon>
+        <line data-base-height-line class="base-height-challenge-height" x1="${geometry.heightBottom.x.toFixed(1)}" y1="${geometry.heightBottom.y.toFixed(1)}" x2="${geometry.heightTop.x.toFixed(1)}" y2="${geometry.heightTop.y.toFixed(1)}"></line>
+        <polyline data-base-height-right-angle class="base-height-right-angle" points="${svgPointList(geometry.rightAngle)}"></polyline>
+        <text data-base-height-label="base" class="base-height-measure-label" x="${geometry.baseLabel.x.toFixed(1)}" y="${geometry.baseLabel.y.toFixed(1)}" text-anchor="middle">b = ${shape.base}</text>
+        <text data-base-height-label="height" class="base-height-measure-label" x="${geometry.heightLabel.x.toFixed(1)}" y="${geometry.heightLabel.y.toFixed(1)}" text-anchor="middle">h = ${shape.height}</text>
+        ${handle("base", geometry.points[1], "Change base b", shape.base, 3, 8)}
+        ${handle("shape", geometry.points[3], `Change height and sideways shift; current height ${shape.height}, shift ${shape.slant}`, shape.height, 2, 7)}
+        ${handle("height-position", geometry.heightBottom, "Move the corresponding height along the base", Math.round(shape.heightPosition * 100), 10, 90)}
+      </svg>
+      <div class="base-height-challenge-controls">
+        ${renderBaseHeightChallengeRange(card, question, "base", "Base b", 3, 8, shape.base)}
+        ${renderBaseHeightChallengeRange(card, question, "height", "Height h", 2, 7, shape.height)}
+        ${renderBaseHeightChallengeRange(card, question, "slant", "Sideways shift", -3, 3, shape.slant)}
+        ${renderBaseHeightChallengeRange(card, question, "heightPosition", "Height location (%)", 10, 90, Math.round(shape.heightPosition * 100))}
+      </div>
+      <div class="base-height-challenge-actions">
+        <button class="hint-button" type="button" data-base-height-rotate="${card.id}" data-question-id="${escapeHtml(question.id)}" data-rotation-delta="-5">Rotate left</button>
+        <output class="base-height-rotation-output" aria-live="polite">Orientation ${shape.rotation}&deg;</output>
+        <button class="hint-button" type="button" data-base-height-rotate="${card.id}" data-question-id="${escapeHtml(question.id)}" data-rotation-delta="5">Rotate right</button>
+        <button class="hint-button" type="button" data-base-height-reset="${card.id}" data-question-id="${escapeHtml(question.id)}">Reset</button>
+      </div>
+    </section>
+  `;
+}
+
+const cutStrategyStages = {
+  tyler: [
+    {
+      label: "Choose a cut",
+      shortLabel: "Cut",
+      cropPath: "lesson-05-p001-tyler-stage-1.png",
+      alt: "Tyler's stage 1 source diagram: a vertical dashed cut through the parallelogram with scissors below it.",
+    },
+    {
+      label: "Move the side piece",
+      shortLabel: "Move",
+      cropPath: "lesson-05-p001-tyler-stage-2.png",
+      alt: "Tyler's stage 2 source diagram: the cut side piece is green and an arrow shows it moving to the right.",
+    },
+    {
+      label: "Rectangle formed",
+      shortLabel: "Rectangle",
+      cropPath: "lesson-05-p001-tyler-stage-3.png",
+      alt: "Tyler's stage 3 source diagram: the moved piece completes a rectangle and a dashed outline marks its former location.",
+    },
+  ],
+  elena: [
+    {
+      label: "Choose a cut",
+      shortLabel: "Cut",
+      cropPath: "lesson-05-p001-elena-stage-1.png",
+      alt: "Elena's stage 1 source diagram: a vertical dashed cut near the left side of the parallelogram with scissors below it.",
+    },
+    {
+      label: "Move the side piece",
+      shortLabel: "Move",
+      cropPath: "lesson-05-p001-elena-stage-2.png",
+      alt: "Elena's stage 2 source diagram: the cut side piece is yellow and an arrow shows it moving to the right.",
+    },
+    {
+      label: "Rectangle formed",
+      shortLabel: "Rectangle",
+      cropPath: "lesson-05-p001-elena-stage-3.png",
+      alt: "Elena's stage 3 source diagram: the moved piece completes a rectangle and a dashed outline marks its former location.",
+    },
+  ],
+};
+
+function cutStageValue(card, strategy) {
+  const parsed = Number(getTeachCustomResponse(card)[`${strategy}Stage`]);
+  return Number.isFinite(parsed) ? clampNumber(parsed, 0, 2) : 0;
+}
+
+function cutStageCropUrl(stage) {
+  return encodeURI(`artifacts/unit 1/_teachme-crops/${stage.cropPath}`);
+}
+
+function renderCutStrategyPanel(card, strategy, name) {
+  const value = cutStageValue(card, strategy);
+  const stage = cutStrategyStages[strategy][value];
+  return `
+    <section class="cut-strategy-panel" aria-labelledby="${card.id}-${strategy}-title">
+      <div class="cut-strategy-header">
+        <h4 id="${card.id}-${strategy}-title">${escapeHtml(name)}'s strategy</h4>
+        <p class="cut-stage-status" aria-live="polite">Stage ${value + 1} of 3: ${escapeHtml(stage.label)}</p>
+      </div>
+      <div class="cut-stage-image-frame">
+        <img
+          class="cut-stage-image"
+          src="${cutStageCropUrl(stage)}"
+          alt="${escapeHtml(stage.alt)}"
+          data-cut-stage-image="${strategy}"
+          data-cut-stage-value="${value}"
+        >
+      </div>
+      <div class="cut-stage-buttons" role="group" aria-label="${escapeHtml(name)}'s strategy stages">
+        ${cutStrategyStages[strategy].map((option, index) => `
+          <button
+            class="cut-stage-button ${index === value ? "is-active" : ""}"
+            type="button"
+            data-cut-stage-card="${card.id}"
+            data-cut-stage-strategy="${strategy}"
+            data-cut-stage-value="${index}"
+            aria-pressed="${index === value}"
+            aria-label="Stage ${index + 1}: ${escapeHtml(option.label)}"
+          >
+            <span>${index + 1}</span>
+            <strong>${escapeHtml(option.shortLabel)}</strong>
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderParallelogramCutSliderWorkspace(card) {
   return `
-    <section class="cut-slider-workspace" aria-label="Interactive source slider recreation for parallelogram rearrangements">
-      <svg class="cut-slider-stage" viewBox="0 0 760 360" role="img" aria-label="${escapeHtml(card.visualAlt)}">
-        <rect x="1" y="1" width="758" height="358" class="cut-slider-board"></rect>
-        <text class="cut-slider-heading" x="380" y="34" text-anchor="middle">Same parallelogram, two rectangle strategies</text>
-        ${renderCutSliderFrame(card, { x: 212, y: 0, width: 205, height: 151, label: "Starting parallelogram" }, 278, 64, `${card.id}-start-clip`)}
-        ${renderCutSliderImage(card, "tyler", 54, 142)}
-        ${renderCutSliderImage(card, "elena", 500, 142)}
-      </svg>
-      <div class="cut-slider-controls">
-        ${renderCutSliderControl(card, "tylerStage", "Tyler slider")}
-        ${renderCutSliderControl(card, "elenaStage", "Elena slider")}
+    <section class="cut-slider-workspace" aria-label="Interactive staged source recreation for parallelogram rearrangements">
+      <p class="cut-stage-heading">Same parallelogram, two rectangle strategies</p>
+      <figure class="cut-starting-panel">
+        <figcaption>Starting parallelogram</figcaption>
+        <img class="cut-starting-image" src="${teachCropUrl(card)}" alt="The source starting parallelogram on a square grid.">
+      </figure>
+      <div class="cut-strategy-grid">
+        ${renderCutStrategyPanel(card, "tyler", "Tyler")}
+        ${renderCutStrategyPanel(card, "elena", "Elena")}
       </div>
     </section>
   `;
@@ -7548,8 +8429,184 @@ function scrollToTeachLesson(lessonNumber) {
 }
 
 function teachPartLabel(card) {
+  if (card.partLabel) return card.partLabel;
   const match = card.activityTitle?.match(/^(\d+\.\d+)/);
   return match ? match[1] : `Part ${card.id}`;
+}
+
+const tilingPieceStage = { width: 620, height: 300 };
+
+const tilingPieceDefinitions = {
+  "triangle-1": { label: "Green triangle 1", points: "0,-39 45,39 -45,39", className: "is-green" },
+  "triangle-2": { label: "Green triangle 2", points: "0,-39 45,39 -45,39", className: "is-green" },
+  "triangle-3": { label: "Green triangle 3", points: "0,-39 45,39 -45,39", className: "is-green" },
+  rhombus: { label: "Blue rhombus", points: "-45,-39 45,-39 90,39 0,39", className: "is-blue" },
+  trapezoid: { label: "Red trapezoid", points: "-45,-39 45,-39 90,39 -90,39", className: "is-red" },
+};
+
+function initialTilingPieces() {
+  return {
+    "triangle-1": { x: 72, y: 76, angle: 0, hidden: false },
+    "triangle-2": { x: 172, y: 76, angle: 0, hidden: false },
+    "triangle-3": { x: 272, y: 76, angle: 0, hidden: false },
+    rhombus: { x: 125, y: 205, angle: 0, hidden: false },
+    trapezoid: { x: 430, y: 205, angle: 0, hidden: false },
+  };
+}
+
+function getTilingPieces() {
+  if (!state.teachTilingPieces) state.teachTilingPieces = initialTilingPieces();
+  return state.teachTilingPieces;
+}
+
+function tilingPieceTransform(pieceId) {
+  const piece = getTilingPieces()[pieceId];
+  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle})`;
+}
+
+function renderTilingPatternReference(card) {
+  const selected = getTeachVariantId(card);
+  const patterns = selected ? [selected] : ["pattern-a", "pattern-b"];
+  const sourceUrl = teachCropUrl(card);
+  return `
+    <div class="tiling-pattern-references ${selected ? "has-selection" : ""}">
+      ${patterns.map((patternId) => {
+        const isPatternB = patternId === "pattern-b";
+        const label = isPatternB ? "Pattern B" : "Pattern A";
+        return `
+          <figure class="tiling-pattern-reference">
+            <figcaption>${label}${selected ? " selected" : ""}</figcaption>
+            <svg viewBox="70 ${isPatternB ? 350 : 0} 560 350" role="img" aria-label="${label} from the source PDF">
+              <image href="${sourceUrl}" x="0" y="0" width="720" height="700"></image>
+            </svg>
+          </figure>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderTilingCompareWorkspace(card) {
+  const selectedPieceId = state.teachTilingSelectedPiece || "triangle-1";
+  const pieces = getTilingPieces();
+  return `
+    <section class="tiling-compare-workspace" aria-label="Source pattern and movable shape-comparison pieces">
+      ${renderTilingPatternReference(card)}
+      <section class="tiling-piece-lab" aria-label="Move, turn, and hide comparison pieces">
+        <div class="tiling-piece-toolbar">
+          <p><strong>Shape comparison tray</strong></p>
+          <div role="group" aria-label="Comparison piece controls">
+            <button class="hint-button" type="button" data-tiling-piece-rotate="-60">Turn left</button>
+            <button class="hint-button" type="button" data-tiling-piece-rotate="60">Turn right</button>
+            <button class="hint-button" type="button" data-tiling-piece-hide>Hide selected</button>
+            <button class="hint-button" type="button" data-tiling-piece-show>Show all</button>
+            <button class="hint-button" type="button" data-tiling-piece-reset>Reset pieces</button>
+          </div>
+        </div>
+        <svg class="tiling-piece-stage" data-tiling-piece-stage viewBox="0 0 ${tilingPieceStage.width} ${tilingPieceStage.height}" role="img" aria-label="Three green triangles, one blue rhombus, and one red trapezoid that can be moved and turned">
+          <rect x="1" y="1" width="${tilingPieceStage.width - 2}" height="${tilingPieceStage.height - 2}" class="tiling-piece-board"></rect>
+          ${Object.entries(tilingPieceDefinitions).map(([pieceId, definition]) => {
+            const piece = pieces[pieceId];
+            if (piece.hidden) return "";
+            return `
+              <g class="tiling-piece-group" data-tiling-piece="${pieceId}" transform="${tilingPieceTransform(pieceId)}" role="button" tabindex="0" aria-label="${definition.label}, draggable and rotatable">
+                <polygon class="tiling-comparison-piece ${definition.className} ${pieceId === selectedPieceId ? "is-selected" : ""}" points="${definition.points}"></polygon>
+              </g>
+            `;
+          }).join("")}
+        </svg>
+        <div class="tiling-piece-legend" aria-hidden="true">
+          <span><i class="is-green"></i>3 green triangles</span>
+          <span><i class="is-blue"></i>1 blue rhombus</span>
+          <span><i class="is-red"></i>1 red trapezoid</span>
+        </div>
+        <p class="tiling-piece-caption">Drag pieces on top of one another to test how many green triangles match a blue rhombus or a red trapezoid.</p>
+      </section>
+    </section>
+  `;
+}
+
+const equalAreaTilingBoard = { columns: 4, rows: 3, cell: 92 };
+
+function getEqualAreaTiling() {
+  if (!state.teachEqualAreaTiling) {
+    state.teachEqualAreaTiling = { pieces: [], nextId: 1, message: "Choose a shape tool, then place pieces on the grid." };
+  }
+  return state.teachEqualAreaTiling;
+}
+
+function equalAreaTilingPieceAt(column, row) {
+  return getEqualAreaTiling().pieces.find((piece) => piece.cells.some((cell) => cell.column === column && cell.row === row)) || null;
+}
+
+function equalAreaTilingCounts() {
+  const pieces = getEqualAreaTiling().pieces;
+  const squareArea = pieces.filter((piece) => piece.type === "square").reduce((total, piece) => total + piece.cells.length, 0);
+  const dominoArea = pieces.filter((piece) => piece.type === "domino").reduce((total, piece) => total + piece.cells.length, 0);
+  return { squareArea, dominoArea, totalArea: squareArea + dominoArea };
+}
+
+function equalAreaTilingIsCorrect() {
+  const counts = equalAreaTilingCounts();
+  return counts.totalArea === equalAreaTilingBoard.columns * equalAreaTilingBoard.rows
+    && counts.squareArea === counts.dominoArea
+    && counts.squareArea > 0;
+}
+
+function renderEqualAreaTilingWorkspace() {
+  const boardWidth = equalAreaTilingBoard.columns * equalAreaTilingBoard.cell;
+  const boardHeight = equalAreaTilingBoard.rows * equalAreaTilingBoard.cell;
+  const model = getEqualAreaTiling();
+  const counts = equalAreaTilingCounts();
+  return `
+    <section class="equal-area-tiling-workspace" aria-label="Equal-area tiling builder">
+      <div class="equal-area-tiling-toolbar">
+        <div role="group" aria-label="Tiling piece tools">
+          <button class="page-chip ${state.teachEqualAreaTilingTool === "square" ? "is-active" : ""}" type="button" data-equal-tiling-tool="square" aria-pressed="${state.teachEqualAreaTilingTool === "square"}">Unit square</button>
+          <button class="page-chip ${state.teachEqualAreaTilingTool === "domino" ? "is-active" : ""}" type="button" data-equal-tiling-tool="domino" aria-pressed="${state.teachEqualAreaTilingTool === "domino"}">Domino</button>
+          <button class="page-chip ${state.teachEqualAreaTilingTool === "erase" ? "is-active" : ""}" type="button" data-equal-tiling-tool="erase" aria-pressed="${state.teachEqualAreaTilingTool === "erase"}">Erase</button>
+        </div>
+        <div role="group" aria-label="Domino orientation">
+          <button
+            class="hint-button equal-area-tiling-orientation ${state.teachEqualAreaTilingTool === "domino" && state.teachEqualAreaTilingOrientation === "horizontal" ? "is-active" : ""}"
+            type="button"
+            data-equal-tiling-orientation="horizontal"
+            aria-pressed="${state.teachEqualAreaTilingTool === "domino" && state.teachEqualAreaTilingOrientation === "horizontal"}"
+            ${state.teachEqualAreaTilingTool === "domino" ? "" : "disabled"}
+          >Horizontal</button>
+          <button
+            class="hint-button equal-area-tiling-orientation ${state.teachEqualAreaTilingTool === "domino" && state.teachEqualAreaTilingOrientation === "vertical" ? "is-active" : ""}"
+            type="button"
+            data-equal-tiling-orientation="vertical"
+            aria-pressed="${state.teachEqualAreaTilingTool === "domino" && state.teachEqualAreaTilingOrientation === "vertical"}"
+            ${state.teachEqualAreaTilingTool === "domino" ? "" : "disabled"}
+          >Vertical</button>
+        </div>
+      </div>
+      <svg class="equal-area-tiling-board" viewBox="0 0 ${boardWidth} ${boardHeight}" role="img" aria-label="Four-column by three-row tiling grid">
+        <rect width="${boardWidth}" height="${boardHeight}" class="equal-area-board-background"></rect>
+        ${model.pieces.map((piece) => {
+          const columns = piece.cells.map((cell) => cell.column);
+          const rows = piece.cells.map((cell) => cell.row);
+          const x = Math.min(...columns) * equalAreaTilingBoard.cell;
+          const y = Math.min(...rows) * equalAreaTilingBoard.cell;
+          const width = (Math.max(...columns) - Math.min(...columns) + 1) * equalAreaTilingBoard.cell;
+          const height = (Math.max(...rows) - Math.min(...rows) + 1) * equalAreaTilingBoard.cell;
+          return `<rect x="${x + 3}" y="${y + 3}" width="${width - 6}" height="${height - 6}" rx="3" class="equal-area-piece is-${piece.type}"></rect>`;
+        }).join("")}
+        ${Array.from({ length: equalAreaTilingBoard.columns + 1 }, (_, index) => `<line x1="${index * equalAreaTilingBoard.cell}" y1="0" x2="${index * equalAreaTilingBoard.cell}" y2="${boardHeight}" class="equal-area-grid-line"></line>`).join("")}
+        ${Array.from({ length: equalAreaTilingBoard.rows + 1 }, (_, index) => `<line x1="0" y1="${index * equalAreaTilingBoard.cell}" x2="${boardWidth}" y2="${index * equalAreaTilingBoard.cell}" class="equal-area-grid-line"></line>`).join("")}
+        ${Array.from({ length: equalAreaTilingBoard.rows }, (_, row) => Array.from({ length: equalAreaTilingBoard.columns }, (_entry, column) => `<rect x="${column * equalAreaTilingBoard.cell}" y="${row * equalAreaTilingBoard.cell}" width="${equalAreaTilingBoard.cell}" height="${equalAreaTilingBoard.cell}" class="equal-area-cell-target" data-equal-tiling-cell="${column}-${row}" data-column="${column}" data-row="${row}" role="button" tabindex="0" aria-label="Grid cell column ${column + 1}, row ${row + 1}"></rect>`).join("")).join("")}
+      </svg>
+      <div class="equal-area-tiling-status" aria-live="polite">
+        <span>Square area:&nbsp;<strong>${counts.squareArea}</strong></span>
+        <span>Domino area:&nbsp;<strong>${counts.dominoArea}</strong></span>
+        <span class="equal-area-tiling-covered">Covered:&nbsp;<strong>${counts.totalArea} of ${equalAreaTilingBoard.columns * equalAreaTilingBoard.rows}</strong></span>
+        <button class="hint-button equal-area-tiling-reset" type="button" data-equal-tiling-reset>Reset</button>
+      </div>
+      <p class="equal-area-tiling-message">${escapeHtml(model.message)}</p>
+    </section>
+  `;
 }
 
 function renderTeachPartSwitcher(group, activeCard) {
@@ -7571,6 +8628,9 @@ function renderTeachLessonGroup(group) {
 }
 
 function renderTeachVisualContent(card) {
+  if (card.customVisual === "tilingCompare") return renderTilingCompareWorkspace(card);
+  if (card.customVisual === "equalAreaTiling") return renderEqualAreaTilingWorkspace(card);
+  if (card.customVisual === "gridTriangleFit") return renderGridTriangleFitWorkspace(card);
   if (card.customVisual === "questionSetVisual") return renderQuestionSetVisual(card);
   if (card.customVisual === "polygonClassification") return renderPolygonClassificationVisual(card);
   if (card.customVisual === "tangram") return renderTangramWorkspace(card);
@@ -7627,7 +8687,7 @@ function renderPolygonClassificationVisual(card) {
 function renderParallelogramEqualExampleVisual() {
   const handles = [
     [100, 260], [220, 260], [200, 180], [80, 180],
-    [450, 260], [510, 260], [570, 100], [510, 100],
+    [460, 260], [520, 260], [580, 100], [520, 100],
   ].map(([cx, cy]) => `<circle class="parallelogram-source-handle" cx="${cx}" cy="${cy}" r="6"></circle>`).join("");
   return `
     <figure class="teach-visual-frame parallelogram-equal-example">
@@ -7636,7 +8696,7 @@ function renderParallelogramEqualExampleVisual() {
         <rect x="1" y="1" width="758" height="328" class="parallelogram-explore-board"></rect>
         <g aria-hidden="true">${gridLines(20, 20, 36, 14, 20)}</g>
         <polygon class="parallelogram-source-example is-left" points="100,260 220,260 200,180 80,180"></polygon>
-        <polygon class="parallelogram-source-example is-right" points="450,260 510,260 570,100 510,100"></polygon>
+        <polygon class="parallelogram-source-example is-right" points="460,260 520,260 580,100 520,100"></polygon>
         ${handles}
       </svg>
     </figure>
@@ -7645,7 +8705,9 @@ function renderParallelogramEqualExampleVisual() {
 
 function renderQuestionSetVisual(card) {
   const question = questionSetDefinition(card, questionSetActiveId(card));
+  if (question?.visualType === "tangram") return renderTangramWorkspace(card);
   if (question?.visualType === "parallelogramExplore") return renderParallelogramExploreWorkspace(card);
+  if (question?.visualType === "baseHeightChallenge") return renderBaseHeightChallengeWorkspace(card);
   if (question?.visualType === "parallelogramEqualExample") return renderParallelogramEqualExampleVisual();
   if (question?.visualType === "parallelogramPair") return renderParallelogramPairWorkspace(card, question);
   if (question?.visualType === "cabinetDimensions") return renderCabinetDimensionsVisual(question);
@@ -10340,8 +11402,194 @@ function normalizedTextMeetsConceptRequirements(text, requirements) {
   ));
 }
 
+const freeTextTermLabels = Object.freeze({
+  cub: ["cube", "cubic"],
+  decompos: ["decompose", "decomposition"],
+  enclos: ["enclose", "enclosure"],
+  mov: ["move", "moving"],
+  rearrang: ["rearrange", "rearrangement"],
+  rectang: ["rectangle", "rectangular"],
+  triang: ["triangle", "triangular"],
+});
+
+function freeTextTermDescription(term) {
+  const value = String(term);
+  const labels = freeTextTermLabels[value.toLowerCase()] || [value];
+  const quoted = labels.map((label) => `"${label}"`);
+  return quoted.length === 1 ? quoted[0] : `(${quoted.join(" or ")})`;
+}
+
+function freeTextConceptDescription(concept) {
+  return (Array.isArray(concept) ? concept : [])
+    .map(freeTextTermDescription)
+    .join(" + ");
+}
+
+function joinFreeTextAlternatives(items) {
+  const values = items.filter(Boolean);
+  if (values.length < 2) return values[0] || "";
+  if (values.length === 2) return `${values[0]} or ${values[1]}`;
+  return `${values.slice(0, -1).join(", ")}, or ${values.at(-1)}`;
+}
+
+function freeTextValidationCriteria({
+  concepts = [],
+  conceptRequirements = [],
+  conceptsRequired = 1,
+  requiresNumber = false,
+  minimumLength = 1,
+  validationGuidance = "",
+} = {}) {
+  const explicitGuidance = String(validationGuidance || "").trim().replace(/\.+$/, "");
+  if (explicitGuidance) {
+    const normalizedGuidance = explicitGuidance.charAt(0).toLowerCase() + explicitGuidance.slice(1);
+    return `To pass this app check, ${normalizedGuidance}.`;
+  }
+
+  const criteria = [];
+  if (Number.isInteger(minimumLength) && minimumLength > 1) {
+    criteria.push(`write at least ${minimumLength} characters`);
+  }
+
+  const acceptedConcepts = (Array.isArray(concepts) ? concepts : [])
+    .map(freeTextConceptDescription)
+    .filter(Boolean);
+  if (acceptedConcepts.length) {
+    const requiredCount = Math.min(
+      acceptedConcepts.length,
+      Number.isInteger(conceptsRequired) ? Math.max(1, conceptsRequired) : 1
+    );
+    const countLabel = requiredCount === 1 ? "one" : String(requiredCount);
+    criteria.push(`include at least ${countLabel} accepted word combination${requiredCount === 1 ? "" : "s"}: ${joinFreeTextAlternatives(acceptedConcepts)}`);
+  }
+
+  const requiredIdeas = (Array.isArray(conceptRequirements) ? conceptRequirements : [])
+    .map((alternatives) => joinFreeTextAlternatives(
+      (Array.isArray(alternatives) ? alternatives : []).map(freeTextConceptDescription)
+    ))
+    .filter(Boolean);
+  if (requiredIdeas.length) {
+    criteria.push(`include one accepted word combination for each required idea: ${requiredIdeas.map((description, index) => `(${index + 1}) ${description}`).join("; ")}`);
+  }
+
+  if (requiresNumber) criteria.push("include at least one number");
+  if (!criteria.length) return "";
+  return `To pass this app check, ${criteria.join("; ")}.`;
+}
+
+function freeTextFeedbackWithCriteria(baseFeedback, criteria) {
+  const guidance = freeTextValidationCriteria(criteria);
+  return [String(baseFeedback || "").trim(), guidance].filter(Boolean).join(" ");
+}
+
+function appendFeedbackCriteria(baseFeedback, criteriaFeedback) {
+  const feedback = String(baseFeedback || "").trim();
+  const criteria = String(criteriaFeedback || "").trim();
+  if (!criteria || feedback.includes(criteria)) return feedback;
+  return [feedback, criteria].filter(Boolean).join(" ");
+}
+
+function questionAnswerValidationCriteria(question) {
+  return {
+    concepts: question.answerConcepts,
+    conceptRequirements: question.answerConceptRequirements,
+    conceptsRequired: question.answerConceptsRequired,
+    minimumLength: Number.isInteger(question.minLength) ? question.minLength : 1,
+    validationGuidance: question.answerValidationGuidance,
+  };
+}
+
+function questionReasoningValidationCriteria(question) {
+  return {
+    concepts: question.reasoningConcepts,
+    conceptRequirements: question.reasoningConceptRequirements,
+    conceptsRequired: question.reasoningConceptsRequired,
+    requiresNumber: question.reasoningRequiresNumber,
+    validationGuidance: question.reasoningValidationGuidance,
+  };
+}
+
+function hasTaskSpecificFreeTextCriteria(criteria = {}) {
+  return Boolean(
+    String(criteria.validationGuidance || "").trim()
+    || (Array.isArray(criteria.concepts) && criteria.concepts.length)
+    || (Array.isArray(criteria.conceptRequirements) && criteria.conceptRequirements.length)
+    || criteria.requiresNumber
+  );
+}
+
+function unit1RequiredFreeTextCriteriaAudit() {
+  const issues = [];
+  const customRequiredFields = {
+    areaMeaning: ["drawingReasoning", "areaDefinition"],
+    quadrilateralDecompose: ["observations"],
+    trianglePairsCompose: ["trianglePairReasoning"],
+    triangleHeightMarks: ["heightReasoning"],
+  };
+
+  unit1TeachCards.forEach((card) => {
+    if (card.reasoningRequired && !hasTaskSpecificFreeTextCriteria({
+      concepts: card.reasoningConcepts,
+      validationGuidance: card.reasoningValidationGuidance,
+    })) {
+      issues.push(`${card.id}: required card reasoning has no task-specific criteria`);
+    }
+
+    if (card.responseType === "gridFigureAreas" && card.requireReasoning) {
+      (card.figures || []).forEach((figure) => {
+        if (!hasTaskSpecificFreeTextCriteria({
+          concepts: figure.reasoningConcepts,
+          validationGuidance: figure.reasoningValidationGuidance || card.reasoningValidationGuidance,
+        })) {
+          issues.push(`${card.id}/${figure.id}: required grid reasoning has no task-specific criteria`);
+        }
+      });
+    }
+
+    if (card.responseType === "guidedFields") {
+      (card.guidedReasoningRequirements || []).forEach((requirement) => {
+        if (!hasTaskSpecificFreeTextCriteria({
+          concepts: requirement.concepts,
+          validationGuidance: requirement.validationGuidance,
+        })) {
+          issues.push(`${card.id}/${requirement.field}: required guided reasoning has no task-specific criteria`);
+        }
+      });
+    }
+
+    (customRequiredFields[card.responseType] || []).forEach((field) => {
+      if (!String(card.freeTextValidationGuidance?.[field] || "").trim()) {
+        issues.push(`${card.id}/${field}: custom required free text has no validation guidance`);
+      }
+    });
+
+    (card.questions || []).forEach((question) => {
+      if (question.responseType === "openResponse"
+        && !question.answerOptional
+        && !hasTaskSpecificFreeTextCriteria(questionAnswerValidationCriteria(question))) {
+        issues.push(`${card.id}/${question.id}: required open response has no task-specific criteria`);
+      }
+      if (question.reasoningPrompt
+        && !question.reasoningOptional
+        && !hasTaskSpecificFreeTextCriteria(questionReasoningValidationCriteria(question))) {
+        issues.push(`${card.id}/${question.id}: required reasoning has no task-specific criteria`);
+      }
+    });
+  });
+
+  return issues;
+}
+
 function questionSetAnswerIsCorrect(card, question) {
   const answerKey = Array.isArray(question.answerKey) ? question.answerKey : [];
+  if (question.answerOptional) return true;
+  if (question.dynamicAnswer === "baseHeightChallenge") {
+    return baseHeightChallengeIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "tangramConstruction") {
+    const saved = Boolean(getTeachCustomResponse(card)[tangramSavedField(question.id)]);
+    return saved && (!question.requireAreaAnswer || answerMatches(questionSetValue(card, question.id, "area"), String(question.targetArea)));
+  }
   if (question.dynamicAnswer === "polyhedronPerFigure") {
     return polyhedronModelIds.every((modelId) => (
       polyhedronClassificationSubmitted(card, modelId)
@@ -10465,6 +11713,15 @@ function questionSetQuestionUnlocked(card, question) {
 }
 
 function questionSetHasAnswer(card, question) {
+  if (question.answerOptional) return true;
+  if (question.dynamicAnswer === "baseHeightChallenge") {
+    return baseHeightChallengeHasInteraction(card, question);
+  }
+  if (question.dynamicAnswer === "tangramConstruction") {
+    const hasConstruction = Boolean(getTeachCustomResponse(card)[tangramSavedField(question.id)])
+      || tangramIncludedPieceIds(card, question.id).length > 0;
+    return hasConstruction && (!question.requireAreaAnswer || normalizeAnswer(questionSetValue(card, question.id, "area")).length > 0);
+  }
   if (question.dynamicAnswer === "polyhedronPerFigure") {
     return polyhedronModelIds.every((modelId) => polyhedronClassificationValue(card, modelId));
   }
@@ -10497,6 +11754,7 @@ function questionSetHasAnswer(card, question) {
 function questionSetReasoningEvaluation(card, question) {
   const reasoning = normalizeAnswer(questionSetValue(card, question.id, "reasoning"));
   if (!question.reasoningPrompt) return { answered: true, correct: true };
+  if (question.reasoningOptional) return { answered: reasoning.length > 0, correct: true };
   const concepts = Array.isArray(question.reasoningConcepts) ? question.reasoningConcepts : [];
   const conceptRequirements = Array.isArray(question.reasoningConceptRequirements)
     ? question.reasoningConceptRequirements
@@ -10649,6 +11907,15 @@ function pyramidNetFeedbackText(card) {
 }
 
 function questionSetResolvedFeedback(card, question, correct) {
+  if (question.answerOptional && !normalizeAnswer(questionSetValue(card, question.id)).length) {
+    return question.optionalEmptyFeedback || question.correctFeedback;
+  }
+  if (question.dynamicAnswer === "baseHeightChallenge") {
+    return correct ? question.correctFeedback : question.incorrectFeedback;
+  }
+  if (question.dynamicAnswer === "tangramConstruction") {
+    return correct ? question.correctFeedback : tangramConstructionFeedback(card, question);
+  }
   if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
     return pyramidNetFeedbackText(card);
   }
@@ -10678,7 +11945,10 @@ function questionSetResolvedFeedback(card, question, correct) {
   if (question.dynamicAnswer === "tentComparisonImpact") {
     return `${correct ? "Correct. " : "Compare each change with your tent. "}${tentComparisonFeedback("impact")}`;
   }
-  return correct ? question.correctFeedback : question.incorrectFeedback;
+  const feedback = correct ? question.correctFeedback : question.incorrectFeedback;
+  return !correct && question.responseType === "openResponse" && !question.answerOptional
+    ? freeTextFeedbackWithCriteria(feedback, questionAnswerValidationCriteria(question))
+    : feedback;
 }
 
 function renderQuestionSetFeedback(card, question) {
@@ -10695,15 +11965,28 @@ function renderQuestionSetFeedback(card, question) {
   const answered = questionSetHasAnswer(card, question);
   const answerCorrect = answered && questionSetAnswerIsCorrect(card, question);
   const reasoning = questionSetReasoningEvaluation(card, question);
+  const failedReasoningCriteria = question.reasoningPrompt
+    && !question.reasoningOptional
+    && !reasoning.correct
+    ? freeTextValidationCriteria(questionReasoningValidationCriteria(question))
+    : "";
   const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
   const uniquenessSatisfied = parallelogramExploreIsUnique(card, question);
   const requiredStateSatisfied = questionSetRequiredStateSatisfied(card, question);
   const correct = submitted && adjustmentSatisfied && uniquenessSatisfied && requiredStateSatisfied && answerCorrect && reasoning.correct;
   const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
-  const feedbackText = !submitted
+  const baseFeedbackText = !submitted
     ? `Submit ${question.label} when you are ready for feedback.`
     : !answered
-      ? question.missingResponseFeedback || `Choose or enter an answer for ${question.label}, then submit again.`
+      ? question.responseType === "openResponse" && !question.answerOptional
+        ? freeTextFeedbackWithCriteria(
+          question.missingResponseFeedback || `Enter a response for ${question.label}, then submit again.`,
+          questionAnswerValidationCriteria(question)
+        )
+        : [
+          question.missingResponseFeedback || `Choose or enter an answer for ${question.label}, then submit again.`,
+          failedReasoningCriteria,
+        ].filter(Boolean).join(" ")
       : !adjustmentSatisfied
         ? question.adjustmentFeedback || "Change the model before submitting this question."
         : !uniquenessSatisfied
@@ -10712,13 +11995,22 @@ function renderQuestionSetFeedback(card, question) {
         ? question.requireAreaCheck
           ? question.areaCheckFeedback || "Use Show Area to check this figure before submitting it."
           : question.requiredStateFeedback || "Complete the required workspace action before submitting this question."
-      : answerCorrect && question.reasoningPrompt && !reasoning.answered
-        ? question.reasoningRequiredFeedback || "Your answer is correct. Add your reasoning, then submit again."
-        : answerCorrect && question.reasoningPrompt && !reasoning.correct
-          ? question.reasoningRevisionFeedback || "Your answer is correct, but strengthen the explanation and submit again."
+      : answerCorrect && question.reasoningPrompt && !question.reasoningOptional && !reasoning.answered
+        ? freeTextFeedbackWithCriteria(
+          question.reasoningRequiredFeedback || "Your answer is correct. Add your reasoning, then submit again.",
+          questionReasoningValidationCriteria(question)
+        )
+        : answerCorrect && question.reasoningPrompt && !question.reasoningOptional && !reasoning.correct
+          ? freeTextFeedbackWithCriteria(
+            question.reasoningRevisionFeedback || "Your answer is correct, but strengthen the explanation; it did not pass the app check.",
+            questionReasoningValidationCriteria(question)
+          )
           : correct
             ? questionSetResolvedFeedback(card, question, true)
             : questionSetResolvedFeedback(card, question, false);
+  const feedbackText = submitted
+    ? appendFeedbackCriteria(baseFeedbackText, failedReasoningCriteria)
+    : baseFeedbackText;
   return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
 }
 
@@ -10746,7 +12038,25 @@ function renderParallelogramAreaCheck(card, question) {
 
 function renderQuestionSetAnswer(card, question) {
   if (question.responseType === "construction") {
-    return `<p class="teach-question-note">${escapeHtml(question.constructionNote || "Use the construction controls in the workspace, then submit this question.")}</p>`;
+    return `
+      <p class="teach-question-note">${escapeHtml(question.constructionNote || "Use the construction controls in the workspace, then submit this question.")}</p>
+      ${question.requireAreaAnswer ? `
+        <label class="question-set-input-label">
+          Area of the completed shape (square units)
+          <input
+            type="text"
+            inputmode="decimal"
+            maxlength="24"
+            autocomplete="off"
+            data-question-set-input="${card.id}"
+            data-question-id="${escapeHtml(question.id)}"
+            data-question-field="area"
+            value="${escapeHtml(questionSetValue(card, question.id, "area"))}"
+            placeholder="Enter the area"
+          >
+        </label>
+      ` : ""}
+    `;
   }
   if (Array.isArray(question.fields) && question.fields.length > 0) {
     return `
@@ -10790,7 +12100,7 @@ function renderQuestionSetAnswer(card, question) {
   if (question.responseType === "openResponse") {
     return `
       <label class="reasoning-field question-set-long-answer">
-        ${escapeHtml(question.inputLabel || "Answer")}
+        ${escapeHtml(optionalFieldLabel(question.inputLabel || "Answer", question.answerOptional))}
         <textarea
           maxlength="${TEXTAREA_MAX_LENGTH}"
           data-question-set-input="${card.id}"
@@ -10902,7 +12212,7 @@ function renderQuestionSetControl(card) {
           ${renderQuestionSetAnswer(card, question)}
           ${question.reasoningPrompt ? `
             <label class="reasoning-field">
-              ${escapeHtml(question.reasoningPrompt)}
+              ${escapeHtml(optionalFieldLabel(question.reasoningPrompt, question.reasoningOptional))}
               <textarea
                 maxlength="${TEXTAREA_MAX_LENGTH}"
                 data-question-set-input="${card.id}"
@@ -10935,8 +12245,24 @@ function areaMeaningDrawingsAreCorrect(card) {
   return selected.length === expected.length && selected.every((choice, index) => choice === expected[index]);
 }
 
+function areaMeaningDrawingReasoningEvaluation(card) {
+  const reasoning = normalizeAnswer(getTeachCustomResponse(card).drawingReasoning || "");
+  const hasCriterion = [
+    "cover",
+    "overlap",
+    "gap",
+    "same size",
+    "unit square",
+    "four small",
+    "large square",
+    "convert",
+  ].some((term) => reasoning.includes(term));
+  return { answered: reasoning.length > 0, correct: reasoning.length >= 12 && hasCriterion };
+}
+
 function areaDefinitionEvaluation(value) {
   const answer = normalizeAnswer(value);
+  const hasRegion = /\b(two[- ]dimensional|2d|flat|region|shape|inside|surface)\b/.test(answer);
   const hasSquareUnits = /\b(square units?|unit squares?|same[- ]size squares?)\b/.test(answer);
   const hasCovering = /\b(cover|covers|covered|covering|fill|fills|filled|filling|tile|tiles|tiled|tiling)\b/.test(answer);
   const hasNoGaps = /\b(no|without)\b.{0,45}\bgaps?\b/.test(answer)
@@ -10945,6 +12271,7 @@ function areaDefinitionEvaluation(value) {
     || /\b(do not|does not|don't|doesn't)\s+overlap\b/.test(answer)
     || /\bnon[- ]?overlapping\b/.test(answer);
   const missing = [];
+  if (!hasRegion) missing.push("a two-dimensional region or shape");
   if (!hasSquareUnits) missing.push("square units or same-size unit squares");
   if (!hasCovering) missing.push("covering the region");
   if (!hasNoGaps) missing.push("no gaps");
@@ -10963,14 +12290,26 @@ function renderAreaMeaningQuestionFeedback(card, questionId) {
 
   if (submitted && questionId === "drawings") {
     const selected = areaMeaningDrawingSelections(card);
-    correct = areaMeaningDrawingsAreCorrect(card);
+    const selectionsCorrect = areaMeaningDrawingsAreCorrect(card);
+    const reasoning = areaMeaningDrawingReasoningEvaluation(card);
+    correct = selectionsCorrect && reasoning.correct;
     if (!selected.length) {
       feedbackText = "Select at least one drawing, then submit Question 1 again.";
     } else {
       const explanation = "A and D can be counted using a consistent square unit. B also works because four of its small squares equal one large square. C does not work because its squares overlap and leave part of the region uncovered.";
-      feedbackText = correct
-        ? `Correct. The drawings are A, B, and D. ${explanation}`
-        : `Not quite. The correct drawings are A, B, and D. ${explanation}`;
+      feedbackText = !selectionsCorrect
+        ? `Not quite. The correct drawings are A, B, and D. ${explanation}`
+        : !reasoning.answered
+          ? freeTextFeedbackWithCriteria(
+            "Your selections A, B, and D are correct. Add an explanation of why the squares can be used, then submit again.",
+            { validationGuidance: card.freeTextValidationGuidance?.drawingReasoning }
+          )
+          : !reasoning.correct
+            ? freeTextFeedbackWithCriteria(
+              "Your selections A, B, and D are correct. Strengthen the explanation; it did not pass the app check.",
+              { validationGuidance: card.freeTextValidationGuidance?.drawingReasoning }
+            )
+            : `Correct. The drawings are A, B, and D. ${explanation}`;
     }
   }
 
@@ -10979,11 +12318,27 @@ function renderAreaMeaningQuestionFeedback(card, questionId) {
     correct = evaluation.correct;
     const modelDefinition = "Area is the number of unit squares that cover a two-dimensional region without gaps or overlaps.";
     if (!evaluation.answered) {
-      feedbackText = "Write your definition of area, then submit Question 2 again.";
+      feedbackText = freeTextFeedbackWithCriteria(
+        "Write your definition of area, then submit Question 2 again.",
+        { validationGuidance: card.freeTextValidationGuidance?.areaDefinition }
+      );
     } else if (evaluation.correct) {
       feedbackText = `Correct. ${modelDefinition}`;
     } else {
-      feedbackText = `Not quite. ${modelDefinition} Your definition still needs to include: ${evaluation.missing.join(", ")}.`;
+      feedbackText = freeTextFeedbackWithCriteria(
+        `Not quite. ${modelDefinition} Your definition still needs to include: ${evaluation.missing.join(", ")}.`,
+        { validationGuidance: card.freeTextValidationGuidance?.areaDefinition }
+      );
+    }
+  }
+
+  if (submitted && questionId === "drawings") {
+    const reasoning = areaMeaningDrawingReasoningEvaluation(card);
+    if (!reasoning.correct) {
+      feedbackText = appendFeedbackCriteria(
+        feedbackText,
+        freeTextValidationCriteria({ validationGuidance: card.freeTextValidationGuidance?.drawingReasoning })
+      );
     }
   }
 
@@ -10999,13 +12354,13 @@ function renderAreaMeaningQuestionHint(card, questionId) {
 
 function renderAreaMeaningControl(card) {
   const selected = areaMeaningDrawingSelections(card);
+  const drawingReasoning = getTeachCustomResponse(card).drawingReasoning || "";
   const definition = getTeachCustomResponse(card).areaDefinition || "";
   return `
     <div class="area-meaning-response">
       <section class="teach-independent-question" data-teach-question-section="drawings" aria-labelledby="${card.id}-drawings-prompt">
         <p class="teach-question-number">Question 1</p>
         <p class="teach-response-prompt" id="${card.id}-drawings-prompt">${escapeHtml(card.prompt)}</p>
-        <p class="teach-question-note">Be prepared to explain your reasoning.</p>
         <div class="area-meaning-choice-grid" role="group" aria-label="Drawings whose squares could be used to find area">
           ${card.drawingChoices.map((choice) => `
             <button
@@ -11019,6 +12374,15 @@ function renderAreaMeaningControl(card) {
             </button>
           `).join("")}
         </div>
+        <label class="reasoning-field">
+          Explain why the selected drawings can be used to find area and why the others cannot.
+          <textarea
+            data-teach-question-input="${card.id}"
+            data-question-id="drawings"
+            maxlength="${TEXTAREA_MAX_LENGTH}"
+            placeholder="Explain your reasoning."
+          >${escapeHtml(drawingReasoning)}</textarea>
+        </label>
         <div class="practice-actions teach-question-actions">
           <button class="practice-submit" type="button" data-teach-question-submit="${card.id}" data-question-id="drawings">Submit Question 1</button>
           <button class="hint-button" type="button" data-teach-question-hint="${card.id}" data-question-id="drawings">${isTeachQuestionHintVisible(card, "drawings") ? "Hide hint" : "Show hint"}</button>
@@ -11184,17 +12548,30 @@ function renderGridFigureAreaFeedback(card, figure) {
   const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
   const reasoningRequiredFeedback = (card.reasoningRequiredFeedback || "Your area is correct. Add your reasoning, then submit Figure {figure} again.")
     .split("{figure}").join(figure.id);
-  const feedbackText = !submitted
+  const reasoningCriteria = {
+    concepts: figure.reasoningConcepts,
+    validationGuidance: figure.reasoningValidationGuidance || card.reasoningValidationGuidance,
+  };
+  const failedReasoningCriteria = card.requireReasoning && !reasoning.correct
+    ? freeTextValidationCriteria(reasoningCriteria)
+    : "";
+  const baseFeedbackText = !submitted
     ? `Submit Figure ${figure.id} when you are ready for feedback.`
     : !answered
       ? `Enter the area of Figure ${figure.id}, then submit again.`
       : areaCorrect && card.requireReasoning && !reasoning.answered
-        ? reasoningRequiredFeedback
+        ? freeTextFeedbackWithCriteria(reasoningRequiredFeedback, reasoningCriteria)
       : areaCorrect && card.requireReasoning && !reasoning.correct
-        ? figure.reasoningRevisionFeedback || reasoningRequiredFeedback
+        ? freeTextFeedbackWithCriteria(
+          figure.reasoningRevisionFeedback || reasoningRequiredFeedback,
+          reasoningCriteria
+        )
       : correct
         ? figure.correctFeedback
         : figure.incorrectFeedback;
+  const feedbackText = submitted
+    ? appendFeedbackCriteria(baseFeedbackText, failedReasoningCriteria)
+    : baseFeedbackText;
   return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-grid-area-feedback="${figure.id}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
 }
 
@@ -11291,11 +12668,16 @@ function customTextField(card, field, label, options = {}) {
   `;
 }
 
-function customReasoningField(card, field, label) {
+function optionalFieldLabel(label, optional) {
+  const text = String(label || "").trim();
+  return optional && !/^optional\b/i.test(text) ? `Optional: ${text}` : text;
+}
+
+function customReasoningField(card, field, label, options = {}) {
   const value = getTeachCustomResponse(card)[field] || "";
   return `
     <label class="reasoning-field">
-      ${escapeHtml(label)}
+      ${escapeHtml(optionalFieldLabel(label, options.optional))}
       <textarea
         maxlength="${TEXTAREA_MAX_LENGTH}"
         data-teach-custom-input="${card.id}"
@@ -11462,7 +12844,11 @@ function renderGuidedOptionalChallenge(card) {
     ? "Submit the optional challenge when you are ready for feedback."
     : correct
       ? challenge.correctFeedback
-      : challenge.incorrectFeedback;
+      : freeTextFeedbackWithCriteria(challenge.incorrectFeedback, {
+        concepts: challenge.answerConcepts,
+        minimumLength: Number.isInteger(challenge.minLength) ? challenge.minLength : 1,
+        validationGuidance: challenge.validationGuidance,
+      });
   return `
     <section class="guided-optional-challenge" aria-labelledby="${card.id}-${challenge.id}-prompt">
       <p class="teach-question-number">Optional challenge</p>
@@ -11712,8 +13098,7 @@ function hasPrismBuildResponse(card) {
   if (card.builderMode === "single12") {
     return normalizeAnswer(response.prism12Dims).length > 0
       && normalizeAnswer(response.faces).length > 0
-      && normalizeAnswer(response.surfaceArea).length > 0
-      && normalizeAnswer(response.prismReasoning).length > 0;
+      && normalizeAnswer(response.surfaceArea).length > 0;
   }
   if (card.builderMode === "compare8") {
     return normalizeAnswer(response.shapeA).length > 0
@@ -11721,15 +13106,13 @@ function hasPrismBuildResponse(card) {
       && normalizeAnswer(response.volumeA).length > 0
       && normalizeAnswer(response.surfaceAreaA).length > 0
       && normalizeAnswer(response.volumeB).length > 0
-      && normalizeAnswer(response.surfaceAreaB).length > 0
-      && normalizeAnswer(response.compareReasoning).length > 0;
+      && normalizeAnswer(response.surfaceAreaB).length > 0;
   }
   if (card.builderMode === "cube32") {
     return normalizeAnswer(response.edgeLength).length > 0
       && normalizeAnswer(response.cubesUsed).length > 0
       && normalizeAnswer(response.faceArea).length > 0
-      && normalizeAnswer(response.cubeVolume).length > 0
-      && normalizeAnswer(response.cubeReasoning).length > 0;
+      && normalizeAnswer(response.cubeVolume).length > 0;
   }
   return false;
 }
@@ -11776,7 +13159,7 @@ function renderPrismBuildControl(card) {
             placeholder: "square units",
           })}
         </div>
-        ${customReasoningField(card, "prismReasoning", "Explain how your prism uses 12 cubes and how you found surface area.")}
+        ${customReasoningField(card, "prismReasoning", "Explain how your prism uses 12 cubes and how you found surface area.", { optional: true })}
       </div>
     `;
   }
@@ -11804,7 +13187,7 @@ function renderPrismBuildControl(card) {
             placeholder: "square units",
           })}
         </div>
-        ${customReasoningField(card, "compareReasoning", "Explain what stays the same and what can change.")}
+        ${customReasoningField(card, "compareReasoning", "Explain what stays the same and what can change.", { optional: true })}
       </div>
     `;
   }
@@ -11827,7 +13210,7 @@ function renderPrismBuildControl(card) {
             placeholder: "cubic units",
           })}
         </div>
-        ${customReasoningField(card, "cubeReasoning", "Explain why a larger cube cannot be built with 32 cubes.")}
+        ${customReasoningField(card, "cubeReasoning", "Explain why a larger cube cannot be built with 32 cubes.", { optional: true })}
       </div>
     `;
   }
@@ -11879,11 +13262,68 @@ function getTeachHintText(card) {
 
 function getTeachFeedbackText(card, correct) {
   const variant = getTeachVariant(card);
-  if (correct) return variant?.correctFeedback || card.correctFeedback;
+  if (!correct && card.responseType === "triangleFit") return gridTriangleFitFeedback();
+  if (correct) {
+    const selectedChoice = state.teachSelections[card.id]?.[0];
+    if (selectedChoice && card.choiceFeedback?.[selectedChoice]) {
+      return `Response recorded. ${card.choiceFeedback[selectedChoice]} This task has no single correct pattern; a different choice can also work with a true distinguishing reason.`;
+    }
+    return variant?.correctFeedback || card.correctFeedback;
+  }
   return variant?.incorrectFeedback || card.incorrectFeedback;
 }
 
+function teachReasoningEvaluation(card) {
+  if (!card.reasoningRequired) return { answered: true, correct: true };
+  const reasoning = normalizeAnswer(state.teachReasoning[card.id] || "");
+  const minimumLength = Number.isInteger(card.reasoningMinLength) ? card.reasoningMinLength : 1;
+  const concepts = card.reasoningConcepts || [];
+  const conceptsCorrect = concepts.length === 0
+    || concepts.some((group) => group.every((term) => reasoning.includes(String(term).toLowerCase())));
+  return {
+    answered: reasoning.length > 0,
+    correct: reasoning.length >= minimumLength && conceptsCorrect,
+  };
+}
+
+function teachReasoningMeetsRequirements(card) {
+  return teachReasoningEvaluation(card).correct;
+}
+
+function hasStandardTeachPrimaryResponse(card) {
+  if (!["open", "number", "singleChoice", "multiSelect"].includes(card.responseType)) return false;
+  const value = getTeachValue(card);
+  return Array.isArray(value) ? value.length > 0 : normalizeAnswer(value).length > 0;
+}
+
+function standardTeachAnswerIsCorrect(card) {
+  const answer = getTeachValue(card);
+  const answerKey = getTeachAnswerKey(card);
+  if (card.responseType === "open") return normalizeAnswer(answer).length > 0;
+  if (card.responseType === "number") {
+    const givenNumber = parseMathNumber(answer);
+    return answerKey.some((accepted) => {
+      const acceptedNumber = parseMathNumber(accepted);
+      if (givenNumber !== null && acceptedNumber !== null) return Math.abs(givenNumber - acceptedNumber) < 1e-9;
+      return normalizeAnswer(answer) === normalizeAnswer(accepted);
+    });
+  }
+  if (card.responseType === "singleChoice") {
+    return card.acceptAnyChoice ? answerKey.includes(answer) : answer === answerKey[0];
+  }
+  if (card.responseType === "multiSelect") {
+    const selected = [...answer].sort();
+    const expected = [...answerKey].sort();
+    return selected.length === expected.length && selected.every((value, index) => value === expected[index]);
+  }
+  return false;
+}
+
 function hasTeachResponse(card) {
+  if (card.responseType === "tilingDesign") {
+    return getEqualAreaTiling().pieces.length > 0;
+  }
+  if (card.responseType === "triangleFit") return gridTriangleFitWasChanged();
   if (card.responseType === "tangramCompose") {
     const response = getTeachCustomResponse(card);
     return normalizeAnswer(response.unitSquareArea).length > 0
@@ -11934,8 +13374,9 @@ function hasTeachResponse(card) {
     return hasGuidedFieldsResponse(card);
   }
   const value = getTeachValue(card);
-  if (Array.isArray(value)) return value.length > 0;
-  return normalizeAnswer(value).length > 0;
+  const hasValue = Array.isArray(value) ? value.length > 0 : normalizeAnswer(value).length > 0;
+  if (!hasValue) return false;
+  return !card.reasoningRequired || normalizeAnswer(state.teachReasoning[card.id] || "").length > 0;
 }
 
 function isTeachSubmitted(card) {
@@ -11944,6 +13385,8 @@ function isTeachSubmitted(card) {
 
 function isTeachCorrect(card) {
   if (!hasTeachResponse(card) || !hasRequiredTeachVariant(card)) return false;
+  if (card.responseType === "tilingDesign") return equalAreaTilingIsCorrect();
+  if (card.responseType === "triangleFit") return gridTriangleFitAnalysis().valid;
   if (card.responseType === "tangramCompose") {
     const response = getTeachCustomResponse(card);
     return answerMatches(response.unitSquareArea, "1");
@@ -11991,28 +13434,8 @@ function isTeachCorrect(card) {
   if (card.responseType === "guidedFields") {
     return isGuidedFieldsCorrect(card);
   }
-  const answer = getTeachValue(card);
-  const answerKey = getTeachAnswerKey(card);
-  if (card.responseType === "open") {
-    return true;
-  }
-  if (card.responseType === "number") {
-    const givenNumber = parseMathNumber(answer);
-    return answerKey.some((accepted) => {
-      const acceptedNumber = parseMathNumber(accepted);
-      if (givenNumber !== null && acceptedNumber !== null) return Math.abs(givenNumber - acceptedNumber) < 1e-9;
-      return normalizeAnswer(answer) === normalizeAnswer(accepted);
-    });
-  }
-  if (card.responseType === "singleChoice") {
-    return answer === answerKey[0];
-  }
-  if (card.responseType === "multiSelect") {
-    const selected = [...answer].sort();
-    const expected = [...answerKey].sort();
-    return selected.length === expected.length && selected.every((value, index) => value === expected[index]);
-  }
-  return false;
+  if (!teachReasoningMeetsRequirements(card)) return false;
+  return standardTeachAnswerIsCorrect(card);
 }
 
 function renderTeachVariantControl(card) {
@@ -12066,6 +13489,20 @@ function renderTeachResponseControl(card) {
   if (card.responseType === "guidedFields") {
     return renderGuidedFieldsControl(card);
   }
+  if (card.responseType === "tilingDesign") {
+    const counts = equalAreaTilingCounts();
+    return `
+      ${renderTeachResponsePrompt(card)}
+      <p class="tiling-design-summary">Current coverage: unit squares ${counts.squareArea} square units; dominoes ${counts.dominoArea} square units.</p>
+    `;
+  }
+  if (card.responseType === "triangleFit") {
+    const analysis = gridTriangleFitAnalysis();
+    return `
+      ${renderTeachResponsePrompt(card)}
+      <p class="triangle-fit-response-summary">Current fit: ${analysis.insideIds.length} of 4 triangles are completely inside Figure D${analysis.overlap ? ", with an overlap to fix" : ""}.</p>
+    `;
+  }
   if (card.responseType === "open") {
     return `
       ${renderTeachResponsePrompt(card)}
@@ -12113,14 +13550,66 @@ function renderTeachReasoning(card) {
   `;
 }
 
+function guidedReasoningValidationCriteria(card) {
+  return {
+    conceptRequirements: (card.guidedReasoningRequirements || []).map((requirement) => requirement.concepts),
+    validationGuidance: card.guidedReasoningValidationGuidance,
+  };
+}
+
+function customRequiredFreeTextCriteria(card) {
+  const response = getTeachCustomResponse(card);
+  let field = "";
+  let passes = true;
+  if (card.responseType === "quadrilateralDecompose") {
+    field = "observations";
+    passes = quadrilateralObservationsAreStrong(card);
+  } else if (card.responseType === "trianglePairsCompose") {
+    field = "trianglePairReasoning";
+    passes = trianglePairReasoningIsStrong(response);
+  } else if (card.responseType === "triangleHeightMarks") {
+    field = "heightReasoning";
+    passes = triangleHeightReasoningIsStrong(card);
+  }
+  if (!field || passes) return "";
+  return freeTextValidationCriteria({
+    validationGuidance: card.freeTextValidationGuidance?.[field],
+  });
+}
+
 function renderTeachFeedback(card) {
   const submitted = isTeachSubmitted(card);
   const answered = hasTeachResponse(card);
   const hasVariant = hasRequiredTeachVariant(card);
   const correct = submitted && answered && isTeachCorrect(card);
-  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  const standardPrimaryAnswered = hasStandardTeachPrimaryResponse(card);
+  const standardPrimaryCorrect = standardPrimaryAnswered && standardTeachAnswerIsCorrect(card);
+  const reasoning = teachReasoningEvaluation(card);
+  const genericReasoningCriteria = card.reasoningRequired && !reasoning.correct
+    ? freeTextValidationCriteria({
+      concepts: card.reasoningConcepts,
+      conceptsRequired: card.reasoningConceptsRequired,
+      minimumLength: Number.isInteger(card.reasoningMinLength) ? card.reasoningMinLength : 1,
+      validationGuidance: card.reasoningValidationGuidance,
+    })
+    : "";
+  const guidedCriteria = card.responseType === "guidedFields" && !guidedReasoningIsStrong(card)
+    ? freeTextValidationCriteria(guidedReasoningValidationCriteria(card))
+    : "";
+  const customCriteria = customRequiredFreeTextCriteria(card);
+  const failedFreeTextCriteria = genericReasoningCriteria || guidedCriteria || customCriteria;
+  const responseMissing = card.reasoningRequired && standardPrimaryAnswered ? false : !answered;
+  const feedbackClass = submitted
+    ? correct
+      ? card.acceptAnyChoice ? "is-recorded" : "is-correct"
+      : "is-incorrect"
+    : "";
   const missingResponseText = card.responseType === "trianglePairsCompose"
     ? "Test and record each pair, choose both all/some/none conclusions, and explain one example before submitting again."
+    : card.responseType === "tilingDesign"
+      ? "Place squares and dominoes on the grid before submitting the optional challenge."
+    : card.responseType === "triangleFit"
+      ? "Move the triangles from their starting positions into Figure D before submitting."
     : card.responseType === "quadrilateralDecompose"
       ? "Draw decomposition segments for the quadrilaterals that work, choose the working labels, and explain what they have in common."
       : card.responseType === "parallelogramExplore"
@@ -12128,21 +13617,38 @@ function renderTeachFeedback(card) {
         : card.responseType === "triangleHeightMarks"
           ? "Draw one height segment for each diagram, explain what makes the segments heights, then submit again."
           : card.responseType === "prismBuild"
-            ? "Complete the build choices, measurements, and reasoning, then submit again."
+            ? "Complete the build choices and measurements, then submit again."
             : card.responseType === "guidedFields"
               ? card.missingResponseFeedback || "Complete the required fields, then submit again."
               : "Choose or enter an answer first, then submit again.";
-  const feedbackText = !submitted
+  const baseFeedbackText = !submitted
     ? card.variants?.length && !hasVariant
       ? "Choose a pattern, answer, and submit when you are ready for feedback."
       : "Submit when you are ready for feedback."
     : !hasVariant
       ? "Choose Pattern A or Pattern B first, then submit again."
-    : !answered
-      ? missingResponseText
+    : card.reasoningRequired && standardPrimaryCorrect && !reasoning.correct
+      ? freeTextFeedbackWithCriteria(
+        reasoning.answered
+          ? card.reasoningRevisionFeedback
+            || getTeachFeedbackText(card, false)
+            || "Your answer is correct, but the explanation did not pass the app check. Revise it and submit again."
+          : card.reasoningRequiredFeedback || "Your answer is correct. Add the required explanation, then submit again.",
+        {
+          concepts: card.reasoningConcepts,
+          conceptsRequired: card.reasoningConceptsRequired,
+          minimumLength: Number.isInteger(card.reasoningMinLength) ? card.reasoningMinLength : 1,
+          validationGuidance: card.reasoningValidationGuidance,
+        }
+      )
+    : responseMissing
+      ? [missingResponseText, failedFreeTextCriteria].filter(Boolean).join(" ")
       : correct
         ? getTeachFeedbackText(card, true)
-        : getTeachFeedbackText(card, false);
+        : [getTeachFeedbackText(card, false), failedFreeTextCriteria].filter(Boolean).join(" ");
+  const feedbackText = submitted
+    ? appendFeedbackCriteria(baseFeedbackText, failedFreeTextCriteria)
+    : baseFeedbackText;
   return `<p class="practice-feedback teach-feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
 }
 
@@ -12272,6 +13778,132 @@ function endSourceModalPointer(event) {
   sourceModalPointer = null;
 }
 
+function updateBaseHeightChallengeDom(card, question) {
+  const stage = document.querySelector(`[data-base-height-stage="${card.id}"][data-question-id="${question.id}"]`);
+  if (!stage) return;
+  const geometry = baseHeightChallengeGeometry(card, question);
+  const { shape } = geometry;
+  const setLine = (selector, start, end) => {
+    const line = stage.querySelector(selector);
+    if (!line) return;
+    line.setAttribute("x1", start.x.toFixed(1));
+    line.setAttribute("y1", start.y.toFixed(1));
+    line.setAttribute("x2", end.x.toFixed(1));
+    line.setAttribute("y2", end.y.toFixed(1));
+  };
+  stage.querySelector("[data-base-height-shape]")?.setAttribute("points", svgPointList(geometry.points));
+  setLine('[data-base-height-support="base"]', geometry.supportStart, geometry.supportEnd);
+  setLine('[data-base-height-support="opposite"]', geometry.oppositeStart, geometry.oppositeEnd);
+  setLine("[data-base-height-line]", geometry.heightBottom, geometry.heightTop);
+  stage.querySelector("[data-base-height-right-angle]")?.setAttribute("points", svgPointList(geometry.rightAngle));
+  const baseLabel = stage.querySelector('[data-base-height-label="base"]');
+  if (baseLabel) {
+    baseLabel.setAttribute("x", geometry.baseLabel.x.toFixed(1));
+    baseLabel.setAttribute("y", geometry.baseLabel.y.toFixed(1));
+    baseLabel.textContent = `b = ${shape.base}`;
+  }
+  const heightLabel = stage.querySelector('[data-base-height-label="height"]');
+  if (heightLabel) {
+    heightLabel.setAttribute("x", geometry.heightLabel.x.toFixed(1));
+    heightLabel.setAttribute("y", geometry.heightLabel.y.toFixed(1));
+    heightLabel.textContent = `h = ${shape.height}`;
+  }
+  const handlePoints = {
+    base: geometry.points[1],
+    shape: geometry.points[3],
+    "height-position": geometry.heightBottom,
+  };
+  Object.entries(handlePoints).forEach(([handleId, point]) => {
+    const handle = stage.querySelector(`[data-base-height-handle="${handleId}"]`);
+    if (!handle) return;
+    handle.querySelectorAll("circle").forEach((circle) => {
+      circle.setAttribute("cx", point.x.toFixed(1));
+      circle.setAttribute("cy", point.y.toFixed(1));
+    });
+    const ariaValue = handleId === "base"
+      ? shape.base
+      : handleId === "shape"
+        ? shape.height
+        : Math.round(shape.heightPosition * 100);
+    handle.setAttribute("aria-valuenow", String(ariaValue));
+  });
+  const workspace = stage.closest(".base-height-challenge-workspace");
+  const controlValues = {
+    base: shape.base,
+    height: shape.height,
+    slant: shape.slant,
+    heightPosition: Math.round(shape.heightPosition * 100),
+  };
+  Object.entries(controlValues).forEach(([field, value]) => {
+    const input = workspace?.querySelector(`[data-base-height-field="${field}"]`);
+    if (input) input.value = String(value);
+    const output = workspace?.querySelector(`[data-base-height-output="${field}"]`);
+    if (output) output.textContent = String(value);
+  });
+  const rotationOutput = workspace?.querySelector(".base-height-rotation-output");
+  if (rotationOutput) rotationOutput.textContent = `Orientation ${shape.rotation} degrees`;
+}
+
+function startBaseHeightChallengePointer(event) {
+  const handle = event.target.closest("[data-base-height-handle]");
+  if (!handle) return false;
+  const stage = handle.closest("[data-base-height-stage]");
+  const card = teachCardById(handle.dataset.cardId);
+  const question = card ? questionSetDefinition(card, handle.dataset.questionId) : null;
+  if (!stage || !card || question?.dynamicAnswer !== "baseHeightChallenge") return false;
+  baseHeightChallengePointer = {
+    pointerId: event.pointerId ?? "mouse",
+    cardId: card.id,
+    questionId: question.id,
+    handleId: handle.dataset.baseHeightHandle,
+    startPointer: tangramSvgPoint(stage, event),
+    startShape: baseHeightChallengeShape(card, question),
+  };
+  if (event.pointerId !== undefined) handle.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updateBaseHeightChallengePointer(event) {
+  if (!baseHeightChallengePointer || (event.pointerId ?? "mouse") !== baseHeightChallengePointer.pointerId) return false;
+  const card = teachCardById(baseHeightChallengePointer.cardId);
+  const question = card ? questionSetDefinition(card, baseHeightChallengePointer.questionId) : null;
+  const stage = document.querySelector(`[data-base-height-stage="${baseHeightChallengePointer.cardId}"][data-question-id="${baseHeightChallengePointer.questionId}"]`);
+  if (!card || !question || !stage) return false;
+  const pointer = tangramSvgPoint(stage, event);
+  const dx = pointer.x - baseHeightChallengePointer.startPointer.x;
+  const dy = pointer.y - baseHeightChallengePointer.startPointer.y;
+  const radians = baseHeightChallengePointer.startShape.rotation * Math.PI / 180;
+  const localDx = dx * Math.cos(radians) + dy * Math.sin(radians);
+  const localDy = -dx * Math.sin(radians) + dy * Math.cos(radians);
+  const startShape = baseHeightChallengePointer.startShape;
+  const updates = {};
+  if (baseHeightChallengePointer.handleId === "base") {
+    updates.base = clampNumber(Math.round(startShape.base + localDx / baseHeightChallengeStage.cell), 3, 8);
+  } else if (baseHeightChallengePointer.handleId === "shape") {
+    updates.slant = clampNumber(Math.round(startShape.slant + localDx / baseHeightChallengeStage.cell), -3, 3);
+    updates.height = clampNumber(Math.round(startShape.height - localDy / baseHeightChallengeStage.cell), 2, 7);
+  } else if (baseHeightChallengePointer.handleId === "height-position") {
+    updates.heightPosition = clampNumber(
+      Math.round((startShape.heightPosition + localDx / (startShape.base * baseHeightChallengeStage.cell)) * 10) / 10,
+      0.1,
+      0.9,
+    );
+  }
+  setBaseHeightChallengeValues(card, question, updates);
+  updateBaseHeightChallengeDom(card, question);
+  event.preventDefault();
+  return true;
+}
+
+function endBaseHeightChallengePointer(event) {
+  if (!baseHeightChallengePointer || (event.pointerId ?? "mouse") !== baseHeightChallengePointer.pointerId) return false;
+  baseHeightChallengePointer = null;
+  renderTeachMe();
+  return true;
+}
+
 function updateActiveButtons(selector, value, attribute) {
   document.querySelectorAll(selector).forEach((button) => {
     const active = button.dataset[attribute] === value;
@@ -12280,15 +13912,13 @@ function updateActiveButtons(selector, value, attribute) {
   });
 }
 
-function updateTeachCustomResponse(input) {
-  const id = input.dataset.teachCustomInput;
-  const field = input.dataset.teachCustomField;
-  if (!id || !field) return false;
-  const card = teachCardById(id);
+function setTeachCustomResponseField(card, field, value) {
+  if (!card || !field) return false;
+  const id = card.id;
   const isOptionalChallengeField = card?.optionalChallenge?.field === field;
   state.teachCustomResponses[id] = {
     ...(state.teachCustomResponses[id] || {}),
-    [field]: input.type === "checkbox" ? (input.checked ? "yes" : "") : enforceTextareaValueLimit(input),
+    [field]: value,
   };
   if (!isOptionalChallengeField) state.teachSubmitted[id] = false;
   if (isOptionalChallengeField) {
@@ -12303,6 +13933,15 @@ function updateTeachCustomResponse(input) {
   return true;
 }
 
+function updateTeachCustomResponse(input) {
+  const id = input.dataset.teachCustomInput;
+  const field = input.dataset.teachCustomField;
+  if (!id || !field) return false;
+  const card = teachCardById(id);
+  const value = input.type === "checkbox" ? (input.checked ? "yes" : "") : enforceTextareaValueLimit(input);
+  return setTeachCustomResponseField(card, field, value);
+}
+
 function tangramSvgPoint(svgNode, event) {
   const point = svgNode.createSVGPoint();
   point.x = event.clientX;
@@ -12312,9 +13951,100 @@ function tangramSvgPoint(svgNode, event) {
   return point.matrixTransform(matrix.inverse());
 }
 
-function updateTangramPieceDom(pieceId) {
+function updateTilingPieceDom(pieceId) {
+  document.querySelectorAll(`[data-tiling-piece="${pieceId}"]`).forEach((pieceNode) => {
+    pieceNode.setAttribute("transform", tilingPieceTransform(pieceId));
+  });
+}
+
+function updateTilingPieceSelectionDom() {
+  document.querySelectorAll("[data-tiling-piece]").forEach((pieceNode) => {
+    const selected = pieceNode.dataset.tilingPiece === state.teachTilingSelectedPiece;
+    pieceNode.querySelector(".tiling-comparison-piece")?.classList.toggle("is-selected", selected);
+  });
+}
+
+function startTilingPiecePointer(event) {
+  const pieceNode = event.target.closest("[data-tiling-piece]");
+  if (!pieceNode) return false;
+  const svgNode = pieceNode.closest("[data-tiling-piece-stage]");
+  if (!svgNode) return false;
+  const pieceId = pieceNode.dataset.tilingPiece;
+  const piece = getTilingPieces()[pieceId];
+  if (!piece) return false;
+  state.teachTilingSelectedPiece = pieceId;
+  tilingPiecePointer = {
+    pointerId: event.pointerId ?? "mouse",
+    pieceId,
+    startPointer: tangramSvgPoint(svgNode, event),
+    startPiece: { ...piece },
+  };
+  if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
+  updateTilingPieceSelectionDom();
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updateTilingPiecePointer(event) {
+  if (!tilingPiecePointer || (event.pointerId ?? "mouse") !== tilingPiecePointer.pointerId) return false;
+  const svgNode = document.querySelector("[data-tiling-piece-stage]");
+  if (!svgNode) return false;
+  const pointer = tangramSvgPoint(svgNode, event);
+  const dx = pointer.x - tilingPiecePointer.startPointer.x;
+  const dy = pointer.y - tilingPiecePointer.startPointer.y;
+  const piece = getTilingPieces()[tilingPiecePointer.pieceId];
+  if (!piece) return false;
+  piece.x = clampNumber(tilingPiecePointer.startPiece.x + dx, 48, tilingPieceStage.width - 48);
+  piece.y = clampNumber(tilingPiecePointer.startPiece.y + dy, 48, tilingPieceStage.height - 62);
+  updateTilingPieceDom(tilingPiecePointer.pieceId);
+  event.preventDefault();
+  return true;
+}
+
+function endTilingPiecePointer(event) {
+  if (!tilingPiecePointer || (event.pointerId ?? "mouse") !== tilingPiecePointer.pointerId) return false;
+  tilingPiecePointer = null;
+  return true;
+}
+
+function placeEqualAreaTilingPiece(column, row) {
+  const model = getEqualAreaTiling();
+  const tool = state.teachEqualAreaTilingTool;
+  if (tool === "erase") {
+    const existing = equalAreaTilingPieceAt(column, row);
+    if (!existing) {
+      model.message = "That cell is already empty.";
+      return;
+    }
+    model.pieces = model.pieces.filter((piece) => piece.id !== existing.id);
+    model.message = `Removed one ${existing.type}.`;
+  } else {
+    const cells = tool === "square"
+      ? [{ column, row }]
+      : state.teachEqualAreaTilingOrientation === "vertical"
+        ? [{ column, row }, { column, row: row + 1 }]
+        : [{ column, row }, { column: column + 1, row }];
+    const outside = cells.some((cell) => cell.column < 0 || cell.column >= equalAreaTilingBoard.columns || cell.row < 0 || cell.row >= equalAreaTilingBoard.rows);
+    if (outside) {
+      model.message = "That piece would extend beyond the grid. Choose another starting cell or turn the domino.";
+      return;
+    }
+    if (cells.some((cell) => equalAreaTilingPieceAt(cell.column, cell.row))) {
+      model.message = "That placement would overlap another piece. Choose empty cells.";
+      return;
+    }
+    model.pieces.push({ id: `tiling-${model.nextId}`, type: tool, cells });
+    model.nextId += 1;
+    model.message = `Placed one ${tool}.`;
+  }
+  state.teachSubmitted["teach-l1-extension"] = false;
+}
+
+function updateTangramPieceDom(card, pieceId, questionId = "") {
   document.querySelectorAll(`[data-tangram-piece="${pieceId}"]`).forEach((pieceNode) => {
-    pieceNode.setAttribute("transform", tangramPieceTransform(pieceId));
+    if (pieceNode.closest("[data-teach-card]")?.dataset.teachCard !== card?.id) return;
+    pieceNode.setAttribute("transform", tangramPieceTransform(card, pieceId, questionId));
   });
 }
 
@@ -12334,15 +14064,19 @@ function startTangramPointer(event) {
   const pieceNode = event.target.closest("[data-tangram-piece]");
   if (!pieceNode) return false;
   const svgNode = pieceNode.closest("[data-tangram-stage]");
-  if (!svgNode) return false;
+  const card = teachCardById(pieceNode.closest("[data-teach-card]")?.dataset.teachCard);
+  if (!svgNode || !card) return false;
+  const questionId = svgNode.dataset.tangramQuestion || tangramWorkspaceQuestionId(card);
   const pieceId = pieceNode.dataset.tangramPiece;
-  const pieces = getTangramPieces();
+  const pieces = getTangramPieces(card, questionId);
   const piece = pieces[pieceId];
   if (!piece) return false;
   const pointer = tangramSvgPoint(svgNode, event);
   state.teachTangramSelectedPiece = pieceId;
   tangramPointer = {
     pointerId: event.pointerId ?? "mouse",
+    cardId: card.id,
+    questionId,
     pieceId,
     startPointer: pointer,
     startPiece: { ...piece },
@@ -12357,16 +14091,18 @@ function startTangramPointer(event) {
 function updateTangramPointer(event) {
   if (!tangramPointer || (event.pointerId ?? "mouse") !== tangramPointer.pointerId) return false;
   const svgNode = document.querySelector("[data-tangram-stage]");
-  if (!svgNode) return false;
+  const card = teachCardById(tangramPointer.cardId);
+  if (!svgNode || !card) return false;
   const pointer = tangramSvgPoint(svgNode, event);
   const dx = pointer.x - tangramPointer.startPointer.x;
   const dy = pointer.y - tangramPointer.startPointer.y;
-  const pieces = getTangramPieces();
+  const pieces = getTangramPieces(card, tangramPointer.questionId);
   const piece = pieces[tangramPointer.pieceId];
   if (!piece) return false;
   piece.x = clampNumber(tangramPointer.startPiece.x + dx, -30, tangramStage.width - 28);
   piece.y = clampNumber(tangramPointer.startPiece.y + dy, -30, tangramStage.height - 28);
-  updateTangramPieceDom(tangramPointer.pieceId);
+  if (Math.abs(dx) >= 2 || Math.abs(dy) >= 2) markTangramWorkspaceChanged(card, tangramPointer.questionId);
+  updateTangramPieceDom(card, tangramPointer.pieceId, tangramPointer.questionId);
   event.preventDefault();
   return true;
 }
@@ -12377,12 +14113,83 @@ function endTangramPointer(event) {
   return true;
 }
 
-function rotateSelectedTangramPiece(delta) {
+function rotateSelectedTangramPiece(card, delta) {
   const pieceId = state.teachTangramSelectedPiece;
-  const pieces = getTangramPieces();
+  const questionId = tangramWorkspaceQuestionId(card);
+  const pieces = getTangramPieces(card, questionId);
   const piece = pieces[pieceId];
   if (!piece) return;
   piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  if (delta) markTangramWorkspaceChanged(card, questionId);
+}
+
+function updateGridTrianglePieceDom(pieceId) {
+  document.querySelectorAll(`[data-grid-triangle-piece="${pieceId}"]`).forEach((pieceNode) => {
+    pieceNode.setAttribute("transform", gridTriangleFitTransform(pieceId));
+  });
+}
+
+function updateGridTriangleSelectionDom() {
+  document.querySelectorAll("[data-grid-triangle-piece]").forEach((pieceNode) => {
+    pieceNode.classList.toggle("is-selected", pieceNode.dataset.gridTrianglePiece === state.teachGridTriangleSelectedPiece);
+  });
+  document.querySelectorAll("[data-grid-triangle-select]").forEach((button) => {
+    const selected = button.dataset.gridTriangleSelect === state.teachGridTriangleSelectedPiece;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function startGridTrianglePointer(event) {
+  const pieceNode = event.target.closest("[data-grid-triangle-piece]");
+  if (!pieceNode) return false;
+  const svgNode = pieceNode.closest("[data-grid-triangle-stage]");
+  if (!svgNode) return false;
+  const pieceId = pieceNode.dataset.gridTrianglePiece;
+  const piece = getGridTriangleFitPieces()[pieceId];
+  if (!piece) return false;
+  state.teachGridTriangleSelectedPiece = pieceId;
+  gridTrianglePointer = {
+    pointerId: event.pointerId ?? "mouse",
+    pieceId,
+    startPointer: tangramSvgPoint(svgNode, event),
+    startPiece: { ...piece },
+  };
+  if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
+  updateGridTriangleSelectionDom();
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updateGridTrianglePointer(event) {
+  if (!gridTrianglePointer || (event.pointerId ?? "mouse") !== gridTrianglePointer.pointerId) return false;
+  const svgNode = document.querySelector("[data-grid-triangle-stage]");
+  if (!svgNode) return false;
+  const pointer = tangramSvgPoint(svgNode, event);
+  const piece = getGridTriangleFitPieces()[gridTrianglePointer.pieceId];
+  if (!piece) return false;
+  const dx = pointer.x - gridTrianglePointer.startPointer.x;
+  const dy = pointer.y - gridTrianglePointer.startPointer.y;
+  piece.x = clampNumber(gridTrianglePointer.startPiece.x + dx, -100, gridTriangleFitStage.width - 25);
+  piece.y = clampNumber(gridTrianglePointer.startPiece.y + dy, -100, gridTriangleFitStage.height - 25);
+  if (Math.abs(dx) >= 2 || Math.abs(dy) >= 2) markGridTriangleFitChanged();
+  updateGridTrianglePieceDom(gridTrianglePointer.pieceId);
+  event.preventDefault();
+  return true;
+}
+
+function endGridTrianglePointer(event) {
+  if (!gridTrianglePointer || (event.pointerId ?? "mouse") !== gridTrianglePointer.pointerId) return false;
+  gridTrianglePointer = null;
+  return true;
+}
+
+function rotateSelectedGridTriangle(delta) {
+  const piece = getGridTriangleFitPieces()[state.teachGridTriangleSelectedPiece];
+  if (!piece) return;
+  piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  if (delta) markGridTriangleFitChanged();
 }
 
 function updateTrianglePairPieceDom(pairId, pieceId) {
@@ -12988,8 +14795,11 @@ function bindEvents() {
     renderVocabulary();
   });
   document.addEventListener("pointerdown", (event) => {
+    if (startBaseHeightChallengePointer(event)) return;
     if (startPyramidNetPointer(event)) return;
     if (startTangramPointer(event)) return;
+    if (startGridTrianglePointer(event)) return;
+    if (startTilingPiecePointer(event)) return;
     if (startTrianglePairPointer(event)) return;
     if (startDecomposePointer(event)) return;
     const resizeHandle = event.target.closest("[data-source-resize-handle]");
@@ -13003,22 +14813,31 @@ function bindEvents() {
     }
   });
   document.addEventListener("pointermove", (event) => {
+    if (updateBaseHeightChallengePointer(event)) return;
     if (updatePyramidNetPointer(event)) return;
     if (updateTangramPointer(event)) return;
+    if (updateGridTrianglePointer(event)) return;
+    if (updateTilingPiecePointer(event)) return;
     if (updateTrianglePairPointer(event)) return;
     if (updateDecomposePointer(event)) return;
     updateSourceModalPointer(event);
   });
   document.addEventListener("pointerup", (event) => {
+    if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
     if (endTangramPointer(event)) return;
+    if (endGridTrianglePointer(event)) return;
+    if (endTilingPiecePointer(event)) return;
     if (endTrianglePairPointer(event)) return;
     if (endDecomposePointer(event)) return;
     endSourceModalPointer(event);
   });
   document.addEventListener("pointercancel", (event) => {
+    if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
     if (endTangramPointer(event)) return;
+    if (endGridTrianglePointer(event)) return;
+    if (endTilingPiecePointer(event)) return;
     if (endTrianglePairPointer(event)) return;
     if (endDecomposePointer(event)) return;
     endSourceModalPointer(event);
@@ -13044,6 +14863,73 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("click", (event) => {
+    const cutStageButton = event.target.closest("[data-cut-stage-card]");
+    if (cutStageButton) {
+      const card = teachCardById(cutStageButton.dataset.cutStageCard);
+      const strategy = cutStageButton.dataset.cutStageStrategy;
+      const value = Number(cutStageButton.dataset.cutStageValue);
+      if (!card || !Object.prototype.hasOwnProperty.call(cutStrategyStages, strategy) || !Number.isInteger(value) || value < 0 || value > 2) return;
+      setTeachCustomResponseField(card, `${strategy}Stage`, String(value));
+      renderTeachMe();
+      return;
+    }
+    const tilingRotateButton = event.target.closest("[data-tiling-piece-rotate]");
+    if (tilingRotateButton) {
+      const piece = getTilingPieces()[state.teachTilingSelectedPiece];
+      if (!piece) return;
+      piece.angle = ((piece.angle + (Number(tilingRotateButton.dataset.tilingPieceRotate) || 0)) % 360 + 360) % 360;
+      renderTeachMe();
+      return;
+    }
+    if (event.target.closest("[data-tiling-piece-hide]")) {
+      const piece = getTilingPieces()[state.teachTilingSelectedPiece];
+      if (!piece) return;
+      piece.hidden = true;
+      const visibleId = Object.keys(getTilingPieces()).find((pieceId) => !getTilingPieces()[pieceId].hidden);
+      if (visibleId) state.teachTilingSelectedPiece = visibleId;
+      renderTeachMe();
+      return;
+    }
+    if (event.target.closest("[data-tiling-piece-show]")) {
+      Object.values(getTilingPieces()).forEach((piece) => { piece.hidden = false; });
+      renderTeachMe();
+      return;
+    }
+    if (event.target.closest("[data-tiling-piece-reset]")) {
+      state.teachTilingPieces = initialTilingPieces();
+      state.teachTilingSelectedPiece = "triangle-1";
+      renderTeachMe();
+      return;
+    }
+    const equalTilingToolButton = event.target.closest("[data-equal-tiling-tool]");
+    if (equalTilingToolButton) {
+      const tool = equalTilingToolButton.dataset.equalTilingTool;
+      if (!["square", "domino", "erase"].includes(tool)) return;
+      state.teachEqualAreaTilingTool = tool;
+      renderTeachMe();
+      return;
+    }
+    const equalTilingOrientationButton = event.target.closest("[data-equal-tiling-orientation]");
+    if (equalTilingOrientationButton) {
+      const orientation = equalTilingOrientationButton.dataset.equalTilingOrientation;
+      if (!["horizontal", "vertical"].includes(orientation)) return;
+      if (state.teachEqualAreaTilingTool !== "domino") return;
+      state.teachEqualAreaTilingOrientation = orientation;
+      renderTeachMe();
+      return;
+    }
+    if (event.target.closest("[data-equal-tiling-reset]")) {
+      state.teachEqualAreaTiling = null;
+      state.teachSubmitted["teach-l1-extension"] = false;
+      renderTeachMe();
+      return;
+    }
+    const equalTilingCell = event.target.closest("[data-equal-tiling-cell]");
+    if (equalTilingCell) {
+      placeEqualAreaTilingPiece(Number(equalTilingCell.dataset.column), Number(equalTilingCell.dataset.row));
+      renderTeachMe();
+      return;
+    }
     const teachLessonLink = event.target.closest("[data-teach-lesson-link]");
     if (teachLessonLink) {
       event.preventDefault();
@@ -13630,6 +15516,26 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const baseHeightRotateButton = event.target.closest("[data-base-height-rotate]");
+    if (baseHeightRotateButton) {
+      const card = teachCardById(baseHeightRotateButton.dataset.baseHeightRotate);
+      const question = card ? questionSetDefinition(card, baseHeightRotateButton.dataset.questionId) : null;
+      if (!card || question?.dynamicAnswer !== "baseHeightChallenge") return;
+      const shape = baseHeightChallengeShape(card, question);
+      const delta = Number(baseHeightRotateButton.dataset.rotationDelta) || 0;
+      setBaseHeightChallengeValues(card, question, { rotation: clampNumber(shape.rotation + delta, -60, 60) });
+      renderTeachMe();
+      return;
+    }
+    const baseHeightResetButton = event.target.closest("[data-base-height-reset]");
+    if (baseHeightResetButton) {
+      const card = teachCardById(baseHeightResetButton.dataset.baseHeightReset);
+      const question = card ? questionSetDefinition(card, baseHeightResetButton.dataset.questionId) : null;
+      if (!card || question?.dynamicAnswer !== "baseHeightChallenge") return;
+      resetBaseHeightChallenge(card, question);
+      renderTeachMe();
+      return;
+    }
     const parallelogramStrategyButton = event.target.closest("[data-parallelogram-strategy]");
     if (parallelogramStrategyButton) {
       const id = parallelogramStrategyButton.dataset.parallelogramStrategy;
@@ -13832,6 +15738,15 @@ function bindEvents() {
           ? [...saved, analysis.signature]
           : saved;
         setPyramidNetWorkspace(card, target, { savedSignatures, submitted: true });
+      }
+      if (question.dynamicAnswer === "tangramConstruction") {
+        const analysis = tangramConstructionAnalysis(card, question);
+        if (analysis.valid) {
+          state.teachCustomResponses[card.id] = {
+            ...getTeachCustomResponse(card),
+            [tangramSavedField(question.id)]: analysis.signature,
+          };
+        }
       }
       state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = true;
       state.sourceModalItemId = null;
@@ -14207,15 +16122,51 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const tangramIncludeButton = event.target.closest("[data-tangram-include]");
+    if (tangramIncludeButton) {
+      const card = teachCardById(tangramIncludeButton.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const questionId = tangramWorkspaceQuestionId(card);
+      const piece = getTangramPieces(card, questionId)[state.teachTangramSelectedPiece];
+      if (!piece) return;
+      piece.included = !piece.included;
+      markTangramWorkspaceChanged(card, questionId);
+      renderTeachMe();
+      return;
+    }
     const tangramRotateButton = event.target.closest("[data-tangram-rotate]");
     if (tangramRotateButton) {
-      rotateSelectedTangramPiece(Number(tangramRotateButton.dataset.tangramRotate) || 0);
+      const card = teachCardById(tangramRotateButton.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      rotateSelectedTangramPiece(card, Number(tangramRotateButton.dataset.tangramRotate) || 0);
       renderTeachMe();
       return;
     }
     const tangramResetButton = event.target.closest("[data-tangram-reset]");
     if (tangramResetButton) {
-      resetTangramPieces();
+      const card = teachCardById(tangramResetButton.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const questionId = tangramWorkspaceQuestionId(card);
+      resetTangramPieces(card, questionId);
+      markTangramWorkspaceChanged(card, questionId);
+      renderTeachMe();
+      return;
+    }
+    const gridTriangleSelectButton = event.target.closest("[data-grid-triangle-select]");
+    if (gridTriangleSelectButton) {
+      state.teachGridTriangleSelectedPiece = gridTriangleSelectButton.dataset.gridTriangleSelect;
+      renderTeachMe();
+      return;
+    }
+    const gridTriangleRotateButton = event.target.closest("[data-grid-triangle-rotate]");
+    if (gridTriangleRotateButton) {
+      rotateSelectedGridTriangle(Number(gridTriangleRotateButton.dataset.gridTriangleRotate) || 0);
+      renderTeachMe();
+      return;
+    }
+    const gridTriangleResetButton = event.target.closest("[data-grid-triangle-reset]");
+    if (gridTriangleResetButton) {
+      resetGridTriangleFit();
       renderTeachMe();
       return;
     }
@@ -14372,6 +16323,17 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const baseHeightInput = event.target.closest("[data-base-height-input]");
+    if (baseHeightInput) {
+      const card = teachCardById(baseHeightInput.dataset.baseHeightInput);
+      const question = card ? questionSetDefinition(card, baseHeightInput.dataset.questionId) : null;
+      const field = baseHeightInput.dataset.baseHeightField;
+      if (!card || question?.dynamicAnswer !== "baseHeightChallenge" || !["base", "height", "slant", "heightPosition"].includes(field)) return;
+      const value = field === "heightPosition" ? Number(baseHeightInput.value) / 100 : Number(baseHeightInput.value);
+      setBaseHeightChallengeValues(card, question, { [field]: value });
+      updateBaseHeightChallengeDom(card, question);
+      return;
+    }
     const parallelogramInput = event.target.closest("[data-parallelogram-input]");
     if (parallelogramInput) {
       const id = parallelogramInput.dataset.parallelogramInput;
@@ -14400,10 +16362,12 @@ function bindEvents() {
       const card = teachCardById(id);
       const question = card ? questionSetDefinition(card, questionId) : null;
       const configuredField = question?.fields?.find((entry) => entry.id === field);
-      if (!card || card.responseType !== "questionSet" || !question || (!configuredField && !["answer", "reasoning"].includes(field))) return;
+      const builtInField = ["answer", "reasoning"].includes(field)
+        || (field === "area" && question?.requireAreaAnswer);
+      if (!card || card.responseType !== "questionSet" || !question || (!configuredField && !builtInField)) return;
       const maxLength = field === "reasoning" || question.responseType === "openResponse"
         ? TEXTAREA_MAX_LENGTH
-        : configuredField?.responseType === "number" || question.responseType === "number"
+        : field === "area" || configuredField?.responseType === "number" || question.responseType === "number"
           ? 24
           : configuredField ? 120 : 500;
       state.teachCustomResponses[id] = {
@@ -14464,16 +16428,17 @@ function bindEvents() {
       const id = teachQuestionInput.dataset.teachQuestionInput;
       const questionId = teachQuestionInput.dataset.questionId;
       const card = teachCardById(id);
-      if (!card || card.responseType !== "areaMeaning" || questionId !== "definition") return;
+      if (!card || card.responseType !== "areaMeaning" || !isAreaMeaningQuestionId(questionId)) return;
+      const field = questionId === "definition" ? "areaDefinition" : "drawingReasoning";
       state.teachCustomResponses[id] = {
         ...getTeachCustomResponse(card),
-        areaDefinition: enforceTextareaValueLimit(teachQuestionInput),
+        [field]: enforceTextareaValueLimit(teachQuestionInput),
       };
       state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
       state.sourceModalItemId = null;
       const feedback = teachQuestionInput.closest("[data-teach-question-section]")?.querySelector("[data-teach-question-feedback]");
       if (feedback) {
-        feedback.textContent = "Submit Question 2 when you are ready for feedback.";
+        feedback.textContent = `Submit Question ${questionId === "drawings" ? "1" : "2"} when you are ready for feedback.`;
         feedback.classList.remove("is-correct", "is-incorrect");
       }
       return;
@@ -14518,6 +16483,11 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("change", (event) => {
+    const baseHeightInput = event.target.closest("[data-base-height-input]");
+    if (baseHeightInput) {
+      renderTeachMe();
+      return;
+    }
     const teachCustomInput = event.target.closest("[data-teach-custom-input]");
     if (teachCustomInput) {
       updateTeachCustomResponse(teachCustomInput);
@@ -14537,6 +16507,112 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const baseHeightHandle = event.target.closest?.("[data-base-height-handle]");
+    if (baseHeightHandle && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const card = teachCardById(baseHeightHandle.dataset.cardId);
+      const question = card ? questionSetDefinition(card, baseHeightHandle.dataset.questionId) : null;
+      if (!card || question?.dynamicAnswer !== "baseHeightChallenge") return;
+      const shape = baseHeightChallengeShape(card, question);
+      const handleId = baseHeightHandle.dataset.baseHeightHandle;
+      const updates = {};
+      if (handleId === "base" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+        updates.base = clampNumber(shape.base + (event.key === "ArrowLeft" ? -1 : 1), 3, 8);
+      } else if (handleId === "shape") {
+        if (event.key === "ArrowLeft") updates.slant = clampNumber(shape.slant - 1, -3, 3);
+        if (event.key === "ArrowRight") updates.slant = clampNumber(shape.slant + 1, -3, 3);
+        if (event.key === "ArrowUp") updates.height = clampNumber(shape.height + 1, 2, 7);
+        if (event.key === "ArrowDown") updates.height = clampNumber(shape.height - 1, 2, 7);
+      } else if (handleId === "height-position" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+        updates.heightPosition = clampNumber(
+          Math.round((shape.heightPosition + (event.key === "ArrowLeft" ? -0.1 : 0.1)) * 10) / 10,
+          0.1,
+          0.9,
+        );
+      }
+      if (Object.keys(updates).length > 0) {
+        setBaseHeightChallengeValues(card, question, updates);
+        event.preventDefault();
+        renderTeachMe();
+      }
+      return;
+    }
+    const equalTilingCell = event.target.closest?.("[data-equal-tiling-cell]");
+    if (equalTilingCell && (event.key === "Enter" || event.key === " ")) {
+      placeEqualAreaTilingPiece(Number(equalTilingCell.dataset.column), Number(equalTilingCell.dataset.row));
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    const tilingPiece = event.target.closest?.("[data-tiling-piece]");
+    if (tilingPiece && (event.key === "Enter" || event.key === " ")) {
+      state.teachTilingSelectedPiece = tilingPiece.dataset.tilingPiece;
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    if (tilingPiece && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const piece = getTilingPieces()[tilingPiece.dataset.tilingPiece];
+      if (!piece) return;
+      const distance = event.shiftKey ? 2 : 10;
+      if (event.key === "ArrowLeft") piece.x -= distance;
+      if (event.key === "ArrowRight") piece.x += distance;
+      if (event.key === "ArrowUp") piece.y -= distance;
+      if (event.key === "ArrowDown") piece.y += distance;
+      piece.x = clampNumber(piece.x, 48, tilingPieceStage.width - 48);
+      piece.y = clampNumber(piece.y, 48, tilingPieceStage.height - 62);
+      state.teachTilingSelectedPiece = tilingPiece.dataset.tilingPiece;
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    const tangramPiece = event.target.closest?.("[data-tangram-piece]");
+    if (tangramPiece && (event.key === "Enter" || event.key === " ")) {
+      state.teachTangramSelectedPiece = tangramPiece.dataset.tangramPiece;
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    if (tangramPiece && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const card = teachCardById(tangramPiece.closest("[data-teach-card]")?.dataset.teachCard);
+      const questionId = tangramPiece.closest("[data-tangram-stage]")?.dataset.tangramQuestion || tangramWorkspaceQuestionId(card);
+      const piece = card ? getTangramPieces(card, questionId)[tangramPiece.dataset.tangramPiece] : null;
+      if (!card || !piece) return;
+      const distance = event.shiftKey ? 2 : 10;
+      if (event.key === "ArrowLeft") piece.x -= distance;
+      if (event.key === "ArrowRight") piece.x += distance;
+      if (event.key === "ArrowUp") piece.y -= distance;
+      if (event.key === "ArrowDown") piece.y += distance;
+      piece.x = clampNumber(piece.x, -30, tangramStage.width - 28);
+      piece.y = clampNumber(piece.y, -30, tangramStage.height - 28);
+      state.teachTangramSelectedPiece = tangramPiece.dataset.tangramPiece;
+      markTangramWorkspaceChanged(card, questionId);
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    const gridTrianglePiece = event.target.closest?.("[data-grid-triangle-piece]");
+    if (gridTrianglePiece && (event.key === "Enter" || event.key === " ")) {
+      state.teachGridTriangleSelectedPiece = gridTrianglePiece.dataset.gridTrianglePiece;
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    if (gridTrianglePiece && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const piece = getGridTriangleFitPieces()[gridTrianglePiece.dataset.gridTrianglePiece];
+      if (!piece) return;
+      const distance = event.shiftKey ? 2 : 10;
+      if (event.key === "ArrowLeft") piece.x -= distance;
+      if (event.key === "ArrowRight") piece.x += distance;
+      if (event.key === "ArrowUp") piece.y -= distance;
+      if (event.key === "ArrowDown") piece.y += distance;
+      piece.x = clampNumber(piece.x, -100, gridTriangleFitStage.width - 25);
+      piece.y = clampNumber(piece.y, -100, gridTriangleFitStage.height - 25);
+      state.teachGridTriangleSelectedPiece = gridTrianglePiece.dataset.gridTrianglePiece;
+      markGridTriangleFitChanged();
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
     const pyramidPiece = event.target.closest?.("[data-pyramid-net-piece]");
     if (pyramidPiece && (event.key === "Enter" || event.key === " ")) {
       const card = teachCardById(pyramidPiece.closest("[data-teach-card]")?.dataset.teachCard);

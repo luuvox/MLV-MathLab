@@ -4009,6 +4009,27 @@ body[data-mode="teach"] #unit1Practice {
   line-height: 1.4;
 }
 
+.decompose-arrangement-status {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 760;
+  line-height: 1.4;
+}
+
+.decompose-arrangement-status.is-valid {
+  background: #e4f5e9;
+  color: #17693c;
+}
+
+.decompose-arrangement-status.is-invalid {
+  background: #fff0e7;
+  color: #91421c;
+}
+
 .decompose-actions {
   display: flex;
   flex-wrap: wrap;

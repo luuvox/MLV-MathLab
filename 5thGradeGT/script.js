@@ -1011,8 +1011,8 @@ const unit1TeachCards = [
     idea: "Idea 3",
     title: "Formula for the Area of a Triangle",
     pdfPage: 2,
-    cropPath: "lesson-09-p002-triangle-formula.png",
-    visualAlt: "Source triangles A through D on grids and a table for base, height, area, and the general triangle formula.",
+    cropPath: "lesson-09-p002-triangle-formula-visuals.png",
+    visualAlt: "Source triangles A through D on square grids.",
     sourceDirections: "For each triangle, identify a base and corresponding height, record their lengths and area, then write an expression for the area of any triangle.",
     customVisual: "questionSetVisual",
     responseType: "questionSet",
@@ -1027,9 +1027,9 @@ const unit1TeachCards = [
           { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
         ],
         acceptedFieldSets: [{ base: ["10"], height: ["7"], area: ["35"] }],
-        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualCropPath: "lesson-09-p002-triangle-formula-visuals.png",
         visualWidth: 570,
-        visualHeight: 660,
+        visualHeight: 420,
         visualDisplayMaxWidth: 570,
         visualAlt: "Source triangles A through D on square grids.",
         visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
@@ -1052,9 +1052,9 @@ const unit1TeachCards = [
           { base: ["11"], height: ["6"], area: ["33"] },
           { base: ["6"], height: ["11"], area: ["33"] },
         ],
-        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualCropPath: "lesson-09-p002-triangle-formula-visuals.png",
         visualWidth: 570,
-        visualHeight: 660,
+        visualHeight: 420,
         visualDisplayMaxWidth: 570,
         visualAlt: "Source triangles A through D on square grids.",
         visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
@@ -1074,9 +1074,9 @@ const unit1TeachCards = [
           { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
         ],
         acceptedFieldSets: [{ base: ["10"], height: ["3"], area: ["15"] }],
-        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualCropPath: "lesson-09-p002-triangle-formula-visuals.png",
         visualWidth: 570,
-        visualHeight: 660,
+        visualHeight: 420,
         visualDisplayMaxWidth: 570,
         visualAlt: "Source triangles A through D on square grids.",
         visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
@@ -1096,9 +1096,9 @@ const unit1TeachCards = [
           { id: "area", label: "Area", responseType: "number", placeholder: "Type area" },
         ],
         acceptedFieldSets: [{ base: ["4"], height: ["11"], area: ["22"] }],
-        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualCropPath: "lesson-09-p002-triangle-formula-visuals.png",
         visualWidth: 570,
-        visualHeight: 660,
+        visualHeight: 420,
         visualDisplayMaxWidth: 570,
         visualAlt: "Source triangles A through D on square grids.",
         visualDirections: "Use grid intervals to identify a base and its perpendicular height for each triangle.",
@@ -1116,11 +1116,11 @@ const unit1TeachCards = [
         inputLabel: "Area expression",
         placeholder: "Type expression",
         answerKey: ["1/2 x b x h", "(b x h)/2", "b x h / 2", "bh/2", "0.5bh"],
-        visualCropPath: "lesson-09-p002-triangle-formula.png",
+        visualCropPath: "lesson-09-p002-triangle-formula-visuals.png",
         visualWidth: 570,
-        visualHeight: 660,
+        visualHeight: 420,
         visualDisplayMaxWidth: 570,
-        visualAlt: "Source triangles A through D on square grids and the recording table.",
+        visualAlt: "Source triangles A through D on square grids.",
         visualDirections: "Use the pattern in the four completed area calculations.",
         hint: "A triangle is half of a parallelogram with the same base and corresponding height.",
         correctFeedback: "Correct. The area of any triangle is 1/2 x b x h.",
@@ -1183,6 +1183,7 @@ const unit1TeachCards = [
         inputLabel: "Characteristics of a polygon",
         placeholder: "Describe the characteristics you used.",
         minLength: 24,
+        answerConceptsRequired: 2,
         answerConcepts: [
           ["straight", "closed"],
           ["line segment", "endpoint"],
@@ -1208,7 +1209,7 @@ const unit1TeachCards = [
     cropPath: null,
     customVisual: "prismBuilder",
     visualAlt: "Interactive rectangular-prism builder using 12 unit cubes.",
-    prompt: "Build a different 12-cube rectangular prism and determine its six outside faces and surface area. You may also explain how the rendered drawing supports your calculation.",
+    prompt: "Build a different 12-cube rectangular prism and determine its number of outside faces and surface area. You may also explain how the rendered drawing supports your calculation.",
     responseType: "prismBuild",
     builderMode: "single12",
     hint: "The source prism has dimensions 3 by 2 by 2. Choose a different factor triple with product 12, then add the areas of all 6 outside faces.",
@@ -2737,7 +2738,7 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "From Parallelograms to Triangles",
     activityTitle: "7.2: A Tale of Two Triangles (Part 1)",
-    sourceDirections: "Use the segment tool: choose a quadrilateral, then click two vertices to draw one line. Try to decompose each polygon into two identical triangles, if possible.",
+    sourceDirections: "Two polygons are identical if they match up exactly when placed one on top of the other. Use the segment tool: choose a quadrilateral, then click two vertices to draw one line. Try to decompose each polygon into two identical triangles, if possible.",
     pdfPage: 2,
     cropPath: null,
     customVisual: "quadrilateralDecompose",
@@ -2877,20 +2878,19 @@ const unit1TeachAdditionalCards = [
     idea: "Idea 3",
     title: "Area of Triangles",
     activityTitle: "8.3: Decomposing a Parallelogram",
-    sourceDirections: "Choose one parallelogram A-D. Move and turn its small triangle and trapezoid to explore a different parallelogram, then compare its areas with the original and the remaining large triangle.",
+    sourceDirections: "Choose one parallelogram A-D. Move and turn its small triangle and trapezoid until they form a different parallelogram, then compare its areas with the original and the remaining large triangle.",
     pdfPage: 3,
     pdfPages: [3, 4],
     cropPath: null,
     visualAlt: "Blackline Master parallelograms A through D with measurements and dotted cut lines.",
     blacklineMasters: unit1BlacklineMasters.decomposingParallelogram,
     customVisual: "decomposeParallelogram",
-    prompt: "Choose one parallelogram A-D and complete the same area comparisons from the source task.",
+    prompt: "Choose one parallelogram A-D, construct a new parallelogram from its small triangle and trapezoid, and complete the source area comparisons.",
     responseType: "guidedFields",
     requiredWorkspaceState: {
-      decomposeSmallUsed: "yes",
-      decomposeTrapezoidUsed: "yes",
+      decomposeArrangementValid: "yes",
     },
-    missingResponseFeedback: "Choose A-D, move or turn both cut pieces, and complete every required area comparison before submitting again.",
+    missingResponseFeedback: "Choose A-D, make the small triangle and trapezoid share a complete edge so their outside boundary is a parallelogram, check the arrangement, and complete every required area comparison before submitting again.",
     guidedFields: [
       {
         id: "parallelogram",
@@ -3004,12 +3004,13 @@ const unit1TeachAdditionalCards = [
     customVisual: "questionSetVisual",
     responseType: "questionSet",
     minimumRequiredCount: 3,
+    questionSetCompletionMode: "allBasesAnyAreas",
     questions: [
-      { id: "A", label: "Triangle A", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle A.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["5"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["5", "6"], ["30", "half"], ["15", "square"]], hint: "The 5 cm base has a 6 cm corresponding height.", correctFeedback: "Correct. Triangle A has area 1/2 x 5 x 6 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 5 cm base and 6 cm perpendicular height." },
-      { id: "B", label: "Triangle B", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle B.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["4"], area: ["8"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["4", "4"], ["16", "half"], ["8", "square"]], hint: "The two 4 cm sides meet at a right angle.", correctFeedback: "Correct. Triangle B has area 1/2 x 4 x 4 = 8 square centimeters.", incorrectFeedback: "Not quite. Either 4 cm perpendicular side can be the base and the other is its height." },
-      { id: "C", label: "Triangle C", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle C.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["7"], area: ["10.5", "21/2"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["7", "3"], ["21", "half"], ["10.5", "square"]], hint: "Use the 7 cm vertical side as the base; the dashed 3 cm horizontal segment is its height.", correctFeedback: "Correct. Triangle C has area 1/2 x 7 x 3 = 10.5 square centimeters.", incorrectFeedback: "Not quite. The usable labeled base is 7 cm, paired with the 3 cm perpendicular distance." },
-      { id: "D", label: "Triangle D", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle D.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["8"], area: ["14"] }, { base: ["3.5"], area: ["14"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["8", "3.5"], ["28", "half"], ["14", "square"]], hint: "The 8 cm and 3.5 cm sides are perpendicular, so either can be the base.", correctFeedback: "Correct. Triangle D has area 1/2 x 8 x 3.5 = 14 square centimeters.", incorrectFeedback: "Not quite. Pair the perpendicular 8 cm and 3.5 cm sides; do not use the 8.73 cm slanted side with an unknown height." },
-      { id: "E", label: "Triangle E", prompt: "Choose a labeled base measurement you can use, then find the area of Triangle E.", fields: [{ id: "base", label: "Usable base", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["6"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation.", reasoningConcepts: [["6", "5"], ["30", "half"], ["15", "square"]], hint: "The 6 cm base has a 5 cm corresponding height outside the triangle.", correctFeedback: "Correct. Triangle E has area 1/2 x 6 x 5 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 6 cm base and the 5 cm perpendicular height drawn to its extension." },
+      { id: "A", label: "Triangle A", prompt: "Check a usable labeled base for Triangle A. You may also complete its area calculation; areas are required for any three triangles.", fields: [{ id: "base", label: "Usable base (required)", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area (complete for any 3)", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["5"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation when completing this area.", reasoningConcepts: [["5", "6"], ["30", "half"], ["15", "square"]], baseCorrectFeedback: "Correct. 5 cm is a usable labeled base for Triangle A.", hint: "The 5 cm base has a 6 cm corresponding height.", correctFeedback: "Correct. Triangle A has area 1/2 x 5 x 6 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 5 cm base and 6 cm perpendicular height." },
+      { id: "B", label: "Triangle B", prompt: "Check a usable labeled base for Triangle B. You may also complete its area calculation; areas are required for any three triangles.", fields: [{ id: "base", label: "Usable base (required)", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area (complete for any 3)", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["4"], area: ["8"] }], reasoningPrompt: "Show the base-height calculation when completing this area.", reasoningConcepts: [["4", "4"], ["16", "half"], ["8", "square"]], baseCorrectFeedback: "Correct. Either labeled 4 cm side is a usable base for Triangle B.", hint: "The two 4 cm sides meet at a right angle.", correctFeedback: "Correct. Triangle B has area 1/2 x 4 x 4 = 8 square centimeters.", incorrectFeedback: "Not quite. Either 4 cm perpendicular side can be the base and the other is its height." },
+      { id: "C", label: "Triangle C", prompt: "Check a usable labeled base for Triangle C. You may also complete its area calculation; areas are required for any three triangles.", fields: [{ id: "base", label: "Usable base (required)", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area (complete for any 3)", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["7"], area: ["10.5", "21/2"] }], reasoningPrompt: "Show the base-height calculation when completing this area.", reasoningConcepts: [["7", "3"], ["21", "half"], ["10.5", "square"]], baseCorrectFeedback: "Correct. 7 cm is the usable labeled base for Triangle C.", hint: "Use the 7 cm vertical side as the base; the dashed 3 cm horizontal segment is its height.", correctFeedback: "Correct. Triangle C has area 1/2 x 7 x 3 = 10.5 square centimeters.", incorrectFeedback: "Not quite. The usable labeled base is 7 cm, paired with the 3 cm perpendicular distance." },
+      { id: "D", label: "Triangle D", prompt: "Check a usable labeled base for Triangle D. You may also complete its area calculation; areas are required for any three triangles.", fields: [{ id: "base", label: "Usable base (required)", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area (complete for any 3)", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["8"], area: ["14"] }, { base: ["3.5"], area: ["14"] }], reasoningPrompt: "Show the base-height calculation when completing this area.", reasoningConcepts: [["8", "3.5"], ["28", "half"], ["14", "square"]], baseCorrectFeedback: "Correct. Either 8 cm or 3.5 cm is a usable labeled base for Triangle D.", hint: "The 8 cm and 3.5 cm sides are perpendicular, so either can be the base.", correctFeedback: "Correct. Triangle D has area 1/2 x 8 x 3.5 = 14 square centimeters.", incorrectFeedback: "Not quite. Pair the perpendicular 8 cm and 3.5 cm sides; do not use the 8.73 cm slanted side with an unknown height." },
+      { id: "E", label: "Triangle E", prompt: "Check a usable labeled base for Triangle E. You may also complete its area calculation; areas are required for any three triangles.", fields: [{ id: "base", label: "Usable base (required)", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area (complete for any 3)", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["6"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation when completing this area.", reasoningConcepts: [["6", "5"], ["30", "half"], ["15", "square"]], baseCorrectFeedback: "Correct. 6 cm is the usable labeled base for Triangle E.", hint: "The 6 cm base has a 5 cm corresponding height outside the triangle.", correctFeedback: "Correct. Triangle E has area 1/2 x 6 x 5 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 6 cm base and the 5 cm perpendicular height drawn to its extension." },
     ].map((question) => ({
       ...question,
       visualCropPath: "lesson-09-p003-applying-formula-9-3.png",
@@ -3183,30 +3184,27 @@ const unit1TeachAdditionalCards = [
     visualHeight: 325,
     visualDisplayMaxWidth: 460,
     visualAlt: "Source triangles S, T, U, and V on a square grid.",
-    prompt: "Choose one figure that does not belong and justify your choice with a mathematical observation.",
-    responseType: "guidedFields",
-    responsePrompt: "There can be more than one valid answer. Your explanation must support the figure you choose.",
-    guidedFields: [
-      {
-        id: "figure",
-        label: "Figure that does not belong",
-        type: "singleChoice",
-        choices: [
-          { id: "S", label: "S" },
-          { id: "T", label: "T" },
-          { id: "U", label: "U" },
-          { id: "V", label: "V" },
-        ],
-      },
-      { id: "reasoning", label: "Why does your chosen figure not belong?", type: "textarea", placeholder: "Explain a mathematical difference." },
+    prompt: "Which one doesn't belong? Choose any triangle you can support with a true observation.",
+    responseType: "singleChoice",
+    choices: [
+      { id: "S", label: "S" },
+      { id: "T", label: "T" },
+      { id: "U", label: "U" },
+      { id: "V", label: "V" },
     ],
-    guidedAnswerKey: { static: { figure: ["S", "T", "U", "V"] } },
-    guidedReasoningRequirements: [
-      { field: "reasoning", concepts: [["base"], ["height"], ["angle"], ["horizontal"], ["vertical"], ["side"], ["triangle"]] },
-    ],
-    hint: "Which One Doesn't Belong tasks can have more than one valid answer if the reasoning is clear.",
-    correctFeedback: "That is a valid Which One Doesn't Belong response. The selected figure is supported by a mathematical observation about its sides, angles, orientation, base, or height.",
-    incorrectFeedback: "Choose S, T, U, or V and explain a mathematical feature of that figure, such as a side, angle, orientation, base, or height.",
+    answerKey: ["S", "T", "U", "V"],
+    acceptAnyChoice: true,
+    openComparisonSubject: "triangle",
+    reasoningPrompt: "Optional: Explain one true feature that makes your choice different from the other three.",
+    hint: "There is no single correct choice. Compare angle types, horizontal or vertical sides, orientations, bases, and heights.",
+    choiceFeedback: {
+      S: "Triangle S is a defensible choice because it is the only right triangle. Triangle U has three acute angles, while Triangles T and V each have an obtuse angle.",
+      T: "Triangle T is a defensible choice because it is the only triangle with a horizontal side but no vertical side. Triangle S has both a horizontal and a vertical side, while Triangles U and V have vertical sides but no horizontal sides.",
+      U: "Triangle U is a defensible choice because it is the only triangle with three acute angles. Triangle S has a right angle, while Triangles T and V each have an obtuse angle.",
+      V: "Triangle V is a defensible choice because it is the only triangle with an obtuse angle at its lower-right vertex. Triangle T's obtuse angle is at its lower-left vertex, Triangle S has a right angle, and Triangle U has three acute angles.",
+    },
+    correctFeedback: "Response recorded. This routine has no single correct triangle.",
+    incorrectFeedback: "Choose S, T, U, or V, then submit again.",
   },
   {
     id: "teach-l11-3",
@@ -3245,12 +3243,12 @@ const unit1TeachAdditionalCards = [
         responseType: "number",
         inputLabel: "Area of B",
         placeholder: "Type area",
-        answerKey: ["16"],
+        answerKey: ["18"],
         reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
-        reasoningConcepts: [["rectangle", "triangle"], ["subtract"], ["grid", "16"], ["decompose"]],
-        hint: "Split B into a rectangle and a right triangle, or enclose it and subtract the missing triangle.",
-        correctFeedback: "Correct. Quadrilateral B has area 16 square units.",
-        incorrectFeedback: "Not quite. Separate B into familiar grid-aligned regions and add or subtract their areas.",
+        reasoningConcepts: [["rectangle", "subtract"], ["28", "2", "8"], ["grid", "18"]],
+        hint: "Enclose B in a 4-by-7 rectangle. The two outside triangles have areas 2 and 8 square units.",
+        correctFeedback: "Correct. Quadrilateral B has area 18 square units: 28 - 2 - 8 = 18.",
+        incorrectFeedback: "Not quite. Enclose B in its 4-by-7 grid rectangle, then subtract both outside triangles.",
       },
       {
         id: "C",
@@ -3259,12 +3257,12 @@ const unit1TeachAdditionalCards = [
         responseType: "number",
         inputLabel: "Area of C",
         placeholder: "Type area",
-        answerKey: ["34"],
+        answerKey: ["28"],
         reasoningPrompt: "Show a decomposition, enclosure, or grid-coordinate strategy.",
-        reasoningConcepts: [["rectangle", "triangle"], ["7", "10", "4"], ["grid", "34"], ["decompose"]],
-        hint: "Decompose the trapezoid into a central rectangle and two side triangles, or use its two parallel side lengths and height.",
-        correctFeedback: "Correct. Quadrilateral C has area 34 square units.",
-        incorrectFeedback: "Not quite. Its parallel horizontal sides are 7 and 10 units long and are 4 units apart.",
+        reasoningConcepts: [["rectangle", "triangle"], ["4", "10", "28"], ["grid", "28"], ["trapezoid", "28"]],
+        hint: "Its parallel horizontal sides are 4 and 10 units long and are 4 units apart. You can also decompose it into a 4-by-4 rectangle and two side triangles.",
+        correctFeedback: "Correct. Quadrilateral C has area 28 square units: a 4-by-4 rectangle and two 6-square-unit triangles make 28.",
+        incorrectFeedback: "Not quite. Its parallel horizontal sides are 4 and 10 units long and are 4 units apart.",
       },
       {
         id: "D",
@@ -3365,6 +3363,7 @@ const unit1TeachAdditionalCards = [
         answerKey: ["40"],
         reasoningPrompt: "Show a decomposition, rearrangement, or enclosure-and-subtraction strategy that accounts for the entire shaded region.",
         reasoningConcepts: [["four", "identical"], ["triangle", "rectangle"], ["enclose", "subtract"], ["square", "subtract"], ["decompose"]],
+        reasoningConceptsRequired: 2,
         hint: "Use the grid to make known triangles and rectangles. You can also enclose the pinwheel and subtract the four congruent outside regions.",
         correctFeedback: "Correct. The pinwheel has area 40 square units. A valid decomposition, rearrangement, or enclosure strategy accounts for every shaded piece exactly once.",
         incorrectFeedback: "Not quite. Use the grid to decompose the shaded region, or enclose it and subtract every unshaded part exactly once.",
@@ -3401,6 +3400,7 @@ const unit1TeachAdditionalCards = [
         inputLabel: "Your estimate",
         placeholder: "Type a positive estimate",
         reasoningPrompt: "Explain what you noticed in the photographs and how it informed your estimate.",
+        reasoningOptional: true,
         reasoningConcepts: [["cabinet"], ["sticky"], ["front"], ["side"], ["face"], ["row"], ["column"]],
         hint: "Use the visible cabinet proportions and the size of one sticky note. This is an estimate, so the explanation matters more than an exact value.",
         correctFeedback: "Estimate recorded. The source intentionally asks for a reasoned estimate before giving exact dimensions. Continue to Part 2 to determine the actual mathematical count.",
@@ -3437,7 +3437,10 @@ const unit1TeachAdditionalCards = [
         inputLabel: "Method and needed information",
         placeholder: "Describe the measurements and calculation you would need.",
         minLength: 28,
-        answerConcepts: [["dimensions", "faces"], ["measure", "surface"], ["length", "width", "height"], ["area", "sticky note"], ["measurements", "cabinet"]],
+        answerConceptRequirements: [
+          [["area", "face"], ["surface", "area"], ["add", "face"], ["multiply", "side"]],
+          [["length", "width", "height"], ["dimensions", "cabinet"], ["measurements", "cabinet"], ["area", "sticky", "note"]],
+        ],
         hint: "Think about the dimensions of each exposed rectangular face and the area covered by one sticky note.",
         correctFeedback: "Good plan. The source now provides the cabinet measurements in sticky-note units: 24 high, 12 wide, and 6 deep. Each sticky note is 3 inches by 3 inches, but the sticky-note-unit dimensions are enough for the count.",
         incorrectFeedback: "Add the measurements needed for the cabinet's exposed faces and explain how one sticky note's area relates to the total covering.",
@@ -3458,7 +3461,10 @@ const unit1TeachAdditionalCards = [
         placeholder: "Type the total",
         answerKey: ["936"],
         reasoningPrompt: "Show how each exposed face is counted and why the bottom is excluded.",
-        reasoningConcepts: [["576", "288", "72"], ["24", "12", "6"], ["front", "back", "side", "top"], ["surface", "bottom"]],
+        reasoningConceptRequirements: [
+          [["576", "288", "72"], ["24", "12", "6"], ["front", "back", "side", "top"]],
+          [["exclude", "bottom"], ["not", "bottom"], ["except", "bottom"]],
+        ],
         hint: "Add the front and back, both side faces, and the top: 2(24 x 12) + 2(24 x 6) + (12 x 6).",
         correctFeedback: "Correct. Front and back use 576 notes, the two sides use 288, and the top uses 72. Excluding the bottom gives 576 + 288 + 72 = 936 sticky notes.",
         incorrectFeedback: "Not quite. Count two 24-by-12 faces, two 24-by-6 faces, and one 12-by-6 top face. Do not include the bottom.",
@@ -3478,7 +3484,10 @@ const unit1TeachAdditionalCards = [
         ],
         acceptedFieldSets: [{ two: ["1728"], three: ["2448"], twenty: ["14688"] }],
         reasoningPrompt: "Explain how shared side faces change the outside surface as cabinets are added.",
-        reasoningConcepts: [["shared", "face"], ["inside", "outside"], ["1008", "288"], ["720", "288"], ["subtract", "side"]],
+        reasoningConceptRequirements: [
+          [["shared", "face"], ["touching", "face"], ["neighbor", "face"]],
+          [["inside"], ["subtract"], ["remove"]],
+        ],
         hint: "One cabinet including its bottom needs 1,008 notes. Each new cabinet adds 1,008, but the two touching 24-by-6 side faces become internal, removing 288 from the outside count.",
         correctFeedback: "Correct. The totals are 1,728, 2,448, and 14,688. For n side-by-side cabinets, the outside count is 1,008n - 288(n - 1), or 720n + 288.",
         incorrectFeedback: "Not quite. Include each bottom, but remove both copies of every 24-by-6 face where neighboring cabinets touch.",
@@ -4731,7 +4740,7 @@ const teachVerifiedCropPaths = {
   "teach-l6": "lesson-06-p001-area-parallelograms-6-2.png",
   "teach-l7": "lesson-07-p001-same-parallelograms.png",
   "teach-l8": "lesson-08-p001-composing-parallelograms.png",
-  "teach-l9": "lesson-09-p002-triangle-formula.png",
+  "teach-l9": "lesson-09-p002-triangle-formula-visuals.png",
   "teach-l10": "lesson-10-p002-triangle-heights.png",
   "teach-l11": "lesson-11-p002-polygons.png",
   "teach-l12": "lesson-12-p002-snap-cubes.png",
@@ -6881,6 +6890,173 @@ function polygonCentroid(points) {
   return points.reduce((total, [x, y]) => ({ x: total.x + x / points.length, y: total.y + y / points.length }), { x: 0, y: 0 });
 }
 
+function decomposePointDistance([x1, y1], [x2, y2]) {
+  return Math.hypot(x2 - x1, y2 - y1);
+}
+
+function decomposeRotatePoint([x, y], center, angle) {
+  const radians = angle * Math.PI / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  const dx = x - center.x;
+  const dy = y - center.y;
+  return [
+    center.x + dx * cosine - dy * sine,
+    center.y + dx * sine + dy * cosine,
+  ];
+}
+
+function decomposeWorldPolygon(variantId, pieceId, override = {}) {
+  const geometry = decomposeGeometry(variantId);
+  const piece = { ...getDecomposePieces(variantId)[pieceId], ...override };
+  const center = polygonCentroid(geometry[pieceId]);
+  return geometry[pieceId].map((point) => {
+    const [x, y] = decomposeRotatePoint(point, center, piece.angle);
+    return [x + piece.x, y + piece.y];
+  });
+}
+
+function decomposePolygonEdges(points) {
+  return points.map((point, index) => [point, points[(index + 1) % points.length]]);
+}
+
+function decomposePolygonArea(points) {
+  return Math.abs(points.reduce((total, [x1, y1], index) => {
+    const [x2, y2] = points[(index + 1) % points.length];
+    return total + x1 * y2 - y1 * x2;
+  }, 0)) / 2;
+}
+
+function decomposeCross(origin, pointA, pointB) {
+  return (pointA[0] - origin[0]) * (pointB[1] - origin[1])
+    - (pointA[1] - origin[1]) * (pointB[0] - origin[0]);
+}
+
+function decomposeConvexHull(points) {
+  const unique = [];
+  points.forEach((point) => {
+    if (!unique.some((candidate) => decomposePointDistance(candidate, point) <= 2)) unique.push(point);
+  });
+  const sorted = unique.sort((pointA, pointB) => pointA[0] - pointB[0] || pointA[1] - pointB[1]);
+  if (sorted.length <= 2) return sorted;
+  const buildHalf = (ordered) => {
+    const half = [];
+    ordered.forEach((point) => {
+      while (half.length >= 2 && decomposeCross(half[half.length - 2], half[half.length - 1], point) <= 2) half.pop();
+      half.push(point);
+    });
+    return half;
+  };
+  const lower = buildHalf(sorted);
+  const upper = buildHalf([...sorted].reverse());
+  return [...lower.slice(0, -1), ...upper.slice(0, -1)];
+}
+
+function decomposeArrangementAnalysis(card) {
+  const variantId = decomposeVariant(card);
+  const small = decomposeWorldPolygon(variantId, "small");
+  const trapezoid = decomposeWorldPolygon(variantId, "trapezoid");
+  const sharedEdge = decomposePolygonEdges(small).some(([smallStart, smallEnd]) => (
+    decomposePolygonEdges(trapezoid).some(([trapStart, trapEnd]) => (
+      decomposePointDistance(smallStart, trapEnd) <= 3
+      && decomposePointDistance(smallEnd, trapStart) <= 3
+    ))
+  ));
+  const hull = decomposeConvexHull([...small, ...trapezoid]);
+  const pieceArea = decomposePolygonArea(small) + decomposePolygonArea(trapezoid);
+  const hullArea = hull.length >= 3 ? decomposePolygonArea(hull) : 0;
+  const areaMatches = Math.abs(hullArea - pieceArea) <= Math.max(8, pieceArea * 0.025);
+  const diagonalsShareMidpoint = hull.length === 4
+    && Math.hypot(
+      hull[0][0] + hull[2][0] - hull[1][0] - hull[3][0],
+      hull[0][1] + hull[2][1] - hull[1][1] - hull[3][1],
+    ) <= 5;
+  return {
+    valid: sharedEdge && hull.length === 4 && areaMatches && diagonalsShareMidpoint,
+    sharedEdge,
+    hull,
+  };
+}
+
+function decomposeArrangementStatus(card) {
+  const response = getTeachCustomResponse(card);
+  if (response.decomposeArrangementValid === "yes") {
+    return "Valid new parallelogram: the two source pieces share a complete edge and make a four-sided boundary with both pairs of opposite sides parallel.";
+  }
+  if (response.decomposeArrangementChecked === "yes") {
+    return "That arrangement is not a parallelogram yet. Try a different pair of matching-length edges.";
+  }
+  return "Move and turn the pieces, then use Snap and check nearby edges when two matching-length edges are close.";
+}
+
+function invalidateDecomposeArrangement(card, usedPieceId = "") {
+  if (!card) return;
+  const response = getTeachCustomResponse(card);
+  state.teachCustomResponses[card.id] = {
+    ...response,
+    ...(usedPieceId === "small" ? { decomposeSmallUsed: "yes" } : {}),
+    ...(usedPieceId === "trapezoid" ? { decomposeTrapezoidUsed: "yes" } : {}),
+    decomposeArrangementChecked: "",
+    decomposeArrangementValid: "",
+  };
+  state.teachSubmitted[card.id] = false;
+  const status = document.querySelector("[data-decompose-arrangement-status]");
+  if (status) {
+    status.textContent = decomposeArrangementStatus(card);
+    status.classList.remove("is-valid", "is-invalid");
+  }
+}
+
+function normalizeDecomposeAngle(angle) {
+  return ((angle + 180) % 360 + 360) % 360 - 180;
+}
+
+function snapAndCheckDecomposeArrangement(card) {
+  const variantId = decomposeVariant(card);
+  const selectedPieceId = state.teachDecomposeSelectedPiece || "small";
+  const otherPieceId = selectedPieceId === "small" ? "trapezoid" : "small";
+  const selectedPiece = getDecomposePieces(variantId)[selectedPieceId];
+  const selectedPoints = decomposeWorldPolygon(variantId, selectedPieceId);
+  const otherPoints = decomposeWorldPolygon(variantId, otherPieceId);
+  let best = null;
+
+  decomposePolygonEdges(selectedPoints).forEach(([selectedStart, selectedEnd], selectedEdgeIndex) => {
+    const selectedLength = decomposePointDistance(selectedStart, selectedEnd);
+    decomposePolygonEdges(otherPoints).forEach(([otherStart, otherEnd]) => {
+      const otherLength = decomposePointDistance(otherStart, otherEnd);
+      if (Math.abs(selectedLength - otherLength) > 4) return;
+      const currentMidpoint = midpoint(selectedStart, selectedEnd);
+      const targetMidpoint = midpoint(otherStart, otherEnd);
+      const midpointDistance = decomposePointDistance(currentMidpoint, targetMidpoint);
+      const selectedAngle = Math.atan2(selectedEnd[1] - selectedStart[1], selectedEnd[0] - selectedStart[0]) * 180 / Math.PI;
+      const targetAngle = Math.atan2(otherStart[1] - otherEnd[1], otherStart[0] - otherEnd[0]) * 180 / Math.PI;
+      const angleDelta = normalizeDecomposeAngle(targetAngle - selectedAngle);
+      if (midpointDistance > 130 || Math.abs(angleDelta) > 25) return;
+      const score = midpointDistance + Math.abs(angleDelta) * 2;
+      if (!best || score < best.score) best = { selectedEdgeIndex, otherStart, otherEnd, angleDelta, score };
+    });
+  });
+
+  if (best) {
+    selectedPiece.angle = ((selectedPiece.angle + best.angleDelta) % 360 + 360) % 360;
+    const snappedPoints = decomposeWorldPolygon(variantId, selectedPieceId);
+    const [snappedStart, snappedEnd] = decomposePolygonEdges(snappedPoints)[best.selectedEdgeIndex];
+    selectedPiece.x += (best.otherEnd[0] - snappedStart[0] + best.otherStart[0] - snappedEnd[0]) / 2;
+    selectedPiece.y += (best.otherEnd[1] - snappedStart[1] + best.otherStart[1] - snappedEnd[1]) / 2;
+  }
+
+  const analysis = best ? decomposeArrangementAnalysis(card) : { valid: false };
+  state.teachCustomResponses[card.id] = {
+    ...getTeachCustomResponse(card),
+    decomposeSmallUsed: "yes",
+    decomposeTrapezoidUsed: "yes",
+    decomposeArrangementChecked: "yes",
+    decomposeArrangementValid: analysis.valid ? "yes" : "",
+  };
+  state.teachSubmitted[card.id] = false;
+  return analysis.valid;
+}
+
 function initialDecomposePieces(variantId) {
   const geometry = decomposeGeometry(variantId);
   const tall = geometry.height >= 10;
@@ -6908,18 +7084,15 @@ function resetDecomposePieces(card) {
     ...response,
     decomposeSmallUsed: "",
     decomposeTrapezoidUsed: "",
+    decomposeArrangementChecked: "",
+    decomposeArrangementValid: "",
   };
   state.teachSubmitted[card.id] = false;
 }
 
 function markDecomposePieceUsed(card, pieceId) {
   if (!card || !["small", "trapezoid"].includes(pieceId)) return;
-  const response = getTeachCustomResponse(card);
-  state.teachCustomResponses[card.id] = {
-    ...response,
-    [pieceId === "small" ? "decomposeSmallUsed" : "decomposeTrapezoidUsed"]: "yes",
-  };
-  state.teachSubmitted[card.id] = false;
+  invalidateDecomposeArrangement(card, pieceId);
 }
 
 function decomposePieceTransform(variantId, pieceId) {
@@ -6953,7 +7126,6 @@ function renderDecomposeParallelogramWorkspace(card) {
       </g>
     `;
   }).join("");
-  const usedCount = [response.decomposeSmallUsed, response.decomposeTrapezoidUsed].filter((value) => value === "yes").length;
   return `
     <section class="decompose-workspace" aria-label="Interactive decomposition workspace for ${escapeHtml(geometry.label)}">
       <div class="decompose-toolbar">
@@ -6962,6 +7134,8 @@ function renderDecomposeParallelogramWorkspace(card) {
           ${["small", "trapezoid"].map((pieceId) => `<button class="page-chip ${selectedPiece === pieceId ? "is-active" : ""}" type="button" data-decompose-select="${pieceId}" aria-pressed="${selectedPiece === pieceId}">${escapeHtml(pieceNames[pieceId])}</button>`).join("")}
           <button class="hint-button" type="button" data-decompose-rotate="-15">Turn left</button>
           <button class="hint-button" type="button" data-decompose-rotate="15">Turn right</button>
+          <button class="hint-button" type="button" data-decompose-rotate="180">Half turn</button>
+          <button class="hint-button" type="button" data-decompose-snap="${card.id}">Snap and check nearby edges</button>
           <button class="hint-button" type="button" data-decompose-reset="${card.id}">Reset pieces</button>
         </div>
       </div>
@@ -6979,9 +7153,9 @@ function renderDecomposeParallelogramWorkspace(card) {
         </g>
         <line x1="365" y1="54" x2="365" y2="360" class="decompose-divider"></line>
         ${pieces}
-        <text x="565" y="382" text-anchor="middle" class="decompose-progress">Pieces tested: ${usedCount} of 2</text>
       </svg>
-      <p class="decompose-caption">Drag and turn the small triangle and trapezoid to explore a different parallelogram. The large triangle stays behind from the original cut.</p>
+      <p class="decompose-caption">The large triangle stays behind from the original cut while you rearrange the other two source pieces.</p>
+      <p class="decompose-arrangement-status ${response.decomposeArrangementValid === "yes" ? "is-valid" : response.decomposeArrangementChecked === "yes" ? "is-invalid" : ""}" data-decompose-arrangement-status aria-live="polite">${escapeHtml(decomposeArrangementStatus(card))}</p>
     </section>
   `;
 }
@@ -7114,10 +7288,10 @@ const triangleHeightDiagrams = [
     x: 364,
     y: 196,
     vertices: [[56, 132], [90, 32], [196, 156]],
-    base: [[56, 132], [196, 156]],
-    opposite: [90, 32],
-    foot: [76, 135],
-    labels: [{ text: "base", x: 154, y: 130 }],
+    base: [[90, 32], [196, 156]],
+    opposite: [56, 132],
+    foot: [125, 73],
+    labels: [{ text: "base", x: 158, y: 102 }],
   },
   {
     id: "C",
@@ -7150,7 +7324,8 @@ const triangleHeightDiagrams = [
     vertices: [[24, 24], [82, 158], [222, 158]],
     base: [[82, 158], [222, 158]],
     opposite: [24, 24],
-    foot: [82, 158],
+    foot: [24, 158],
+    extension: [[82, 158], [18, 158]],
     labels: [{ text: "base", x: 148, y: 182 }],
   },
   {
@@ -7159,10 +7334,10 @@ const triangleHeightDiagrams = [
     x: 364,
     y: 602,
     vertices: [[34, 28], [34, 150], [142, 28]],
-    base: [[34, 28], [142, 28]],
-    opposite: [34, 150],
-    foot: [34, 28],
-    labels: [{ text: "base", x: 98, y: 72 }],
+    base: [[34, 150], [142, 28]],
+    opposite: [34, 28],
+    foot: [95, 82],
+    labels: [{ text: "base", x: 105, y: 108 }],
   },
 ];
 
@@ -7496,7 +7671,7 @@ function renderPrismBuilderWorkspace(card) {
       ${built ? renderIsometricPrism(built, 384, 250, 28, `your ${built.label}`) : renderPrismPlaceholder(360, 70, 300, 190, "Choose a different 12-cube prism.")}
     `;
     caption = built
-      ? `Your prism uses ${prismVolume(built)} cubes and has surface area ${prismSurfaceArea(built)} square units.`
+      ? `Your prism uses ${prismVolume(built)} cubes. Use its face dimensions to calculate the surface area.`
       : "The source prism uses 12 cubes and has surface area 32; build a different 12-cube prism below.";
   } else if (card.builderMode === "compare8") {
     const shapeA = prismOptionById(prism8Options, response.shapeA);
@@ -11290,6 +11465,70 @@ function questionSetDefinition(card, questionId) {
   return card.questions?.find((question) => question.id === questionId) || null;
 }
 
+function questionSetUsesAllBasesAnyAreas(card) {
+  return card.questionSetCompletionMode === "allBasesAnyAreas";
+}
+
+function questionSetStageSubmitted(card, question, stage) {
+  return isTeachQuestionSubmitted(card, `${question.id}:${stage}`);
+}
+
+function questionSetAcceptedFieldMatch(card, question, fieldId) {
+  const field = question.fields?.find((entry) => entry.id === fieldId);
+  const acceptedSets = Array.isArray(question.acceptedFieldSets) ? question.acceptedFieldSets : [];
+  if (!field || !acceptedSets.length) return false;
+  return acceptedSets.some((acceptedSet) => (
+    Object.prototype.hasOwnProperty.call(acceptedSet, fieldId)
+    && questionSetFieldMatches(card, question, field, acceptedSet[fieldId])
+  ));
+}
+
+function questionSetBaseIsCorrect(card, question) {
+  return questionSetAcceptedFieldMatch(card, question, "base");
+}
+
+function questionSetAreaWasAttempted(card, question) {
+  return normalizeAnswer(questionSetValue(card, question.id, "area")).length > 0
+    || normalizeAnswer(questionSetValue(card, question.id, "reasoning")).length > 0;
+}
+
+function questionSetAreaIsCorrect(card, question) {
+  const baseField = question.fields?.find((entry) => entry.id === "base");
+  const areaField = question.fields?.find((entry) => entry.id === "area");
+  const acceptedSets = Array.isArray(question.acceptedFieldSets) ? question.acceptedFieldSets : [];
+  if (!baseField || !areaField) return false;
+  return acceptedSets.some((acceptedSet) => (
+    questionSetFieldMatches(card, question, baseField, acceptedSet.base)
+    && questionSetFieldMatches(card, question, areaField, acceptedSet.area)
+  )) && questionSetReasoningEvaluation(card, question).correct;
+}
+
+function questionSetAllBasesAnyAreasProgress(card) {
+  const questions = card.questions || [];
+  const baseCorrectCount = questions.filter((question) => (
+    questionSetStageSubmitted(card, question, "base") && questionSetBaseIsCorrect(card, question)
+  )).length;
+  const areaCorrectCount = questions.filter((question) => (
+    questionSetStageSubmitted(card, question, "area") && questionSetAreaIsCorrect(card, question)
+  )).length;
+  return {
+    baseCorrectCount,
+    baseRequiredCount: questions.length,
+    areaCorrectCount,
+    areaRequiredCount: Math.max(0, Math.min(card.minimumRequiredCount || 0, questions.length)),
+  };
+}
+
+function questionSetCompletionText(card) {
+  if (questionSetUsesAllBasesAnyAreas(card)) {
+    const progress = questionSetAllBasesAnyAreasProgress(card);
+    return `Usable bases checked: ${progress.baseCorrectCount} of ${progress.baseRequiredCount}. Areas completed: ${progress.areaCorrectCount} of ${progress.areaRequiredCount}.`;
+  }
+  const requiredCount = questionSetRequiredCount(card);
+  const hasOptional = requiredCount !== (card.questions || []).length;
+  return `Completed ${questionSetCompletedCount(card)} of ${requiredCount}${hasOptional ? " required" : ""} questions.`;
+}
+
 function questionSetActiveId(card) {
   const activeId = state.teachQuestionSetActive[card.id];
   const activeQuestion = questionSetDefinition(card, activeId);
@@ -11798,6 +12037,12 @@ function questionSetRequiredStateSatisfied(card, question) {
 }
 
 function questionSetQuestionIsCorrect(card, question) {
+  if (questionSetUsesAllBasesAnyAreas(card)) {
+    const baseCorrect = questionSetStageSubmitted(card, question, "base")
+      && questionSetBaseIsCorrect(card, question);
+    const areaSubmitted = questionSetStageSubmitted(card, question, "area");
+    return baseCorrect && (!areaSubmitted || questionSetAreaIsCorrect(card, question));
+  }
   const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
   return adjustmentSatisfied
     && parallelogramExploreIsUnique(card, question)
@@ -11808,6 +12053,13 @@ function questionSetQuestionIsCorrect(card, question) {
 
 function questionSetStatus(card, question) {
   if (!questionSetQuestionUnlocked(card, question)) return { className: "", text: "Locked" };
+  if (questionSetUsesAllBasesAnyAreas(card)) {
+    if (!questionSetStageSubmitted(card, question, "base")) return { className: "", text: "Base not checked" };
+    if (!questionSetBaseIsCorrect(card, question)) return { className: "is-incorrect", text: "Revise base" };
+    if (!questionSetStageSubmitted(card, question, "area")) return { className: "is-correct", text: "Base correct" };
+    if (questionSetAreaIsCorrect(card, question)) return { className: "is-correct", text: "Area correct" };
+    return { className: "is-incorrect", text: "Revise area" };
+  }
   if (question.dynamicAnswer === "polyhedronPerFigure") {
     const progress = polyhedronClassificationProgress(card);
     if (progress.correctCount === progress.totalCount) return { className: "is-correct", text: "Correct" };
@@ -11951,7 +12203,52 @@ function questionSetResolvedFeedback(card, question, correct) {
     : feedback;
 }
 
+function renderAllBasesAnyAreasFeedback(card, question) {
+  const baseSubmitted = questionSetStageSubmitted(card, question, "base");
+  const areaSubmitted = questionSetStageSubmitted(card, question, "area");
+  const baseValue = normalizeAnswer(questionSetValue(card, question.id, "base"));
+  const areaValue = normalizeAnswer(questionSetValue(card, question.id, "area"));
+  const reasoning = questionSetReasoningEvaluation(card, question);
+  const baseCorrect = baseSubmitted && questionSetBaseIsCorrect(card, question);
+  const areaCorrect = areaSubmitted && questionSetAreaIsCorrect(card, question);
+  const progress = questionSetAllBasesAnyAreasProgress(card);
+  let className = "";
+  let text = `Check a usable base for ${question.label}. You may also submit its area calculation.`;
+
+  if (baseSubmitted && !baseValue) {
+    className = "is-incorrect";
+    text = `Enter a usable labeled base for ${question.label}, then submit again.`;
+  } else if (baseSubmitted && !baseCorrect) {
+    className = "is-incorrect";
+    text = question.baseIncorrectFeedback || "That labeled measurement does not have a corresponding height provided in the diagram. Recheck the triangle.";
+  } else if (baseCorrect && !areaSubmitted) {
+    className = "is-correct";
+    text = `${question.baseCorrectFeedback || "Correct. That is a usable labeled base."} Bases checked: ${progress.baseCorrectCount} of ${progress.baseRequiredCount}. Complete an area calculation for any ${progress.areaRequiredCount} triangles.`;
+  } else if (baseCorrect && areaSubmitted && !areaValue) {
+    className = "is-incorrect";
+    text = `The base is correct. Enter the area for ${question.label}, then show its base-height calculation.`;
+  } else if (baseCorrect && areaSubmitted && !questionSetAcceptedFieldMatch(card, question, "area")) {
+    className = "is-incorrect";
+    text = question.incorrectFeedback;
+  } else if (baseCorrect && areaSubmitted && !reasoning.answered) {
+    className = "is-incorrect";
+    text = freeTextFeedbackWithCriteria(
+      "The base and area answer are ready to check. Add the base-height calculation, then submit again.",
+      questionReasoningValidationCriteria(question)
+    );
+  } else if (areaCorrect) {
+    className = "is-correct";
+    text = `${question.correctFeedback} Areas completed: ${progress.areaCorrectCount} of ${progress.areaRequiredCount}.`;
+  } else {
+    className = "is-incorrect";
+    text = appendFeedbackCriteria(question.incorrectFeedback, freeTextValidationCriteria(questionReasoningValidationCriteria(question)));
+  }
+
+  return `<p class="practice-feedback teach-question-feedback ${className}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(text)}</p>`;
+}
+
 function renderQuestionSetFeedback(card, question) {
+  if (questionSetUsesAllBasesAnyAreas(card)) return renderAllBasesAnyAreasFeedback(card, question);
   if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
     const target = pyramidNetTargetId(card);
     const workspace = pyramidNetWorkspace(card, target);
@@ -12179,9 +12476,6 @@ function renderQuestionSetControl(card) {
   const activeId = questionSetActiveId(card);
   const question = questionSetDefinition(card, activeId);
   if (!question) return "";
-  const completed = questionSetCompletedCount(card);
-  const requiredCount = questionSetRequiredCount(card);
-  const hasOptional = requiredCount !== (card.questions || []).length;
   return `
     <div class="question-set-response" data-question-set-response="${escapeHtml(activeId)}">
       <div class="question-set-progress" role="tablist" aria-label="Required questions">
@@ -12204,7 +12498,7 @@ function renderQuestionSetControl(card) {
           `;
         }).join("")}
       </div>
-      <p class="teach-question-note" data-question-set-completion>Completed ${completed} of ${requiredCount}${hasOptional ? " required" : ""} questions.</p>
+      <p class="teach-question-note" data-question-set-completion>${escapeHtml(questionSetCompletionText(card))}</p>
       <section class="teach-independent-question question-set-question" aria-labelledby="${card.id}-${activeId}-prompt">
         <p class="teach-question-number">${escapeHtml(question.label)}</p>
         <p class="teach-response-prompt" id="${card.id}-${activeId}-prompt">${escapeHtml(question.prompt)}</p>
@@ -13148,7 +13442,7 @@ function renderPrismBuildControl(card) {
     return `
       <div class="prism-builder-response-panel">
         ${renderTeachResponsePrompt(card)}
-        ${renderPrismChoiceButtons(card, "prism12Dims", "Choose your rectangular prism.", prism12Options)}
+        ${renderPrismChoiceButtons(card, "prism12Dims", "Choose your rectangular prism.", prism12Options.filter((option) => !option.sourceExample))}
         <div class="prism-builder-field-grid">
           ${customTextField(card, "faces", "How many faces does your rectangular prism have?", {
             inputmode: "decimal",
@@ -13266,7 +13560,8 @@ function getTeachFeedbackText(card, correct) {
   if (correct) {
     const selectedChoice = state.teachSelections[card.id]?.[0];
     if (selectedChoice && card.choiceFeedback?.[selectedChoice]) {
-      return `Response recorded. ${card.choiceFeedback[selectedChoice]} This task has no single correct pattern; a different choice can also work with a true distinguishing reason.`;
+      const subject = card.openComparisonSubject || "pattern";
+      return `Response recorded. ${card.choiceFeedback[selectedChoice]} This task has no single correct ${subject}; a different choice can also work with a true distinguishing reason.`;
     }
     return variant?.correctFeedback || card.correctFeedback;
   }
@@ -15748,6 +16043,10 @@ function bindEvents() {
           };
         }
       }
+      if (questionSetUsesAllBasesAnyAreas(card)) {
+        state.teachQuestionSubmitted[teachQuestionStateKey(id, `${questionId}:base`)] = true;
+        state.teachQuestionSubmitted[teachQuestionStateKey(id, `${questionId}:area`)] = questionSetAreaWasAttempted(card, question);
+      }
       state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = true;
       state.sourceModalItemId = null;
       renderTeachMe();
@@ -15935,6 +16234,14 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const decomposeSnapButton = event.target.closest("[data-decompose-snap]");
+    if (decomposeSnapButton) {
+      const card = teachCardById(decomposeSnapButton.dataset.decomposeSnap);
+      if (!card || card.customVisual !== "decomposeParallelogram") return;
+      snapAndCheckDecomposeArrangement(card);
+      renderTeachMe();
+      return;
+    }
     const decomposeResetButton = event.target.closest("[data-decompose-reset]");
     if (decomposeResetButton) {
       const card = teachCardById(decomposeResetButton.dataset.decomposeReset);
@@ -15981,8 +16288,22 @@ function bindEvents() {
         [field]: nextValue,
       };
       if (card.customVisual === "decomposeParallelogram" && field === "parallelogram") {
-        state.teachCustomResponses[id].decomposeSmallUsed = "";
-        state.teachCustomResponses[id].decomposeTrapezoidUsed = "";
+        [
+          "originalArea",
+          "newRelation",
+          "newArea",
+          "largeTriangleRelation",
+          "largeTriangleArea",
+          "reasoning",
+          "decomposeSmallUsed",
+          "decomposeTrapezoidUsed",
+          "decomposeArrangementChecked",
+          "decomposeArrangementValid",
+        ].forEach((dependentField) => {
+          state.teachCustomResponses[id][dependentField] = "";
+        });
+        if (!state.teachDecomposePieces) state.teachDecomposePieces = {};
+        state.teachDecomposePieces[optionId] = initialDecomposePieces(optionId);
         state.teachDecomposeSelectedPiece = "small";
       }
       state.teachSubmitted[id] = false;
@@ -15999,8 +16320,14 @@ function bindEvents() {
       const card = teachCardById(id);
       const options = card && field ? prismOptionsForField(card, field) : [];
       if (!card || card.responseType !== "prismBuild" || !options.some((option) => option.id === optionId)) return;
+      const response = { ...(state.teachCustomResponses[id] || {}) };
+      if (card.builderMode === "single12" && field === "prism12Dims" && response.prism12Dims !== optionId) {
+        response.faces = "";
+        response.surfaceArea = "";
+        response.prismReasoning = "";
+      }
       state.teachCustomResponses[id] = {
-        ...(state.teachCustomResponses[id] || {}),
+        ...response,
         [field]: optionId,
       };
       state.teachSubmitted[id] = false;
@@ -16374,24 +16701,32 @@ function bindEvents() {
         ...getTeachCustomResponse(card),
         [questionSetField(questionId, field)]: enforceTextareaValueLimit(questionSetInput).slice(0, maxLength),
       };
+      if (questionSetUsesAllBasesAnyAreas(card)) {
+        if (field === "base") {
+          state.teachQuestionSubmitted[teachQuestionStateKey(id, `${questionId}:base`)] = false;
+        }
+        state.teachQuestionSubmitted[teachQuestionStateKey(id, `${questionId}:area`)] = false;
+      }
       state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
       state.sourceModalItemId = null;
       const cardNode = questionSetInput.closest("[data-teach-card]");
       const feedback = cardNode?.querySelector(`[data-question-set-feedback="${questionId}"]`);
       if (feedback) {
-        feedback.textContent = `Submit ${question.label} when you are ready for feedback.`;
+        feedback.textContent = questionSetUsesAllBasesAnyAreas(card)
+          ? `Check a usable base for ${question.label}. You may also submit its area calculation.`
+          : `Submit ${question.label} when you are ready for feedback.`;
         feedback.classList.remove("is-correct", "is-incorrect");
       }
       const progress = cardNode?.querySelector(`[data-question-set-select="${id}"][data-question-id="${questionId}"]`);
       progress?.classList.remove("is-correct", "is-incorrect");
       const progressStatus = progress?.querySelector("span");
-      if (progressStatus) progressStatus.textContent = "Not submitted";
-      const completion = cardNode?.querySelector("[data-question-set-completion]");
-      if (completion) {
-        const requiredCount = questionSetRequiredCount(card);
-        const hasOptional = requiredCount !== (card.questions || []).length;
-        completion.textContent = `Completed ${questionSetCompletedCount(card)} of ${requiredCount}${hasOptional ? " required" : ""} questions.`;
+      if (progressStatus) {
+        const status = questionSetStatus(card, question);
+        progressStatus.textContent = status.text;
+        if (status.className) progress?.classList.add(status.className);
       }
+      const completion = cardNode?.querySelector("[data-question-set-completion]");
+      if (completion) completion.textContent = questionSetCompletionText(card);
       return;
     }
     const gridAreaInput = event.target.closest("[data-grid-area-input]");
@@ -16593,6 +16928,32 @@ function bindEvents() {
     const gridTrianglePiece = event.target.closest?.("[data-grid-triangle-piece]");
     if (gridTrianglePiece && (event.key === "Enter" || event.key === " ")) {
       state.teachGridTriangleSelectedPiece = gridTrianglePiece.dataset.gridTrianglePiece;
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    const decomposePiece = event.target.closest?.("[data-decompose-piece]");
+    if (decomposePiece && (event.key === "Enter" || event.key === " ")) {
+      state.teachDecomposeSelectedPiece = decomposePiece.dataset.decomposePiece;
+      event.preventDefault();
+      renderTeachMe();
+      return;
+    }
+    if (decomposePiece && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const card = teachCardById(decomposePiece.closest("[data-teach-card]")?.dataset.teachCard);
+      const variantId = decomposePiece.dataset.decomposeVariant;
+      const pieceId = decomposePiece.dataset.decomposePiece;
+      const piece = getDecomposePieces(variantId)[pieceId];
+      if (!card || card.customVisual !== "decomposeParallelogram" || !piece) return;
+      const distance = event.shiftKey ? 2 : 10;
+      if (event.key === "ArrowLeft") piece.x -= distance;
+      if (event.key === "ArrowRight") piece.x += distance;
+      if (event.key === "ArrowUp") piece.y -= distance;
+      if (event.key === "ArrowDown") piece.y += distance;
+      piece.x = clampNumber(piece.x, -80, decomposeStage.width - 30);
+      piece.y = clampNumber(piece.y, -80, decomposeStage.height - 30);
+      state.teachDecomposeSelectedPiece = pieceId;
+      markDecomposePieceUsed(card, pieceId);
       event.preventDefault();
       renderTeachMe();
       return;

@@ -61,7 +61,13 @@ const state = {
   practiceResponses: {},
   practiceReasoning: {},
   practiceSelections: {},
+  practiceActiveGroups: {},
+  practiceOpenDropdown: null,
+  practiceCompositionWorkspaces: {},
+  practicePrismNets: {},
+  practiceCubeNets: {},
   practiceSubmitted: {},
+  practiceGroupSubmitted: {},
   practiceHints: {},
   practiceSamples: {},
   sourceModalItemId: null,
@@ -73,6 +79,7 @@ let tangramPointer = null;
 let gridTrianglePointer = null;
 let tilingPiecePointer = null;
 let trianglePairPointer = null;
+let practiceCompositionPointer = null;
 let decomposePointer = null;
 let pyramidNetPointer = null;
 let baseHeightChallengePointer = null;
@@ -7709,6 +7716,24 @@ function sourcePreviewUrl(item) {
   return encodeURI(`artifacts/unit 1/${item.previewPath}`);
 }
 
+function practiceSourcePages(item) {
+  if (Array.isArray(item.sourcePages) && item.sourcePages.length) {
+    return item.sourcePages.map((sourcePage) => ({
+      page: Number(sourcePage.page),
+      previewPath: sourcePage.previewPath,
+      label: sourcePage.label || `Source p.${sourcePage.page}`,
+    }));
+  }
+  return [{ page: item.sourcePage, previewPath: item.previewPath, label: `Source p.${item.sourcePage}` }];
+}
+
+function practiceSourceModalId(item, sourcePage) {
+  const pages = practiceSourcePages(item);
+  return pages.length === 1 && sourcePage.page === item.sourcePage
+    ? item.id
+    : `${item.id}:source-page-${sourcePage.page}`;
+}
+
 function teachMeSourceUrl(source) {
   return encodeURI(source.previewPath);
 }
@@ -7718,14 +7743,21 @@ function blacklineMasterPreviewUrl(source) {
 }
 
 function modalSourceEntry() {
-  const practiceItem = practiceBank.find((entry) => entry.id === state.sourceModalItemId);
-  if (practiceItem) {
+  const practiceSource = practiceBank
+    .flatMap((item) => practiceSourcePages(item).map((sourcePage) => ({
+      item,
+      sourcePage,
+      id: practiceSourceModalId(item, sourcePage),
+    })))
+    .find((entry) => entry.id === state.sourceModalItemId);
+  if (practiceSource) {
+    const { item: practiceItem, sourcePage } = practiceSource;
     if (!canOpenPracticeSource(practiceItem)) return null;
     return {
       eyebrow: "Rendered source",
-      title: `Source p.${practiceItem.sourcePage}`,
+      title: `Source p.${sourcePage.page}`,
       subtitle: practiceItem.source,
-      imageSrc: sourcePreviewUrl(practiceItem),
+      imageSrc: encodeURI(`artifacts/unit 1/${sourcePage.previewPath}`),
       imageAlt: `Rendered source page for ${practiceItem.skill}`,
     };
   }
@@ -7845,15 +7877,27 @@ function getPracticeValue(item) {
   if (item.responseType === "multiSelect") {
     return state.practiceSelections[item.id] || [];
   }
-  if (item.responseType === "matching") {
+  if (["matching", "groupedChoice", "cubeNetExpressions", "tentDesignEstimate"].includes(item.responseType)) {
     return state.practiceResponses[item.id] || {};
   }
   return state.practiceResponses[item.id] || "";
 }
 
-function isPracticeCorrect(item) {
+function isPracticePrimaryCorrect(item) {
   if (item.responseType === "open") return false;
   const answer = getPracticeValue(item);
+  if (item.responseType === "validatedText") {
+    return practicePrimaryTextValidatorResult(item, answer);
+  }
+  if (item.responseType === "cubeNetExpressions") {
+    const cells = getPracticeCubeNetCells(item.id);
+    return cubeNetIsValid(cells)
+      && cubeSurfaceExpressionIsCorrect(answer.surfaceArea)
+      && cubeVolumeExpressionIsCorrect(answer.volume);
+  }
+  if (item.responseType === "tentDesignEstimate") {
+    return practiceTentDesignIsCorrect(item);
+  }
   if (item.responseType === "number") {
     const givenNumber = parseMathNumber(answer);
     return item.answerKey.some((accepted) => {
@@ -7861,6 +7905,10 @@ function isPracticeCorrect(item) {
       if (givenNumber !== null && acceptedNumber !== null) return Math.abs(givenNumber - acceptedNumber) < 1e-9;
       return normalizeAnswer(answer) === normalizeAnswer(accepted);
     });
+  }
+  if (item.responseType === "shortAnswer") {
+    const normalized = normalizeAnswer(answer);
+    return item.answerKey.some((accepted) => normalized === normalizeAnswer(String(accepted)));
   }
   if (item.responseType === "singleChoice") {
     return answer === item.answerKey[0];
@@ -7874,7 +7922,269 @@ function isPracticeCorrect(item) {
     const expected = item.matchTargets || [];
     return expected.length > 0 && expected.every((target) => answer[target.id] === target.correctChoiceId);
   }
+  if (item.responseType === "groupedChoice") {
+    const groups = item.choiceGroups || [];
+    return groups.length > 0 && groups.every((group) => answer[group.id] === group.correctChoiceId);
+  }
   return false;
+}
+
+function practiceGroupStateKey(itemId, groupId) {
+  return `${itemId}:${groupId}`;
+}
+
+function isPracticeGroupSubmitted(item, group) {
+  return Boolean(state.practiceGroupSubmitted[practiceGroupStateKey(item.id, group.id)]);
+}
+
+function practiceGroupIsCorrect(item, group) {
+  return getPracticeValue(item)[group.id] === group.correctChoiceId;
+}
+
+function activePracticeChoiceGroup(item) {
+  const groups = item.choiceGroups || [];
+  const activeId = state.practiceActiveGroups[item.id];
+  return groups.find((group) => group.id === activeId) || groups[0] || null;
+}
+
+function normalizePracticeMathReasoning(value) {
+  return normalizeAnswer(value)
+    .replace(/\bone[\s-]+half\b|\ba half\b/g, "1/2")
+    .replace(/\bthirty[\s-]+six\b/g, "36")
+    .replace(/\beighteen\b/g, "18")
+    .replace(/\bsix\b/g, "6")
+    .replace(/\bthree\b/g, "3")
+    .replace(/\btwo\b/g, "2")
+    .replace(/\bmultiplied\s+by\b|\bmultiply\s+by\b|\btimes\b/g, "*")
+    .replace(/\bx\b|[×·]/g, "*")
+    .replace(/\bdivided\s+by\b|\bdivide\s+by\b/g, "/")
+    .replace(/÷/g, "/")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function triangleAreaSixBySixReasoningIsCorrect(reasoning) {
+  const text = normalizePracticeMathReasoning(reasoning);
+  const sixCount = (text.match(/\b6\b/g) || []).length;
+  const hasSixBySix = /\b6\s*(?:\*|by)\s*6\b/.test(text);
+  const hasHalfFactor = /\bhalf\b/.test(text) || /1\s*\/\s*2/.test(text) || /\b0\.5\b/.test(text);
+  const hasDivideByTwo = /\/\s*2\b/.test(text);
+  const hasBaseHeightFormula = /\bbase\b/.test(text)
+    && /\bheight\b/.test(text)
+    && (hasHalfFactor || hasDivideByTwo);
+  const halvesThirtySix = /\b36\b/.test(text) && (hasHalfFactor || hasDivideByTwo);
+  const multipliesSixByThree = /\b(?:6\s*\*\s*3|3\s*\*\s*6)\b/.test(text);
+  return (hasSixBySix && (hasHalfFactor || hasDivideByTwo))
+    || (sixCount >= 2 && hasBaseHeightFormula)
+    || halvesThirtySix
+    || multipliesSixByThree;
+}
+
+function parallelogramRejectedFiguresReasoningIsCorrect(reasoning) {
+  const text = normalizeAnswer(reasoning);
+  const hasParallel = /\bparallel(?:elogram)?s?\b/.test(text) || text.includes("parallel");
+  const hasSideLanguage = /\bsides?\b/.test(text);
+  const hasOppositeLanguage = /\bopposite\b/.test(text);
+  const hasTwoPairs = /(?:\btwo\b|\b2\b).*\bpairs?\b|\bpairs?\b.*(?:\btwo\b|\b2\b)/.test(text);
+  const hasNegation = /\b(?:not|no|lack|lacks|lacking|without|missing|neither)\b/.test(text)
+    || /\bdo(?:es)?\s+not\b|\bdoesn['’]?t\b|\bdon['’]?t\b|\bonly\s+one\b|\bfewer\s+than\s+two\b/.test(text);
+  const sharedReason = hasParallel
+    && hasNegation
+    && (hasSideLanguage || hasOppositeLanguage || hasTwoPairs);
+
+  const namesA = normalizedTextIncludesTerm(text, "a");
+  const namesD = normalizedTextIncludesTerm(text, "d");
+  const namesE = normalizedTextIncludesTerm(text, "e");
+  const explainsA = namesA
+    && hasParallel
+    && (/\bonly\s+one\b/.test(text) || /\bone\s+parallel\s+pair\b/.test(text) || hasTwoPairs);
+  const explainsD = namesD
+    && (/\b(?:5|five)\s+sides?\b/.test(text) || /\bpentagon\b/.test(text) || /\bnot\s+(?:a\s+)?quadrilateral\b/.test(text));
+  const explainsE = namesE
+    && (/\b(?:3|three)\s+sides?\b/.test(text) || /\btriangle\b/.test(text) || /\bnot\s+(?:a\s+)?quadrilateral\b/.test(text));
+  return sharedReason || (explainsA && explainsD && explainsE);
+}
+
+function triangularPrismAreaErrorIsCorrect(response) {
+  const text = normalizePracticeMathReasoning(response);
+  const plainText = normalizeAnswer(response);
+  const namesTriangle = /\btriang(?:le|les|ular)?\b/.test(text);
+  const usesHalf = /\bhalf\b/.test(text) || /1\s*\/\s*2/.test(text) || /\/\s*2\b/.test(text);
+  const dividesTrianglesByTwo = /\bdivid(?:e|ed|ing)\b.*\btriang(?:le|les|ular)?\b.*\b2\b/.test(plainText)
+    || /\btriang(?:le|les|ular)?\b.*\bdivid(?:e|ed|ing)\b.*\b2\b/.test(plainText);
+  const correctsTwelveToSix = /\b12\b/.test(text) && /\b6\b/.test(text)
+    && /\b(?:not|instead|should|rather|each)\b/.test(text);
+  return (namesTriangle && usesHalf) || dividesTrianglesByTwo || correctsTwelveToSix;
+}
+
+function rectangularPrismSurfaceAreaReasoningIsCorrect(reasoning) {
+  const text = normalizePracticeMathReasoning(reasoning);
+  const plainText = normalizeAnswer(reasoning);
+  const hasEightByTwo = /\b(?:8\s*(?:\*|by)\s*2|2\s*(?:\*|by)\s*8)\b/.test(text);
+  const hasEightByTwelve = /\b(?:8\s*(?:\*|by)\s*12|12\s*(?:\*|by)\s*8)\b/.test(text);
+  const hasTwoByTwelve = /\b(?:2\s*(?:\*|by)\s*12|12\s*(?:\*|by)\s*2)\b/.test(text);
+  const namesTwoForEveryPair = (plainText.match(/\btwo\b/g) || []).length >= 3;
+  const accountsForPairs = /\b(?:twice|double|pairs?|opposite|two\s+(?:of\s+each|faces?))\b/.test(plainText)
+    || /\b2\s*[([]/.test(text)
+    || namesTwoForEveryPair;
+  const hasExpandedFaceAreas = /\b32\b/.test(text) && /\b192\b/.test(text) && /\b48\b/.test(text);
+  return (hasEightByTwo && hasEightByTwelve && hasTwoByTwelve && accountsForPairs)
+    || hasExpandedFaceAreas;
+}
+
+function practicePrimaryTextValidatorResult(item, response) {
+  if (item.responseValidator === "triangularPrismAreaError") {
+    return triangularPrismAreaErrorIsCorrect(response);
+  }
+  return false;
+}
+
+function normalizeCubeExpression(value) {
+  return normalizeAnswer(value)
+    .replace(/[×·]/g, "*")
+    .replace(/²/g, "^2")
+    .replace(/³/g, "^3")
+    .replace(/\s+/g, "")
+    .replace(/[()]/g, "");
+}
+
+function cubeSurfaceExpressionIsCorrect(value) {
+  const expression = normalizeCubeExpression(value);
+  return ["6x^2", "6*x^2", "6*x*x", "x*x*6", "x^2*6"].includes(expression);
+}
+
+function cubeVolumeExpressionIsCorrect(value) {
+  const expression = normalizeCubeExpression(value);
+  return ["x^3", "x*x*x"].includes(expression);
+}
+
+function practiceTentDecisionIds(response) {
+  return String(response.tentDecisions || "").split("|")
+    .filter((id) => practiceTentDecisionOptions.some((option) => option.id === id));
+}
+
+function practiceTentWorksheet(itemId) {
+  const plan = practiceTentPlan(itemId);
+  const details = tentFabricDetails(plan);
+  if (!details) return { plan, fields: [] };
+  const fields = plan.style === "a-frame"
+    ? [
+      { id: "fabricFloor", label: "Floor area", expected: details.floor },
+      { id: "fabricRoof", label: "Two roof panels", expected: details.roofPair },
+      { id: "fabricEnds", label: "Two triangular ends", expected: details.endPair },
+      { id: "fabricTotal", label: "Total fabric estimate", expected: details.total },
+    ]
+    : [
+      { id: "fabricFloor", label: "Floor area", expected: details.floor },
+      { id: "fabricRoof", label: "Roof area", expected: details.roof },
+      { id: "fabricSides", label: "Two long walls", expected: details.longWalls },
+      { id: "fabricEnds", label: "Two end walls", expected: details.endWalls },
+      { id: "fabricTotal", label: "Total fabric estimate", expected: details.total },
+    ];
+  return { plan, fields };
+}
+
+function practiceTentFieldIsCorrect(value, expected) {
+  const number = parseMathNumber(value);
+  return number !== null && Math.abs(number - roundTentMeasure(expected)) <= 0.051;
+}
+
+function practiceTentDesignIsCorrect(item) {
+  const response = practiceTentResponse(item.id);
+  const { plan, fields } = practiceTentWorksheet(item.id);
+  return plan.valid
+    && practiceTentDecisionIds(response).length > 0
+    && fields.length > 0
+    && fields.every((field) => practiceTentFieldIsCorrect(response[field.id], field.expected));
+}
+
+function practiceReasoningValidatorResult(item, reasoning) {
+  if (!item.reasoningValidator) return null;
+  if (item.reasoningValidator === "triangleAreaSixBySix") {
+    return triangleAreaSixBySixReasoningIsCorrect(reasoning);
+  }
+  if (item.reasoningValidator === "parallelogramRejectedFigures") {
+    return parallelogramRejectedFiguresReasoningIsCorrect(reasoning);
+  }
+  if (item.reasoningValidator === "rectangularPrismSurfaceArea") {
+    return rectangularPrismSurfaceAreaReasoningIsCorrect(reasoning);
+  }
+  return false;
+}
+
+function practiceReasoningEvaluation(item) {
+  if (!item.reasoningRequired) return { answered: true, correct: true };
+  const reasoning = normalizeAnswer(state.practiceReasoning[item.id] || "");
+  const concepts = Array.isArray(item.reasoningConcepts) ? item.reasoningConcepts : [];
+  const conceptsRequired = Number.isInteger(item.reasoningConceptsRequired)
+    ? Math.max(1, item.reasoningConceptsRequired)
+    : 1;
+  const conceptRequirements = Array.isArray(item.reasoningConceptRequirements)
+    ? item.reasoningConceptRequirements
+    : [];
+  const minimumLength = Number.isInteger(item.reasoningMinLength) ? item.reasoningMinLength : 1;
+  const conceptsCorrect = concepts.length === 0
+    || normalizedTextConceptMatchCount(reasoning, concepts) >= conceptsRequired;
+  const requirementsCorrect = normalizedTextMeetsConceptRequirements(reasoning, conceptRequirements);
+  const validatorResult = practiceReasoningValidatorResult(item, reasoning);
+  return {
+    answered: reasoning.length > 0,
+    correct: reasoning.length >= minimumLength
+      && (validatorResult === null ? conceptsCorrect && requirementsCorrect : validatorResult),
+  };
+}
+
+function isPracticeCorrect(item) {
+  return isPracticePrimaryCorrect(item) && practiceReasoningEvaluation(item).correct;
+}
+
+function hasPracticeResponse(item) {
+  const answer = getPracticeValue(item);
+  if (Array.isArray(answer)) return answer.length > 0;
+  if (answer && typeof answer === "object") {
+    return Object.values(answer).some((value) => normalizeAnswer(value).length > 0);
+  }
+  return normalizeAnswer(answer).length > 0;
+}
+
+function practiceIncorrectFeedback(item) {
+  if (item.responseType === "tentDesignEstimate") {
+    const response = practiceTentResponse(item.id);
+    const { plan, fields } = practiceTentWorksheet(item.id);
+    if (!plan.complete) {
+      return "Complete the capacity, sleeping-bag arrangement, height, tent style, and both floor dimensions.";
+    }
+    if (!plan.floorFits) {
+      return `The floor is too small for the selected sleeping-bag arrangement. It must be at least ${formatTentMeasure(plan.requiredFloor.length)} by ${formatTentMeasure(plan.requiredFloor.width)} feet.`;
+    }
+    if (!practiceTentDecisionIds(response).length) {
+      return "The tent design is valid. Choose at least one decision that was important in selecting the design.";
+    }
+    const incompleteField = fields.find((field) => normalizeAnswer(response[field.id]).length === 0);
+    if (incompleteField) return `Complete the ${incompleteField.label.toLowerCase()} entry in the fabric worksheet.`;
+    const incorrectField = fields.find((field) => !practiceTentFieldIsCorrect(response[field.id], field.expected));
+    if (incorrectField) {
+      return `Recheck ${incorrectField.label.toLowerCase()}. Use the panel dimensions shown in the workspace and combine congruent panels before finding the total.`;
+    }
+    return item.incorrectFeedback || "Recheck the tent plan and fabric worksheet.";
+  }
+  if (item.responseType !== "cubeNetExpressions") {
+    return item.incorrectFeedback || "Not quite yet. Use the hint, then try again.";
+  }
+  const cells = getPracticeCubeNetCells(item.id);
+  const answer = getPracticeValue(item);
+  if (cells.length !== 6) return "Select exactly six squares for the cube net, then submit again.";
+  if (!cubeNetIsValid(cells)) {
+    return "The expressions may be revised later, but the six-square drawing is not yet a cube net. Arrange six edge-connected squares so each folds onto a different cube face.";
+  }
+  if (!cubeSurfaceExpressionIsCorrect(answer.surfaceArea)) {
+    return "The net is valid. Revise the surface-area expression: a cube has six square faces, and each face has area x squared.";
+  }
+  if (!cubeVolumeExpressionIsCorrect(answer.volume)) {
+    return "The net and surface-area expression are correct. Revise the volume expression using three factors of the edge length x.";
+  }
+  return item.incorrectFeedback || "Revise the response and try again.";
 }
 
 function isPracticeSubmitted(item) {
@@ -7921,8 +8231,432 @@ function renderPracticeFilters() {
   `).join("");
 }
 
+const practiceCompositionStage = {
+  width: 720,
+  height: 320,
+};
+
+const practiceCompositionTriangle = {
+  size: 164,
+  centerX: 82,
+  centerY: 82,
+  points: "0,0 164,0 164,164",
+  vertices: [[0, 0], [164, 0], [164, 164]],
+  edges: [
+    { id: "top-leg", kind: "leg", vertices: [0, 1] },
+    { id: "side-leg", kind: "leg", vertices: [1, 2] },
+    { id: "hypotenuse", kind: "hypotenuse", vertices: [2, 0] },
+  ],
+};
+
+function initialPracticeCompositionWorkspace() {
+  return {
+    selectedPiece: "copy-a",
+    pieces: {
+      "copy-a": { x: 180, y: 78, angle: 0 },
+      "copy-b": { x: 470, y: 78, angle: 0 },
+    },
+  };
+}
+
+function getPracticeCompositionWorkspace(itemId) {
+  if (!state.practiceCompositionWorkspaces[itemId]) {
+    state.practiceCompositionWorkspaces[itemId] = initialPracticeCompositionWorkspace();
+  }
+  return state.practiceCompositionWorkspaces[itemId];
+}
+
+function resetPracticeCompositionWorkspace(itemId) {
+  state.practiceCompositionWorkspaces[itemId] = initialPracticeCompositionWorkspace();
+}
+
+function practiceCompositionPieceTransform(itemId, pieceId) {
+  const piece = getPracticeCompositionWorkspace(itemId).pieces[pieceId];
+  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${practiceCompositionTriangle.centerX} ${practiceCompositionTriangle.centerY})`;
+}
+
+function practiceCompositionPoint(piece, vertex) {
+  const radians = piece.angle * Math.PI / 180;
+  const cosine = Math.cos(radians);
+  const sine = Math.sin(radians);
+  const dx = vertex[0] - practiceCompositionTriangle.centerX;
+  const dy = vertex[1] - practiceCompositionTriangle.centerY;
+  return {
+    x: piece.x + practiceCompositionTriangle.centerX + dx * cosine - dy * sine,
+    y: piece.y + practiceCompositionTriangle.centerY + dx * sine + dy * cosine,
+  };
+}
+
+function practiceCompositionDistance(first, second) {
+  return Math.hypot(first.x - second.x, first.y - second.y);
+}
+
+function practiceCompositionTransformedEdges(piece) {
+  return practiceCompositionTriangle.edges.map((edge) => ({
+    ...edge,
+    start: practiceCompositionPoint(piece, practiceCompositionTriangle.vertices[edge.vertices[0]]),
+    end: practiceCompositionPoint(piece, practiceCompositionTriangle.vertices[edge.vertices[1]]),
+  }));
+}
+
+function practiceCompositionJoinedSide(itemId, tolerance = 2) {
+  const pieces = getPracticeCompositionWorkspace(itemId).pieces;
+  const firstEdges = practiceCompositionTransformedEdges(pieces["copy-a"]);
+  const secondEdges = practiceCompositionTransformedEdges(pieces["copy-b"]);
+  for (const firstEdge of firstEdges) {
+    for (const secondEdge of secondEdges) {
+      const reverseStart = practiceCompositionDistance(firstEdge.start, secondEdge.end);
+      const reverseEnd = practiceCompositionDistance(firstEdge.end, secondEdge.start);
+      if (reverseStart <= tolerance && reverseEnd <= tolerance) {
+        return firstEdge.kind === "hypotenuse" && secondEdge.kind === "hypotenuse"
+          ? "hypotenuse"
+          : "leg";
+      }
+    }
+  }
+  return "none";
+}
+
+function snapPracticeCompositionPiece(itemId, pieceId) {
+  const workspace = getPracticeCompositionWorkspace(itemId);
+  const movingPiece = workspace.pieces[pieceId];
+  const otherPiece = workspace.pieces[pieceId === "copy-a" ? "copy-b" : "copy-a"];
+  const movingEdges = practiceCompositionTransformedEdges(movingPiece);
+  const otherEdges = practiceCompositionTransformedEdges(otherPiece);
+  let closest = null;
+  for (const movingEdge of movingEdges) {
+    for (const otherEdge of otherEdges) {
+      const movingLength = practiceCompositionDistance(movingEdge.start, movingEdge.end);
+      const otherLength = practiceCompositionDistance(otherEdge.start, otherEdge.end);
+      if (Math.abs(movingLength - otherLength) > 1) continue;
+      const score = practiceCompositionDistance(movingEdge.start, otherEdge.end)
+        + practiceCompositionDistance(movingEdge.end, otherEdge.start);
+      if (!closest || score < closest.score) closest = { movingEdge, otherEdge, score };
+    }
+  }
+  if (!closest || closest.score > 56) return false;
+  const dx = ((closest.otherEdge.end.x - closest.movingEdge.start.x)
+    + (closest.otherEdge.start.x - closest.movingEdge.end.x)) / 2;
+  const dy = ((closest.otherEdge.end.y - closest.movingEdge.start.y)
+    + (closest.otherEdge.start.y - closest.movingEdge.end.y)) / 2;
+  movingPiece.x = clampNumber(movingPiece.x + dx, -8, practiceCompositionStage.width - practiceCompositionTriangle.size + 8);
+  movingPiece.y = clampNumber(movingPiece.y + dy, -8, practiceCompositionStage.height - practiceCompositionTriangle.size + 8);
+  return true;
+}
+
+function practiceCompositionStatus(itemId) {
+  const joinedSide = practiceCompositionJoinedSide(itemId);
+  if (joinedSide === "hypotenuse") {
+    return "The triangles are joined along their hypotenuses. Trace the outside boundary.";
+  }
+  if (joinedSide === "leg") {
+    return "The triangles are joined along a leg. Trace the outside boundary.";
+  }
+  return "Move and rotate the triangles. Bring one complete matching side onto the other.";
+}
+
+function updatePracticeCompositionDom(itemId) {
+  const workspace = getPracticeCompositionWorkspace(itemId);
+  const root = document.querySelector(`[data-practice-composition-workspace="${itemId}"]`);
+  if (!root) return;
+  root.querySelectorAll("[data-practice-composition-piece]").forEach((pieceNode) => {
+    const pieceId = pieceNode.dataset.practiceCompositionPiece;
+    pieceNode.setAttribute("transform", practiceCompositionPieceTransform(itemId, pieceId));
+    pieceNode.classList.toggle("is-selected", pieceId === workspace.selectedPiece);
+    pieceNode.setAttribute("aria-pressed", String(pieceId === workspace.selectedPiece));
+  });
+  root.querySelectorAll("[data-practice-composition-select]").forEach((button) => {
+    const selected = button.dataset.practiceCompositionSelect === workspace.selectedPiece;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  const joinedSide = practiceCompositionJoinedSide(itemId);
+  const stage = root.querySelector("[data-practice-composition-stage]");
+  if (stage) stage.dataset.joinedSide = joinedSide;
+  const status = root.querySelector("[data-practice-composition-status]");
+  if (status) status.textContent = practiceCompositionStatus(itemId);
+}
+
+function getPracticeCubeNetCells(itemId) {
+  if (!Array.isArray(state.practiceCubeNets[itemId])) state.practiceCubeNets[itemId] = [];
+  return state.practiceCubeNets[itemId];
+}
+
+function setPracticeCubeNetCells(itemId, cells) {
+  state.practiceCubeNets[itemId] = cells;
+  state.practiceSubmitted[itemId] = false;
+  state.practiceSamples[itemId] = false;
+  state.sourceModalItemId = null;
+}
+
+function practiceCubeNetStatus(itemId) {
+  const cells = getPracticeCubeNetCells(itemId);
+  if (cells.length < 6) return `${cells.length} of 6 squares selected.`;
+  return cubeNetIsValid(cells)
+    ? "Valid cube net. All six squares fold onto different cube faces."
+    : "These six squares do not fold onto six different cube faces. Remove a square and revise the arrangement.";
+}
+
+function renderPracticeCubeNet(item) {
+  const cells = getPracticeCubeNetCells(item.id);
+  const selected = new Set(cells.map(({ x, y }) => `${x},${y}`));
+  const gridSize = 7;
+  const gridCells = [];
+  for (let y = 0; y < gridSize; y += 1) {
+    for (let x = 0; x < gridSize; x += 1) {
+      const key = `${x},${y}`;
+      const active = selected.has(key);
+      gridCells.push(`
+        <button
+          class="practice-cube-net-cell ${active ? "is-selected" : ""}"
+          type="button"
+          data-practice-cube-net-cell="${key}"
+          data-item-id="${item.id}"
+          aria-pressed="${active}"
+          aria-label="Grid square, row ${y + 1}, column ${x + 1}${active ? ", selected" : ""}"
+        ></button>
+      `);
+    }
+  }
+  return `
+    <section class="practice-cube-net-workspace" aria-label="Cube net drawing workspace">
+      <div class="practice-cube-net-heading">
+        <div>
+          <h4>Draw a cube net</h4>
+          <p>Select exactly six edge-connected squares. Each square has side length <em>x</em> cm.</p>
+        </div>
+        <button class="hint-button" type="button" data-practice-cube-net-reset="${item.id}">Reset net</button>
+      </div>
+      <div class="practice-cube-net-grid" role="group" aria-label="Seven by seven square grid">
+        ${gridCells.join("")}
+      </div>
+      <p class="practice-cube-net-status ${cells.length === 6 && cubeNetIsValid(cells) ? "is-valid" : ""}" aria-live="polite">${escapeHtml(practiceCubeNetStatus(item.id))}</p>
+    </section>
+  `;
+}
+
+const practiceTentDecisionOptions = Object.freeze([
+  { id: "capacity", label: "Number of campers" },
+  { id: "arrangement", label: "Sleeping-bag arrangement" },
+  { id: "height", label: "Inside height" },
+  { id: "style", label: "Tent shape" },
+  { id: "floor", label: "Floor dimensions" },
+  { id: "fabric", label: "Amount of fabric" },
+]);
+
+function practiceTentResponse(itemId) {
+  const response = state.practiceResponses[itemId];
+  return response && typeof response === "object" && !Array.isArray(response) ? response : {};
+}
+
+function practiceTentPlan(itemId) {
+  return tentPlanFromResponse(practiceTentResponse(itemId));
+}
+
+function clearPracticeTentWorksheet(response) {
+  const next = { ...response };
+  ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"].forEach((field) => {
+    delete next[field];
+  });
+  return next;
+}
+
+function markPracticeTentChanged(itemId, response) {
+  state.practiceResponses[itemId] = response;
+  state.practiceSubmitted[itemId] = false;
+  state.practiceSamples[itemId] = false;
+  state.sourceModalItemId = null;
+}
+
+function renderPracticeTentChoiceGroup(item, field, label, optionKey) {
+  const response = practiceTentResponse(item.id);
+  const selected = String(response[field] || "");
+  return `
+    <fieldset class="tent-choice-group">
+      <legend>${escapeHtml(label)}</legend>
+      <div class="tent-choice-options">
+        ${(tentDesignerOptions[optionKey] || []).map((option) => `
+          <button
+            class="page-chip tent-choice-button ${selected === option.id ? "is-active" : ""}"
+            type="button"
+            data-practice-tent-choice="${item.id}"
+            data-tent-field="${escapeHtml(field)}"
+            data-option-id="${escapeHtml(option.id)}"
+            aria-pressed="${selected === option.id}"
+          >${escapeHtml(option.label)}</button>
+        `).join("")}
+      </div>
+    </fieldset>
+  `;
+}
+
+function renderPracticeTentFloorStepper(item, field, label, value, disabled) {
+  const shownValue = Number.isInteger(value) ? value : "Not set";
+  return `
+    <div class="tent-stepper">
+      <span>${escapeHtml(label)}</span>
+      <div class="tent-stepper-controls">
+        <button type="button" data-practice-tent-step="${item.id}" data-tent-field="${escapeHtml(field)}" data-step="-1" aria-label="Decrease ${escapeHtml(label)}" ${disabled ? "disabled" : ""}>-</button>
+        <output>${escapeHtml(shownValue)} ft</output>
+        <button type="button" data-practice-tent-step="${item.id}" data-tent-field="${escapeHtml(field)}" data-step="1" aria-label="Increase ${escapeHtml(label)}" ${disabled ? "disabled" : ""}>+</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPracticeTentDesigner(item) {
+  const plan = practiceTentPlan(item.id);
+  const controlsReady = Number.isInteger(plan.capacity) && Boolean(plan.arrangement);
+  return `
+    <section class="tent-designer practice-tent-designer" aria-label="Interactive tent designer">
+      <div class="tent-designer-controls">
+        ${renderPracticeTentChoiceGroup(item, "tentCapacity", "Capacity, up to 4 campers", "capacity")}
+        ${renderPracticeTentChoiceGroup(item, "tentArrangement", "Sleeping-bag arrangement", "arrangement")}
+        ${renderPracticeTentChoiceGroup(item, "tentHeight", "Height specification", "height")}
+        ${renderPracticeTentChoiceGroup(item, "tentStyle", "Tent style", "style")}
+        <fieldset class="tent-floor-controls">
+          <legend>Floor dimensions</legend>
+          <p>Adjust in whole feet. The diagram checks standard 74-by-34-inch sleeping bags.</p>
+          <div class="tent-stepper-grid">
+            ${renderPracticeTentFloorStepper(item, "tentFloorLength", "Length", plan.floorLength, !controlsReady)}
+            ${renderPracticeTentFloorStepper(item, "tentFloorWidth", "Width", plan.floorWidth, !controlsReady)}
+          </div>
+        </fieldset>
+      </div>
+      <div class="tent-design-views">
+        ${renderTentFloorPlan(plan)}
+        <figure class="tent-design-figure tent-model-figure">
+          <figcaption>Your tent sketch</figcaption>
+          ${renderTentModelSvg(plan)}
+        </figure>
+      </div>
+      ${renderTentPanelOrganizer(plan)}
+    </section>
+  `;
+}
+
 function practiceVisual(item) {
   const data = item.visualModelData || {};
+  if (data.type === "rectPrismNetBuilder") return renderRectangularPrismNetVisual(item);
+  if (data.type === "interactiveCubeNet") return renderPracticeCubeNet(item);
+  if (data.type === "interactiveTentDesigner") return renderPracticeTentDesigner(item);
+  if (data.type === "triangleComposition") {
+    const workspace = getPracticeCompositionWorkspace(item.id);
+    const joinedSide = practiceCompositionJoinedSide(item.id);
+    const pieces = ["copy-a", "copy-b"].map((pieceId, index) => `
+      <g
+        class="practice-composition-piece-group ${pieceId === workspace.selectedPiece ? "is-selected" : ""}"
+        data-practice-composition-piece="${pieceId}"
+        data-item-id="${item.id}"
+        transform="${practiceCompositionPieceTransform(item.id, pieceId)}"
+        role="button"
+        tabindex="0"
+        aria-pressed="${pieceId === workspace.selectedPiece}"
+        aria-label="Triangle ${index + 1}, draggable. Use arrow keys to move it."
+      >
+        <title>Triangle ${index + 1}</title>
+        <polygon points="${escapeHtml(data.piecePoints || practiceCompositionTriangle.points)}" class="practice-composition-piece practice-composition-piece--${index + 1}"></polygon>
+        <text x="120" y="73" text-anchor="middle">R</text>
+      </g>
+    `).join("");
+    return `
+      <section class="practice-composition-workspace" data-practice-composition-workspace="${item.id}" aria-label="Triangle R composition workspace">
+        <p class="practice-composition-direction">Select a triangle, then drag or use the arrow keys to move it. Use quarter turns to test different complete-side joins.</p>
+        <div class="practice-composition-toolbar">
+          <div class="practice-composition-selectors" role="group" aria-label="Select a triangle">
+            <button class="page-chip ${workspace.selectedPiece === "copy-a" ? "is-active" : ""}" type="button" data-practice-composition-select="copy-a" data-item-id="${item.id}" aria-pressed="${workspace.selectedPiece === "copy-a"}">Triangle 1</button>
+            <button class="page-chip ${workspace.selectedPiece === "copy-b" ? "is-active" : ""}" type="button" data-practice-composition-select="copy-b" data-item-id="${item.id}" aria-pressed="${workspace.selectedPiece === "copy-b"}">Triangle 2</button>
+          </div>
+          <div class="practice-composition-actions" role="group" aria-label="Rotate or reset the triangles">
+            <button class="hint-button" type="button" data-practice-composition-rotate="-90" data-item-id="${item.id}">Rotate left</button>
+            <button class="hint-button" type="button" data-practice-composition-rotate="90" data-item-id="${item.id}">Rotate right</button>
+            <button class="hint-button" type="button" data-practice-composition-reset data-item-id="${item.id}">Reset</button>
+          </div>
+        </div>
+        <svg
+          class="practice-composition-stage"
+          data-practice-composition-stage="${item.id}"
+          data-joined-side="${joinedSide}"
+          viewBox="0 0 ${practiceCompositionStage.width} ${practiceCompositionStage.height}"
+          role="img"
+          aria-label="${escapeHtml(data.alt || "Two movable copies of Triangle R")}"
+        >
+          <rect x="1" y="1" width="${practiceCompositionStage.width - 2}" height="${practiceCompositionStage.height - 2}" class="practice-composition-board"></rect>
+          ${pieces}
+        </svg>
+        <p class="practice-composition-status" data-practice-composition-status aria-live="polite">${escapeHtml(practiceCompositionStatus(item.id))}</p>
+        <p class="practice-composition-source-note">The triangle shapes are traced from the source diagram.</p>
+      </section>
+    `;
+  }
+  if (data.type === "sourceVisualGallery") {
+    const activeGroup = activePracticeChoiceGroup(item);
+    const figures = data.figures || [];
+    const activeFigure = figures.find((figure) => figure.id === activeGroup?.id) || figures[0];
+    return `
+      <div class="practice-source-gallery">
+        ${activeFigure ? `
+          <figure class="practice-source-gallery-item">
+            <figcaption>${escapeHtml(activeFigure.label || "Source strategy")}</figcaption>
+            <img src="${escapeHtml(activeFigure.imagePath)}" alt="${escapeHtml(activeFigure.alt || "Source strategy visual")}" width="${activeFigure.naturalWidth || ""}" height="${activeFigure.naturalHeight || ""}">
+          </figure>
+        ` : ""}
+      </div>
+    `;
+  }
+  if (data.type === "sourceHeightPlacement") {
+    const answers = getPracticeValue(item);
+    const activeGroup = activePracticeChoiceGroup(item);
+    const canvasHeight = data.canvasHeight || data.naturalHeight || 520;
+    const selectedLines = Object.entries(data.placementLines || {}).map(([groupId, options]) => {
+      const points = options?.[answers[groupId]];
+      if (!Array.isArray(points) || points.length !== 4) return "";
+      const [x1, y1, x2, y2] = points;
+      return `
+        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="practice-height-line"></line>
+        <circle cx="${x1}" cy="${y1}" r="9" class="practice-height-point"></circle>
+        <circle cx="${x2}" cy="${y2}" r="9" class="practice-height-point"></circle>
+      `;
+    }).join("");
+    const groupMarkers = Object.entries(data.groupMarkers || {}).map(([groupId, marker]) => `
+      <rect x="${marker.x}" y="${marker.y}" width="${marker.width}" height="${marker.height}" rx="18" class="practice-height-focus ${activeGroup?.id === groupId ? "is-active" : ""}"></rect>
+      <text x="${marker.x + 24}" y="${marker.y + 38}" class="practice-height-number ${activeGroup?.id === groupId ? "is-active" : ""}">${escapeHtml(marker.label || "")}</text>
+    `).join("");
+    return `
+      <figure class="practice-height-placement">
+        <div class="practice-height-placement-stage" style="aspect-ratio: ${data.naturalWidth || 1650} / ${canvasHeight};">
+          <img src="${escapeHtml(data.imagePath)}" alt="${escapeHtml(data.alt || "Three source triangles with bases labeled b")}" width="${data.naturalWidth || 1650}" height="${data.naturalHeight || 520}">
+          <svg viewBox="0 0 ${data.naturalWidth || 1650} ${canvasHeight}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            ${groupMarkers}
+            ${selectedLines}
+          </svg>
+        </div>
+        <figcaption>Your selected height segments appear on the exact source triangles.</figcaption>
+      </figure>
+    `;
+  }
+  if (data.type === "sourcePhoto" || data.type === "sourceVisual") {
+    const isPhoto = data.type === "sourcePhoto";
+    const naturalWidth = Number.isFinite(data.naturalWidth) ? data.naturalWidth : "";
+    const naturalHeight = Number.isFinite(data.naturalHeight) ? data.naturalHeight : "";
+    const sizeAttributes = naturalWidth && naturalHeight
+      ? ` width="${naturalWidth}" height="${naturalHeight}"`
+      : "";
+    const figureClass = isPhoto ? "practice-source-photo-visual" : "practice-source-visual";
+    const visualVariantClass = !isPhoto && data.displayVariant === "compactPortrait"
+      ? " practice-source-visual--compact-portrait"
+      : !isPhoto && data.displayVariant === "compactSquare"
+        ? " practice-source-visual--compact-square"
+        : "";
+    const imageClass = isPhoto ? "practice-source-photo" : "practice-source-visual-image";
+    const fallbackAlt = isPhoto ? "Source photograph" : "Source visual";
+    return `
+      <figure class="${figureClass}${visualVariantClass}">
+        <img class="${imageClass}" src="${escapeHtml(data.imagePath)}" alt="${escapeHtml(data.alt || fallbackAlt)}"${sizeAttributes}>
+        ${data.caption ? `<figcaption>${escapeHtml(data.caption)}</figcaption>` : ""}
+      </figure>
+    `;
+  }
   if (data.type === "areaHalfUnits") {
     const squares = Array.from({ length: data.squares }, (_, index) => (
       `<rect x="${56 + index * 78}" y="72" width="64" height="64" class="shape-fill blue"></rect>`
@@ -7957,67 +8691,6 @@ function practiceVisual(item) {
       <text x="220" y="42" text-anchor="middle" class="measure-label">same pieces, rearranged</text>
     `, "0 0 430 280");
   }
-  if (data.type === "areaMeaningStatements") {
-    const gridX = 74;
-    const gridY = 42;
-    const cell = 28;
-    const gridColumns = 10;
-    const gridRows = 7;
-    const gridLines = [];
-    for (let index = 0; index <= gridColumns; index += 1) {
-      const x = gridX + index * cell;
-      gridLines.push(`<line x1="${x}" y1="${gridY}" x2="${x}" y2="${gridY + gridRows * cell}" class="source-grid-line"></line>`);
-    }
-    for (let index = 0; index <= gridRows; index += 1) {
-      const y = gridY + index * cell;
-      gridLines.push(`<line x1="${gridX}" y1="${y}" x2="${gridX + gridColumns * cell}" y2="${y}" class="source-grid-line"></line>`);
-    }
-    const point = (x, y) => `${gridX + x * cell},${gridY + y * cell}`;
-    return svg(`
-      <rect x="${gridX}" y="${gridY}" width="${gridColumns * cell}" height="${gridRows * cell}" fill="#ffffff" stroke="#87929b" stroke-width="1.1"></rect>
-      ${gridLines.join("")}
-      <path d="M${point(3, 2)} H${gridX + 7 * cell} V${gridY + 5 * cell} H${gridX + 8 * cell} V${gridY + 7 * cell} H${gridX + 2 * cell} V${gridY + 5 * cell} H${gridX + 3 * cell} Z" class="model-line"></path>
-      <text x="${gridX + 5 * cell}" y="${gridY + 1.72 * cell}" text-anchor="middle" class="measure-label">4</text>
-      <text x="${gridX + 7.32 * cell}" y="${gridY + 3.55 * cell}" class="measure-label">3</text>
-      <text x="${gridX + 1.38 * cell}" y="${gridY + 6.15 * cell}" class="measure-label">2</text>
-      <text x="${gridX + 5 * cell}" y="${gridY + 7.45 * cell}" text-anchor="middle" class="measure-label">6</text>
-    `, "0 0 430 275");
-  }
-  if (data.type === "rearrangedSquareSameArea") {
-    const cell = 28;
-    const originalX = 72;
-    const originalY = 72;
-    const rearrangedX = 276;
-    const rearrangedY = 72;
-    const square = (originX, originY, col, row, classes) => (
-      `<rect x="${originX + col * cell}" y="${originY + row * cell}" width="${cell}" height="${cell}" class="unit-piece ${classes}"></rect>`
-    );
-    const originalPieces = [];
-    for (let row = 0; row < 4; row += 1) {
-      for (let col = 0; col < 4; col += 1) {
-        originalPieces.push(square(originalX, originalY, col, row, "blue original-unit-piece"));
-      }
-    }
-    const ringPieces = [];
-    for (let row = 0; row < 4; row += 1) {
-      for (let col = 0; col < 4; col += 1) {
-        if (col >= 1 && col <= 2 && row >= 1 && row <= 2) continue;
-        ringPieces.push(square(rearrangedX, rearrangedY, col, row, "blue rearranged-unit-piece"));
-      }
-    }
-    const movedPieces = [
-      [2, -1],
-      [-1, 1],
-      [4, 2],
-      [1, 4],
-    ].map(([col, row]) => square(rearrangedX, rearrangedY, col, row, "blue rearranged-unit-piece moved-unit-piece"));
-    return svg(`
-      ${originalPieces.join("")}
-      ${ringPieces.join("")}
-      ${movedPieces.join("")}
-      <rect x="${rearrangedX + cell}" y="${rearrangedY + cell}" width="${2 * cell}" height="${2 * cell}" class="unit-hole"></rect>
-    `, "0 0 440 250");
-  }
   if (data.type === "compareRegions") {
     const large = 128;
     const moved = 32;
@@ -8039,37 +8712,6 @@ function practiceVisual(item) {
       <rect x="${holeX}" y="${holeY}" width="${moved}" height="${moved}" class="unit-hole moved-square-hole"></rect>
     `, "0 0 450 235");
   }
-  if (data.type === "parallelogramSort") {
-    const gridX = 32;
-    const gridY = 42;
-    const cell = 18;
-    const gridColumns = 20;
-    const gridRows = 13;
-    const gridLines = [];
-    for (let index = 0; index <= gridColumns; index += 1) {
-      const x = gridX + index * cell;
-      gridLines.push(`<line x1="${x}" y1="${gridY}" x2="${x}" y2="${gridY + gridRows * cell}" class="source-grid-line"></line>`);
-    }
-    for (let index = 0; index <= gridRows; index += 1) {
-      const y = gridY + index * cell;
-      gridLines.push(`<line x1="${gridX}" y1="${y}" x2="${gridX + gridColumns * cell}" y2="${y}" class="source-grid-line"></line>`);
-    }
-    const point = (x, y) => `${gridX + x * cell},${gridY + y * cell}`;
-    return svg(`
-      <rect x="${gridX}" y="${gridY}" width="${gridColumns * cell}" height="${gridRows * cell}" fill="#ffffff" stroke="#87929b" stroke-width="1.1"></rect>
-      ${gridLines.join("")}
-      <text x="${gridX + 2.6 * cell}" y="${gridY + 2 * cell}" text-anchor="middle" class="measure-label">A</text>
-      <polygon points="${point(5, 2)} ${point(10, 2)} ${point(9, 4)} ${point(6, 4)}" class="shape-fill blue"></polygon>
-      <text x="${gridX + 12 * cell}" y="${gridY + 2 * cell}" text-anchor="middle" class="measure-label">B</text>
-      <polygon points="${point(14, 2)} ${point(18, 2)} ${point(17, 4)} ${point(13, 4)}" class="shape-fill blue"></polygon>
-      <text x="${gridX + 2.1 * cell}" y="${gridY + 8 * cell}" text-anchor="middle" class="measure-label">C</text>
-      <rect x="${gridX + 4 * cell}" y="${gridY + 8 * cell}" width="${3 * cell}" height="${4 * cell}" class="shape-fill blue"></rect>
-      <text x="${gridX + 9.8 * cell}" y="${gridY + 8 * cell}" text-anchor="middle" class="measure-label">D</text>
-      <polygon points="${point(12, 8)} ${point(14, 8)} ${point(13, 10)} ${point(12, 11)} ${point(11, 10)}" class="shape-fill blue"></polygon>
-      <text x="${gridX + 15 * cell}" y="${gridY + 8 * cell}" text-anchor="middle" class="measure-label">E</text>
-      <polygon points="${point(16, 12)} ${point(19, 8)} ${point(19, 12)}" class="shape-fill blue"></polygon>
-    `, "0 0 430 305");
-  }
   if (data.type === "parallelogramHeightChoice") {
     return svg(`
       <polygon points="112,76 328,76 278,206 62,206" class="shape-fill teal"></polygon>
@@ -8082,53 +8724,6 @@ function practiceVisual(item) {
       <line x1="224" y1="206" x2="328" y2="206" class="model-line"></line>
       <text x="292" y="196" class="measure-label">C</text>
     `, "0 0 420 280");
-  }
-  if (data.type === "parallelogramHeightsFour") {
-    const gridX = 44;
-    const gridY = 30;
-    const cell = 18;
-    const gridColumns = 20;
-    const gridRows = 12;
-    const gridLines = [];
-    for (let index = 0; index <= gridColumns; index += 1) {
-      const x = gridX + index * cell;
-      gridLines.push(`<line x1="${x}" y1="${gridY}" x2="${x}" y2="${gridY + gridRows * cell}" class="source-grid-line"></line>`);
-    }
-    for (let index = 0; index <= gridRows; index += 1) {
-      const y = gridY + index * cell;
-      gridLines.push(`<line x1="${gridX}" y1="${y}" x2="${gridX + gridColumns * cell}" y2="${y}" class="source-grid-line"></line>`);
-    }
-    const point = (x, y) => `${gridX + x * cell},${gridY + y * cell}`;
-    return svg(`
-      <rect x="${gridX}" y="${gridY}" width="${gridColumns * cell}" height="${gridRows * cell}" fill="#ffffff" stroke="#87929b" stroke-width="1.1"></rect>
-      ${gridLines.join("")}
-      <text x="${gridX + 1.8 * cell}" y="${gridY + 2.1 * cell}" text-anchor="middle" class="measure-label">A</text>
-      <text x="${gridX + 2.3 * cell}" y="${gridY + 3.2 * cell}" text-anchor="middle" class="source-geometry-label">base</text>
-      <rect x="${gridX + 3.2 * cell}" y="${gridY + 2.1 * cell}" width="${3 * cell}" height="${2 * cell}" class="shape-fill blue"></rect>
-      <text x="${gridX + 4.7 * cell}" y="${gridY + 4.9 * cell}" text-anchor="middle" class="source-geometry-label">height</text>
-
-      <text x="${gridX + 10.4 * cell}" y="${gridY + 2.1 * cell}" text-anchor="middle" class="measure-label">B</text>
-      <text x="${gridX + 11.2 * cell}" y="${gridY + 3.2 * cell}" text-anchor="middle" class="source-geometry-label">height</text>
-      <polygon points="${point(12, 2.1)} ${point(15, 2.1)} ${point(17, 4.1)} ${point(14, 4.1)}" class="shape-fill blue"></polygon>
-      <text x="${gridX + 15.5 * cell}" y="${gridY + 4.8 * cell}" text-anchor="middle" class="source-geometry-label">base</text>
-
-      <text x="${gridX + 1.8 * cell}" y="${gridY + 7.1 * cell}" text-anchor="middle" class="measure-label">C</text>
-      <text x="${gridX + 2.2 * cell}" y="${gridY + 8.2 * cell}" text-anchor="middle" class="source-geometry-label">height</text>
-      <polygon points="${point(3.2, 7.2)} ${point(6.2, 7.2)} ${point(8.2, 9.2)} ${point(5.2, 9.2)}" class="shape-fill blue"></polygon>
-      <line x1="${gridX + 3.2 * cell}" y1="${gridY + 7.2 * cell}" x2="${gridX + 3.2 * cell}" y2="${gridY + 9.2 * cell}" class="model-line dashed"></line>
-      <line x1="${gridX + 3.2 * cell}" y1="${gridY + 9.2 * cell}" x2="${gridX + 5.2 * cell}" y2="${gridY + 9.2 * cell}" class="model-line dashed"></line>
-      <path d="M${gridX + 3.2 * cell} ${gridY + 9.2 * cell} h${0.55 * cell} v-${0.55 * cell} h-${0.55 * cell}" class="right-angle-marker"></path>
-      <text x="${gridX + 6.4 * cell}" y="${gridY + 10 * cell}" text-anchor="middle" class="source-geometry-label">base</text>
-
-      <text x="${gridX + 10.4 * cell}" y="${gridY + 7.1 * cell}" text-anchor="middle" class="measure-label">D</text>
-      <text x="${gridX + 11.6 * cell}" y="${gridY + 8.4 * cell}" text-anchor="middle" class="source-geometry-label">base</text>
-      <polygon points="${point(12, 7.2)} ${point(15, 7.2)} ${point(17, 9.2)} ${point(14, 9.2)}" class="shape-fill blue"></polygon>
-      <line x1="${gridX + 14 * cell}" y1="${gridY + 9.2 * cell}" x2="${gridX + 15 * cell}" y2="${gridY + 7.2 * cell}" class="model-line dashed"></line>
-      <line x1="${gridX + 14 * cell}" y1="${gridY + 9.2 * cell}" x2="${gridX + 15.5 * cell}" y2="${gridY + 10.7 * cell}" class="model-line dashed"></line>
-      <line x1="${gridX + 17 * cell}" y1="${gridY + 9.2 * cell}" x2="${gridX + 15.5 * cell}" y2="${gridY + 10.7 * cell}" class="model-line dashed"></line>
-      <path d="M${gridX + 15.5 * cell} ${gridY + 10.7 * cell} l${0.45 * cell} -${0.45 * cell} l${0.45 * cell} ${0.45 * cell} l-${0.45 * cell} ${0.45 * cell} z" class="right-angle-marker"></path>
-      <text x="${gridX + 16.6 * cell}" y="${gridY + 10.8 * cell}" class="source-geometry-label">height</text>
-    `, "0 0 430 270");
   }
   if (data.type === "parallelogramArea" || data.type === "parallelogramMissing") {
     const base = data.base || "?";
@@ -8275,18 +8870,6 @@ function practiceVisual(item) {
       <text x="210" y="42" text-anchor="middle" class="measure-label">outside - missing pieces</text>
     `, "0 0 420 270");
   }
-  if (data.type === "rectPrismNet") {
-    return svg(`
-      <rect x="142" y="42" width="118" height="60" class="shape-fill mint"></rect>
-      <rect x="142" y="102" width="118" height="82" class="shape-fill blue"></rect>
-      <rect x="142" y="184" width="118" height="60" class="shape-fill mint"></rect>
-      <rect x="64" y="102" width="78" height="82" class="shape-fill amber"></rect>
-      <rect x="260" y="102" width="78" height="82" class="shape-fill amber"></rect>
-      <rect x="338" y="102" width="60" height="82" class="shape-fill rose"></rect>
-      <text x="201" y="136" text-anchor="middle" class="face-label">${data.length} × ${data.height}</text>
-      <text x="201" y="76" text-anchor="middle" class="face-label">${data.length} × ${data.width}</text>
-    `, "0 0 450 280");
-  }
   if (data.type === "triangularPrismError") {
     return svg(`
       <polygon points="74,198 142,76 210,198" class="shape-fill amber"></polygon>
@@ -8379,7 +8962,7 @@ function renderAnswerControl(item) {
   const reasoning = item.reasoningPrompt && item.responseType !== "open"
     ? `
       <label class="reasoning-field">
-        ${escapeHtml(item.reasoningPrompt)}
+        ${escapeHtml(item.reasoningRequired ? item.reasoningPrompt : `Optional: ${item.reasoningPrompt.replace(/^Optional:\s*/i, "")}`)}
         <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-practice-reasoning="${item.id}" placeholder="Explain your reasoning.">${escapeHtml(state.practiceReasoning[item.id] || "")}</textarea>
       </label>
     `
@@ -8391,6 +8974,71 @@ function renderAnswerControl(item) {
         <input type="text" inputmode="decimal" data-practice-input="${item.id}" value="${escapeHtml(getPracticeValue(item))}" placeholder="Type a number">
       </label>
       ${reasoning}
+    `;
+  }
+  if (item.responseType === "shortAnswer") {
+    return `
+      <label>
+        ${escapeHtml(item.inputLabel || "Answer")}
+        <input type="text" data-practice-input="${item.id}" value="${escapeHtml(getPracticeValue(item))}" placeholder="${escapeHtml(item.inputPlaceholder || "Type your answer")}">
+      </label>
+      ${reasoning}
+    `;
+  }
+  if (item.responseType === "validatedText") {
+    return `
+      <label>
+        ${escapeHtml(item.inputLabel || "Your answer")}
+        <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-practice-input="${item.id}" placeholder="${escapeHtml(item.inputPlaceholder || "Explain your answer.")}">${escapeHtml(getPracticeValue(item))}</textarea>
+      </label>
+    `;
+  }
+  if (item.responseType === "cubeNetExpressions") {
+    const values = getPracticeValue(item);
+    return `
+      <label>
+        Surface area (square centimeters)
+        <input type="text" data-practice-input="${item.id}" data-practice-field="surfaceArea" value="${escapeHtml(values.surfaceArea || "")}" placeholder="Type an expression">
+      </label>
+      <label>
+        Volume (cubic centimeters)
+        <input type="text" data-practice-input="${item.id}" data-practice-field="volume" value="${escapeHtml(values.volume || "")}" placeholder="Type an expression">
+      </label>
+    `;
+  }
+  if (item.responseType === "tentDesignEstimate") {
+    const values = practiceTentResponse(item.id);
+    const selectedDecisions = practiceTentDecisionIds(values);
+    const { plan, fields } = practiceTentWorksheet(item.id);
+    return `
+      <fieldset class="practice-tent-decisions">
+        <legend>Which decisions were important in your design? Choose at least one.</legend>
+        <div class="option-grid practice-tent-decision-options" role="group" aria-label="Important tent-design decisions">
+          ${practiceTentDecisionOptions.map((option) => `
+            <button
+              class="option-button ${selectedDecisions.includes(option.id) ? "is-selected" : ""}"
+              type="button"
+              data-practice-tent-decision="${item.id}"
+              data-option-id="${option.id}"
+              aria-pressed="${selectedDecisions.includes(option.id)}"
+            >${escapeHtml(option.label)}</button>
+          `).join("")}
+        </div>
+      </fieldset>
+      <section class="practice-tent-worksheet" aria-label="Fabric area worksheet">
+        <h4>Fabric estimate worksheet</h4>
+        ${plan.valid ? `
+          <p>Enter each combined panel area and the total, rounded to the nearest tenth when needed.</p>
+          <div class="practice-tent-worksheet-grid">
+            ${fields.map((field) => `
+              <label>
+                ${escapeHtml(field.label)} (square feet)
+                <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="${field.id}" value="${escapeHtml(values[field.id] || "")}" placeholder="Type an area">
+              </label>
+            `).join("")}
+          </div>
+        ` : `<p>Complete a floor-fitting tent design in the workspace to open the panel-area worksheet.</p>`}
+      </section>
     `;
   }
   if (item.responseType === "open") {
@@ -8405,19 +9053,98 @@ function renderAnswerControl(item) {
     const matches = getPracticeValue(item);
     return `
       <div class="matching-grid" role="group" aria-label="${escapeHtml(item.prompt)}">
-        ${item.matchTargets.map((target) => `
-          <label class="match-row">
-            <span>${escapeHtml(target.label)}</span>
-            <select data-practice-match="${item.id}" data-match-target="${target.id}">
-              <option value="">Choose a unit</option>
-              ${item.matchChoices.map((choice) => `
-                <option value="${escapeHtml(choice.id)}" ${matches[target.id] === choice.id ? "selected" : ""}>${escapeHtml(choice.label)}</option>
-              `).join("")}
-            </select>
-          </label>
-        `).join("")}
+        ${item.matchTargets.map((target) => {
+          const dropdownId = `${item.id}:${target.id}`;
+          const open = state.practiceOpenDropdown === dropdownId;
+          const selected = item.matchChoices.find((choice) => choice.id === matches[target.id]);
+          return `
+            <div class="match-row">
+              <span id="match-label-${target.id}">${escapeHtml(target.label)}</span>
+              <div class="teach-dropdown practice-dropdown ${open ? "is-open" : ""}" data-practice-dropdown="${dropdownId}">
+                <button
+                  class="teach-dropdown-button"
+                  type="button"
+                  data-practice-dropdown-toggle="${item.id}"
+                  data-match-target="${target.id}"
+                  aria-expanded="${open}"
+                  aria-haspopup="listbox"
+                  aria-labelledby="match-label-${target.id}"
+                >
+                  <span>${escapeHtml(selected?.label || "Choose a unit")}</span>
+                  <span class="teach-dropdown-chevron" aria-hidden="true"></span>
+                </button>
+                ${open ? `
+                  <div class="teach-dropdown-list" role="listbox" aria-labelledby="match-label-${target.id}">
+                    ${item.matchChoices.map((choice) => `
+                      <button
+                        class="teach-dropdown-option ${selected?.id === choice.id ? "is-selected" : ""}"
+                        type="button"
+                        role="option"
+                        aria-selected="${selected?.id === choice.id}"
+                        data-practice-dropdown-option="${item.id}"
+                        data-match-target="${target.id}"
+                        data-option-id="${choice.id}"
+                      >${escapeHtml(choice.label)}</button>
+                    `).join("")}
+                  </div>
+                ` : ""}
+              </div>
+            </div>
+          `;
+        }).join("")}
       </div>
       ${reasoning}
+    `;
+  }
+  if (item.responseType === "groupedChoice") {
+    const answers = getPracticeValue(item);
+    const groups = item.choiceGroups || [];
+    const activeGroup = activePracticeChoiceGroup(item);
+    if (!activeGroup) return "";
+    const selected = answers[activeGroup.id] || "";
+    const submitted = isPracticeGroupSubmitted(item, activeGroup);
+    const correct = submitted && practiceGroupIsCorrect(item, activeGroup);
+    const completedCount = groups.filter((group) => isPracticeGroupSubmitted(item, group) && practiceGroupIsCorrect(item, group)).length;
+    const feedback = !submitted
+      ? selected
+        ? `Submit ${activeGroup.label} when you are ready for feedback.`
+        : `Choose an answer for ${activeGroup.label}.`
+      : !selected
+        ? `Choose an answer for ${activeGroup.label}, then submit again.`
+        : correct
+          ? activeGroup.correctFeedback || "Correct."
+          : activeGroup.incorrectFeedback || "Not quite. Review the visual and try again.";
+    const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+    return `
+      <div class="practice-choice-groups">
+        <div class="practice-group-tabs" role="tablist" aria-label="Question navigation">
+          ${groups.map((group) => {
+            const groupSubmitted = isPracticeGroupSubmitted(item, group);
+            const groupCorrect = groupSubmitted && practiceGroupIsCorrect(item, group);
+            const status = groupSubmitted ? (groupCorrect ? "Correct" : "Revise") : "Not submitted";
+            return `
+              <button class="practice-group-tab ${activeGroup.id === group.id ? "is-active" : ""} ${groupSubmitted ? (groupCorrect ? "is-correct" : "is-incorrect") : ""}" type="button" role="tab" data-practice-group-tab="${item.id}" data-group-id="${group.id}" aria-selected="${activeGroup.id === group.id}">
+                <strong>${escapeHtml(group.label)}</strong>
+                <span>${status}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+        <p class="practice-group-progress">Completed ${completedCount} of ${groups.length} questions.</p>
+        <section class="practice-choice-group ${submitted ? (correct ? "is-correct" : "is-incorrect") : ""}" data-practice-group="${item.id}:${activeGroup.id}" role="tabpanel">
+          <p class="practice-choice-group-label">${escapeHtml(activeGroup.label)}</p>
+          <h4>${escapeHtml(activeGroup.prompt)}</h4>
+          <div class="option-grid" role="group" aria-label="${escapeHtml(activeGroup.prompt)}">
+            ${(activeGroup.choices || []).map((choice) => `
+              <button class="option-button ${selected === choice.id ? "is-selected" : ""}" type="button" data-practice-group-option="${item.id}" data-group-id="${activeGroup.id}" data-option-id="${choice.id}" aria-pressed="${selected === choice.id}">
+                ${escapeHtml(choice.label)}
+              </button>
+            `).join("")}
+          </div>
+          <button class="practice-submit practice-group-submit" type="button" data-practice-group-submit="${item.id}" data-group-id="${activeGroup.id}">Submit ${escapeHtml(activeGroup.label)}</button>
+          <p class="practice-group-feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedback)}</p>
+        </section>
+      </div>
     `;
   }
   const selected = state.practiceSelections[item.id] || [];
@@ -8435,9 +9162,13 @@ function renderAnswerControl(item) {
 
 function renderSourceMeta(item) {
   if (!canOpenPracticeSource(item)) {
-    return `<span class="source-link is-locked">Source p.${item.sourcePage} locked</span>`;
+    return practiceSourcePages(item)
+      .map((sourcePage) => `<span class="source-link is-locked">${escapeHtml(sourcePage.label)} locked</span>`)
+      .join("");
   }
-  return `<button class="source-link" type="button" data-source-modal="${item.id}" aria-haspopup="dialog">Source p.${item.sourcePage}</button>`;
+  return practiceSourcePages(item)
+    .map((sourcePage) => `<button class="source-link" type="button" data-source-modal="${practiceSourceModalId(item, sourcePage)}" aria-haspopup="dialog">${escapeHtml(sourcePage.label)}</button>`)
+    .join("");
 }
 
 function renderSourceModal() {
@@ -8601,6 +9332,35 @@ function scrollToTeachLesson(lessonNumber) {
       });
     });
   });
+}
+
+function scrollToPracticeLesson(lessonNumber) {
+  const target = document.querySelector(`[data-practice-lesson="${lessonNumber}"]`);
+  if (!target) return;
+
+  window.requestAnimationFrame(() => {
+    if (state.view !== "unit1" || state.mode !== "practice" || state.teachActiveLesson !== lessonNumber) return;
+    target.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+  });
+}
+
+function ensurePracticeLessonIsRendered(lessonNumber) {
+  if (!practiceBank.some((item) => item.lesson === lessonNumber)) return false;
+  if (!filteredPracticeItems().some((item) => item.lesson === lessonNumber)) {
+    state.practiceFilter = "all";
+  }
+  return true;
+}
+
+function scrollToActiveLesson() {
+  if (state.mode === "practice") {
+    scrollToPracticeLesson(state.teachActiveLesson);
+  } else {
+    scrollToTeachLesson(state.teachActiveLesson);
+  }
 }
 
 function teachPartLabel(card) {
@@ -10243,29 +11003,88 @@ function renderSurfaceNetFoldVisual(card, question) {
   `;
 }
 
-const rectangularPrismNetFaceTypes = ["13x5", "13x4", "5x4"];
-const rectangularPrismNetBoard = { width: 42, height: 34, unit: 20 };
+const rectangularPrismTeachNetDefinition = {
+  faceTypes: ["13x5", "13x4", "5x4"],
+  dimensions: [13, 5, 4],
+  board: { width: 42, height: 34, unit: 20 },
+  subject: "Polyhedron C",
+  unitLabel: "units",
+  practice: false,
+};
 
-function rectangularPrismNetFaceDimensions(type, rotated = false) {
-  if (!rectangularPrismNetFaceTypes.includes(type)) return null;
+function rectangularPrismNetDefinition(card) {
+  const data = card?.visualModelData || {};
+  if (data.type !== "rectPrismNetBuilder") return rectangularPrismTeachNetDefinition;
+  const dimensions = [data.length, data.width, data.height].map(Number);
+  const [length, width, height] = dimensions;
+  return {
+    faceTypes: [`${length}x${width}`, `${length}x${height}`, `${width}x${height}`],
+    dimensions,
+    board: {
+      width: Number(data.boardWidth) || 36,
+      height: Number(data.boardHeight) || 24,
+      unit: Number(data.boardUnit) || 20,
+    },
+    subject: data.subject || "rectangular prism",
+    unitLabel: data.unit === "in" ? "inches" : data.unit || "units",
+    practice: true,
+    optional: data.optional !== false,
+  };
+}
+
+function rectangularPrismNetResponse(card) {
+  return rectangularPrismNetDefinition(card).practice
+    ? state.practicePrismNets[card.id] || {}
+    : getTeachCustomResponse(card);
+}
+
+function updateRectangularPrismNetResponse(card, changes) {
+  const nextResponse = { ...rectangularPrismNetResponse(card), ...changes };
+  if (rectangularPrismNetDefinition(card).practice) {
+    state.practicePrismNets[card.id] = nextResponse;
+  } else {
+    state.teachCustomResponses[card.id] = nextResponse;
+  }
+}
+
+function renderRectangularPrismNetContext(card) {
+  if (rectangularPrismNetDefinition(card).practice) renderPractice();
+  else renderTeachMe();
+}
+
+function rectangularPrismNetControlCard(control) {
+  const practiceId = control.closest("[data-practice-card]")?.dataset.practiceCard;
+  const practiceItem = practiceBank.find((item) => item.id === practiceId);
+  if (practiceItem?.visualModelData?.type === "rectPrismNetBuilder") return practiceItem;
+  const teachId = control.closest("[data-teach-card]")?.dataset.teachCard;
+  const teachCard = teachCardById(teachId);
+  return teachCard?.questions?.some((question) => question.visualType === "rectangularPrismNet")
+    ? teachCard
+    : null;
+}
+
+function rectangularPrismNetFaceDimensions(card, type, rotated = false) {
+  if (!rectangularPrismNetDefinition(card).faceTypes.includes(type)) return null;
   const [first, second] = type.split("x").map(Number);
   return rotated ? { width: second, height: first } : { width: first, height: second };
 }
 
 function rectangularPrismNetFaces(card) {
+  const definition = rectangularPrismNetDefinition(card);
+  const board = definition.board;
   const seen = new Set();
-  return String(getTeachCustomResponse(card).prismNetFaces || "").split("|").map((entry) => {
-    const match = /^(\d{1,2}),(13x5|13x4|5x4),(\d{1,2}),(\d{1,2}),([01])$/.exec(entry);
-    if (!match) return null;
-    const id = Number(match[1]);
-    const type = match[2];
-    const x = Number(match[3]);
-    const y = Number(match[4]);
-    const rotated = match[5] === "1";
-    const dimensions = rectangularPrismNetFaceDimensions(type, rotated);
+  return String(rectangularPrismNetResponse(card).prismNetFaces || "").split("|").map((entry) => {
+    const [idText, type, xText, yText, rotatedText, ...extra] = entry.split(",");
+    if (extra.length || !/^\d{1,2}$/.test(idText) || !/^\d{1,2}$/.test(xText)
+      || !/^\d{1,2}$/.test(yText) || !/^[01]$/.test(rotatedText)) return null;
+    const id = Number(idText);
+    const x = Number(xText);
+    const y = Number(yText);
+    const rotated = rotatedText === "1";
+    const dimensions = rectangularPrismNetFaceDimensions(card, type, rotated);
     if (!dimensions || seen.has(id) || id < 1 || x < 0 || y < 0
-      || x + dimensions.width > rectangularPrismNetBoard.width
-      || y + dimensions.height > rectangularPrismNetBoard.height) return null;
+      || x + dimensions.width > board.width
+      || y + dimensions.height > board.height) return null;
     seen.add(id);
     return { id, type, x, y, rotated, ...dimensions };
   }).filter(Boolean).slice(0, 6);
@@ -10278,16 +11097,17 @@ function rectangularPrismNetFacesSignature(faces) {
 }
 
 function rectangularPrismNetTool(card) {
-  const response = getTeachCustomResponse(card);
-  const type = rectangularPrismNetFaceTypes.includes(response.prismNetFaceType)
+  const definition = rectangularPrismNetDefinition(card);
+  const response = rectangularPrismNetResponse(card);
+  const type = definition.faceTypes.includes(response.prismNetFaceType)
     ? response.prismNetFaceType
-    : rectangularPrismNetFaceTypes[0];
+    : definition.faceTypes[0];
   const rotated = response.prismNetFaceRotated === "true";
-  return { type, rotated, ...rectangularPrismNetFaceDimensions(type, rotated) };
+  return { type, rotated, ...rectangularPrismNetFaceDimensions(card, type, rotated) };
 }
 
 function rectangularPrismNetSelectedFaceId(card, faces = rectangularPrismNetFaces(card)) {
-  const selectedId = Number(getTeachCustomResponse(card).prismNetSelectedFaceId);
+  const selectedId = Number(rectangularPrismNetResponse(card).prismNetSelectedFaceId);
   return faces.some((face) => face.id === selectedId) ? selectedId : faces.at(-1)?.id || 0;
 }
 
@@ -10311,8 +11131,9 @@ function rectangularPrismNetAxisKey(vector) {
 }
 
 function rectangularPrismNetAnalysis(card) {
+  const definition = rectangularPrismNetDefinition(card);
   const faces = rectangularPrismNetFaces(card);
-  const inventory = Object.fromEntries(rectangularPrismNetFaceTypes.map((type) => [type, 0]));
+  const inventory = Object.fromEntries(definition.faceTypes.map((type) => [type, 0]));
   faces.forEach((face) => { inventory[face.type] += 1; });
   let overlap = false;
   const neighbors = new Map(faces.map((face) => [face.id, []]));
@@ -10364,10 +11185,11 @@ function rectangularPrismNetAnalysis(card) {
   });
   const uniqueNormals = new Set([...orientations.values()].map(({ n }) => n.join(","))).size;
   const dimensions = [...axisLengths.values()].sort((a, b) => a - b);
-  const inventoryCorrect = rectangularPrismNetFaceTypes.every((type) => inventory[type] === 2);
+  const inventoryCorrect = definition.faceTypes.every((type) => inventory[type] === 2);
   const connected = faces.length > 0 && orientations.size === faces.length;
   const topologyValid = faces.length === 6 && connected && orientationConsistent && uniqueNormals === 6;
-  const sourceDimensionsValid = dimensionsConsistent && dimensions.join(",") === "4,5,13";
+  const expectedDimensions = [...definition.dimensions].sort((a, b) => a - b);
+  const sourceDimensionsValid = dimensionsConsistent && dimensions.join(",") === expectedDimensions.join(",");
   return {
     faces,
     inventory,
@@ -10381,15 +11203,17 @@ function rectangularPrismNetAnalysis(card) {
 }
 
 function rectangularPrismNetFeedbackText(card) {
+  const definition = rectangularPrismNetDefinition(card);
   const analysis = rectangularPrismNetAnalysis(card);
-  if (!analysis.faces.length) return "Begin with one source-sized rectangular face on the blank graph paper.";
+  const dimensions = `${definition.dimensions[0]}, ${definition.dimensions[1]}, and ${definition.dimensions[2]}`;
+  if (!analysis.faces.length) return "Begin with one rectangular face on the blank graph paper.";
   if (analysis.faces.length < 6) return `Your net has ${analysis.faces.length} of 6 faces. Continue from the selected face and join each new face along one complete matching edge.`;
   if (analysis.overlap) return "At least two faces overlap. Remove a face and rebuild so the polygons meet only along complete edges.";
-  if (!analysis.inventoryCorrect) return "The face inventory needs revision. Study the 13, 5, and 4 unit edges on Polyhedron C and account for every opposite face.";
+  if (!analysis.inventoryCorrect) return `The face inventory needs revision. A ${definition.subject} with edge lengths ${dimensions} has three pairs of congruent opposite faces.`;
   if (!analysis.connected) return "All six faces must belong to one connected net. Join every face along a complete edge.";
-  if (!analysis.sourceDimensionsValid) return "A shared edge has incompatible source dimensions. Rotate or replace a face so every joined edge has one matching length.";
+  if (!analysis.sourceDimensionsValid) return "A shared edge has incompatible dimensions. Rotate or replace a face so every joined edge has one matching length.";
   if (!analysis.topologyValid) return "The six faces are connected, but this arrangement would fold two faces onto the same side. Revise the net topology.";
-  return "Valid net. The six source-sized faces connect without overlap and fold onto six different sides of Polyhedron C.";
+  return `Valid net. The six faces connect without overlap and fold onto six different sides of the ${definition.subject}.`;
 }
 
 function rectangularPrismNetPlacement(parent, tool, direction) {
@@ -10403,79 +11227,94 @@ function rectangularPrismNetPlacement(parent, tool, direction) {
   return null;
 }
 
-function rectangularPrismNetPlacementFits(faces, candidate) {
+function rectangularPrismNetPlacementFits(card, faces, candidate) {
+  const board = rectangularPrismNetDefinition(card).board;
   return candidate.x >= 0 && candidate.y >= 0
-    && candidate.x + candidate.width <= rectangularPrismNetBoard.width
-    && candidate.y + candidate.height <= rectangularPrismNetBoard.height
+    && candidate.x + candidate.width <= board.width
+    && candidate.y + candidate.height <= board.height
     && !faces.some((face) => rectangularPrismNetFacesOverlap(face, candidate));
 }
 
 function storeRectangularPrismNet(card, faces, changes = {}) {
-  state.teachCustomResponses[card.id] = {
-    ...getTeachCustomResponse(card),
+  updateRectangularPrismNetResponse(card, {
     ...changes,
     prismNetFaces: rectangularPrismNetFacesSignature(faces),
-  };
-  for (const questionId of ["build-net", "surface-area"]) {
-    state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+  });
+  if (!rectangularPrismNetDefinition(card).practice) {
+    for (const questionId of ["build-net", "surface-area"]) {
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+    }
   }
 }
 
 function renderRectangularPrismNetVisual(card) {
+  const definition = rectangularPrismNetDefinition(card);
   const analysis = rectangularPrismNetAnalysis(card);
   const faces = analysis.faces;
   const tool = rectangularPrismNetTool(card);
   const selectedFaceId = rectangularPrismNetSelectedFaceId(card, faces);
   const selectedFace = faces.find((face) => face.id === selectedFaceId);
-  const unit = rectangularPrismNetBoard.unit;
-  const message = String(getTeachCustomResponse(card).prismNetMessage || rectangularPrismNetFeedbackText(card));
+  const board = definition.board;
+  const unit = board.unit;
+  const message = String(rectangularPrismNetResponse(card).prismNetMessage || rectangularPrismNetFeedbackText(card));
+  const gridPatternId = `rectangular-prism-net-grid-${card.id.replace(/[^a-z0-9-]/gi, "-")}`;
+  const dimensionList = `${definition.dimensions[0]}, ${definition.dimensions[1]}, and ${definition.dimensions[2]}`;
   return `
-    <section class="rectangular-prism-net-workspace" aria-label="Build and label a net for assigned Polyhedron C">
-      <figure class="rectangular-prism-net-source">
-        <figcaption>Assigned Polyhedron C: rectangular prism with edge lengths 13, 5, and 4 units.</figcaption>
-        ${teachCropImage("lesson-15-p001-polyhedron-drawings-blackline.png", 700, 188, "Assigned source Polyhedron C with dimensions 13, 5, and 4 units.")}
-      </figure>
+    <section class="rectangular-prism-net-workspace ${definition.practice ? "is-practice" : ""}" aria-label="Build and label a net for ${escapeHtml(definition.subject)}">
+      ${definition.practice ? `
+        <div class="rectangular-prism-net-intro">
+          <strong>${definition.optional ? "Optional net strategy" : "Net construction"}</strong>
+          <p>Build a net for the ${escapeHtml(definition.subject)} with edge lengths ${dimensionList} ${escapeHtml(definition.unitLabel)}. More than one arrangement can be valid.</p>
+        </div>
+      ` : `
+        <figure class="rectangular-prism-net-source">
+          <figcaption>Assigned Polyhedron C: rectangular prism with edge lengths 13, 5, and 4 units.</figcaption>
+          ${teachCropImage("lesson-15-p001-polyhedron-drawings-blackline.png", 700, 188, "Assigned source Polyhedron C with dimensions 13, 5, and 4 units.")}
+        </figure>
+      `}
       <div class="rectangular-prism-net-tools">
         <p>Choose a face size and orientation. Start on the blank graph paper, then select a placed face and attach the next face along a complete matching edge.</p>
         <div class="rectangular-prism-net-palette" role="group" aria-label="Face-size drawing tools">
-          ${rectangularPrismNetFaceTypes.map((faceType) => `<button class="option-button ${tool.type === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${tool.type === faceType}">${faceType.replace("x", " by ")}</button>`).join("")}
+          ${definition.faceTypes.map((faceType) => `<button class="option-button ${tool.type === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${tool.type === faceType}">${faceType.replace("x", " by ")}</button>`).join("")}
           <button class="hint-button" type="button" data-prism-net-rotate aria-pressed="${tool.rotated}">Rotate face</button>
         </div>
-        <p class="rectangular-prism-net-tool-status">Current tool: ${tool.width} units across by ${tool.height} units down.</p>
+        <p class="rectangular-prism-net-tool-status">Current tool: ${tool.width} ${escapeHtml(definition.unitLabel)} across by ${tool.height} ${escapeHtml(definition.unitLabel)} down.</p>
         <div class="rectangular-prism-net-attach-controls" role="group" aria-label="Place or attach selected face tool">
           ${faces.length === 0
             ? `<button class="practice-submit" type="button" data-prism-net-place-first>Place first face</button>`
             : `
-              <span>Attach to Face ${selectedFaceId}:</span>
+              <span>Attach to selected face:</span>
               <button class="hint-button" type="button" data-prism-net-attach="north">Above</button>
               <button class="hint-button" type="button" data-prism-net-attach="east">Right</button>
               <button class="hint-button" type="button" data-prism-net-attach="south">Below</button>
               <button class="hint-button" type="button" data-prism-net-attach="west">Left</button>
-              <button class="hint-button" type="button" data-prism-net-remove>Remove Face ${selectedFaceId}</button>
+              <button class="hint-button" type="button" data-prism-net-remove>Remove selected face</button>
             `}
         </div>
       </div>
-      <svg viewBox="0 0 ${rectangularPrismNetBoard.width * unit} ${rectangularPrismNetBoard.height * unit}" role="img" aria-label="Blank graph-paper net builder with ${faces.length} of 6 faces placed.">
+      <svg viewBox="0 0 ${board.width * unit} ${board.height * unit}" role="img" aria-label="Blank graph-paper net builder with ${faces.length} of 6 faces placed.">
         <defs>
-          <pattern id="rectangular-prism-net-grid" width="${unit}" height="${unit}" patternUnits="userSpaceOnUse">
+          <pattern id="${gridPatternId}" width="${unit}" height="${unit}" patternUnits="userSpaceOnUse">
             <path d="M${unit} 0H0V${unit}" fill="none" stroke="#c9d5da" stroke-width="1"></path>
           </pattern>
         </defs>
-        <rect class="rectangular-prism-net-board" x="1" y="1" width="${rectangularPrismNetBoard.width * unit - 2}" height="${rectangularPrismNetBoard.height * unit - 2}" rx="6"></rect>
-        <rect x="0" y="0" width="${rectangularPrismNetBoard.width * unit}" height="${rectangularPrismNetBoard.height * unit}" fill="url(#rectangular-prism-net-grid)"></rect>
+        <rect class="rectangular-prism-net-board" x="1" y="1" width="${board.width * unit - 2}" height="${board.height * unit - 2}" rx="6"></rect>
+        <rect x="0" y="0" width="${board.width * unit}" height="${board.height * unit}" fill="url(#${gridPatternId})"></rect>
         ${faces.map((face, index) => `
           <g
-            class="rectangular-prism-net-face ${face.id === selectedFaceId ? "is-selected" : ""}"
+            class="rectangular-prism-net-face face-type-${definition.faceTypes.indexOf(face.type) + 1} ${face.id === selectedFaceId ? "is-selected" : ""}"
             role="button"
             tabindex="0"
             data-prism-net-face="${face.id}"
-            aria-label="Face ${index + 1}, ${face.width} by ${face.height} units${face.id === selectedFaceId ? ", selected" : ""}"
+            aria-label="Face ${index + 1}, ${face.type.replace("x", " by ")} ${escapeHtml(definition.unitLabel)}${face.id === selectedFaceId ? ", selected" : ""}"
           >
             <rect x="${face.x * unit}" y="${face.y * unit}" width="${face.width * unit}" height="${face.height * unit}"></rect>
-            <text x="${(face.x + face.width / 2) * unit}" y="${(face.y + face.height / 2) * unit - 5}" text-anchor="middle">
-              <tspan x="${(face.x + face.width / 2) * unit}">Face ${index + 1}</tspan>
-              <tspan x="${(face.x + face.width / 2) * unit}" dy="22">${face.width} x ${face.height}</tspan>
-            </text>
+            <text
+              x="${(face.x + face.width / 2) * unit}"
+              y="${(face.y + face.height / 2) * unit + 6}"
+              text-anchor="middle"
+              ${face.width <= 3 && face.height > face.width ? `transform="rotate(-90 ${(face.x + face.width / 2) * unit} ${(face.y + face.height / 2) * unit})"` : ""}
+            >${face.type.replace("x", " × ")}</text>
           </g>
         `).join("")}
       </svg>
@@ -11624,9 +12463,18 @@ function tentComparisonSelectionIsCorrect(card, question, mode) {
   return Boolean(selected && tentComparisonAnswerIds(mode).includes(selected));
 }
 
+function normalizedTextIncludesTerm(text, term) {
+  const normalizedTerm = String(term).toLowerCase();
+  if (!normalizedTerm) return false;
+  if (/^[a-z0-9]$/.test(normalizedTerm)) {
+    return text.split(/[^a-z0-9]+/).includes(normalizedTerm);
+  }
+  return text.includes(normalizedTerm);
+}
+
 function normalizedTextMatchesConcept(text, concept) {
   return Array.isArray(concept) && concept.length > 0
-    && concept.every((term) => text.includes(String(term).toLowerCase()));
+    && concept.every((term) => normalizedTextIncludesTerm(text, term));
 }
 
 function normalizedTextConceptMatchCount(text, concepts) {
@@ -13954,6 +14802,9 @@ function renderTeachHint(card) {
 
 function renderPracticeCard(item, index) {
   const submitted = isPracticeSubmitted(item);
+  const answered = hasPracticeResponse(item);
+  const primaryCorrect = submitted && isPracticePrimaryCorrect(item);
+  const reasoning = practiceReasoningEvaluation(item);
   const correct = submitted && isPracticeCorrect(item);
   const sampleUnlocked = canShowPracticeSample(item);
   const sampleVisible = sampleUnlocked && Boolean(state.practiceSamples[item.id]);
@@ -13967,15 +14818,33 @@ function renderPracticeCard(item, index) {
   const sampleDisabled = sampleUnlocked ? "" : " disabled";
   const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
   const statusClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
-  const feedback = submitted
-    ? item.responseType === "open"
-      ? "Open response saved. Compare your reasoning with the sample response."
-      : correct
-        ? "Correct. Nice source-aligned reasoning."
-        : "Not quite yet. Use the hint, then try again."
-    : "Submit when you are ready for feedback.";
+  const reasoningCriteria = item.reasoningRequired && !reasoning.correct
+    ? freeTextValidationCriteria({
+      concepts: item.reasoningConcepts,
+      conceptRequirements: item.reasoningConceptRequirements,
+      conceptsRequired: item.reasoningConceptsRequired,
+      minimumLength: item.reasoningMinLength,
+      validationGuidance: item.reasoningValidationGuidance,
+    })
+    : "";
+  const baseFeedback = !submitted
+    ? item.readyFeedback || "Submit when you are ready for feedback."
+    : !answered
+      ? item.missingFeedback || "Choose or enter an answer before submitting."
+      : item.responseType === "open"
+        ? item.savedFeedback || "Open response saved. Compare your reasoning with the sample response."
+        : primaryCorrect && item.reasoningRequired && !reasoning.answered
+          ? item.reasoningRequiredFeedback || "The answer is correct. Add the required explanation, then submit again."
+          : primaryCorrect && item.reasoningRequired && !reasoning.correct
+            ? item.reasoningRevisionFeedback || "The answer is correct, but the explanation did not pass the app check. Revise it and submit again."
+        : correct
+          ? item.correctFeedback || "Correct."
+          : practiceIncorrectFeedback(item);
+  const feedback = submitted && primaryCorrect && item.reasoningRequired && !reasoning.correct
+    ? appendFeedbackCriteria(baseFeedback, reasoningCriteria)
+    : baseFeedback;
   return `
-    <article class="practice-card ${statusClass}" data-practice-card="${item.id}">
+    <article class="practice-card ${statusClass}" data-practice-card="${item.id}" data-practice-lesson="${item.lesson}">
       <div class="practice-copy">
         <div class="practice-meta">
           <span>Card ${index + 1}</span>
@@ -13995,11 +14864,11 @@ function renderPracticeCard(item, index) {
         <div class="answer-panel">
           ${renderAnswerControl(item)}
           <div class="practice-actions">
-            <button class="practice-submit" type="button" data-practice-submit="${item.id}">${item.responseType === "open" ? "Save response" : "Submit"}</button>
+            ${item.responseType === "groupedChoice" ? "" : `<button class="practice-submit" type="button" data-practice-submit="${item.id}">${item.responseType === "open" ? "Save response" : "Submit"}</button>`}
             <button class="hint-button" type="button" data-practice-hint="${item.id}">${state.practiceHints[item.id] ? "Hide hint" : "Show hint"}</button>
             <button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>
           </div>
-          <p class="practice-feedback ${feedbackClass}" id="feedback-${item.id}" aria-live="polite">${feedback}</p>
+          <p class="practice-feedback ${feedbackClass}" id="feedback-${item.id}" aria-live="polite">${escapeHtml(feedback)}</p>
           ${state.practiceHints[item.id] ? `<p class="practice-hints"><strong>Hint:</strong> ${escapeHtml(item.hints.join(" "))}</p>` : ""}
           ${sampleVisible ? `<p class="practice-sample"><strong>Sample:</strong> ${escapeHtml(item.sampleAnswer)}</p>` : ""}
         </div>
@@ -14485,6 +15354,76 @@ function rotateSelectedGridTriangle(delta) {
   if (!piece) return;
   piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
   if (delta) markGridTriangleFitChanged();
+}
+
+function startPracticeCompositionPointer(event) {
+  const pieceNode = event.target.closest("[data-practice-composition-piece]");
+  if (!pieceNode) return false;
+  const stage = pieceNode.closest("[data-practice-composition-stage]");
+  if (!stage) return false;
+  const itemId = pieceNode.dataset.itemId;
+  const pieceId = pieceNode.dataset.practiceCompositionPiece;
+  const workspace = getPracticeCompositionWorkspace(itemId);
+  const piece = workspace.pieces[pieceId];
+  if (!piece) return false;
+  workspace.selectedPiece = pieceId;
+  practiceCompositionPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    itemId,
+    pieceId,
+    startPointer: tangramSvgPoint(stage, event),
+    startPiece: { ...piece },
+  };
+  if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
+  updatePracticeCompositionDom(itemId);
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updatePracticeCompositionPointer(event) {
+  if (!practiceCompositionPointer || (event.pointerId ?? "mouse") !== practiceCompositionPointer.pointerId) return false;
+  const stage = document.querySelector(`[data-practice-composition-stage="${practiceCompositionPointer.itemId}"]`);
+  if (!stage) return false;
+  const pointer = tangramSvgPoint(stage, event);
+  const dx = pointer.x - practiceCompositionPointer.startPointer.x;
+  const dy = pointer.y - practiceCompositionPointer.startPointer.y;
+  const workspace = getPracticeCompositionWorkspace(practiceCompositionPointer.itemId);
+  const piece = workspace.pieces[practiceCompositionPointer.pieceId];
+  if (!piece) return false;
+  piece.x = clampNumber(practiceCompositionPointer.startPiece.x + dx, -8, practiceCompositionStage.width - practiceCompositionTriangle.size + 8);
+  piece.y = clampNumber(practiceCompositionPointer.startPiece.y + dy, -8, practiceCompositionStage.height - practiceCompositionTriangle.size + 8);
+  updatePracticeCompositionDom(practiceCompositionPointer.itemId);
+  event.preventDefault();
+  return true;
+}
+
+function endPracticeCompositionPointer(event) {
+  if (!practiceCompositionPointer || (event.pointerId ?? "mouse") !== practiceCompositionPointer.pointerId) return false;
+  const { itemId, pieceId } = practiceCompositionPointer;
+  practiceCompositionPointer = null;
+  snapPracticeCompositionPiece(itemId, pieceId);
+  updatePracticeCompositionDom(itemId);
+  return true;
+}
+
+function rotatePracticeCompositionPiece(itemId, delta) {
+  const workspace = getPracticeCompositionWorkspace(itemId);
+  const piece = workspace.pieces[workspace.selectedPiece];
+  if (!piece) return;
+  piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  snapPracticeCompositionPiece(itemId, workspace.selectedPiece);
+  updatePracticeCompositionDom(itemId);
+}
+
+function movePracticeCompositionPiece(itemId, dx, dy) {
+  const workspace = getPracticeCompositionWorkspace(itemId);
+  const piece = workspace.pieces[workspace.selectedPiece];
+  if (!piece) return;
+  piece.x = clampNumber(piece.x + dx, -8, practiceCompositionStage.width - practiceCompositionTriangle.size + 8);
+  piece.y = clampNumber(piece.y + dy, -8, practiceCompositionStage.height - practiceCompositionTriangle.size + 8);
+  snapPracticeCompositionPiece(itemId, workspace.selectedPiece);
+  updatePracticeCompositionDom(itemId);
 }
 
 function updateTrianglePairPieceDom(pairId, pieceId) {
@@ -15035,7 +15974,9 @@ function bindEvents() {
     button.addEventListener("click", () => {
       state.mode = button.dataset.mode;
       if (state.view === "vocabulary") state.view = "unit1";
+      if (state.mode === "practice") ensurePracticeLessonIsRendered(state.teachActiveLesson);
       renderView();
+      scrollToActiveLesson();
     });
   });
   document.querySelectorAll("[data-view]").forEach((button) => {
@@ -15092,6 +16033,7 @@ function bindEvents() {
   document.addEventListener("pointerdown", (event) => {
     if (startBaseHeightChallengePointer(event)) return;
     if (startPyramidNetPointer(event)) return;
+    if (startPracticeCompositionPointer(event)) return;
     if (startTangramPointer(event)) return;
     if (startGridTrianglePointer(event)) return;
     if (startTilingPiecePointer(event)) return;
@@ -15110,6 +16052,7 @@ function bindEvents() {
   document.addEventListener("pointermove", (event) => {
     if (updateBaseHeightChallengePointer(event)) return;
     if (updatePyramidNetPointer(event)) return;
+    if (updatePracticeCompositionPointer(event)) return;
     if (updateTangramPointer(event)) return;
     if (updateGridTrianglePointer(event)) return;
     if (updateTilingPiecePointer(event)) return;
@@ -15120,6 +16063,7 @@ function bindEvents() {
   document.addEventListener("pointerup", (event) => {
     if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
+    if (endPracticeCompositionPointer(event)) return;
     if (endTangramPointer(event)) return;
     if (endGridTrianglePointer(event)) return;
     if (endTilingPiecePointer(event)) return;
@@ -15130,6 +16074,7 @@ function bindEvents() {
   document.addEventListener("pointercancel", (event) => {
     if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
+    if (endPracticeCompositionPointer(event)) return;
     if (endTangramPointer(event)) return;
     if (endGridTrianglePointer(event)) return;
     if (endTilingPiecePointer(event)) return;
@@ -15158,6 +16103,31 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("click", (event) => {
+    const practiceCompositionSelect = event.target.closest("[data-practice-composition-select]");
+    if (practiceCompositionSelect) {
+      const itemId = practiceCompositionSelect.dataset.itemId;
+      const pieceId = practiceCompositionSelect.dataset.practiceCompositionSelect;
+      const workspace = getPracticeCompositionWorkspace(itemId);
+      if (!workspace.pieces[pieceId]) return;
+      workspace.selectedPiece = pieceId;
+      updatePracticeCompositionDom(itemId);
+      return;
+    }
+    const practiceCompositionRotate = event.target.closest("[data-practice-composition-rotate]");
+    if (practiceCompositionRotate) {
+      rotatePracticeCompositionPiece(
+        practiceCompositionRotate.dataset.itemId,
+        Number(practiceCompositionRotate.dataset.practiceCompositionRotate) || 0,
+      );
+      return;
+    }
+    const practiceCompositionReset = event.target.closest("[data-practice-composition-reset]");
+    if (practiceCompositionReset) {
+      const itemId = practiceCompositionReset.dataset.itemId;
+      resetPracticeCompositionWorkspace(itemId);
+      updatePracticeCompositionDom(itemId);
+      return;
+    }
     const cutStageButton = event.target.closest("[data-cut-stage-card]");
     if (cutStageButton) {
       const card = teachCardById(cutStageButton.dataset.cutStageCard);
@@ -15231,12 +16201,12 @@ function bindEvents() {
       const lessonNumber = Number(teachLessonLink.dataset.teachLessonLink);
       if (!teachLessonGroups().some((group) => group.lessonNumber === lessonNumber)) return;
       state.view = "unit1";
-      state.mode = "teach";
+      if (state.mode === "practice") ensurePracticeLessonIsRendered(lessonNumber);
       state.teachActiveLesson = lessonNumber;
       state.sourceModalItemId = null;
       renderView();
       window.history.replaceState(null, "", `#${teachLessonDomId(lessonNumber)}`);
-      scrollToTeachLesson(lessonNumber);
+      scrollToActiveLesson();
       return;
     }
     const teachSourceButton = event.target.closest("[data-teach-source]");
@@ -15272,9 +16242,15 @@ function bindEvents() {
     }
     const sourceButton = event.target.closest("[data-source-modal]");
     if (sourceButton) {
-      const item = practiceBank.find((entry) => entry.id === sourceButton.dataset.sourceModal);
-      if (!item || !canOpenPracticeSource(item)) return;
-      state.sourceModalItemId = item.id;
+      const modalId = sourceButton.dataset.sourceModal;
+      const practiceSource = practiceBank
+        .flatMap((item) => practiceSourcePages(item).map((sourcePage) => ({
+          item,
+          id: practiceSourceModalId(item, sourcePage),
+        })))
+        .find((entry) => entry.id === modalId);
+      if (!practiceSource || !canOpenPracticeSource(practiceSource.item)) return;
+      state.sourceModalItemId = modalId;
       renderSourceModalHost();
       document.querySelector("[data-source-close-button]")?.focus();
       return;
@@ -15288,6 +16264,96 @@ function bindEvents() {
     if (filterButton) {
       state.practiceFilter = filterButton.dataset.practiceFilter;
       state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const practiceCubeNetCell = event.target.closest("[data-practice-cube-net-cell]");
+    if (practiceCubeNetCell) {
+      const itemId = practiceCubeNetCell.dataset.itemId;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      const [x, y] = String(practiceCubeNetCell.dataset.practiceCubeNetCell || "").split(",").map(Number);
+      if (!item || item.responseType !== "cubeNetExpressions"
+        || !Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x > 6 || y < 0 || y > 6) return;
+      const cells = getPracticeCubeNetCells(itemId);
+      const key = `${x},${y}`;
+      const selected = cells.some((cell) => `${cell.x},${cell.y}` === key);
+      const nextCells = selected
+        ? cells.filter((cell) => `${cell.x},${cell.y}` !== key)
+        : cells.length < 6 ? [...cells, { x, y }] : cells;
+      setPracticeCubeNetCells(itemId, nextCells);
+      renderPractice();
+      return;
+    }
+    const practiceCubeNetReset = event.target.closest("[data-practice-cube-net-reset]");
+    if (practiceCubeNetReset) {
+      const itemId = practiceCubeNetReset.dataset.practiceCubeNetReset;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      if (!item || item.responseType !== "cubeNetExpressions") return;
+      setPracticeCubeNetCells(itemId, []);
+      renderPractice();
+      return;
+    }
+    const practiceTentChoice = event.target.closest("[data-practice-tent-choice]");
+    if (practiceTentChoice) {
+      const itemId = practiceTentChoice.dataset.practiceTentChoice;
+      const field = practiceTentChoice.dataset.tentField;
+      const optionId = practiceTentChoice.dataset.optionId;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      const optionKeyByField = {
+        tentCapacity: "capacity",
+        tentArrangement: "arrangement",
+        tentHeight: "height",
+        tentStyle: "style",
+      };
+      const optionKey = optionKeyByField[field];
+      if (!item || item.responseType !== "tentDesignEstimate" || !optionKey
+        || !tentDesignerOptions[optionKey].some((option) => option.id === optionId)) return;
+      let response = clearPracticeTentWorksheet({ ...practiceTentResponse(itemId), [field]: optionId });
+      if (["tentCapacity", "tentArrangement"].includes(field)) {
+        const required = tentRequiredFloor(Number(response.tentCapacity), response.tentArrangement);
+        if (required.rows > 0 && required.columns > 0) {
+          response = {
+            ...response,
+            tentFloorLength: String(required.recommendedLength),
+            tentFloorWidth: String(required.recommendedWidth),
+          };
+        }
+      }
+      markPracticeTentChanged(itemId, response);
+      renderPractice();
+      return;
+    }
+    const practiceTentStep = event.target.closest("[data-practice-tent-step]");
+    if (practiceTentStep) {
+      const itemId = practiceTentStep.dataset.practiceTentStep;
+      const field = practiceTentStep.dataset.tentField;
+      const step = Number(practiceTentStep.dataset.step);
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      const response = practiceTentResponse(itemId);
+      const current = Number(response[field]);
+      if (!item || item.responseType !== "tentDesignEstimate"
+        || !["tentFloorLength", "tentFloorWidth"].includes(field)
+        || ![-1, 1].includes(step) || !Number.isInteger(current)) return;
+      markPracticeTentChanged(itemId, clearPracticeTentWorksheet({
+        ...response,
+        [field]: String(Math.max(3, Math.min(30, current + step))),
+      }));
+      renderPractice();
+      return;
+    }
+    const practiceTentDecision = event.target.closest("[data-practice-tent-decision]");
+    if (practiceTentDecision) {
+      const itemId = practiceTentDecision.dataset.practiceTentDecision;
+      const optionId = practiceTentDecision.dataset.optionId;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      if (!item || item.responseType !== "tentDesignEstimate"
+        || !practiceTentDecisionOptions.some((option) => option.id === optionId)) return;
+      const response = practiceTentResponse(itemId);
+      const selected = practiceTentDecisionIds(response);
+      const next = selected.includes(optionId)
+        ? selected.filter((id) => id !== optionId)
+        : [...selected, optionId];
+      markPracticeTentChanged(itemId, { ...response, tentDecisions: next.join("|") });
       renderPractice();
       return;
     }
@@ -15350,63 +16416,59 @@ function bindEvents() {
     }
     const prismNetFaceTypeButton = event.target.closest("[data-prism-net-face-type]");
     if (prismNetFaceTypeButton) {
-      const card = teachCardById(prismNetFaceTypeButton.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetFaceTypeButton);
       const faceType = prismNetFaceTypeButton.dataset.prismNetFaceType;
-      if (!card || !rectangularPrismNetFaceTypes.includes(faceType)) return;
-      state.teachCustomResponses[card.id] = {
-        ...getTeachCustomResponse(card),
-        prismNetFaceType: faceType,
-      };
-      renderTeachMe();
+      if (!card || !rectangularPrismNetDefinition(card).faceTypes.includes(faceType)) return;
+      updateRectangularPrismNetResponse(card, { prismNetFaceType: faceType });
+      renderRectangularPrismNetContext(card);
       return;
     }
     const prismNetRotate = event.target.closest("[data-prism-net-rotate]");
     if (prismNetRotate) {
-      const card = teachCardById(prismNetRotate.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetRotate);
       if (!card) return;
-      state.teachCustomResponses[card.id] = {
-        ...getTeachCustomResponse(card),
-        prismNetFaceRotated: getTeachCustomResponse(card).prismNetFaceRotated === "true" ? "false" : "true",
-      };
-      renderTeachMe();
+      updateRectangularPrismNetResponse(card, {
+        prismNetFaceRotated: rectangularPrismNetResponse(card).prismNetFaceRotated === "true" ? "false" : "true",
+      });
+      renderRectangularPrismNetContext(card);
       return;
     }
     const prismNetFace = event.target.closest("[data-prism-net-face]");
     if (prismNetFace) {
-      const card = teachCardById(prismNetFace.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetFace);
       const faceId = Number(prismNetFace.dataset.prismNetFace);
       if (!card || !rectangularPrismNetFaces(card).some((face) => face.id === faceId)) return;
-      state.teachCustomResponses[card.id] = {
-        ...getTeachCustomResponse(card),
+      updateRectangularPrismNetResponse(card, {
         prismNetSelectedFaceId: String(faceId),
         prismNetMessage: `Face ${faceId} selected. Choose a face tool and an attachment side.`,
-      };
-      renderTeachMe();
+      });
+      renderRectangularPrismNetContext(card);
       return;
     }
     const prismNetPlaceFirst = event.target.closest("[data-prism-net-place-first]");
     if (prismNetPlaceFirst) {
-      const card = teachCardById(prismNetPlaceFirst.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetPlaceFirst);
       if (!card) return;
       const faces = rectangularPrismNetFaces(card);
       if (faces.length) return;
       const tool = rectangularPrismNetTool(card);
+      const board = rectangularPrismNetDefinition(card).board;
       const firstFace = {
         id: 1,
         type: tool.type,
         rotated: tool.rotated,
         width: tool.width,
         height: tool.height,
-        x: Math.floor((rectangularPrismNetBoard.width - tool.width) / 2),
-        y: Math.floor((rectangularPrismNetBoard.height - tool.height) / 2),
+        x: Math.floor((board.width - tool.width) / 2),
+        y: Math.floor((board.height - tool.height) / 2),
       };
       storeRectangularPrismNet(card, [firstFace], { prismNetSelectedFaceId: "1", prismNetMessage: "" });
-      renderTeachMe();
+      renderRectangularPrismNetContext(card);
       return;
     }
     const prismNetAttach = event.target.closest("[data-prism-net-attach]");
     if (prismNetAttach) {
-      const card = teachCardById(prismNetAttach.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetAttach);
       const direction = prismNetAttach.dataset.prismNetAttach;
       if (!card || !["north", "east", "south", "west"].includes(direction)) return;
       const faces = rectangularPrismNetFaces(card);
@@ -15415,24 +16477,24 @@ function bindEvents() {
       const tool = rectangularPrismNetTool(card);
       const placement = rectangularPrismNetPlacement(parent, tool, direction);
       if (faces.length >= 6) {
-        state.teachCustomResponses[card.id] = { ...getTeachCustomResponse(card), prismNetMessage: "A prism net has six faces. Remove a face before adding another." };
+        updateRectangularPrismNetResponse(card, { prismNetMessage: "A prism net has six faces. Remove a face before adding another." });
       } else if (!placement) {
-        state.teachCustomResponses[card.id] = { ...getTeachCustomResponse(card), prismNetMessage: `The current ${tool.width} by ${tool.height} face cannot attach ${direction} of Face ${selectedId}: the complete shared-edge lengths do not match.` };
+        updateRectangularPrismNetResponse(card, { prismNetMessage: `The current ${tool.width} by ${tool.height} face cannot attach ${direction} of Face ${selectedId}: the complete shared-edge lengths do not match.` });
       } else {
         const nextId = Math.max(0, ...faces.map((face) => face.id)) + 1;
         const candidate = { id: nextId, type: tool.type, rotated: tool.rotated, ...tool, ...placement };
-        if (!rectangularPrismNetPlacementFits(faces, candidate)) {
-          state.teachCustomResponses[card.id] = { ...getTeachCustomResponse(card), prismNetMessage: "That placement overlaps another face or leaves the graph-paper workspace. Select another face or attachment side." };
+        if (!rectangularPrismNetPlacementFits(card, faces, candidate)) {
+          updateRectangularPrismNetResponse(card, { prismNetMessage: "That placement overlaps another face or leaves the graph-paper workspace. Select another face or attachment side." });
         } else {
           storeRectangularPrismNet(card, [...faces, candidate], { prismNetSelectedFaceId: String(nextId), prismNetMessage: "" });
         }
       }
-      renderTeachMe();
+      renderRectangularPrismNetContext(card);
       return;
     }
     const prismNetRemove = event.target.closest("[data-prism-net-remove]");
     if (prismNetRemove) {
-      const card = teachCardById(prismNetRemove.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetRemove);
       if (!card) return;
       const faces = rectangularPrismNetFaces(card);
       const selectedId = rectangularPrismNetSelectedFaceId(card, faces);
@@ -15441,15 +16503,15 @@ function bindEvents() {
         prismNetSelectedFaceId: String(nextFaces.at(-1)?.id || ""),
         prismNetMessage: "",
       });
-      renderTeachMe();
+      renderRectangularPrismNetContext(card);
       return;
     }
     const prismNetReset = event.target.closest("[data-prism-net-reset]");
     if (prismNetReset) {
-      const card = teachCardById(prismNetReset.closest("[data-teach-card]")?.dataset.teachCard);
+      const card = rectangularPrismNetControlCard(prismNetReset);
       if (!card) return;
       storeRectangularPrismNet(card, [], { prismNetSelectedFaceId: "", prismNetMessage: "" });
-      renderTeachMe();
+      renderRectangularPrismNetContext(card);
       return;
     }
     const labeledCubeNetCell = event.target.closest("[data-labeled-cube-net-cell]");
@@ -16529,6 +17591,50 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const groupTabButton = event.target.closest("[data-practice-group-tab]");
+    if (groupTabButton) {
+      const id = groupTabButton.dataset.practiceGroupTab;
+      const groupId = groupTabButton.dataset.groupId;
+      const item = practiceBank.find((entry) => entry.id === id);
+      if (!item?.choiceGroups?.some((group) => group.id === groupId)) return;
+      state.practiceActiveGroups[id] = groupId;
+      state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const groupOptionButton = event.target.closest("[data-practice-group-option]");
+    if (groupOptionButton) {
+      const id = groupOptionButton.dataset.practiceGroupOption;
+      const groupId = groupOptionButton.dataset.groupId;
+      const optionId = groupOptionButton.dataset.optionId;
+      const item = practiceBank.find((entry) => entry.id === id);
+      const group = item?.choiceGroups?.find((entry) => entry.id === groupId);
+      if (!item || item.responseType !== "groupedChoice" || !group?.choices?.some((choice) => choice.id === optionId)) return;
+      state.practiceResponses[id] = {
+        ...(state.practiceResponses[id] || {}),
+        [groupId]: optionId,
+      };
+      state.practiceGroupSubmitted[practiceGroupStateKey(id, groupId)] = false;
+      state.practiceSubmitted[id] = false;
+      state.practiceSamples[id] = false;
+      state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const groupSubmitButton = event.target.closest("[data-practice-group-submit]");
+    if (groupSubmitButton) {
+      const id = groupSubmitButton.dataset.practiceGroupSubmit;
+      const groupId = groupSubmitButton.dataset.groupId;
+      const item = practiceBank.find((entry) => entry.id === id);
+      const group = item?.choiceGroups?.find((entry) => entry.id === groupId);
+      if (!item || item.responseType !== "groupedChoice" || !group) return;
+      state.practiceGroupSubmitted[practiceGroupStateKey(id, groupId)] = true;
+      state.practiceSubmitted[id] = item.choiceGroups.every((entry) => isPracticeGroupSubmitted(item, entry));
+      if (!canShowPracticeSample(item)) state.practiceSamples[id] = false;
+      if (!canOpenPracticeSource(item)) state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
     const optionButton = event.target.closest("[data-practice-option]");
     if (optionButton) {
       const id = optionButton.dataset.practiceOption;
@@ -16546,6 +17652,37 @@ function bindEvents() {
       state.practiceSubmitted[id] = false;
       state.practiceSamples[id] = false;
       state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const practiceDropdownOption = event.target.closest("[data-practice-dropdown-option]");
+    if (practiceDropdownOption) {
+      const id = practiceDropdownOption.dataset.practiceDropdownOption;
+      const target = practiceDropdownOption.dataset.matchTarget;
+      const optionId = practiceDropdownOption.dataset.optionId;
+      const item = practiceBank.find((entry) => entry.id === id);
+      if (!item || item.responseType !== "matching"
+        || !item.matchTargets.some((entry) => entry.id === target)
+        || !item.matchChoices.some((entry) => entry.id === optionId)) return;
+      state.practiceResponses[id] = {
+        ...(state.practiceResponses[id] || {}),
+        [target]: optionId,
+      };
+      state.practiceOpenDropdown = null;
+      state.practiceSubmitted[id] = false;
+      state.practiceSamples[id] = false;
+      state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const practiceDropdownToggle = event.target.closest("[data-practice-dropdown-toggle]");
+    if (practiceDropdownToggle) {
+      const id = practiceDropdownToggle.dataset.practiceDropdownToggle;
+      const target = practiceDropdownToggle.dataset.matchTarget;
+      const item = practiceBank.find((entry) => entry.id === id);
+      if (!item || item.responseType !== "matching" || !item.matchTargets.some((entry) => entry.id === target)) return;
+      const dropdownId = `${id}:${target}`;
+      state.practiceOpenDropdown = state.practiceOpenDropdown === dropdownId ? null : dropdownId;
       renderPractice();
       return;
     }
@@ -16589,6 +17726,7 @@ function bindEvents() {
     if (submitButton) {
       const id = submitButton.dataset.practiceSubmit;
       state.practiceSubmitted[id] = true;
+      state.practiceOpenDropdown = null;
       const item = practiceBank.find((entry) => entry.id === id);
       if (item && !canShowPracticeSample(item)) state.practiceSamples[id] = false;
       if (item && !canOpenPracticeSource(item)) state.sourceModalItemId = null;
@@ -16614,6 +17752,11 @@ function bindEvents() {
     if (state.teachOpenDropdown && !event.target.closest("[data-teach-dropdown]")) {
       state.teachOpenDropdown = null;
       renderTeachMe();
+      return;
+    }
+    if (state.practiceOpenDropdown && !event.target.closest("[data-practice-dropdown]")) {
+      state.practiceOpenDropdown = null;
+      renderPractice();
     }
   });
   document.addEventListener("input", (event) => {
@@ -16812,7 +17955,20 @@ function bindEvents() {
     const input = event.target.closest("[data-practice-input]");
     if (!input) return;
     const id = input.dataset.practiceInput;
-    state.practiceResponses[id] = enforceTextareaValueLimit(input);
+    const item = practiceBank.find((entry) => entry.id === id);
+    if (["cubeNetExpressions", "tentDesignEstimate"].includes(item?.responseType)) {
+      const field = input.dataset.practiceField;
+      const permittedFields = item.responseType === "cubeNetExpressions"
+        ? ["surfaceArea", "volume"]
+        : ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"];
+      if (!permittedFields.includes(field)) return;
+      state.practiceResponses[id] = {
+        ...(state.practiceResponses[id] || {}),
+        [field]: enforceTextareaValueLimit(input),
+      };
+    } else {
+      state.practiceResponses[id] = enforceTextareaValueLimit(input);
+    }
     state.practiceSubmitted[id] = false;
     state.practiceSamples[id] = false;
     state.sourceModalItemId = null;
@@ -16842,6 +17998,31 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const prismNetFace = event.target.closest?.("[data-prism-net-face]");
+    if (prismNetFace && (event.key === "Enter" || event.key === " ")) {
+      prismNetFace.click();
+      event.preventDefault();
+      return;
+    }
+    const practiceCompositionPiece = event.target.closest?.("[data-practice-composition-piece]");
+    if (practiceCompositionPiece && (event.key === "Enter" || event.key === " ")) {
+      const itemId = practiceCompositionPiece.dataset.itemId;
+      getPracticeCompositionWorkspace(itemId).selectedPiece = practiceCompositionPiece.dataset.practiceCompositionPiece;
+      updatePracticeCompositionDom(itemId);
+      event.preventDefault();
+      return;
+    }
+    if (practiceCompositionPiece && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const itemId = practiceCompositionPiece.dataset.itemId;
+      const workspace = getPracticeCompositionWorkspace(itemId);
+      workspace.selectedPiece = practiceCompositionPiece.dataset.practiceCompositionPiece;
+      const distance = event.shiftKey ? 2 : 10;
+      const dx = event.key === "ArrowLeft" ? -distance : event.key === "ArrowRight" ? distance : 0;
+      const dy = event.key === "ArrowUp" ? -distance : event.key === "ArrowDown" ? distance : 0;
+      movePracticeCompositionPiece(itemId, dx, dy);
+      event.preventDefault();
+      return;
+    }
     const baseHeightHandle = event.target.closest?.("[data-base-height-handle]");
     if (baseHeightHandle && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
       const card = teachCardById(baseHeightHandle.dataset.cardId);

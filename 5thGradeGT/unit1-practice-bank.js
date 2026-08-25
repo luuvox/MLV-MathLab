@@ -1714,7 +1714,32 @@ window.unit1PracticeBank = [
       "surfaceBGreater"
     ],
     "visualModelData": {
-      "type": "surfaceVolumePrisms"
+      "type": "surfaceVolumePrisms",
+      "unitScale": 36,
+      "depthProjection": {
+        "x": 0.42,
+        "y": 0.28
+      },
+      "prisms": [
+        {
+          "id": "A",
+          "x": 64,
+          "y": 96,
+          "widthUnits": 3,
+          "heightUnits": 2,
+          "depthUnits": 1,
+          "frontClass": "blue"
+        },
+        {
+          "id": "B",
+          "x": 304,
+          "y": 50,
+          "widthUnits": 1,
+          "heightUnits": 6,
+          "depthUnits": 1,
+          "frontClass": "amber"
+        }
+      ]
     },
     "missingFeedback": "Select at least one comparison statement before submitting.",
     "correctFeedback": "Correct. Both prisms have volume 6 cubic inches and six faces. Prism A has surface area 22 square inches, while Prism B has surface area 26 square inches, so Prism B has greater surface area.",
@@ -1729,14 +1754,14 @@ window.unit1PracticeBank = [
         "Prism B dimensions 1 by 1 by 6",
         "five comparison statements"
       ],
-      "notes": "Preserves the source's text-only select-all comparison task."
+      "notes": "Preserves the source's text-only select-all comparison task. The app-provided prism scaffold uses one shared unit scale, exact 3:2 and 1:6 front-face ratios, and the same foreshortened one-unit depth vector for both solids."
     },
     "hints": [
       "Volume counts cubic units inside.",
       "Surface area counts exposed square units outside."
     ],
     "sampleAnswer": "Both volumes are 6 cubic inches and both prisms have 6 faces. Prism A has surface area 22 and Prism B has surface area 26, so B has greater surface area.",
-    "implementationNotes": "Directly adapted from Lesson 17 cumulative practice, problem 5.",
+    "implementationNotes": "Directly adapted from Lesson 17 cumulative practice, problem 5. Because the source is text-only, the supplemental prism diagram is generated from the stated dimensions with a shared unit scale and common foreshortened depth projection.",
     "source": "Cumulative Practice Problems/Grade6-1-17-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -2008,7 +2033,8 @@ window.unit1PracticeBank = [
     "answerKey": [],
     "visualModelData": {
       "type": "interactiveCubeNet",
-      "edge": "x cm"
+      "edge": "x cm",
+      "placementScale": "symbolic"
     },
     "missingFeedback": "Build a six-square net and enter both expressions before submitting.",
     "correctFeedback": "Correct. Your six connected squares fold onto six different cube faces. Each face has area x², so the surface area is 6x² square centimeters; the volume is x³ cubic centimeters.",
@@ -2024,14 +2050,14 @@ window.unit1PracticeBank = [
         "surface-area prompt",
         "volume prompt"
       ],
-      "notes": "Recreates the source drawing action as a local six-square net constructor and independently validates the two symbolic results instead of supplying a finished net."
+      "notes": "Recreates the source drawing action as a local six-square net constructor. The neutral placement board keeps its lattice non-metric, labels every placed face with the symbolic edge length x cm, and independently validates the two symbolic results instead of supplying a finished net."
     },
     "hints": [
       "A cube net has six equal squares joined along complete edges.",
       "Each square face has area x²; volume uses three factors of x."
     ],
     "sampleAnswer": "A valid net uses six connected squares. The surface area is 6x² square centimeters, and the volume is x³ cubic centimeters.",
-    "implementationNotes": "Rebuilt from Lesson 18 cumulative-practice Problem 3a-c with an interactive cube-net constructor and separate symbolic surface-area and volume checks.",
+    "implementationNotes": "Rebuilt from Lesson 18 cumulative-practice Problem 3a-c with a non-metric cube-net placement board, direct x cm face labels, and mathematical-equivalence checks that accept powers, multiplication symbols, *, and the word times.",
     "source": "Cumulative Practice Problems/Grade6-1-18-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {

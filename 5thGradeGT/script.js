@@ -1,23 +1,72 @@
-const initialTeachLessonMatch = window.location.hash.match(/^#lesson-(\d{2})$/);
-const initialTeachLessonNumber = Number(initialTeachLessonMatch?.[1]);
-const initialTeachLesson = Number.isInteger(initialTeachLessonNumber)
-  && initialTeachLessonNumber >= 1
-  && initialTeachLessonNumber <= 19
-  ? initialTeachLessonNumber
-  : 1;
+const appUnitRoutes = {
+  1: { view: "unit1", lessonCount: 19 },
+};
+
+function lessonRoutePad(lessonNumber) {
+  return String(lessonNumber).padStart(2, "0");
+}
+
+function normalizeAppUnitRoute({ unit = 1, lesson = 1, mode = "teach" } = {}) {
+  const unitNumber = Number(unit);
+  const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
+  const normalizedUnit = appUnitRoutes[unitNumber] ? unitNumber : 1;
+  const lessonNumber = Number(lesson);
+  const normalizedLesson = Number.isInteger(lessonNumber)
+    && lessonNumber >= 1
+    && lessonNumber <= unitConfig.lessonCount
+    ? lessonNumber
+    : 1;
+  return {
+    view: unitConfig.view,
+    unit: normalizedUnit,
+    lesson: normalizedLesson,
+    mode: mode === "practice" ? "practice" : "teach",
+  };
+}
+
+function parseAppRoute(hash = window.location.hash) {
+  const routePath = String(hash || "").replace(/^#\/?/, "").replace(/\/$/, "");
+  if (routePath === "vocabulary") return { view: "vocabulary" };
+
+  const unitRouteMatch = routePath.match(/^unit-(\d+)\/lesson-(\d{1,2})\/(teach|practice)$/);
+  if (unitRouteMatch) {
+    return normalizeAppUnitRoute({
+      unit: unitRouteMatch[1],
+      lesson: unitRouteMatch[2],
+      mode: unitRouteMatch[3],
+    });
+  }
+
+  const legacyLessonMatch = routePath.match(/^lesson-(\d{1,2})$/);
+  if (legacyLessonMatch) {
+    return normalizeAppUnitRoute({ unit: 1, lesson: legacyLessonMatch[1], mode: "teach" });
+  }
+
+  return normalizeAppUnitRoute();
+}
+
+function appRouteHash(route) {
+  if (route?.view === "vocabulary") return "#vocabulary";
+  const normalized = normalizeAppUnitRoute(route);
+  return `#unit-${normalized.unit}/lesson-${lessonRoutePad(normalized.lesson)}/${normalized.mode}`;
+}
+
+const initialLocationHash = window.location.hash;
+const initialAppRoute = parseAppRoute(initialLocationHash);
 
 const TEXTAREA_MAX_LENGTH = 500;
 
 const state = {
-  view: "unit1",
-  mode: "teach",
+  view: initialAppRoute.view,
+  mode: initialAppRoute.mode || "teach",
+  activeUnit: initialAppRoute.unit || 1,
+  activeLessons: { [initialAppRoute.unit || 1]: initialAppRoute.lesson || 1 },
   teachResponses: {},
   teachReasoning: {},
   teachSelections: {},
   teachSubmitted: {},
   teachHints: {},
   teachActiveParts: {},
-  teachActiveLesson: initialTeachLesson,
   teachVariants: {},
   teachCustomResponses: {},
   teachQuestionSubmitted: {},
@@ -5113,22 +5162,158 @@ const vocabularyTerms = [
     tags: ["Unit 1", "Area"],
   },
   {
-    term: "Parallelogram",
-    definition: "A quadrilateral with two pairs of opposite parallel sides.",
-    example: "A parallelogram can be rearranged into a rectangle with the same base and height.",
-    tags: ["Unit 1", "Geometry"],
+    term: "Polygon",
+    definition: "A closed two-dimensional figure made from straight line segments.",
+    example: "A hexagon, triangle, and quadrilateral are all polygons.",
+    tags: ["Unit 1", "2D Shape", "Geometry"],
+    visual: {
+      kind: "polygon",
+      sideCount: 6,
+      ariaLabel: "An irregular closed polygon made from six straight sides",
+    },
   },
   {
     term: "Triangle",
     definition: "A polygon with three sides.",
     example: "A triangle has half the area of a related parallelogram with the same base and height.",
-    tags: ["Unit 1", "Geometry"],
+    tags: ["Unit 1", "2D Shape", "Polygon"],
+    visual: {
+      kind: "triangle",
+      sideCount: 3,
+      ariaLabel: "A triangle with three straight sides",
+    },
   },
   {
-    term: "Polygon",
-    definition: "A closed two-dimensional figure made from straight line segments.",
-    example: "A hexagon, triangle, and quadrilateral are all polygons.",
-    tags: ["Unit 1", "Geometry"],
+    term: "Right Triangle",
+    definition: "A triangle with one right angle.",
+    example: "Two matching right triangles can be composed into a rectangle.",
+    tags: ["Unit 1", "2D Shape", "Triangle", "Triangle Type"],
+    visual: {
+      kind: "right-triangle",
+      sideCount: 3,
+      ariaLabel: "A triangle with a square marker at its right angle",
+    },
+  },
+  {
+    term: "Acute Triangle",
+    definition: "A triangle whose three angles are all less than 90 degrees.",
+    example: "Every corner of an acute triangle is narrower than a right angle.",
+    tags: ["Unit 1", "2D Shape", "Triangle", "Triangle Type"],
+    visual: {
+      kind: "acute-triangle",
+      sideCount: 3,
+      ariaLabel: "A triangle with three acute angles",
+    },
+  },
+  {
+    term: "Obtuse Triangle",
+    definition: "A triangle with one angle greater than 90 degrees.",
+    example: "For some base choices on an obtuse triangle, the corresponding height falls outside the triangle.",
+    tags: ["Unit 1", "2D Shape", "Triangle", "Triangle Type"],
+    visual: {
+      kind: "obtuse-triangle",
+      sideCount: 3,
+      ariaLabel: "A triangle with one angle wider than a right angle",
+    },
+  },
+  {
+    term: "Equilateral Triangle",
+    definition: "A triangle with three equal side lengths and three equal angles.",
+    example: "A regular hexagon can be decomposed into 6 equilateral triangles.",
+    tags: ["Unit 1", "2D Shape", "Triangle", "Triangle Type"],
+    visual: {
+      kind: "equilateral-triangle",
+      sideCount: 3,
+      ariaLabel: "A triangle with matching tick marks on all three equal sides",
+    },
+  },
+  {
+    term: "Quadrilateral",
+    definition: "A polygon with four sides.",
+    example: "Trapezoids, parallelograms, rectangles, rhombuses, and squares are quadrilaterals.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Quadrilateral"],
+    visual: {
+      kind: "quadrilateral",
+      sideCount: 4,
+      ariaLabel: "An irregular quadrilateral with four straight sides",
+    },
+  },
+  {
+    term: "Trapezoid",
+    definition: "A quadrilateral with at least one pair of opposite sides parallel.",
+    example: "In this curriculum, every parallelogram is also a trapezoid because it has parallel opposite sides.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Quadrilateral"],
+    visual: {
+      kind: "trapezoid",
+      sideCount: 4,
+      ariaLabel: "A trapezoid with matching arrows on one pair of parallel sides",
+    },
+  },
+  {
+    term: "Parallelogram",
+    definition: "A quadrilateral with two pairs of opposite parallel sides.",
+    example: "A parallelogram can be rearranged into a rectangle with the same base and height.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Quadrilateral"],
+    visual: {
+      kind: "parallelogram",
+      sideCount: 4,
+      ariaLabel: "A slanted parallelogram with two pairs of opposite parallel sides",
+    },
+  },
+  {
+    term: "Rectangle",
+    definition: "A quadrilateral with four right angles.",
+    example: "Every rectangle is a parallelogram because both pairs of opposite sides are parallel.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Quadrilateral", "Parallelogram"],
+    visual: {
+      kind: "rectangle",
+      sideCount: 4,
+      ariaLabel: "A rectangle with a square marker showing a right angle",
+    },
+  },
+  {
+    term: "Rhombus",
+    definition: "A quadrilateral with four equal side lengths.",
+    example: "Every rhombus is a parallelogram, and a square is a special rhombus.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Quadrilateral", "Parallelogram"],
+    visual: {
+      kind: "rhombus",
+      sideCount: 4,
+      ariaLabel: "A rhombus with matching tick marks on all four equal sides",
+    },
+  },
+  {
+    term: "Square",
+    definition: "A quadrilateral with four equal side lengths and four right angles.",
+    example: "A square is both a rectangle and a rhombus, so it is also a parallelogram.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Quadrilateral", "Parallelogram"],
+    visual: {
+      kind: "square",
+      sideCount: 4,
+      ariaLabel: "A square with an equal-side tick and a right-angle marker",
+    },
+  },
+  {
+    term: "Pentagon",
+    definition: "A polygon with five sides.",
+    example: "A pentagonal prism and a pentagonal pyramid each have pentagons for bases.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Five Sides"],
+    visual: {
+      kind: "pentagon",
+      sideCount: 5,
+      ariaLabel: "A pentagon with five straight sides",
+    },
+  },
+  {
+    term: "Hexagon",
+    definition: "A polygon with six sides.",
+    example: "A regular hexagon can be decomposed into 6 equilateral triangles.",
+    tags: ["Unit 1", "2D Shape", "Polygon", "Six Sides"],
+    visual: {
+      kind: "hexagon",
+      sideCount: 6,
+      ariaLabel: "A hexagon with six straight sides",
+    },
   },
   {
     term: "Surface Area",
@@ -5156,9 +5341,16 @@ const vocabularyTerms = [
   },
   {
     term: "Polyhedron",
-    definition: "A three-dimensional figure with flat polygon faces.",
+    definition: "A closed three-dimensional figure made only from flat polygon faces.",
     example: "Prisms and pyramids are polyhedra.",
-    tags: ["Unit 1", "3D"],
+    tags: ["Unit 1", "3D Shape", "Polyhedra"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "polyhedron",
+      src: "assets/vocabulary/polyhedron-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.1",
+      ariaLabel: "A closed faceted polyhedron made from flat polygon faces",
+    },
   },
   {
     term: "Net",
@@ -5168,15 +5360,168 @@ const vocabularyTerms = [
   },
   {
     term: "Prism",
-    definition: "A polyhedron with two congruent, parallel bases connected by rectangular faces.",
-    example: "A rectangular prism can be represented by a net of rectangles.",
-    tags: ["Unit 1", "Polyhedra"],
+    definition: "A polyhedron with two congruent, parallel polygon bases connected by rectangles or parallelograms.",
+    example: "A prism is named for the shape of its bases.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Prism"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "prism",
+      src: "assets/vocabulary/pentagonal-prism-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 5,
+      ariaLabel: "A prism with two congruent parallel polygon bases joined by side faces",
+    },
+  },
+  {
+    term: "Triangular Prism",
+    definition: "A prism with two congruent, parallel triangular bases.",
+    example: "A triangular prism has 2 triangular bases and 3 connecting side faces.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Prism", "Triangle"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "triangular-prism",
+      src: "assets/vocabulary/triangular-prism-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 3,
+      ariaLabel: "A triangular prism with two triangular bases and three connecting faces",
+    },
+  },
+  {
+    term: "Rectangular Prism",
+    definition: "A prism with two congruent, parallel rectangular bases and rectangular faces.",
+    example: "A 3-by-2-by-1 rectangular prism has volume 6 cubic units.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Prism", "Rectangle"],
+    visual: {
+      kind: "rectangular-prism",
+      baseSides: 4,
+      ariaLabel: "A rectangular prism with rectangular faces",
+    },
+  },
+  {
+    term: "Pentagonal Prism",
+    definition: "A prism with two congruent, parallel pentagonal bases.",
+    example: "A pentagonal prism has 2 pentagonal bases and 5 connecting side faces.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Prism", "Pentagon"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "pentagonal-prism",
+      src: "assets/vocabulary/pentagonal-prism-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 5,
+      ariaLabel: "A pentagonal prism with two five-sided bases",
+    },
+  },
+  {
+    term: "Hexagonal Prism",
+    definition: "A prism with two congruent, parallel hexagonal bases.",
+    example: "A hexagonal prism has 2 hexagonal bases and 6 connecting side faces.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Prism", "Hexagon"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "hexagonal-prism",
+      src: "assets/vocabulary/hexagonal-prism-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 6,
+      ariaLabel: "A hexagonal prism with two six-sided bases",
+    },
   },
   {
     term: "Pyramid",
     definition: "A polyhedron with one base and triangular faces that meet at one vertex.",
-    example: "A square pyramid has a square base and triangular side faces.",
-    tags: ["Unit 1", "Polyhedra"],
+    example: "A pyramid is named for the shape of its base.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Pyramid"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "pyramid",
+      src: "assets/vocabulary/square-pyramid-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 4,
+      ariaLabel: "A pyramid with one polygon base and triangular faces meeting at an apex",
+    },
+  },
+  {
+    term: "Triangular Pyramid",
+    definition: "A pyramid with a triangular base and three triangular side faces.",
+    example: "A triangular pyramid has 4 triangular faces altogether.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Pyramid", "Triangle"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "triangular-pyramid",
+      src: "assets/vocabulary/triangular-pyramid-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 3,
+      ariaLabel: "A triangular pyramid with four triangular faces",
+    },
+  },
+  {
+    term: "Tetrahedron",
+    definition: "A polyhedron with four triangular faces; it is also called a triangular pyramid.",
+    example: "A net for a tetrahedron is made from 4 triangles joined edge to edge.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Pyramid", "Triangle"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "tetrahedron",
+      src: "assets/vocabulary/triangular-pyramid-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 3,
+      ariaLabel: "A tetrahedron made from four triangular faces",
+    },
+  },
+  {
+    term: "Square Pyramid",
+    definition: "A pyramid with a square base and four triangular side faces.",
+    example: "A square-pyramid net needs 1 square and 4 triangles.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Pyramid", "Square"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "square-pyramid",
+      src: "assets/vocabulary/square-pyramid-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 4,
+      ariaLabel: "A square pyramid with one square base and four triangular faces",
+    },
+  },
+  {
+    term: "Pentagonal Pyramid",
+    definition: "A pyramid with a pentagonal base and five triangular side faces.",
+    example: "A pentagonal-pyramid net needs 1 pentagon and 5 triangles.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Pyramid", "Pentagon"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "pentagonal-pyramid",
+      src: "assets/vocabulary/pentagonal-pyramid-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 5,
+      ariaLabel: "A pentagonal pyramid with one five-sided base",
+    },
+  },
+  {
+    term: "Hexagonal Pyramid",
+    definition: "A pyramid with a hexagonal base and six triangular side faces.",
+    example: "A hexagonal-pyramid net needs 1 hexagon and 6 triangles.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Pyramid", "Hexagon"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "hexagonal-pyramid",
+      src: "assets/vocabulary/hexagonal-pyramid-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.2",
+      baseSides: 6,
+      ariaLabel: "A hexagonal pyramid with one six-sided base",
+    },
+  },
+  {
+    term: "Cube",
+    definition: "A polyhedron with six congruent square faces.",
+    example: "A cube is a special rectangular prism whose edges all have the same length.",
+    tags: ["Unit 1", "3D Shape", "Polyhedra", "Prism", "Square"],
+    visual: {
+      kind: "source-image",
+      shapeKind: "cube",
+      src: "assets/vocabulary/cube-source.png",
+      sourcePage: "Student Task Statements, Lesson 13, p.1",
+      baseSides: 4,
+      ariaLabel: "A cube with six congruent square faces",
+    },
   },
   {
     term: "Volume",
@@ -5198,6 +5543,90 @@ const vocabularyTerms = [
   },
 ];
 
+function vocabularyRegularPolygonPoints(sides, centerX, centerY, radius, rotation = -90, yScale = 1) {
+  return Array.from({ length: sides }, (_, index) => {
+    const angle = (rotation + index * 360 / sides) * Math.PI / 180;
+    return [
+      centerX + Math.cos(angle) * radius,
+      centerY + Math.sin(angle) * radius * yScale,
+    ];
+  });
+}
+
+function vocabularyPointList(points) {
+  return points.map(([x, y]) => `${Math.round(x * 10) / 10},${Math.round(y * 10) / 10}`).join(" ");
+}
+
+function vocabularyShapeMarkup(visual) {
+  const polygon = (points, className = "vocabulary-shape-fill vocabulary-shape-fill--blue") => `<polygon points="${points}" class="${className}"></polygon>`;
+  switch (visual.kind) {
+    case "polygon":
+      return polygon("46,88 68,30 136,22 180,58 160,112 88,118");
+    case "triangle":
+      return polygon("48,112 110,24 174,112");
+    case "right-triangle":
+      return `${polygon("52,112 52,30 174,112")}<path d="M52 94 H70 V112" class="vocabulary-shape-marker"></path>`;
+    case "acute-triangle":
+      return polygon("42,112 108,24 180,112", "vocabulary-shape-fill vocabulary-shape-fill--mint");
+    case "obtuse-triangle":
+      return polygon("34,112 84,48 184,112", "vocabulary-shape-fill vocabulary-shape-fill--amber");
+    case "equilateral-triangle":
+      return `${polygon("44,112 110,22 176,112", "vocabulary-shape-fill vocabulary-shape-fill--rose")}<path d="M74 70 l10 7 M136 77 l10 -7 M104 112 v-12" class="vocabulary-shape-marker"></path>`;
+    case "quadrilateral":
+      return polygon("48,30 176,42 156,112 36,94", "vocabulary-shape-fill vocabulary-shape-fill--amber");
+    case "trapezoid":
+      return `${polygon("68,30 158,30 184,110 38,110", "vocabulary-shape-fill vocabulary-shape-fill--mint")}<path d="M102 30 l8 -6 l8 6 M102 110 l8 -6 l8 6" class="vocabulary-shape-marker"></path>`;
+    case "parallelogram":
+      return `${polygon("66,30 180,30 154,110 40,110")}<path d="M108 30 l8 -6 l8 6 M96 110 l8 -6 l8 6 M54 72 l-7 -7 M166 72 l7 7" class="vocabulary-shape-marker"></path>`;
+    case "rectangle":
+      return `<rect x="38" y="30" width="144" height="82" class="vocabulary-shape-fill vocabulary-shape-fill--mint"></rect><path d="M38 48 H56 V30" class="vocabulary-shape-marker"></path>`;
+    case "rhombus":
+      return `${polygon("110,18 184,70 110,122 36,70", "vocabulary-shape-fill vocabulary-shape-fill--amber")}<path d="M71 40 l8 10 M149 40 l-8 10 M149 100 l-8 -10 M71 100 l8 -10" class="vocabulary-shape-marker"></path>`;
+    case "square":
+      return `<rect x="65" y="22" width="90" height="90" class="vocabulary-shape-fill vocabulary-shape-fill--rose"></rect><path d="M65 40 H83 V22 M106 22 v12 M155 61 h-12 M114 112 v-12 M65 70 h12" class="vocabulary-shape-marker"></path>`;
+    case "pentagon":
+      return polygon(vocabularyPointList(vocabularyRegularPolygonPoints(5, 110, 70, 56)), "vocabulary-shape-fill vocabulary-shape-fill--mint");
+    case "hexagon":
+      return polygon(vocabularyPointList(vocabularyRegularPolygonPoints(6, 110, 70, 58, 0, 0.82)), "vocabulary-shape-fill vocabulary-shape-fill--amber");
+    case "rectangular-prism":
+      return `
+        ${polygon("38,50 72,28 184,28 150,50", "vocabulary-shape-fill vocabulary-shape-fill--mint")}
+        <rect x="38" y="50" width="112" height="62" class="vocabulary-shape-fill vocabulary-shape-fill--blue"></rect>
+        ${polygon("150,50 184,28 184,90 150,112", "vocabulary-shape-fill vocabulary-shape-fill--rose")}
+      `;
+    default:
+      return "";
+  }
+}
+
+function renderVocabularyShapeVisual(term) {
+  if (!term.visual) return "";
+  const visual = term.visual;
+  const shapeKind = visual.shapeKind || visual.kind;
+  const metadata = [
+    `data-vocabulary-shape="${escapeHtml(term.term)}"`,
+    `data-shape-kind="${escapeHtml(shapeKind)}"`,
+    visual.sideCount ? `data-side-count="${visual.sideCount}"` : "",
+    visual.baseSides ? `data-base-sides="${visual.baseSides}"` : "",
+    visual.sourcePage ? `data-source-page="${escapeHtml(visual.sourcePage)}"` : "",
+  ].filter(Boolean).join(" ");
+  if (visual.kind === "source-image") {
+    return `
+      <figure class="vocabulary-shape-visual vocabulary-shape-visual--source" ${metadata}>
+        <img class="vocabulary-shape-source-image" src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.ariaLabel)}" draggable="false">
+      </figure>
+    `;
+  }
+  return `
+    <figure class="vocabulary-shape-visual" ${metadata}>
+      <svg viewBox="0 0 220 140" role="img" aria-label="${escapeHtml(visual.ariaLabel)}" focusable="false">
+        <title>${escapeHtml(visual.ariaLabel)}</title>
+        ${vocabularyShapeMarkup(visual)}
+      </svg>
+    </figure>
+  `;
+}
+
 function setText(id, value) {
   const node = document.getElementById(id);
   if (node) node.textContent = value;
@@ -5205,6 +5634,50 @@ function setText(id, value) {
 
 function svg(content, viewBox = "0 0 420 280") {
   return `<svg viewBox="${viewBox}" role="img" aria-hidden="true">${content}</svg>`;
+}
+
+function renderProjectedRectangularPrism({
+  id,
+  x,
+  y,
+  widthUnits,
+  heightUnits,
+  depthUnits,
+  unitSize,
+  depthProjection,
+  frontClass,
+}) {
+  const round = (value) => Number(value.toFixed(2));
+  const width = round(widthUnits * unitSize);
+  const height = round(heightUnits * unitSize);
+  const depthX = round(depthUnits * unitSize * depthProjection.x);
+  const depthY = round(depthUnits * unitSize * depthProjection.y);
+  const right = round(x + width);
+  const bottom = round(y + height);
+  const backRight = round(right + depthX);
+  const backTop = round(y - depthY);
+  const backBottom = round(bottom - depthY);
+  const labelX = round(x + (width + depthX) / 2);
+  const labelY = round(bottom + 34);
+  return `
+    <g
+      class="surface-volume-prism"
+      data-surface-volume-prism="${escapeHtml(id)}"
+      data-width-units="${widthUnits}"
+      data-height-units="${heightUnits}"
+      data-depth-units="${depthUnits}"
+      data-unit-size="${unitSize}"
+      data-front-width="${width}"
+      data-front-height="${height}"
+      data-depth-dx="${depthX}"
+      data-depth-dy="${depthY}"
+    >
+      <path d="M${x} ${y} L${round(x + depthX)} ${backTop} H${backRight} L${right} ${y} Z" class="shape-fill mint surface-volume-prism-top"></path>
+      <path d="M${right} ${y} L${backRight} ${backTop} V${backBottom} L${right} ${bottom} Z" class="shape-fill rose surface-volume-prism-side"></path>
+      <rect x="${x}" y="${y}" width="${width}" height="${height}" class="shape-fill ${escapeHtml(frontClass)} surface-volume-prism-front"></rect>
+      <text x="${labelX}" y="${labelY}" text-anchor="middle" class="measure-label">${escapeHtml(id)}: ${widthUnits} by ${heightUnits} by ${depthUnits}</text>
+    </g>
+  `;
 }
 
 function escapeHtml(value) {
@@ -8031,22 +8504,55 @@ function practicePrimaryTextValidatorResult(item, response) {
 }
 
 function normalizeCubeExpression(value) {
-  return normalizeAnswer(value)
+  return String(value ?? "")
+    .trim()
+    .replace(/\bmultiplied\s+by\b|\btimes\b/gi, "*")
     .replace(/[×·]/g, "*")
     .replace(/²/g, "^2")
     .replace(/³/g, "^3")
+    .replace(/\)\s*\(/g, ")*(")
+    .replace(/([0-9xX])\s*\(/g, "$1*(")
+    .replace(/\)\s*([0-9xX])/g, ")*$1")
     .replace(/\s+/g, "")
     .replace(/[()]/g, "");
 }
 
-function cubeSurfaceExpressionIsCorrect(value) {
+function parseCubeMonomial(value) {
   const expression = normalizeCubeExpression(value);
-  return ["6x^2", "6*x^2", "6*x*x", "x*x*6", "x^2*6"].includes(expression);
+  if (!expression || /[^0-9xX.*^]/.test(expression)) return null;
+  const factors = expression.split("*");
+  if (factors.some((factor) => !factor)) return null;
+
+  let coefficient = 1;
+  let exponent = 0;
+  for (const factor of factors) {
+    if (/^\d+(?:\.\d+)?$/.test(factor)) {
+      coefficient *= Number(factor);
+      continue;
+    }
+    const variable = factor.match(/^(\d+(?:\.\d+)?)?[xX](?:\^(\d+))?$/);
+    if (!variable) return null;
+    coefficient *= variable[1] ? Number(variable[1]) : 1;
+    exponent += variable[2] ? Number(variable[2]) : 1;
+  }
+
+  if (!Number.isFinite(coefficient) || !Number.isFinite(exponent)) return null;
+  return { coefficient, exponent };
+}
+
+function cubeMonomialMatches(value, expectedCoefficient, expectedExponent) {
+  const parsed = parseCubeMonomial(value);
+  return Boolean(parsed)
+    && Math.abs(parsed.coefficient - expectedCoefficient) < 1e-9
+    && parsed.exponent === expectedExponent;
+}
+
+function cubeSurfaceExpressionIsCorrect(value) {
+  return cubeMonomialMatches(value, 6, 2);
 }
 
 function cubeVolumeExpressionIsCorrect(value) {
-  const expression = normalizeCubeExpression(value);
-  return ["x^3", "x*x*x"].includes(expression);
+  return cubeMonomialMatches(value, 1, 3);
 }
 
 function practiceTentDecisionIds(response) {
@@ -8166,10 +8672,10 @@ function practiceIncorrectFeedback(item) {
     return "The expressions may be revised later, but the six-square drawing is not yet a cube net. Arrange six edge-connected squares so each folds onto a different cube face.";
   }
   if (!cubeSurfaceExpressionIsCorrect(answer.surfaceArea)) {
-    return "The net is valid. Revise the surface-area expression: a cube has six square faces, and each face has area x squared.";
+    return "The net is valid. Revise the surface-area expression: a cube has six square faces, and each face has area x squared. Use * or the word times for multiplication.";
   }
   if (!cubeVolumeExpressionIsCorrect(answer.volume)) {
-    return "The net and surface-area expression are correct. Revise the volume expression using three factors of the edge length x.";
+    return "The net and surface-area expression are correct. Revise the volume expression using three factors of the edge length x. Use * or the word times for multiplication.";
   }
   return item.incorrectFeedback || "Revise the response and try again.";
 }
@@ -8399,9 +8905,14 @@ function renderPracticeCubeNet(item) {
           type="button"
           data-practice-cube-net-cell="${key}"
           data-item-id="${item.id}"
+          data-edge-length="x cm"
           aria-pressed="${active}"
-          aria-label="Grid square, row ${y + 1}, column ${x + 1}${active ? ", selected" : ""}"
-        ></button>
+          aria-label="${active ? "Square face" : "Empty face position"}, row ${y + 1}, column ${x + 1}${active ? ", side length x centimeters, selected" : ""}"
+        >
+          ${active
+            ? `<span class="practice-cube-net-face-label" aria-hidden="true"><em>x</em> cm</span>`
+            : `<span class="practice-cube-net-add-marker" aria-hidden="true">+</span>`}
+        </button>
       `);
     }
   }
@@ -8410,11 +8921,11 @@ function renderPracticeCubeNet(item) {
       <div class="practice-cube-net-heading">
         <div>
           <h4>Draw a cube net</h4>
-          <p>Select exactly six edge-connected squares. Each square has side length <em>x</em> cm.</p>
+          <p>Place exactly six edge-connected square faces. Each placed face has side length <em>x</em> cm.</p>
         </div>
         <button class="hint-button" type="button" data-practice-cube-net-reset="${item.id}">Reset net</button>
       </div>
-      <div class="practice-cube-net-grid" role="group" aria-label="Seven by seven square grid">
+      <div class="practice-cube-net-grid" role="group" aria-label="Symbolic cube-net face placement board">
         ${gridCells.join("")}
       </div>
       <p class="practice-cube-net-status ${cells.length === 6 && cubeNetIsValid(cells) ? "is-valid" : ""}" aria-live="polite">${escapeHtml(practiceCubeNetStatus(item.id))}</p>
@@ -9493,16 +10004,20 @@ function practiceVisual(item) {
     `, "0 0 450 245");
   }
   if (data.type === "surfaceVolumePrisms") {
-    return svg(`
-      <rect x="74" y="74" width="144" height="70" class="shape-fill blue"></rect>
-      <path d="M218 74 l36 -28 v70 l-36 28z" class="shape-fill rose"></path>
-      <path d="M74 74 l36 -28 h144 l-36 28z" class="shape-fill mint"></path>
-      <rect x="304" y="84" width="34" height="150" class="shape-fill amber"></rect>
-      <path d="M338 84 l28 -20 v150 l-28 20z" class="shape-fill rose"></path>
-      <path d="M304 84 l28 -20 h34 l-28 20z" class="shape-fill mint"></path>
-      <text x="166" y="188" text-anchor="middle" class="measure-label">A: 3 by 2 by 1</text>
-      <text x="334" y="260" text-anchor="middle" class="measure-label">B: 1 by 1 by 6</text>
-    `, "0 0 430 290");
+    const unitSize = data.unitScale || 36;
+    const depthProjection = data.depthProjection || { x: 0.42, y: 0.28 };
+    const prisms = data.prisms || [
+      { id: "A", x: 64, y: 96, widthUnits: 3, heightUnits: 2, depthUnits: 1, frontClass: "blue" },
+      { id: "B", x: 304, y: 50, widthUnits: 1, heightUnits: 6, depthUnits: 1, frontClass: "amber" },
+    ];
+    return svg(
+      prisms.map((prism) => renderProjectedRectangularPrism({
+        ...prism,
+        unitSize,
+        depthProjection,
+      })).join(""),
+      "0 0 430 320"
+    );
   }
   if (data.type === "surfaceAreaMeaning") {
     return svg(`
@@ -9609,6 +10124,7 @@ function renderAnswerControl(item) {
         Volume (cubic centimeters)
         <input type="text" data-practice-input="${item.id}" data-practice-field="volume" value="${escapeHtml(values.volume || "")}" placeholder="Type an expression">
       </label>
+      <p class="practice-expression-help">Use x for the edge length. Use * or the word “times” for multiplication.</p>
     `;
   }
   if (item.responseType === "tentDesignEstimate") {
@@ -9875,6 +10391,71 @@ function teachLessonGroups() {
   }, []);
 }
 
+function activeLessonForUnit(unitNumber = state.activeUnit) {
+  const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
+  const lessonNumber = Number(state.activeLessons[unitNumber]);
+  return Number.isInteger(lessonNumber)
+    && lessonNumber >= 1
+    && lessonNumber <= unitConfig.lessonCount
+    ? lessonNumber
+    : 1;
+}
+
+function setActiveLessonForUnit(unitNumber, lessonNumber) {
+  const normalized = normalizeAppUnitRoute({ unit: unitNumber, lesson: lessonNumber, mode: state.mode });
+  state.activeUnit = normalized.unit;
+  state.activeLessons[normalized.unit] = normalized.lesson;
+  return normalized.lesson;
+}
+
+function normalizeNavigationRoute(route) {
+  return route?.view === "vocabulary" ? { view: "vocabulary" } : normalizeAppUnitRoute(route);
+}
+
+let lastAppliedRouteHash = appRouteHash(initialAppRoute);
+
+function applyAppRouteState(route, { scroll = true } = {}) {
+  const normalized = normalizeNavigationRoute(route);
+  state.sourceModalItemId = null;
+  if (normalized.view === "vocabulary") {
+    state.view = "vocabulary";
+  } else {
+    state.view = normalized.view;
+    state.mode = normalized.mode;
+    setActiveLessonForUnit(normalized.unit, normalized.lesson);
+    if (state.mode === "practice") ensurePracticeLessonIsRendered(normalized.lesson);
+  }
+  renderView();
+  if (scroll && normalized.view !== "vocabulary") scrollToActiveLesson();
+}
+
+function navigateToAppRoute(route, { replace = false, scroll = true } = {}) {
+  const normalized = normalizeNavigationRoute(route);
+  const routeHash = appRouteHash(normalized);
+  if (window.location.hash !== routeHash) {
+    const historyMethod = replace ? "replaceState" : "pushState";
+    window.history[historyMethod]({ appRoute: routeHash }, "", routeHash);
+  }
+  lastAppliedRouteHash = routeHash;
+  applyAppRouteState(normalized, { scroll });
+}
+
+function syncAppRouteFromLocation() {
+  const route = parseAppRoute(window.location.hash);
+  const canonicalHash = appRouteHash(route);
+  if (window.location.hash !== canonicalHash) {
+    window.history.replaceState({ appRoute: canonicalHash }, "", canonicalHash);
+  }
+  lastAppliedRouteHash = canonicalHash;
+  applyAppRouteState(route);
+}
+
+function unitNumberForView(view) {
+  const match = String(view || "").match(/^unit(\d+)$/);
+  const unitNumber = Number(match?.[1]);
+  return appUnitRoutes[unitNumber] ? unitNumber : null;
+}
+
 function teachLessonDomId(lessonNumber) {
   return `lesson-${lessonPad(lessonNumber)}`;
 }
@@ -9891,15 +10472,15 @@ function activeTeachCardForGroup(group) {
 function renderTeachLessonNav() {
   const nav = document.getElementById("teachLessonNav");
   if (!nav) return;
-  const unitIsSelected = state.view === "unit1";
+  const unitIsSelected = state.view === "unit1" && state.activeUnit === 1;
   nav.hidden = !unitIsSelected;
   document.getElementById("unit1NavButton")?.setAttribute("aria-expanded", String(unitIsSelected));
 
   const links = teachLessonGroups().map((group) => {
     const card = group.cards[0];
     const link = document.createElement("a");
-    const isActive = group.lessonNumber === state.teachActiveLesson;
-    link.href = `#${teachLessonDomId(group.lessonNumber)}`;
+    const isActive = group.lessonNumber === activeLessonForUnit(1);
+    link.href = appRouteHash({ unit: 1, lesson: group.lessonNumber, mode: state.mode });
     link.dataset.teachLessonLink = String(group.lessonNumber);
     link.textContent = `Lesson ${group.lessonNumber}`;
     link.setAttribute("aria-label", `Lesson ${group.lessonNumber}: ${card.title}`);
@@ -9916,26 +10497,24 @@ function scrollToTeachLesson(lessonNumber) {
   const deck = document.getElementById("teachLessonDeck");
   if (!target || !deck) return;
 
+  const scrollIfCurrent = () => {
+    if (state.view !== "unit1" || state.activeUnit !== 1 || state.mode !== "teach" || activeLessonForUnit(1) !== lessonNumber) return;
+    target.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
+  window.requestAnimationFrame(scrollIfCurrent);
+
   const precedingImages = [...deck.querySelectorAll("img")].filter((image) => (
     image.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
   ));
-  const imageLoads = precedingImages.map((image) => {
+  precedingImages.forEach((image) => {
     image.loading = "eager";
-    if (image.complete) return Promise.resolve();
-    return new Promise((resolve) => {
-      image.addEventListener("load", resolve, { once: true });
-      image.addEventListener("error", resolve, { once: true });
-    });
-  });
-
-  Promise.all(imageLoads).then(() => {
-    if (state.view !== "unit1" || state.mode !== "teach" || state.teachActiveLesson !== lessonNumber) return;
-    window.requestAnimationFrame(() => {
-      target.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-        block: "start",
-      });
-    });
+    if (image.complete) return;
+    image.addEventListener("load", () => window.requestAnimationFrame(scrollIfCurrent), { once: true });
+    image.addEventListener("error", () => window.requestAnimationFrame(scrollIfCurrent), { once: true });
   });
 }
 
@@ -9944,7 +10523,7 @@ function scrollToPracticeLesson(lessonNumber) {
   if (!target) return;
 
   window.requestAnimationFrame(() => {
-    if (state.view !== "unit1" || state.mode !== "practice" || state.teachActiveLesson !== lessonNumber) return;
+    if (state.view !== "unit1" || state.activeUnit !== 1 || state.mode !== "practice" || activeLessonForUnit(1) !== lessonNumber) return;
     target.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start",
@@ -9961,10 +10540,11 @@ function ensurePracticeLessonIsRendered(lessonNumber) {
 }
 
 function scrollToActiveLesson() {
+  const lessonNumber = activeLessonForUnit(state.activeUnit);
   if (state.mode === "practice") {
-    scrollToPracticeLesson(state.teachActiveLesson);
+    scrollToPracticeLesson(lessonNumber);
   } else {
-    scrollToTeachLesson(state.teachActiveLesson);
+    scrollToTeachLesson(lessonNumber);
   }
 }
 
@@ -16715,17 +17295,20 @@ function renderVocabulary() {
     return !query || haystack.includes(query);
   });
   list.innerHTML = filtered.map((term) => `
-    <article class="vocabulary-card">
-      <h3>${term.term}</h3>
-      <p>${term.definition}</p>
-      <p><strong>Example:</strong> ${term.example}</p>
-      <div class="tag-row">${term.tags.map((tag) => `<span class="tag">${tag}</span>`).join("")}</div>
+    <article class="vocabulary-card" data-vocabulary-term="${escapeHtml(term.term)}">
+      <h3>${escapeHtml(term.term)}</h3>
+      ${renderVocabularyShapeVisual(term)}
+      <p>${escapeHtml(term.definition)}</p>
+      <p><strong>Example:</strong> ${escapeHtml(term.example)}</p>
+      <div class="tag-row">${term.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}</div>
     </article>
   `).join("");
 }
 
 function renderView() {
   document.body.dataset.mode = state.mode;
+  document.body.dataset.view = state.view;
+  document.body.dataset.unit = String(state.activeUnit);
   document.querySelectorAll("[data-view-pane]").forEach((pane) => {
     pane.hidden = pane.dataset.viewPane !== state.view;
   });
@@ -16748,18 +17331,26 @@ function renderView() {
 function bindEvents() {
   document.querySelectorAll(".mode-tab[data-mode]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.mode = button.dataset.mode;
-      if (state.view === "vocabulary") state.view = "unit1";
-      if (state.mode === "practice") ensurePracticeLessonIsRendered(state.teachActiveLesson);
-      renderView();
-      scrollToActiveLesson();
+      navigateToAppRoute({
+        unit: state.activeUnit,
+        lesson: activeLessonForUnit(state.activeUnit),
+        mode: button.dataset.mode,
+      });
     });
   });
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.view = button.dataset.view;
-      if (state.view === "vocabulary") state.mode = "teach";
-      renderView();
+      if (button.dataset.view === "vocabulary") {
+        navigateToAppRoute({ view: "vocabulary" }, { scroll: false });
+        return;
+      }
+      const unitNumber = unitNumberForView(button.dataset.view);
+      if (!unitNumber) return;
+      navigateToAppRoute({
+        unit: unitNumber,
+        lesson: activeLessonForUnit(unitNumber),
+        mode: state.mode,
+      });
     });
   });
   document.querySelectorAll("[data-area-idea]").forEach((button) => {
@@ -17044,13 +17635,7 @@ function bindEvents() {
       event.preventDefault();
       const lessonNumber = Number(teachLessonLink.dataset.teachLessonLink);
       if (!teachLessonGroups().some((group) => group.lessonNumber === lessonNumber)) return;
-      state.view = "unit1";
-      if (state.mode === "practice") ensurePracticeLessonIsRendered(lessonNumber);
-      state.teachActiveLesson = lessonNumber;
-      state.sourceModalItemId = null;
-      renderView();
-      window.history.replaceState(null, "", `#${teachLessonDomId(lessonNumber)}`);
-      scrollToActiveLesson();
+      navigateToAppRoute({ unit: 1, lesson: lessonNumber, mode: state.mode });
       return;
     }
     const teachSourceButton = event.target.closest("[data-teach-source]");
@@ -19148,12 +19733,23 @@ function bindEvents() {
     state.sourceModalLayout = normalizeSourceModalLayout();
     applySourceModalLayout();
   });
+  const syncRouteHistory = () => {
+    if (window.location.hash === lastAppliedRouteHash) return;
+    syncAppRouteFromLocation();
+  };
+  window.addEventListener("popstate", syncRouteHistory);
+  window.addEventListener("hashchange", syncRouteHistory);
 }
 
 function renderAll() {
   renderView();
 }
 
+const initialCanonicalHash = appRouteHash(initialAppRoute);
+if (window.location.hash !== initialCanonicalHash) {
+  window.history.replaceState({ appRoute: initialCanonicalHash }, "", initialCanonicalHash);
+}
+lastAppliedRouteHash = initialCanonicalHash;
 bindEvents();
 renderAll();
-if (initialTeachLessonMatch) scrollToTeachLesson(initialTeachLesson);
+if (initialLocationHash && initialAppRoute.view !== "vocabulary") scrollToActiveLesson();

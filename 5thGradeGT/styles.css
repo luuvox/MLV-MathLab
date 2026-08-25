@@ -1845,6 +1845,11 @@ body[data-mode="teach"] #unit1Practice {
   max-width: 720px;
 }
 
+.rectangular-prism-net-workspace.is-freeform > svg {
+  touch-action: none;
+  user-select: none;
+}
+
 .rectangular-prism-net-board {
   fill: white;
   stroke: var(--line);
@@ -1852,6 +1857,14 @@ body[data-mode="teach"] #unit1Practice {
 
 .rectangular-prism-net-face {
   cursor: pointer;
+}
+
+.rectangular-prism-net-workspace.is-freeform .rectangular-prism-net-face {
+  cursor: grab;
+}
+
+.rectangular-prism-net-workspace.is-freeform .rectangular-prism-net-face:active {
+  cursor: grabbing;
 }
 
 .rectangular-prism-net-face rect {
@@ -4832,6 +4845,152 @@ input[type="search"] {
   max-height: 460px;
 }
 
+.practice-source-annotation-visual {
+  align-content: start;
+  gap: 10px;
+}
+
+.practice-source-annotation-toolbar,
+.practice-source-annotation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.practice-source-annotation-toolbar {
+  justify-content: center;
+  width: 100%;
+}
+
+.practice-source-annotation-tool {
+  min-width: 76px;
+}
+
+.practice-source-annotation-canvas {
+  position: relative;
+  display: grid;
+  width: min(100%, var(--practice-annotation-max-width));
+  max-width: 100%;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  touch-action: none;
+  user-select: none;
+}
+
+.practice-source-annotation-canvas > .practice-source-visual-image,
+.practice-source-annotation-canvas > .practice-source-annotation-board {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+}
+
+.practice-source-annotation-canvas > .practice-source-visual-image {
+  pointer-events: none;
+}
+
+.practice-source-annotation-board {
+  position: relative;
+  z-index: 1;
+  display: block;
+  outline: none;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.practice-source-annotation-board:focus-visible {
+  box-shadow: inset 0 0 0 4px rgba(29, 116, 106, 0.55);
+}
+
+.practice-source-annotation-board.is-erase {
+  cursor: default;
+}
+
+.practice-source-annotation-hit-area {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.practice-source-annotation-mark,
+.practice-source-annotation-preview {
+  stroke: #a33e23;
+  stroke-width: 5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.practice-source-annotation-mark--line,
+.practice-source-annotation-preview:is(line) {
+  fill: none;
+}
+
+.practice-source-annotation-mark--rectangle,
+.practice-source-annotation-mark--square,
+.practice-source-annotation-preview:is(rect) {
+  fill: rgba(255, 213, 79, 0.18);
+}
+
+.practice-source-annotation-mark {
+  pointer-events: visiblePainted;
+}
+
+.practice-source-annotation-board.is-erase .practice-source-annotation-mark {
+  cursor: pointer;
+}
+
+.practice-source-annotation-board.is-erase .practice-source-annotation-mark:focus {
+  stroke: #8b1730;
+  stroke-width: 8px;
+  outline: none;
+}
+
+.practice-source-annotation-preview {
+  stroke-dasharray: 12 9;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.practice-source-annotation-cursor {
+  fill: #fff;
+  stroke: #1d746a;
+  stroke-width: 4px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.practice-source-annotation-board:focus .practice-source-annotation-cursor {
+  opacity: 1;
+}
+
+.practice-source-annotation-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 16px;
+  width: 100%;
+}
+
+.practice-source-annotation-status {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.practice-source-annotation-instructions {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .practice-source-visual figcaption {
   color: var(--muted);
   font-size: 14px;
@@ -5084,6 +5243,92 @@ input[type="search"] {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.practice-height-annotation-controls,
+.practice-height-annotation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.practice-height-annotation-controls {
+  justify-content: space-between;
+}
+
+.practice-height-annotation-status {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.practice-height-placement-stage .practice-height-annotation-board {
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+  outline: none;
+}
+
+.practice-height-placement-stage .practice-height-annotation-board:focus-visible {
+  filter: drop-shadow(0 0 3px rgba(29, 116, 106, 0.85));
+}
+
+.practice-height-annotation-hit-area {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.practice-height-trial-line,
+.practice-height-trial-preview {
+  fill: none;
+  stroke: #a33e23;
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.practice-height-trial-line:not(.is-active),
+.practice-height-trial-point:not(.is-active) {
+  opacity: 0.55;
+}
+
+.practice-height-trial-point {
+  fill: #ffffff;
+  stroke: #a33e23;
+  stroke-width: 4px;
+  pointer-events: none;
+}
+
+.practice-height-trial-preview {
+  stroke-dasharray: 12 9;
+  opacity: 0.85;
+}
+
+.practice-height-annotation-cursor {
+  fill: #ffffff;
+  stroke: #a33e23;
+  stroke-width: 4px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.practice-height-annotation-board:focus .practice-height-annotation-cursor {
+  opacity: 1;
+}
+
+.practice-height-annotation-instructions {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .practice-height-line {

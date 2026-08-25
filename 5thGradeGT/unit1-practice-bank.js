@@ -928,8 +928,8 @@ window.unit1PracticeBank = [
     "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set/page-001.png",
     "sourceItem": "Problem 1",
     "skill": "Draw corresponding heights",
-    "activityForm": "three independently graded height placements",
-    "prompt": "For each triangle, a base is labeled b. Choose where the height from the opposite vertex meets the line containing b. Your selection draws the segment on the source figure.",
+    "activityForm": "three independently graded height placements with optional source-aligned trial lines",
+    "prompt": "For each triangle, a base is labeled b. Draw trial construction lines if helpful, then choose where the height from the opposite vertex meets the line containing b. For Triangle 3, you may need one line to extend b and another for the perpendicular height.",
     "responseType": "groupedChoice",
     "choiceGroups": [
       {
@@ -1011,6 +1011,7 @@ window.unit1PracticeBank = [
       "naturalWidth": 1650,
       "naturalHeight": 520,
       "canvasHeight": 620,
+      "allowTrialLines": true,
       "groupMarkers": {
         "triangle1": {
           "label": "1",
@@ -1109,14 +1110,14 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "three triangles with a base labeled b"
       ],
-      "notes": "Uses the exact source triangle outlines and draws each selected height directly over the figure. Each source drawing target is independently submitted and graded."
+      "notes": "Uses the exact source triangle outlines, provides persistent ungraded trial lines for each triangle, and draws each selected answer placement in a separate overlay style. Triangle 3 supports both a base-extension line and a perpendicular-height line. Each source drawing target is independently submitted and graded."
     },
     "hints": [
       "A height must be perpendicular to the selected base.",
       "The segment may need to meet an extension of the base line."
     ],
     "sampleAnswer": "For each triangle, draw a segment from the opposite vertex perpendicular to the line containing base b. For an obtuse triangle, that perpendicular segment may land outside the triangle.",
-    "implementationNotes": "Rebuilt from Lesson 10 cumulative practice, Problem 1, with an exact source crop, selected-segment overlays, and independent feedback for all three drawing targets.",
+    "implementationNotes": "Rebuilt from Lesson 10 cumulative practice, Problem 1, with an exact source crop, persistent multi-line construction scratchpads, distinct selected-segment overlays, and independent feedback for all three drawing targets.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1240,12 +1241,27 @@ window.unit1PracticeBank = [
       "40"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-11-pinwheel-source.png",
       "alt": "The exact source pinwheel-shaped shaded polygon on a square grid.",
       "naturalWidth": 1030,
       "naturalHeight": 1000,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 460,
+      "annotationGrid": {
+        "originX": 66,
+        "originY": 17,
+        "cellSize": 71,
+        "columns": 13,
+        "rows": 13
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line"
     },
     "reasoningPrompt": "Show or explain your reasoning.",
     "reasoningRequired": true,
@@ -1284,14 +1300,14 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "one shaded pinwheel polygon on a square grid"
       ],
-      "notes": "Uses an exact visual-only crop of the Lesson 11.4 pinwheel and validates both the numeric area and the source-required reasoning."
+      "notes": "Uses an exact visual-only crop of the Lesson 11.4 pinwheel with an aligned, grid-snapped line/rectangle/square scratchpad. The optional marks are not graded; the card validates the numeric area and source-required written reasoning independently."
     },
     "hints": [
       "Try enclosing the figure in a rectangle and subtracting unshaded triangles.",
       "You can also decompose the pinwheel into triangles and rectangles."
     ],
     "sampleAnswer": "One way is to decompose or enclose the grid figure; the shaded area is 40 square units.",
-    "implementationNotes": "Rebuilt from Lesson 11.4 with the exact source grid visual and transparent validation for the required reasoning.",
+    "implementationNotes": "Rebuilt from Lesson 11.4 with the exact source grid visual, a calibrated ungraded annotation overlay, and transparent validation for the required written reasoning.",
     "source": "Student Task Statements/Grade6-1-11-Lesson-student-task-statements.pdf p.4"
   },
   {
@@ -1379,7 +1395,7 @@ window.unit1PracticeBank = [
     "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-15-Lesson-curated-practice-problem-set/page-001.png",
     "sourceItem": "Problem 2",
     "skill": "Find surface area of a rectangular prism",
-    "activityForm": "interactive net construction and calculation",
+    "activityForm": "draggable net scratchpad and calculation",
     "prompt": "A cereal box is 8 inches by 2 inches by 12 inches. What is its surface area?",
     "responseType": "number",
     "answerKey": [
@@ -1392,34 +1408,30 @@ window.unit1PracticeBank = [
       "height": 12,
       "unit": "in",
       "subject": "cereal box",
-      "optional": true
+      "optional": true,
+      "freeform": true
     },
     "reasoningPrompt": "Show or explain your reasoning.",
-    "reasoningRequired": true,
-    "reasoningMinLength": 1,
-    "reasoningValidator": "rectangularPrismSurfaceArea",
-    "reasoningValidationGuidance": "account for both faces in each matching pair: 8 by 2, 8 by 12, and 2 by 12",
+    "reasoningRequired": false,
     "missingFeedback": "Enter the cereal box's surface area before submitting.",
-    "reasoningRequiredFeedback": "The surface area is correct. Add the source-requested reasoning before submitting again.",
-    "reasoningRevisionFeedback": "The surface area is correct, but the reasoning needs to account for all three pairs of congruent faces.",
     "correctFeedback": "Correct. The box has two 8-by-2 faces, two 8-by-12 faces, and two 2-by-12 faces, so its surface area is 2(8 × 2) + 2(8 × 12) + 2(2 × 12) = 272 square inches.",
     "incorrectFeedback": "Not quite. Find the area of each different face and remember that every face has a congruent opposite face.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
       "appActionTargets": 2,
-      "unitOfAction": "one numeric surface-area answer and one source-required explanation for the cereal box",
+      "unitOfAction": "one validated numeric surface-area answer plus one optional explanation field for the cereal box",
       "sourceObjects": [
         "rectangular prism dimensions 8 in by 2 in by 12 in"
       ],
-      "notes": "Uses source Problem 2's cereal-box dimensions and preserves its numeric answer plus reasoning. Because the text-only source suggests drawing a box or net only as a support strategy, the app starts with a blank optional net builder, accepts multiple valid nets, and never displays a finished net before the student constructs one."
+      "notes": "Uses source Problem 2's cereal-box dimensions and preserves its numeric answer plus a writing area. The app provides the six source-sized faces as loose draggable and rotatable pieces; the scratchpad arrangement is never graded, and the numeric surface-area answer is the sole required validated response."
     },
     "hints": [
       "A rectangular prism has 3 pairs of equal faces.",
       "Add 2(8 × 2), 2(8 × 12), and 2(2 × 12)."
     ],
     "sampleAnswer": "2(8 × 2) + 2(8 × 12) + 2(2 × 12) = 32 + 192 + 48 = 272 square inches.",
-    "implementationNotes": "Directly adapted from Lesson 15 cumulative-practice Problem 2. The optional builder validates six non-overlapping faces, two of each required dimension, complete matching shared edges, connectivity, and a fold topology with six different face normals.",
+    "implementationNotes": "Directly adapted from Lesson 15 cumulative-practice Problem 2. The optional scratchpad supplies six loose source-dimension faces with drag, keyboard movement, rotation, and reset controls. It does not validate overlap, connectivity, or fold topology; only the numeric surface-area answer is graded.",
     "source": "Cumulative Practice Problems/Grade6-1-15-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {

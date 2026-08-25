@@ -64,6 +64,8 @@ const state = {
   practiceActiveGroups: {},
   practiceOpenDropdown: null,
   practiceCompositionWorkspaces: {},
+  practiceSourceAnnotations: {},
+  practiceHeightAnnotations: {},
   practicePrismNets: {},
   practiceCubeNets: {},
   practiceSubmitted: {},
@@ -80,9 +82,12 @@ let gridTrianglePointer = null;
 let tilingPiecePointer = null;
 let trianglePairPointer = null;
 let practiceCompositionPointer = null;
+let practiceSourceAnnotationPointer = null;
+let practiceHeightAnnotationPointer = null;
 let decomposePointer = null;
 let pyramidNetPointer = null;
 let baseHeightChallengePointer = null;
+let rectangularPrismNetPointer = null;
 
 const sourceModalBounds = {
   minWidth: 360,
@@ -8018,21 +8023,6 @@ function triangularPrismAreaErrorIsCorrect(response) {
   return (namesTriangle && usesHalf) || dividesTrianglesByTwo || correctsTwelveToSix;
 }
 
-function rectangularPrismSurfaceAreaReasoningIsCorrect(reasoning) {
-  const text = normalizePracticeMathReasoning(reasoning);
-  const plainText = normalizeAnswer(reasoning);
-  const hasEightByTwo = /\b(?:8\s*(?:\*|by)\s*2|2\s*(?:\*|by)\s*8)\b/.test(text);
-  const hasEightByTwelve = /\b(?:8\s*(?:\*|by)\s*12|12\s*(?:\*|by)\s*8)\b/.test(text);
-  const hasTwoByTwelve = /\b(?:2\s*(?:\*|by)\s*12|12\s*(?:\*|by)\s*2)\b/.test(text);
-  const namesTwoForEveryPair = (plainText.match(/\btwo\b/g) || []).length >= 3;
-  const accountsForPairs = /\b(?:twice|double|pairs?|opposite|two\s+(?:of\s+each|faces?))\b/.test(plainText)
-    || /\b2\s*[([]/.test(text)
-    || namesTwoForEveryPair;
-  const hasExpandedFaceAreas = /\b32\b/.test(text) && /\b192\b/.test(text) && /\b48\b/.test(text);
-  return (hasEightByTwo && hasEightByTwelve && hasTwoByTwelve && accountsForPairs)
-    || hasExpandedFaceAreas;
-}
-
 function practicePrimaryTextValidatorResult(item, response) {
   if (item.responseValidator === "triangularPrismAreaError") {
     return triangularPrismAreaErrorIsCorrect(response);
@@ -8106,9 +8096,6 @@ function practiceReasoningValidatorResult(item, reasoning) {
   }
   if (item.reasoningValidator === "parallelogramRejectedFigures") {
     return parallelogramRejectedFiguresReasoningIsCorrect(reasoning);
-  }
-  if (item.reasoningValidator === "rectangularPrismSurfaceArea") {
-    return rectangularPrismSurfaceAreaReasoningIsCorrect(reasoning);
   }
   return false;
 }
@@ -8535,11 +8522,599 @@ function renderPracticeTentDesigner(item) {
   `;
 }
 
+const practiceSourceAnnotationToolLabels = Object.freeze({
+  line: "Line",
+  rectangle: "Rectangle",
+  square: "Square",
+  erase: "Erase",
+});
+
+function practiceSourceAnnotationDefinition(item) {
+  const data = item?.visualModelData || {};
+  const grid = data.annotationGrid || {};
+  const tools = Array.isArray(data.annotationTools)
+    ? data.annotationTools.filter((tool) => Object.prototype.hasOwnProperty.call(practiceSourceAnnotationToolLabels, tool))
+    : ["line", "rectangle", "square", "erase"];
+  return {
+    width: Number(data.naturalWidth) || 1000,
+    height: Number(data.naturalHeight) || 1000,
+    originX: Number(grid.originX) || 0,
+    originY: Number(grid.originY) || 0,
+    cellX: Number(grid.cellX) || Number(grid.cellSize) || 1,
+    cellY: Number(grid.cellY) || Number(grid.cellSize) || 1,
+    columns: Math.max(1, Number(grid.columns) || 1),
+    rows: Math.max(1, Number(grid.rows) || 1),
+    tools: tools.length ? tools : ["line"],
+    defaultTool: tools.includes(data.defaultAnnotationTool) ? data.defaultAnnotationTool : tools[0] || "line",
+    displayMaxHeight: Number(data.displayMaxHeight) || 460,
+  };
+}
+
+function initialPracticeSourceAnnotation(item) {
+  const definition = practiceSourceAnnotationDefinition(item);
+  return {
+    tool: definition.defaultTool,
+    marks: [],
+    nextId: 1,
+    cursor: { column: 0, row: 0 },
+    keyboardStart: null,
+  };
+}
+
+function getPracticeSourceAnnotation(item) {
+  const definition = practiceSourceAnnotationDefinition(item);
+  let workspace = state.practiceSourceAnnotations[item.id];
+  if (!workspace || !Array.isArray(workspace.marks)) {
+    workspace = initialPracticeSourceAnnotation(item);
+    state.practiceSourceAnnotations[item.id] = workspace;
+  }
+  if (!definition.tools.includes(workspace.tool)) workspace.tool = definition.defaultTool;
+  if (!Number.isInteger(workspace.nextId) || workspace.nextId < 1) {
+    workspace.nextId = workspace.marks.reduce((highest, mark) => Math.max(highest, Number(mark.id) || 0), 0) + 1;
+  }
+  if (!workspace.cursor) workspace.cursor = { column: 0, row: 0 };
+  return workspace;
+}
+
+function practiceSourceAnnotationGridPoint(definition, point) {
+  return {
+    x: definition.originX + point.column * definition.cellX,
+    y: definition.originY + point.row * definition.cellY,
+  };
+}
+
+function practiceSourceAnnotationSnap(item, svgNode, event) {
+  const definition = practiceSourceAnnotationDefinition(item);
+  const pointer = tangramSvgPoint(svgNode, event);
+  return {
+    column: clampNumber(Math.round((pointer.x - definition.originX) / definition.cellX), 0, definition.columns),
+    row: clampNumber(Math.round((pointer.y - definition.originY) / definition.cellY), 0, definition.rows),
+  };
+}
+
+function practiceSourceAnnotationConstrainedEnd(item, type, start, requestedEnd) {
+  const definition = practiceSourceAnnotationDefinition(item);
+  const end = {
+    column: clampNumber(requestedEnd.column, 0, definition.columns),
+    row: clampNumber(requestedEnd.row, 0, definition.rows),
+  };
+  if (type !== "square") return end;
+  const dx = end.column - start.column;
+  const dy = end.row - start.row;
+  if (!dx && !dy) return end;
+  const directionX = dx < 0 || (!dx && start.column === definition.columns) ? -1 : 1;
+  const directionY = dy < 0 || (!dy && start.row === definition.rows) ? -1 : 1;
+  const availableX = directionX > 0 ? definition.columns - start.column : start.column;
+  const availableY = directionY > 0 ? definition.rows - start.row : start.row;
+  const side = Math.min(Math.max(Math.abs(dx), Math.abs(dy)), availableX, availableY);
+  return {
+    column: start.column + directionX * side,
+    row: start.row + directionY * side,
+  };
+}
+
+function practiceSourceAnnotationMarkIsValid(type, start, end) {
+  if (start.column === end.column && start.row === end.row) return false;
+  if (["rectangle", "square"].includes(type)) {
+    return start.column !== end.column && start.row !== end.row;
+  }
+  return type === "line";
+}
+
+function practiceSourceAnnotationShapeMarkup(item, mark, className, attributes = "") {
+  const definition = practiceSourceAnnotationDefinition(item);
+  const start = practiceSourceAnnotationGridPoint(definition, mark.start);
+  const end = practiceSourceAnnotationGridPoint(definition, mark.end);
+  if (mark.type === "line") {
+    return `<line class="${className}" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}" vector-effect="non-scaling-stroke" ${attributes}></line>`;
+  }
+  const x = Math.min(start.x, end.x);
+  const y = Math.min(start.y, end.y);
+  return `<rect class="${className}" x="${x}" y="${y}" width="${Math.abs(end.x - start.x)}" height="${Math.abs(end.y - start.y)}" vector-effect="non-scaling-stroke" ${attributes}></rect>`;
+}
+
+function renderPracticeSourceAnnotationMark(item, mark, workspace) {
+  const label = mark.type === "line" ? "line" : mark.type;
+  const eraseAttributes = workspace.tool === "erase"
+    ? `tabindex="0" role="button" aria-label="Erase ${label} ${mark.id}"`
+    : `tabindex="-1" aria-hidden="true"`;
+  return practiceSourceAnnotationShapeMarkup(
+    item,
+    mark,
+    `practice-source-annotation-mark practice-source-annotation-mark--${mark.type}`,
+    `data-practice-source-annotation-mark="${mark.id}" data-item-id="${item.id}" ${eraseAttributes}`,
+  );
+}
+
+function practiceSourceAnnotationStatus(item) {
+  const workspace = getPracticeSourceAnnotation(item);
+  const label = practiceSourceAnnotationToolLabels[workspace.tool] || "Annotation";
+  const count = workspace.marks.length;
+  return `${label} selected${workspace.keyboardStart ? " - start point set" : ""} - ${count} ${count === 1 ? "mark" : "marks"}`;
+}
+
+function renderPracticeSourceAnnotation(item) {
+  const data = item.visualModelData || {};
+  const definition = practiceSourceAnnotationDefinition(item);
+  const workspace = getPracticeSourceAnnotation(item);
+  const displayWidth = Math.min(definition.width, Math.round(definition.displayMaxHeight * definition.width / definition.height));
+  const cursor = practiceSourceAnnotationGridPoint(definition, workspace.cursor);
+  const instructionId = `${item.id}-annotation-instructions`;
+  return `
+    <figure class="practice-source-visual practice-source-annotation-visual practice-source-visual--compact-square">
+      <div class="practice-source-annotation-toolbar" role="toolbar" aria-label="Drawing tools">
+        ${definition.tools.map((tool) => `
+          <button
+            class="page-chip practice-source-annotation-tool ${workspace.tool === tool ? "is-active" : ""}"
+            type="button"
+            data-practice-source-annotation-tool="${item.id}"
+            data-annotation-tool="${tool}"
+            aria-pressed="${workspace.tool === tool}"
+            title="${tool === "erase" ? "Select a mark to erase it" : `Draw a ${practiceSourceAnnotationToolLabels[tool].toLowerCase()} on the source grid`}"
+          >${practiceSourceAnnotationToolLabels[tool]}</button>
+        `).join("")}
+      </div>
+      <div
+        class="practice-source-annotation-canvas"
+        style="--practice-annotation-max-width: ${displayWidth}px; aspect-ratio: ${definition.width} / ${definition.height};"
+      >
+        <img
+          class="practice-source-visual-image"
+          src="${escapeHtml(data.imagePath)}"
+          alt="${escapeHtml(data.alt || "Source visual")}"
+          width="${definition.width}"
+          height="${definition.height}"
+          draggable="false"
+        >
+        <svg
+          class="practice-source-annotation-board ${workspace.tool === "erase" ? "is-erase" : ""}"
+          viewBox="0 0 ${definition.width} ${definition.height}"
+          preserveAspectRatio="xMidYMid meet"
+          tabindex="0"
+          role="group"
+          aria-label="Drawing layer aligned to the source square grid"
+          aria-describedby="${instructionId}"
+          aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Enter Space Escape Delete"
+          data-practice-source-annotation-board="${item.id}"
+        >
+          <rect class="practice-source-annotation-hit-area" x="0" y="0" width="${definition.width}" height="${definition.height}"></rect>
+          <g data-practice-source-annotation-marks>
+            ${workspace.marks.map((mark) => renderPracticeSourceAnnotationMark(item, mark, workspace)).join("")}
+          </g>
+          <g data-practice-source-annotation-preview aria-hidden="true"></g>
+          <circle class="practice-source-annotation-cursor" cx="${cursor.x}" cy="${cursor.y}" r="10" vector-effect="non-scaling-stroke" aria-hidden="true"></circle>
+        </svg>
+      </div>
+      <div class="practice-source-annotation-footer">
+        <span class="practice-source-annotation-status" data-practice-source-annotation-status="${item.id}" aria-live="polite">${escapeHtml(practiceSourceAnnotationStatus(item))}</span>
+        <div class="practice-source-annotation-actions">
+          <button class="hint-button" type="button" data-practice-source-annotation-undo="${item.id}" ${workspace.marks.length ? "" : "disabled"}>Undo</button>
+          <button class="hint-button" type="button" data-practice-source-annotation-clear="${item.id}" ${workspace.marks.length ? "" : "disabled"}>Clear</button>
+        </div>
+      </div>
+      <figcaption class="practice-source-annotation-instructions" id="${instructionId}">
+        Drag between grid intersections to draw. With the drawing layer focused, use arrow keys to move the cursor and Enter or Space to set each endpoint. Press Delete to undo the last mark.
+      </figcaption>
+    </figure>
+  `;
+}
+
+function addPracticeSourceAnnotationMark(item, type, start, requestedEnd) {
+  const workspace = getPracticeSourceAnnotation(item);
+  const end = practiceSourceAnnotationConstrainedEnd(item, type, start, requestedEnd);
+  if (!practiceSourceAnnotationMarkIsValid(type, start, end)) return false;
+  workspace.marks.push({
+    id: workspace.nextId,
+    type,
+    start: { ...start },
+    end: { ...end },
+  });
+  workspace.nextId += 1;
+  workspace.cursor = { ...end };
+  workspace.keyboardStart = null;
+  return true;
+}
+
+function removePracticeSourceAnnotationMark(item, markId) {
+  const workspace = getPracticeSourceAnnotation(item);
+  const index = workspace.marks.findIndex((mark) => Number(mark.id) === Number(markId));
+  if (index < 0) return false;
+  workspace.marks.splice(index, 1);
+  workspace.keyboardStart = null;
+  return true;
+}
+
+function focusPracticeSourceAnnotationBoard(itemId) {
+  requestAnimationFrame(() => {
+    document.querySelector(`[data-practice-source-annotation-board="${itemId}"]`)?.focus();
+  });
+}
+
+function updatePracticeSourceAnnotationCursorDom(item) {
+  const definition = practiceSourceAnnotationDefinition(item);
+  const workspace = getPracticeSourceAnnotation(item);
+  const cursor = practiceSourceAnnotationGridPoint(definition, workspace.cursor);
+  const board = document.querySelector(`[data-practice-source-annotation-board="${item.id}"]`);
+  board?.querySelector(".practice-source-annotation-cursor")?.setAttribute("cx", String(cursor.x));
+  board?.querySelector(".practice-source-annotation-cursor")?.setAttribute("cy", String(cursor.y));
+  const status = document.querySelector(`[data-practice-source-annotation-status="${item.id}"]`);
+  if (status) status.textContent = practiceSourceAnnotationStatus(item);
+}
+
+function updatePracticeSourceAnnotationPreview(item, start, requestedEnd) {
+  const workspace = getPracticeSourceAnnotation(item);
+  const preview = document.querySelector(`[data-practice-source-annotation-board="${item.id}"] [data-practice-source-annotation-preview]`);
+  if (!preview) return;
+  const end = practiceSourceAnnotationConstrainedEnd(item, workspace.tool, start, requestedEnd);
+  preview.innerHTML = practiceSourceAnnotationMarkIsValid(workspace.tool, start, end)
+    ? practiceSourceAnnotationShapeMarkup(item, { type: workspace.tool, start, end }, "practice-source-annotation-preview", "")
+    : "";
+}
+
+function startPracticeSourceAnnotationPointer(event) {
+  const board = event.target.closest?.("[data-practice-source-annotation-board]");
+  if (!board) return false;
+  const item = practiceBank.find((entry) => entry.id === board.dataset.practiceSourceAnnotationBoard);
+  if (!item || item.visualModelData?.type !== "annotatableSourceVisual") return false;
+  const workspace = getPracticeSourceAnnotation(item);
+  if (workspace.tool === "erase") {
+    const markNode = event.target.closest?.("[data-practice-source-annotation-mark]");
+    if (markNode && removePracticeSourceAnnotationMark(item, markNode.dataset.practiceSourceAnnotationMark)) {
+      renderPractice();
+    }
+    event.preventDefault();
+    return true;
+  }
+  const start = practiceSourceAnnotationSnap(item, board, event);
+  workspace.cursor = { ...start };
+  workspace.keyboardStart = null;
+  practiceSourceAnnotationPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    itemId: item.id,
+    board,
+    start,
+    current: start,
+  };
+  updatePracticeSourceAnnotationPreview(item, start, start);
+  updatePracticeSourceAnnotationCursorDom(item);
+  if (event.pointerId !== undefined) board.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  return true;
+}
+
+function updatePracticeSourceAnnotationPointer(event) {
+  if (!practiceSourceAnnotationPointer
+    || (event.pointerId ?? "mouse") !== practiceSourceAnnotationPointer.pointerId) return false;
+  const item = practiceBank.find((entry) => entry.id === practiceSourceAnnotationPointer.itemId);
+  if (!item) return false;
+  const current = practiceSourceAnnotationSnap(item, practiceSourceAnnotationPointer.board, event);
+  practiceSourceAnnotationPointer.current = current;
+  getPracticeSourceAnnotation(item).cursor = { ...current };
+  updatePracticeSourceAnnotationPreview(item, practiceSourceAnnotationPointer.start, current);
+  updatePracticeSourceAnnotationCursorDom(item);
+  event.preventDefault();
+  return true;
+}
+
+function endPracticeSourceAnnotationPointer(event) {
+  if (!practiceSourceAnnotationPointer
+    || (event.pointerId ?? "mouse") !== practiceSourceAnnotationPointer.pointerId) return false;
+  const pointer = practiceSourceAnnotationPointer;
+  practiceSourceAnnotationPointer = null;
+  const item = practiceBank.find((entry) => entry.id === pointer.itemId);
+  if (item) {
+    const workspace = getPracticeSourceAnnotation(item);
+    addPracticeSourceAnnotationMark(item, workspace.tool, pointer.start, pointer.current);
+    renderPractice();
+  }
+  return true;
+}
+
+function cancelPracticeSourceAnnotationPointer(event) {
+  if (!practiceSourceAnnotationPointer
+    || (event.pointerId ?? "mouse") !== practiceSourceAnnotationPointer.pointerId) return false;
+  practiceSourceAnnotationPointer = null;
+  renderPractice();
+  return true;
+}
+
+function practiceHeightAnnotationIsEnabled(item) {
+  return item?.visualModelData?.type === "sourceHeightPlacement"
+    && item.visualModelData.allowTrialLines === true;
+}
+
+function practiceHeightAnnotationBounds(item, groupId) {
+  const data = item?.visualModelData || {};
+  const marker = data.groupMarkers?.[groupId];
+  const width = Number(data.naturalWidth) || 1650;
+  const height = Number(data.canvasHeight) || Number(data.naturalHeight) || 520;
+  if (!marker) return { x: 0, y: 0, width, height };
+  return {
+    x: clampNumber(Number(marker.x) || 0, 0, width),
+    y: clampNumber(Number(marker.y) || 0, 0, height),
+    width: clampNumber(Number(marker.width) || width, 1, width),
+    height: clampNumber(Number(marker.height) || height, 1, height),
+  };
+}
+
+function initialPracticeHeightAnnotationGroup(item, groupId) {
+  const bounds = practiceHeightAnnotationBounds(item, groupId);
+  const firstPlacement = Object.values(item.visualModelData?.placementLines?.[groupId] || {})
+    .find((points) => Array.isArray(points) && points.length === 4);
+  const cursor = firstPlacement
+    ? { x: Number(firstPlacement[0]), y: Number(firstPlacement[1]) }
+    : { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+  return {
+    lines: [],
+    nextId: 1,
+    cursor,
+    keyboardStart: null,
+  };
+}
+
+function getPracticeHeightAnnotationWorkspace(item) {
+  let workspace = state.practiceHeightAnnotations[item.id];
+  if (!workspace || typeof workspace !== "object" || !workspace.groups) {
+    workspace = { groups: {} };
+    state.practiceHeightAnnotations[item.id] = workspace;
+  }
+  return workspace;
+}
+
+function getPracticeHeightAnnotationGroup(item, groupId) {
+  const workspace = getPracticeHeightAnnotationWorkspace(item);
+  let group = workspace.groups[groupId];
+  if (!group || !Array.isArray(group.lines)) {
+    group = initialPracticeHeightAnnotationGroup(item, groupId);
+    workspace.groups[groupId] = group;
+  }
+  if (!Number.isInteger(group.nextId) || group.nextId < 1) {
+    group.nextId = group.lines.reduce((highest, line) => Math.max(highest, Number(line.id) || 0), 0) + 1;
+  }
+  if (!group.cursor) group.cursor = initialPracticeHeightAnnotationGroup(item, groupId).cursor;
+  return group;
+}
+
+function practiceHeightAnnotationPoint(item, groupId, svgNode, event) {
+  const pointer = tangramSvgPoint(svgNode, event);
+  const bounds = practiceHeightAnnotationBounds(item, groupId);
+  return {
+    x: Math.round(clampNumber(pointer.x, bounds.x, bounds.x + bounds.width)),
+    y: Math.round(clampNumber(pointer.y, bounds.y, bounds.y + bounds.height)),
+  };
+}
+
+function practiceHeightAnnotationLineIsValid(start, end) {
+  return Math.hypot(end.x - start.x, end.y - start.y) >= 8;
+}
+
+function practiceHeightAnnotationLineMarkup(line, className, attributes = "") {
+  return `<line class="${className}" x1="${line.start.x}" y1="${line.start.y}" x2="${line.end.x}" y2="${line.end.y}" vector-effect="non-scaling-stroke" ${attributes}></line>`;
+}
+
+function renderPracticeHeightTrialLine(line, groupId, isActive) {
+  const activeClass = isActive ? " is-active" : "";
+  return `
+    ${practiceHeightAnnotationLineMarkup(
+      line,
+      `practice-height-trial-line${activeClass}`,
+      `data-practice-height-trial-line="${line.id}" data-group-id="${groupId}"`,
+    )}
+    <circle class="practice-height-trial-point${activeClass}" cx="${line.start.x}" cy="${line.start.y}" r="8" vector-effect="non-scaling-stroke" aria-hidden="true"></circle>
+    <circle class="practice-height-trial-point${activeClass}" cx="${line.end.x}" cy="${line.end.y}" r="8" vector-effect="non-scaling-stroke" aria-hidden="true"></circle>
+  `;
+}
+
+function practiceHeightAnnotationStatus(item, groupId) {
+  const group = getPracticeHeightAnnotationGroup(item, groupId);
+  const label = item.choiceGroups?.find((entry) => entry.id === groupId)?.label || "Active triangle";
+  const count = group.lines.length;
+  return `${label}: ${count} trial ${count === 1 ? "line" : "lines"}${group.keyboardStart ? " - start point set" : ""}`;
+}
+
+function renderPracticeHeightAnnotationControls(item, activeGroup) {
+  if (!practiceHeightAnnotationIsEnabled(item) || !activeGroup) return "";
+  const group = getPracticeHeightAnnotationGroup(item, activeGroup.id);
+  return `
+    <div class="practice-height-annotation-controls">
+      <span class="practice-height-annotation-status" data-practice-height-annotation-status="${item.id}" aria-live="polite">${escapeHtml(practiceHeightAnnotationStatus(item, activeGroup.id))}</span>
+      <div class="practice-height-annotation-actions" role="group" aria-label="Trial line actions for ${escapeHtml(activeGroup.label)}">
+        <button class="hint-button" type="button" data-practice-height-annotation-undo="${item.id}" data-group-id="${activeGroup.id}" ${group.lines.length ? "" : "disabled"}>Undo</button>
+        <button class="hint-button" type="button" data-practice-height-annotation-clear="${item.id}" data-group-id="${activeGroup.id}" ${group.lines.length ? "" : "disabled"}>Clear ${escapeHtml(activeGroup.label)}</button>
+      </div>
+    </div>
+  `;
+}
+
+function addPracticeHeightAnnotationLine(item, groupId, start, end) {
+  if (!practiceHeightAnnotationLineIsValid(start, end)) return false;
+  const group = getPracticeHeightAnnotationGroup(item, groupId);
+  group.lines.push({
+    id: group.nextId,
+    start: { ...start },
+    end: { ...end },
+  });
+  group.nextId += 1;
+  group.cursor = { ...end };
+  group.keyboardStart = null;
+  return true;
+}
+
+function focusPracticeHeightAnnotationBoard(itemId) {
+  requestAnimationFrame(() => {
+    document.querySelector(`[data-practice-height-annotation-board="${itemId}"]`)?.focus();
+  });
+}
+
+function updatePracticeHeightAnnotationDom(item, groupId) {
+  const group = getPracticeHeightAnnotationGroup(item, groupId);
+  const board = document.querySelector(`[data-practice-height-annotation-board="${item.id}"]`);
+  board?.querySelector(".practice-height-annotation-cursor")?.setAttribute("cx", String(group.cursor.x));
+  board?.querySelector(".practice-height-annotation-cursor")?.setAttribute("cy", String(group.cursor.y));
+  const status = document.querySelector(`[data-practice-height-annotation-status="${item.id}"]`);
+  if (status) status.textContent = practiceHeightAnnotationStatus(item, groupId);
+}
+
+function updatePracticeHeightAnnotationPreview(item, groupId, start, end) {
+  const preview = document.querySelector(`[data-practice-height-annotation-board="${item.id}"] [data-practice-height-annotation-preview]`);
+  if (!preview) return;
+  preview.innerHTML = practiceHeightAnnotationLineIsValid(start, end)
+    ? practiceHeightAnnotationLineMarkup({ start, end }, "practice-height-trial-preview")
+    : "";
+}
+
+function startPracticeHeightAnnotationPointer(event) {
+  const board = event.target.closest?.("[data-practice-height-annotation-board]");
+  if (!board) return false;
+  const item = practiceBank.find((entry) => entry.id === board.dataset.practiceHeightAnnotationBoard);
+  const groupId = board.dataset.groupId;
+  if (!practiceHeightAnnotationIsEnabled(item) || !item.choiceGroups?.some((group) => group.id === groupId)) return false;
+  const pointer = tangramSvgPoint(board, event);
+  const bounds = practiceHeightAnnotationBounds(item, groupId);
+  if (pointer.x < bounds.x || pointer.x > bounds.x + bounds.width
+    || pointer.y < bounds.y || pointer.y > bounds.y + bounds.height) {
+    event.preventDefault();
+    return true;
+  }
+  const group = getPracticeHeightAnnotationGroup(item, groupId);
+  const start = practiceHeightAnnotationPoint(item, groupId, board, event);
+  group.cursor = { ...start };
+  group.keyboardStart = null;
+  practiceHeightAnnotationPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    itemId: item.id,
+    groupId,
+    board,
+    start,
+    current: start,
+  };
+  updatePracticeHeightAnnotationPreview(item, groupId, start, start);
+  updatePracticeHeightAnnotationDom(item, groupId);
+  if (event.pointerId !== undefined) board.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  return true;
+}
+
+function updatePracticeHeightAnnotationPointer(event) {
+  if (!practiceHeightAnnotationPointer
+    || (event.pointerId ?? "mouse") !== practiceHeightAnnotationPointer.pointerId) return false;
+  const item = practiceBank.find((entry) => entry.id === practiceHeightAnnotationPointer.itemId);
+  if (!item) return false;
+  const current = practiceHeightAnnotationPoint(
+    item,
+    practiceHeightAnnotationPointer.groupId,
+    practiceHeightAnnotationPointer.board,
+    event,
+  );
+  practiceHeightAnnotationPointer.current = current;
+  getPracticeHeightAnnotationGroup(item, practiceHeightAnnotationPointer.groupId).cursor = { ...current };
+  updatePracticeHeightAnnotationPreview(
+    item,
+    practiceHeightAnnotationPointer.groupId,
+    practiceHeightAnnotationPointer.start,
+    current,
+  );
+  updatePracticeHeightAnnotationDom(item, practiceHeightAnnotationPointer.groupId);
+  event.preventDefault();
+  return true;
+}
+
+function endPracticeHeightAnnotationPointer(event) {
+  if (!practiceHeightAnnotationPointer
+    || (event.pointerId ?? "mouse") !== practiceHeightAnnotationPointer.pointerId) return false;
+  const pointer = practiceHeightAnnotationPointer;
+  practiceHeightAnnotationPointer = null;
+  const item = practiceBank.find((entry) => entry.id === pointer.itemId);
+  if (item) {
+    addPracticeHeightAnnotationLine(item, pointer.groupId, pointer.start, pointer.current);
+    renderPractice();
+  }
+  return true;
+}
+
+function cancelPracticeHeightAnnotationPointer(event) {
+  if (!practiceHeightAnnotationPointer
+    || (event.pointerId ?? "mouse") !== practiceHeightAnnotationPointer.pointerId) return false;
+  practiceHeightAnnotationPointer = null;
+  renderPractice();
+  return true;
+}
+
+function handlePracticeHeightAnnotationKeydown(event, board, item) {
+  const groupId = board.dataset.groupId;
+  if (!practiceHeightAnnotationIsEnabled(item) || !groupId) return false;
+  const group = getPracticeHeightAnnotationGroup(item, groupId);
+  const bounds = practiceHeightAnnotationBounds(item, groupId);
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+    const step = event.shiftKey ? 25 : 10;
+    const dx = event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
+    const dy = event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
+    group.cursor = {
+      x: Math.round(clampNumber(group.cursor.x + dx, bounds.x, bounds.x + bounds.width)),
+      y: Math.round(clampNumber(group.cursor.y + dy, bounds.y, bounds.y + bounds.height)),
+    };
+    updatePracticeHeightAnnotationDom(item, groupId);
+    if (group.keyboardStart) updatePracticeHeightAnnotationPreview(item, groupId, group.keyboardStart, group.cursor);
+    event.preventDefault();
+    return true;
+  }
+  if (["Enter", " ", "Spacebar"].includes(event.key)) {
+    if (!group.keyboardStart) {
+      group.keyboardStart = { ...group.cursor };
+      updatePracticeHeightAnnotationDom(item, groupId);
+      updatePracticeHeightAnnotationPreview(item, groupId, group.keyboardStart, group.cursor);
+    } else {
+      addPracticeHeightAnnotationLine(item, groupId, group.keyboardStart, group.cursor);
+      renderPractice();
+      focusPracticeHeightAnnotationBoard(item.id);
+    }
+    event.preventDefault();
+    return true;
+  }
+  if (event.key === "Escape" && group.keyboardStart) {
+    group.keyboardStart = null;
+    updatePracticeHeightAnnotationDom(item, groupId);
+    updatePracticeHeightAnnotationPreview(item, groupId, group.cursor, group.cursor);
+    event.preventDefault();
+    return true;
+  }
+  if (["Delete", "Backspace"].includes(event.key) && group.lines.length) {
+    group.lines.pop();
+    group.keyboardStart = null;
+    renderPractice();
+    focusPracticeHeightAnnotationBoard(item.id);
+    event.preventDefault();
+    return true;
+  }
+  return false;
+}
+
 function practiceVisual(item) {
   const data = item.visualModelData || {};
   if (data.type === "rectPrismNetBuilder") return renderRectangularPrismNetVisual(item);
   if (data.type === "interactiveCubeNet") return renderPracticeCubeNet(item);
   if (data.type === "interactiveTentDesigner") return renderPracticeTentDesigner(item);
+  if (data.type === "annotatableSourceVisual") return renderPracticeSourceAnnotation(item);
   if (data.type === "triangleComposition") {
     const workspace = getPracticeCompositionWorkspace(item.id);
     const joinedSide = practiceCompositionJoinedSide(item.id);
@@ -8608,6 +9183,12 @@ function practiceVisual(item) {
     const answers = getPracticeValue(item);
     const activeGroup = activePracticeChoiceGroup(item);
     const canvasHeight = data.canvasHeight || data.naturalHeight || 520;
+    const annotationsEnabled = practiceHeightAnnotationIsEnabled(item) && Boolean(activeGroup);
+    const annotationWorkspace = annotationsEnabled ? getPracticeHeightAnnotationWorkspace(item) : null;
+    const activeAnnotationGroup = annotationsEnabled
+      ? getPracticeHeightAnnotationGroup(item, activeGroup.id)
+      : null;
+    const annotationInstructionId = `${item.id}-height-annotation-instructions`;
     const selectedLines = Object.entries(data.placementLines || {}).map(([groupId, options]) => {
       const points = options?.[answers[groupId]];
       if (!Array.isArray(points) || points.length !== 4) return "";
@@ -8618,20 +9199,44 @@ function practiceVisual(item) {
         <circle cx="${x2}" cy="${y2}" r="9" class="practice-height-point"></circle>
       `;
     }).join("");
+    const trialLines = annotationsEnabled
+      ? (item.choiceGroups || []).map((group) => (
+        (annotationWorkspace.groups[group.id]?.lines || [])
+          .map((line) => renderPracticeHeightTrialLine(line, group.id, activeGroup.id === group.id))
+          .join("")
+      )).join("")
+      : "";
     const groupMarkers = Object.entries(data.groupMarkers || {}).map(([groupId, marker]) => `
       <rect x="${marker.x}" y="${marker.y}" width="${marker.width}" height="${marker.height}" rx="18" class="practice-height-focus ${activeGroup?.id === groupId ? "is-active" : ""}"></rect>
       <text x="${marker.x + 24}" y="${marker.y + 38}" class="practice-height-number ${activeGroup?.id === groupId ? "is-active" : ""}">${escapeHtml(marker.label || "")}</text>
     `).join("");
     return `
       <figure class="practice-height-placement">
+        ${renderPracticeHeightAnnotationControls(item, activeGroup)}
         <div class="practice-height-placement-stage" style="aspect-ratio: ${data.naturalWidth || 1650} / ${canvasHeight};">
           <img src="${escapeHtml(data.imagePath)}" alt="${escapeHtml(data.alt || "Three source triangles with bases labeled b")}" width="${data.naturalWidth || 1650}" height="${data.naturalHeight || 520}">
-          <svg viewBox="0 0 ${data.naturalWidth || 1650} ${canvasHeight}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <svg
+            class="${annotationsEnabled ? "practice-height-annotation-board" : ""}"
+            viewBox="0 0 ${data.naturalWidth || 1650} ${canvasHeight}"
+            preserveAspectRatio="xMidYMid meet"
+            ${annotationsEnabled ? `tabindex="0" role="group" aria-label="Trial-line drawing layer for ${escapeHtml(activeGroup.label)}" aria-describedby="${annotationInstructionId}" aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Enter Space Escape Delete" data-practice-height-annotation-board="${item.id}" data-group-id="${activeGroup.id}"` : `aria-hidden="true"`}
+          >
+            ${annotationsEnabled ? `<rect class="practice-height-annotation-hit-area" x="0" y="0" width="${data.naturalWidth || 1650}" height="${canvasHeight}"></rect>` : ""}
             ${groupMarkers}
+            ${trialLines}
             ${selectedLines}
+            ${annotationsEnabled ? `
+              <g data-practice-height-annotation-preview aria-hidden="true"></g>
+              <circle class="practice-height-annotation-cursor" cx="${activeAnnotationGroup.cursor.x}" cy="${activeAnnotationGroup.cursor.y}" r="10" vector-effect="non-scaling-stroke" aria-hidden="true"></circle>
+            ` : ""}
           </svg>
         </div>
-        <figcaption>Your selected height segments appear on the exact source triangles.</figcaption>
+        <figcaption>${annotationsEnabled ? "Solid orange lines are your trial construction. Dashed teal segments show your selected answer placements." : "Your selected height segments appear on the exact source triangles."}</figcaption>
+        ${annotationsEnabled ? `
+          <span class="practice-height-annotation-instructions" id="${annotationInstructionId}">
+            Drag to draw trial line segments on the active triangle. Use multiple segments when you need to extend base b before drawing its perpendicular height. With the drawing layer focused, use arrow keys to move the cursor and Enter or Space to set each endpoint. Press Delete to undo the active triangle's last line.
+          </span>
+        ` : ""}
       </figure>
     `;
   }
@@ -11010,6 +11615,7 @@ const rectangularPrismTeachNetDefinition = {
   subject: "Polyhedron C",
   unitLabel: "units",
   practice: false,
+  freeform: false,
 };
 
 function rectangularPrismNetDefinition(card) {
@@ -11029,6 +11635,7 @@ function rectangularPrismNetDefinition(card) {
     unitLabel: data.unit === "in" ? "inches" : data.unit || "units",
     practice: true,
     optional: data.optional !== false,
+    freeform: data.freeform === true,
   };
 }
 
@@ -11069,11 +11676,44 @@ function rectangularPrismNetFaceDimensions(card, type, rotated = false) {
   return rotated ? { width: second, height: first } : { width: first, height: second };
 }
 
+function initialPracticeRectangularPrismNetFaces(card) {
+  const definition = rectangularPrismNetDefinition(card);
+  if (!definition.practice || !definition.freeform) return [];
+  const faceTypes = definition.faceTypes.flatMap((type) => [type, type]);
+  const faces = [];
+  let cursorX = 1;
+  let cursorY = 1;
+  let rowHeight = 0;
+  faceTypes.forEach((type, index) => {
+    let rotated = false;
+    let dimensions = rectangularPrismNetFaceDimensions(card, type, rotated);
+    if (cursorX + dimensions.width > definition.board.width - 1) {
+      cursorX = 1;
+      cursorY += rowHeight + 1;
+      rowHeight = 0;
+    }
+    if (cursorY + dimensions.height > definition.board.height - 1) {
+      rotated = true;
+      dimensions = rectangularPrismNetFaceDimensions(card, type, rotated);
+    }
+    const x = clampNumber(cursorX, 0, definition.board.width - dimensions.width);
+    const y = clampNumber(cursorY, 0, definition.board.height - dimensions.height);
+    faces.push({ id: index + 1, type, x, y, rotated, ...dimensions });
+    cursorX = x + dimensions.width + 1;
+    rowHeight = Math.max(rowHeight, dimensions.height);
+  });
+  return faces;
+}
+
 function rectangularPrismNetFaces(card) {
   const definition = rectangularPrismNetDefinition(card);
   const board = definition.board;
+  const response = rectangularPrismNetResponse(card);
+  if (definition.freeform && !Object.prototype.hasOwnProperty.call(response, "prismNetFaces")) {
+    return initialPracticeRectangularPrismNetFaces(card);
+  }
   const seen = new Set();
-  return String(rectangularPrismNetResponse(card).prismNetFaces || "").split("|").map((entry) => {
+  return String(response.prismNetFaces || "").split("|").map((entry) => {
     const [idText, type, xText, yText, rotatedText, ...extra] = entry.split(",");
     if (extra.length || !/^\d{1,2}$/.test(idText) || !/^\d{1,2}$/.test(xText)
       || !/^\d{1,2}$/.test(yText) || !/^[01]$/.test(rotatedText)) return null;
@@ -11108,7 +11748,8 @@ function rectangularPrismNetTool(card) {
 
 function rectangularPrismNetSelectedFaceId(card, faces = rectangularPrismNetFaces(card)) {
   const selectedId = Number(rectangularPrismNetResponse(card).prismNetSelectedFaceId);
-  return faces.some((face) => face.id === selectedId) ? selectedId : faces.at(-1)?.id || 0;
+  if (faces.some((face) => face.id === selectedId)) return selectedId;
+  return rectangularPrismNetDefinition(card).freeform ? faces[0]?.id || 0 : faces.at(-1)?.id || 0;
 }
 
 function rectangularPrismNetFacesOverlap(first, second) {
@@ -11247,24 +11888,149 @@ function storeRectangularPrismNet(card, faces, changes = {}) {
   }
 }
 
+function moveRectangularPrismNetFace(card, faceId, x, y) {
+  const definition = rectangularPrismNetDefinition(card);
+  const faces = rectangularPrismNetFaces(card);
+  const face = faces.find((entry) => entry.id === faceId);
+  if (!definition.freeform || !face) return null;
+  face.x = clampNumber(Math.round(x), 0, definition.board.width - face.width);
+  face.y = clampNumber(Math.round(y), 0, definition.board.height - face.height);
+  storeRectangularPrismNet(card, faces, {
+    prismNetSelectedFaceId: String(face.id),
+    prismNetMessage: "",
+  });
+  return face;
+}
+
+function rotateSelectedRectangularPrismNetFace(card) {
+  const definition = rectangularPrismNetDefinition(card);
+  const faces = rectangularPrismNetFaces(card);
+  const selectedId = rectangularPrismNetSelectedFaceId(card, faces);
+  const face = faces.find((entry) => entry.id === selectedId);
+  if (!definition.freeform || !face) return false;
+  face.rotated = !face.rotated;
+  Object.assign(face, rectangularPrismNetFaceDimensions(card, face.type, face.rotated));
+  face.x = clampNumber(face.x, 0, definition.board.width - face.width);
+  face.y = clampNumber(face.y, 0, definition.board.height - face.height);
+  storeRectangularPrismNet(card, faces, {
+    prismNetSelectedFaceId: String(face.id),
+    prismNetMessage: "",
+  });
+  return true;
+}
+
+function updateRectangularPrismNetFaceDom(card, face) {
+  const definition = rectangularPrismNetDefinition(card);
+  const unit = definition.board.unit;
+  const workspace = document.querySelector(`[data-prism-net-workspace="${card.id}"]`);
+  const faceNode = workspace?.querySelector(`[data-prism-net-face="${face.id}"]`);
+  if (!faceNode) return;
+  const rect = faceNode.querySelector("rect");
+  const label = faceNode.querySelector("text");
+  const centerX = (face.x + face.width / 2) * unit;
+  const centerY = (face.y + face.height / 2) * unit;
+  rect?.setAttribute("x", String(face.x * unit));
+  rect?.setAttribute("y", String(face.y * unit));
+  rect?.setAttribute("width", String(face.width * unit));
+  rect?.setAttribute("height", String(face.height * unit));
+  label?.setAttribute("x", String(centerX));
+  label?.setAttribute("y", String(centerY + 6));
+  if (label && face.width <= 3 && face.height > face.width) {
+    label.setAttribute("transform", `rotate(-90 ${centerX} ${centerY})`);
+  } else {
+    label?.removeAttribute("transform");
+  }
+}
+
+function updateRectangularPrismNetSelectionDom(card, selectedId) {
+  const workspace = document.querySelector(`[data-prism-net-workspace="${card.id}"]`);
+  workspace?.querySelectorAll("[data-prism-net-face]").forEach((faceNode) => {
+    const selected = Number(faceNode.dataset.prismNetFace) === selectedId;
+    faceNode.classList.toggle("is-selected", selected);
+    faceNode.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function startRectangularPrismNetPointer(event) {
+  const faceNode = event.target.closest("[data-prism-net-face]");
+  if (!faceNode) return false;
+  const card = rectangularPrismNetControlCard(faceNode);
+  const definition = card ? rectangularPrismNetDefinition(card) : null;
+  const stage = faceNode.closest("[data-prism-net-stage]");
+  const faceId = Number(faceNode.dataset.prismNetFace);
+  const face = card ? rectangularPrismNetFaces(card).find((entry) => entry.id === faceId) : null;
+  if (!card || !definition?.freeform || !stage || !face) return false;
+  updateRectangularPrismNetResponse(card, {
+    prismNetSelectedFaceId: String(faceId),
+    prismNetMessage: "",
+  });
+  rectangularPrismNetPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    cardId: card.id,
+    faceId,
+    faceNode,
+    stage,
+    startPointer: tangramSvgPoint(stage, event),
+    startFace: { ...face },
+    moved: false,
+  };
+  faceNode.dataset.prismNetDragged = "false";
+  updateRectangularPrismNetSelectionDom(card, faceId);
+  if (event.pointerId !== undefined) faceNode.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updateRectangularPrismNetPointer(event) {
+  if (!rectangularPrismNetPointer
+    || (event.pointerId ?? "mouse") !== rectangularPrismNetPointer.pointerId) return false;
+  const card = practiceBank.find((item) => item.id === rectangularPrismNetPointer.cardId);
+  if (!card) return false;
+  const definition = rectangularPrismNetDefinition(card);
+  const pointer = tangramSvgPoint(rectangularPrismNetPointer.stage, event);
+  const x = rectangularPrismNetPointer.startFace.x
+    + (pointer.x - rectangularPrismNetPointer.startPointer.x) / definition.board.unit;
+  const y = rectangularPrismNetPointer.startFace.y
+    + (pointer.y - rectangularPrismNetPointer.startPointer.y) / definition.board.unit;
+  const face = moveRectangularPrismNetFace(card, rectangularPrismNetPointer.faceId, x, y);
+  if (!face) return false;
+  if (face.x !== rectangularPrismNetPointer.startFace.x || face.y !== rectangularPrismNetPointer.startFace.y) {
+    rectangularPrismNetPointer.moved = true;
+    rectangularPrismNetPointer.faceNode.dataset.prismNetDragged = "true";
+  }
+  updateRectangularPrismNetFaceDom(card, face);
+  event.preventDefault();
+  return true;
+}
+
+function endRectangularPrismNetPointer(event) {
+  if (!rectangularPrismNetPointer
+    || (event.pointerId ?? "mouse") !== rectangularPrismNetPointer.pointerId) return false;
+  rectangularPrismNetPointer = null;
+  return true;
+}
+
 function renderRectangularPrismNetVisual(card) {
   const definition = rectangularPrismNetDefinition(card);
-  const analysis = rectangularPrismNetAnalysis(card);
-  const faces = analysis.faces;
+  const analysis = definition.freeform ? null : rectangularPrismNetAnalysis(card);
+  const faces = analysis?.faces || rectangularPrismNetFaces(card);
   const tool = rectangularPrismNetTool(card);
   const selectedFaceId = rectangularPrismNetSelectedFaceId(card, faces);
   const selectedFace = faces.find((face) => face.id === selectedFaceId);
   const board = definition.board;
   const unit = board.unit;
-  const message = String(rectangularPrismNetResponse(card).prismNetMessage || rectangularPrismNetFeedbackText(card));
+  const message = definition.freeform
+    ? ""
+    : String(rectangularPrismNetResponse(card).prismNetMessage || rectangularPrismNetFeedbackText(card));
   const gridPatternId = `rectangular-prism-net-grid-${card.id.replace(/[^a-z0-9-]/gi, "-")}`;
   const dimensionList = `${definition.dimensions[0]}, ${definition.dimensions[1]}, and ${definition.dimensions[2]}`;
   return `
-    <section class="rectangular-prism-net-workspace ${definition.practice ? "is-practice" : ""}" aria-label="Build and label a net for ${escapeHtml(definition.subject)}">
+    <section class="rectangular-prism-net-workspace ${definition.practice ? "is-practice" : ""} ${definition.freeform ? "is-freeform" : ""}" data-prism-net-workspace="${card.id}" aria-label="Build and label a net for ${escapeHtml(definition.subject)}">
       ${definition.practice ? `
         <div class="rectangular-prism-net-intro">
-          <strong>${definition.optional ? "Optional net strategy" : "Net construction"}</strong>
-          <p>Build a net for the ${escapeHtml(definition.subject)} with edge lengths ${dimensionList} ${escapeHtml(definition.unitLabel)}. More than one arrangement can be valid.</p>
+          <strong>${definition.optional ? "Optional net scratchpad" : "Net construction"}</strong>
+          <p>Move the six loose faces to sketch a net for the ${escapeHtml(definition.subject)} with edge lengths ${dimensionList} ${escapeHtml(definition.unitLabel)}. The scratchpad is not graded.</p>
         </div>
       ` : `
         <figure class="rectangular-prism-net-source">
@@ -11273,26 +12039,33 @@ function renderRectangularPrismNetVisual(card) {
         </figure>
       `}
       <div class="rectangular-prism-net-tools">
-        <p>Choose a face size and orientation. Start on the blank graph paper, then select a placed face and attach the next face along a complete matching edge.</p>
-        <div class="rectangular-prism-net-palette" role="group" aria-label="Face-size drawing tools">
-          ${definition.faceTypes.map((faceType) => `<button class="option-button ${tool.type === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${tool.type === faceType}">${faceType.replace("x", " by ")}</button>`).join("")}
-          <button class="hint-button" type="button" data-prism-net-rotate aria-pressed="${tool.rotated}">Rotate face</button>
-        </div>
-        <p class="rectangular-prism-net-tool-status">Current tool: ${tool.width} ${escapeHtml(definition.unitLabel)} across by ${tool.height} ${escapeHtml(definition.unitLabel)} down.</p>
-        <div class="rectangular-prism-net-attach-controls" role="group" aria-label="Place or attach selected face tool">
-          ${faces.length === 0
-            ? `<button class="practice-submit" type="button" data-prism-net-place-first>Place first face</button>`
-            : `
-              <span>Attach to selected face:</span>
-              <button class="hint-button" type="button" data-prism-net-attach="north">Above</button>
-              <button class="hint-button" type="button" data-prism-net-attach="east">Right</button>
-              <button class="hint-button" type="button" data-prism-net-attach="south">Below</button>
-              <button class="hint-button" type="button" data-prism-net-attach="west">Left</button>
-              <button class="hint-button" type="button" data-prism-net-remove>Remove selected face</button>
-            `}
-        </div>
+        ${definition.freeform ? `
+          <p>Select a face, then drag it or use the arrow keys to move it on the grid.</p>
+          <div class="rectangular-prism-net-attach-controls" role="group" aria-label="Rotate the selected face">
+            <button class="hint-button" type="button" data-prism-net-rotate-selected ${selectedFace ? "" : "disabled"}>Rotate selected face</button>
+          </div>
+        ` : `
+          <p>Choose a face size and orientation. Start on the blank graph paper, then select a placed face and attach the next face along a complete matching edge.</p>
+          <div class="rectangular-prism-net-palette" role="group" aria-label="Face-size drawing tools">
+            ${definition.faceTypes.map((faceType) => `<button class="option-button ${tool.type === faceType ? "is-selected" : ""}" type="button" data-prism-net-face-type="${faceType}" aria-pressed="${tool.type === faceType}">${faceType.replace("x", " by ")}</button>`).join("")}
+            <button class="hint-button" type="button" data-prism-net-rotate aria-pressed="${tool.rotated}">Rotate face</button>
+          </div>
+          <p class="rectangular-prism-net-tool-status">Current tool: ${tool.width} ${escapeHtml(definition.unitLabel)} across by ${tool.height} ${escapeHtml(definition.unitLabel)} down.</p>
+          <div class="rectangular-prism-net-attach-controls" role="group" aria-label="Place or attach selected face tool">
+            ${faces.length === 0
+              ? `<button class="practice-submit" type="button" data-prism-net-place-first>Place first face</button>`
+              : `
+                <span>Attach to selected face:</span>
+                <button class="hint-button" type="button" data-prism-net-attach="north">Above</button>
+                <button class="hint-button" type="button" data-prism-net-attach="east">Right</button>
+                <button class="hint-button" type="button" data-prism-net-attach="south">Below</button>
+                <button class="hint-button" type="button" data-prism-net-attach="west">Left</button>
+                <button class="hint-button" type="button" data-prism-net-remove>Remove selected face</button>
+              `}
+          </div>
+        `}
       </div>
-      <svg viewBox="0 0 ${board.width * unit} ${board.height * unit}" role="img" aria-label="Blank graph-paper net builder with ${faces.length} of 6 faces placed.">
+      <svg data-prism-net-stage="${card.id}" viewBox="0 0 ${board.width * unit} ${board.height * unit}" role="img" aria-label="Graph-paper net workspace with ${faces.length} movable faces.">
         <defs>
           <pattern id="${gridPatternId}" width="${unit}" height="${unit}" patternUnits="userSpaceOnUse">
             <path d="M${unit} 0H0V${unit}" fill="none" stroke="#c9d5da" stroke-width="1"></path>
@@ -11306,7 +12079,8 @@ function renderRectangularPrismNetVisual(card) {
             role="button"
             tabindex="0"
             data-prism-net-face="${face.id}"
-            aria-label="Face ${index + 1}, ${face.type.replace("x", " by ")} ${escapeHtml(definition.unitLabel)}${face.id === selectedFaceId ? ", selected" : ""}"
+            aria-pressed="${face.id === selectedFaceId}"
+            aria-label="Face ${index + 1}, ${face.type.replace("x", " by ")} ${escapeHtml(definition.unitLabel)}${definition.freeform ? ", draggable; use arrow keys to move" : ""}${face.id === selectedFaceId ? ", selected" : ""}"
           >
             <rect x="${face.x * unit}" y="${face.y * unit}" width="${face.width * unit}" height="${face.height * unit}"></rect>
             <text
@@ -11319,7 +12093,9 @@ function renderRectangularPrismNetVisual(card) {
         `).join("")}
       </svg>
       <div class="rectangular-prism-net-status">
-        <span>${faces.length} of 6 faces placed. ${escapeHtml(message)}</span>
+        <span>${definition.freeform
+          ? `${faces.length} movable faces. Arrange them in any way that helps you calculate the surface area.`
+          : `${faces.length} of 6 faces placed. ${escapeHtml(message)}`}</span>
         <button class="hint-button" type="button" data-prism-net-reset ${faces.length === 0 ? "disabled" : ""}>Reset net</button>
       </div>
     </section>
@@ -16031,8 +16807,11 @@ function bindEvents() {
     renderVocabulary();
   });
   document.addEventListener("pointerdown", (event) => {
+    if (startPracticeHeightAnnotationPointer(event)) return;
+    if (startPracticeSourceAnnotationPointer(event)) return;
     if (startBaseHeightChallengePointer(event)) return;
     if (startPyramidNetPointer(event)) return;
+    if (startRectangularPrismNetPointer(event)) return;
     if (startPracticeCompositionPointer(event)) return;
     if (startTangramPointer(event)) return;
     if (startGridTrianglePointer(event)) return;
@@ -16050,8 +16829,11 @@ function bindEvents() {
     }
   });
   document.addEventListener("pointermove", (event) => {
+    if (updatePracticeHeightAnnotationPointer(event)) return;
+    if (updatePracticeSourceAnnotationPointer(event)) return;
     if (updateBaseHeightChallengePointer(event)) return;
     if (updatePyramidNetPointer(event)) return;
+    if (updateRectangularPrismNetPointer(event)) return;
     if (updatePracticeCompositionPointer(event)) return;
     if (updateTangramPointer(event)) return;
     if (updateGridTrianglePointer(event)) return;
@@ -16061,8 +16843,11 @@ function bindEvents() {
     updateSourceModalPointer(event);
   });
   document.addEventListener("pointerup", (event) => {
+    if (endPracticeHeightAnnotationPointer(event)) return;
+    if (endPracticeSourceAnnotationPointer(event)) return;
     if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
+    if (endRectangularPrismNetPointer(event)) return;
     if (endPracticeCompositionPointer(event)) return;
     if (endTangramPointer(event)) return;
     if (endGridTrianglePointer(event)) return;
@@ -16072,8 +16857,11 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("pointercancel", (event) => {
+    if (cancelPracticeHeightAnnotationPointer(event)) return;
+    if (cancelPracticeSourceAnnotationPointer(event)) return;
     if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
+    if (endRectangularPrismNetPointer(event)) return;
     if (endPracticeCompositionPointer(event)) return;
     if (endTangramPointer(event)) return;
     if (endGridTrianglePointer(event)) return;
@@ -16103,6 +16891,62 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("click", (event) => {
+    const practiceHeightAnnotationUndo = event.target.closest("[data-practice-height-annotation-undo]");
+    if (practiceHeightAnnotationUndo) {
+      const item = practiceBank.find((entry) => entry.id === practiceHeightAnnotationUndo.dataset.practiceHeightAnnotationUndo);
+      const groupId = practiceHeightAnnotationUndo.dataset.groupId;
+      if (!practiceHeightAnnotationIsEnabled(item) || !groupId) return;
+      const group = getPracticeHeightAnnotationGroup(item, groupId);
+      group.lines.pop();
+      group.keyboardStart = null;
+      renderPractice();
+      return;
+    }
+    const practiceHeightAnnotationClear = event.target.closest("[data-practice-height-annotation-clear]");
+    if (practiceHeightAnnotationClear) {
+      const item = practiceBank.find((entry) => entry.id === practiceHeightAnnotationClear.dataset.practiceHeightAnnotationClear);
+      const groupId = practiceHeightAnnotationClear.dataset.groupId;
+      if (!practiceHeightAnnotationIsEnabled(item) || !groupId) return;
+      const group = getPracticeHeightAnnotationGroup(item, groupId);
+      group.lines = [];
+      group.nextId = 1;
+      group.keyboardStart = null;
+      renderPractice();
+      return;
+    }
+    const practiceSourceAnnotationTool = event.target.closest("[data-practice-source-annotation-tool]");
+    if (practiceSourceAnnotationTool) {
+      const item = practiceBank.find((entry) => entry.id === practiceSourceAnnotationTool.dataset.practiceSourceAnnotationTool);
+      const tool = practiceSourceAnnotationTool.dataset.annotationTool;
+      const definition = item ? practiceSourceAnnotationDefinition(item) : null;
+      if (!item || item.visualModelData?.type !== "annotatableSourceVisual" || !definition.tools.includes(tool)) return;
+      const workspace = getPracticeSourceAnnotation(item);
+      workspace.tool = tool;
+      workspace.keyboardStart = null;
+      renderPractice();
+      return;
+    }
+    const practiceSourceAnnotationUndo = event.target.closest("[data-practice-source-annotation-undo]");
+    if (practiceSourceAnnotationUndo) {
+      const item = practiceBank.find((entry) => entry.id === practiceSourceAnnotationUndo.dataset.practiceSourceAnnotationUndo);
+      if (!item || item.visualModelData?.type !== "annotatableSourceVisual") return;
+      const workspace = getPracticeSourceAnnotation(item);
+      workspace.marks.pop();
+      workspace.keyboardStart = null;
+      renderPractice();
+      return;
+    }
+    const practiceSourceAnnotationClear = event.target.closest("[data-practice-source-annotation-clear]");
+    if (practiceSourceAnnotationClear) {
+      const item = practiceBank.find((entry) => entry.id === practiceSourceAnnotationClear.dataset.practiceSourceAnnotationClear);
+      if (!item || item.visualModelData?.type !== "annotatableSourceVisual") return;
+      const workspace = getPracticeSourceAnnotation(item);
+      workspace.marks = [];
+      workspace.nextId = 1;
+      workspace.keyboardStart = null;
+      renderPractice();
+      return;
+    }
     const practiceCompositionSelect = event.target.closest("[data-practice-composition-select]");
     if (practiceCompositionSelect) {
       const itemId = practiceCompositionSelect.dataset.itemId;
@@ -16433,14 +17277,26 @@ function bindEvents() {
       renderRectangularPrismNetContext(card);
       return;
     }
+    const prismNetRotateSelected = event.target.closest("[data-prism-net-rotate-selected]");
+    if (prismNetRotateSelected) {
+      const card = rectangularPrismNetControlCard(prismNetRotateSelected);
+      if (!card || !rotateSelectedRectangularPrismNetFace(card)) return;
+      renderRectangularPrismNetContext(card);
+      return;
+    }
     const prismNetFace = event.target.closest("[data-prism-net-face]");
     if (prismNetFace) {
+      if (prismNetFace.dataset.prismNetDragged === "true") {
+        prismNetFace.dataset.prismNetDragged = "false";
+        return;
+      }
       const card = rectangularPrismNetControlCard(prismNetFace);
       const faceId = Number(prismNetFace.dataset.prismNetFace);
       if (!card || !rectangularPrismNetFaces(card).some((face) => face.id === faceId)) return;
+      const freeform = rectangularPrismNetDefinition(card).freeform;
       updateRectangularPrismNetResponse(card, {
         prismNetSelectedFaceId: String(faceId),
-        prismNetMessage: `Face ${faceId} selected. Choose a face tool and an attachment side.`,
+        prismNetMessage: freeform ? "" : `Face ${faceId} selected. Choose a face tool and an attachment side.`,
       });
       renderRectangularPrismNetContext(card);
       return;
@@ -16510,7 +17366,13 @@ function bindEvents() {
     if (prismNetReset) {
       const card = rectangularPrismNetControlCard(prismNetReset);
       if (!card) return;
-      storeRectangularPrismNet(card, [], { prismNetSelectedFaceId: "", prismNetMessage: "" });
+      const initialFaces = rectangularPrismNetDefinition(card).freeform
+        ? initialPracticeRectangularPrismNetFaces(card)
+        : [];
+      storeRectangularPrismNet(card, initialFaces, {
+        prismNetSelectedFaceId: String(initialFaces[0]?.id || ""),
+        prismNetMessage: "",
+      });
       renderRectangularPrismNetContext(card);
       return;
     }
@@ -17998,7 +18860,92 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const heightAnnotationBoard = event.target.closest?.("[data-practice-height-annotation-board]");
+    if (heightAnnotationBoard) {
+      const item = practiceBank.find((entry) => entry.id === heightAnnotationBoard.dataset.practiceHeightAnnotationBoard);
+      if (item && handlePracticeHeightAnnotationKeydown(event, heightAnnotationBoard, item)) return;
+    }
+    const annotationMark = event.target.closest?.("[data-practice-source-annotation-mark]");
+    if (annotationMark && ["Enter", " ", "Spacebar", "Delete", "Backspace"].includes(event.key)) {
+      const item = practiceBank.find((entry) => entry.id === annotationMark.dataset.itemId);
+      if (item && getPracticeSourceAnnotation(item).tool === "erase") {
+        event.preventDefault();
+        if (removePracticeSourceAnnotationMark(item, annotationMark.dataset.practiceSourceAnnotationMark)) {
+          renderPractice();
+          focusPracticeSourceAnnotationBoard(item.id);
+        }
+        return;
+      }
+    }
+    const annotationBoard = event.target.closest?.("[data-practice-source-annotation-board]");
+    if (annotationBoard) {
+      const item = practiceBank.find((entry) => entry.id === annotationBoard.dataset.practiceSourceAnnotationBoard);
+      if (item?.visualModelData?.type === "annotatableSourceVisual") {
+        const definition = practiceSourceAnnotationDefinition(item);
+        const workspace = getPracticeSourceAnnotation(item);
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+          event.preventDefault();
+          const dx = event.key === "ArrowLeft" ? -1 : event.key === "ArrowRight" ? 1 : 0;
+          const dy = event.key === "ArrowUp" ? -1 : event.key === "ArrowDown" ? 1 : 0;
+          workspace.cursor = {
+            column: clampNumber(workspace.cursor.column + dx, 0, definition.columns),
+            row: clampNumber(workspace.cursor.row + dy, 0, definition.rows),
+          };
+          updatePracticeSourceAnnotationCursorDom(item);
+          if (workspace.keyboardStart) {
+            updatePracticeSourceAnnotationPreview(item, workspace.keyboardStart, workspace.cursor);
+          }
+          return;
+        }
+        if (["Enter", " ", "Spacebar"].includes(event.key) && workspace.tool !== "erase") {
+          event.preventDefault();
+          if (!workspace.keyboardStart) {
+            workspace.keyboardStart = { ...workspace.cursor };
+            updatePracticeSourceAnnotationCursorDom(item);
+            updatePracticeSourceAnnotationPreview(item, workspace.keyboardStart, workspace.cursor);
+          } else {
+            addPracticeSourceAnnotationMark(item, workspace.tool, workspace.keyboardStart, workspace.cursor);
+            renderPractice();
+            focusPracticeSourceAnnotationBoard(item.id);
+          }
+          return;
+        }
+        if (event.key === "Escape" && workspace.keyboardStart) {
+          event.preventDefault();
+          workspace.keyboardStart = null;
+          updatePracticeSourceAnnotationCursorDom(item);
+          updatePracticeSourceAnnotationPreview(item, workspace.cursor, workspace.cursor);
+          return;
+        }
+        if (["Delete", "Backspace"].includes(event.key) && workspace.marks.length) {
+          event.preventDefault();
+          workspace.marks.pop();
+          workspace.keyboardStart = null;
+          renderPractice();
+          focusPracticeSourceAnnotationBoard(item.id);
+          return;
+        }
+      }
+    }
     const prismNetFace = event.target.closest?.("[data-prism-net-face]");
+    if (prismNetFace && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const card = rectangularPrismNetControlCard(prismNetFace);
+      const definition = card ? rectangularPrismNetDefinition(card) : null;
+      const faceId = Number(prismNetFace.dataset.prismNetFace);
+      const face = card ? rectangularPrismNetFaces(card).find((entry) => entry.id === faceId) : null;
+      if (card && definition?.freeform && face) {
+        const distance = event.shiftKey ? 2 : 1;
+        const dx = event.key === "ArrowLeft" ? -distance : event.key === "ArrowRight" ? distance : 0;
+        const dy = event.key === "ArrowUp" ? -distance : event.key === "ArrowDown" ? distance : 0;
+        const movedFace = moveRectangularPrismNetFace(card, faceId, face.x + dx, face.y + dy);
+        if (movedFace) {
+          updateRectangularPrismNetSelectionDom(card, faceId);
+          updateRectangularPrismNetFaceDom(card, movedFace);
+        }
+        event.preventDefault();
+        return;
+      }
+    }
     if (prismNetFace && (event.key === "Enter" || event.key === " ")) {
       prismNetFace.click();
       event.preventDefault();

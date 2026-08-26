@@ -72,6 +72,7 @@ const state = {
   teachQuestionSubmitted: {},
   teachQuestionHints: {},
   teachGridAreaActive: {},
+  teachSourceAnnotations: {},
   teachQuestionSetActive: {},
   teachOpenDropdown: null,
   teachTangramPieces: null,
@@ -128,6 +129,7 @@ const state = {
 let sourceModalPointer = null;
 let tangramPointer = null;
 let gridTrianglePointer = null;
+let teachSourceAnnotationPointer = null;
 let tilingPiecePointer = null;
 let trianglePairPointer = null;
 let practiceCompositionPointer = null;
@@ -998,6 +1000,13 @@ const unit1TeachCards = [
         id: "left",
         label: "Left parallelogram",
         prompt: "Identify a base and corresponding height for the left parallelogram, then find its area in square units.",
+        annotation: {
+          label: "Left parallelogram base-height planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 3, y: 159, width: 210, height: 231 },
+          grid: { originX: 3, originY: 159, cellSize: 21, columns: 10, rows: 11 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -1023,6 +1032,13 @@ const unit1TeachCards = [
         id: "middle",
         label: "Middle parallelogram",
         prompt: "Identify a base and corresponding height for the middle parallelogram, then find its area in square units.",
+        annotation: {
+          label: "Middle parallelogram base-height planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 213, y: 159, width: 147, height: 231 },
+          grid: { originX: 213, originY: 159, cellSize: 21, columns: 7, rows: 11 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -1045,6 +1061,13 @@ const unit1TeachCards = [
         id: "right",
         label: "Right parallelogram",
         prompt: "Identify a base and corresponding height for the right parallelogram, then find its area in square units.",
+        annotation: {
+          label: "Right parallelogram base-height planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 360, y: 159, width: 252, height: 231 },
+          grid: { originX: 360, originY: 159, cellSize: 21, columns: 12, rows: 11 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -1082,6 +1105,13 @@ const unit1TeachCards = [
         id: "A",
         label: "Triangle A",
         prompt: "Record a base, its corresponding height, and the area of Triangle A.",
+        annotation: {
+          label: "Triangle A base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          bounds: { x: 5, y: 7, width: 285, height: 190 },
+          grid: { originX: 5, originY: 7, cellSize: 19, columns: 15, rows: 10 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -1104,6 +1134,13 @@ const unit1TeachCards = [
         id: "B",
         label: "Triangle B",
         prompt: "Record a base, its corresponding height, and the area of Triangle B.",
+        annotation: {
+          label: "Triangle B base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          bounds: { x: 290, y: 7, width: 266, height: 190 },
+          grid: { originX: 290, originY: 7, cellSize: 19, columns: 14, rows: 10 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -1129,6 +1166,13 @@ const unit1TeachCards = [
         id: "C",
         label: "Triangle C",
         prompt: "Record a base, its corresponding height, and the area of Triangle C.",
+        annotation: {
+          label: "Triangle C base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          bounds: { x: 5, y: 197, width: 361, height: 209 },
+          grid: { originX: 5, originY: 197, cellSize: 19, columns: 19, rows: 11 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -1151,6 +1195,13 @@ const unit1TeachCards = [
         id: "D",
         label: "Triangle D",
         prompt: "Record a base, its corresponding height, and the area of Triangle D.",
+        annotation: {
+          label: "Triangle D base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          bounds: { x: 366, y: 159, width: 190, height: 247 },
+          grid: { originX: 366, originY: 159, cellSize: 19, columns: 10, rows: 13 },
+        },
         fields: [
           { id: "base", label: "Base", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Corresponding height", responseType: "number", placeholder: "Type length" },
@@ -2244,6 +2295,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "A",
         answer: "24",
+        annotation: {
+          label: "Figure A decomposition planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          bounds: { x: 40, y: 15, width: 145, height: 146 },
+          grid: { originX: 40, originY: 15, cellX: 18.125, cellY: 18.25, columns: 8, rows: 8 },
+        },
         reasoningConcepts: [["rectangle", "add"], ["two", "rectangle"], ["6", "2"], ["3", "4"], ["decompos", "rectangle"]],
         reasoningRevisionFeedback: "Your area is correct, but explain how rectangles and their dimensions give 24 without counting every grid square.",
         hint: "Draw an imaginary horizontal line from the inside corner to split the shaded region into two rectangles.",
@@ -2253,6 +2311,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "B",
         answer: "27",
+        annotation: {
+          label: "Figure B enclosure planning",
+          tools: ["square", "rectangle", "erase"],
+          defaultTool: "square",
+          bounds: { x: 269, y: 15, width: 145, height: 146 },
+          grid: { originX: 269, originY: 15, cellX: 18.125, cellY: 18.25, columns: 8, rows: 8 },
+        },
         reasoningConcepts: [["outer", "inner"], ["subtract", "square"], ["36", "9"], ["6", "3"]],
         reasoningRevisionFeedback: "Your area is correct, but explain how subtracting the inner square from the outer square gives 27.",
         hint: "Find the area of the large outer square and subtract the area of the unshaded inner square.",
@@ -2262,6 +2327,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "C",
         answer: "16",
+        annotation: {
+          label: "Figure C triangle-pair planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 40, y: 197, width: 145, height: 146 },
+          grid: { originX: 40, originY: 197, cellX: 18.125, cellY: 18.25, columns: 8, rows: 8 },
+        },
         reasoningConcepts: [["pair", "triangle"], ["rearrang", "rectangle"], ["decompos", "triangle"], ["two", "rectangle"]],
         reasoningRevisionFeedback: "Your area is correct, but explain how the shaded triangles can be paired or rearranged into rectangles with total area 16.",
         hint: "Pair matching shaded triangles and imagine rearranging each pair into a rectangle.",
@@ -2271,6 +2343,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "D",
         answer: "20",
+        annotation: {
+          label: "Figure D enclosing-square planning",
+          tools: ["square", "line", "erase"],
+          defaultTool: "square",
+          bounds: { x: 269, y: 197, width: 145, height: 146 },
+          grid: { originX: 269, originY: 197, cellX: 18.125, cellY: 18.25, columns: 8, rows: 8 },
+        },
         reasoningConcepts: [["enclos", "subtract"], ["36", "16"], ["corner", "triangle"], ["figure c"]],
         reasoningRevisionFeedback: "Your area is correct, but explain an enclosure-and-subtraction strategy or how the corner regions relate to Figure C.",
         hint: "Enclose Figure D in a 6 by 6 square and compare the four corner regions with the shaded regions of Figure C.",
@@ -2293,10 +2372,10 @@ const unit1TeachAdditionalCards = [
     pdfPage: 1,
     cropPath: null,
     customVisual: "gridTriangleFit",
-    visualAlt: "Four movable congruent right triangles from source Figure C and a same-size outline of source Figure D, rotated to align with the workspace.",
+    visualAlt: "Source Figures C and D on matching grids, with the four shaded corner triangles from Figure C movable into the tilted square in Figure D.",
     prompt: "Move all four triangles completely inside Figure D without overlaps.",
     responseType: "triangleFit",
-    hint: "Two congruent triangles can make a 4-by-2 rectangle. Think about how two such rectangles could fit inside the rotated square.",
+    hint: "Each shaded triangle's slanted side is the same length as one side of Figure D. Try moving a triangle near a side of Figure D so those sides align.",
     correctFeedback: "Correct. All four triangles from Figure C fit inside Figure D without overlapping. Rearranging preserves their total area of 16 square units.",
     incorrectFeedback: "Keep rearranging. Every triangle must be completely inside Figure D, and their interiors cannot overlap.",
   },
@@ -2328,6 +2407,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "A",
         answer: "15",
+        annotation: {
+          label: "Figure A rearrangement planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 8, y: 8, width: 414, height: 374 },
+          grid: { originX: 10, originY: 10, cellSize: 10, columns: 41, rows: 37 },
+        },
         reasoningConcepts: [["rearrang", "rectangle"], ["mov", "rectangle"], ["5", "3"], ["triangle", "7.5"]],
         reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe how the two shaded triangles can be moved or rearranged into a rectangle, or use the 5 cm and 3 cm measurements in your reasoning.",
         hint: "The two shaded pieces can be rearranged into one rectangle with side lengths 5 cm and 3 cm.",
@@ -2337,6 +2423,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "B",
         answer: "16",
+        annotation: {
+          label: "Figure B triangle-pair planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 430, y: 8, width: 500, height: 374 },
+          grid: { originX: 440, originY: 10, cellSize: 10, columns: 48, rows: 37 },
+        },
         reasoningConcepts: [["pair", "triangle"], ["rectangle", "2", "4"], ["four", "triangle"], ["4", "triangle"], ["two", "rectangle"], ["2", "rectangle"]],
         reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe how the four corner triangles can be paired into rectangles using the labeled 2 cm and 4 cm lengths.",
         hint: "Do not estimate the tilted square's side length. Pair the four shaded corner triangles to make rectangles using the labeled 2 cm and 4 cm lengths.",
@@ -2346,6 +2439,13 @@ const unit1TeachAdditionalCards = [
       {
         id: "C",
         answer: "21",
+        annotation: {
+          label: "Figure C subtraction planning",
+          tools: ["square", "rectangle", "line", "erase"],
+          defaultTool: "square",
+          bounds: { x: 938, y: 8, width: 354, height: 374 },
+          grid: { originX: 940, originY: 10, cellSize: 10, columns: 35, rows: 37 },
+        },
         reasoningConcepts: [["subtract", "square"], ["outer", "inner"], ["25", "4"], ["5", "2"], ["remove", "square"], ["difference", "area"]],
         reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Describe finding the outer square's area and subtracting the inner square's area using the 5 cm and 2 cm side lengths.",
         hint: "Find the area of the 5 cm by 5 cm outer square, then subtract the area of the 2 cm by 2 cm inner square.",
@@ -2447,6 +2547,13 @@ const unit1TeachAdditionalCards = [
         visualRow: 1,
         visualColumn: 1,
         answer: "15",
+        annotation: {
+          label: "Parallelogram A planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 35, y: 22, width: 374, height: 424 },
+          grid: { originX: 35, originY: 22, cellX: 42.4, cellY: 42.4, columns: 8, rows: 10 },
+        },
         reasoningConcepts: [["3", "5"], ["rectangle", "15"], ["rearrange", "rectangle"], ["vertical", "horizontal"]],
         reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Use the grid to describe a 3-unit perpendicular width and a 5-unit vertical side, or show how the pieces rearrange into a rectangle.",
         hint: "Use a vertical side as the base. The perpendicular distance to the opposite vertical side is horizontal on the grid.",
@@ -2458,6 +2565,13 @@ const unit1TeachAdditionalCards = [
         visualRow: 1,
         visualColumn: 2,
         answer: "12",
+        annotation: {
+          label: "Parallelogram B planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 410, y: 22, width: 407, height: 424 },
+          grid: { originX: 416.6, originY: 22, cellX: 42.4, cellY: 42.4, columns: 9, rows: 10 },
+        },
         reasoningConcepts: [["2", "6"], ["enclose", "subtract"], ["rectangle", "triangle"], ["base", "height"]],
         reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Use the 2-unit horizontal side with the 6-unit perpendicular vertical distance, or describe enclosing and subtracting the two extra triangles.",
         hint: "The short horizontal side is 2 grid units. Measure the vertical distance between the two horizontal sides.",
@@ -2470,6 +2584,13 @@ const unit1TeachAdditionalCards = [
         visualColumn: 1,
         visualColumnSpan: 2,
         answer: "24",
+        annotation: {
+          label: "Parallelogram C planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 150, y: 480, width: 590, height: 320 },
+          grid: { originX: 150, originY: 480, cellSize: 10, columns: 59, rows: 32 },
+        },
         reasoningConcepts: [["6", "4"], ["base", "height"], ["rearrange", "rectangle"], ["4.5", "not"]],
         reasoningRevisionFeedback: "Your area is correct, but strengthen the explanation. Explain why the 6-unit base and 4-unit perpendicular height are useful and the 4.5-unit slanted side is not needed.",
         hint: "The dashed 4-unit segment is perpendicular to the 6-unit side. The 4.5-unit slanted side is not paired with a corresponding height.",
@@ -2647,6 +2768,15 @@ const unit1TeachAdditionalCards = [
         id: "A",
         label: "Parallelogram A",
         prompt: "Record a base, its corresponding height, and the area of Parallelogram A.",
+        annotation: {
+          label: "Parallelogram A base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          naturalWidth: 1240,
+          naturalHeight: 350,
+          bounds: { x: 23, y: 35, width: 280, height: 280 },
+          grid: { originX: 23, originY: 35, cellSize: 40, columns: 7, rows: 7 },
+        },
         fields: [
           { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
@@ -2664,6 +2794,15 @@ const unit1TeachAdditionalCards = [
         id: "B",
         label: "Parallelogram B",
         prompt: "Record a base, its corresponding height, and the area of Parallelogram B.",
+        annotation: {
+          label: "Parallelogram B base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          naturalWidth: 1240,
+          naturalHeight: 350,
+          bounds: { x: 303, y: 35, width: 400, height: 280 },
+          grid: { originX: 303, originY: 35, cellSize: 40, columns: 10, rows: 7 },
+        },
         fields: [
           { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
@@ -2678,6 +2817,15 @@ const unit1TeachAdditionalCards = [
         id: "C",
         label: "Parallelogram C",
         prompt: "Record a base, its corresponding height, and the area of Parallelogram C.",
+        annotation: {
+          label: "Parallelogram C base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          naturalWidth: 1240,
+          naturalHeight: 350,
+          bounds: { x: 703, y: 35, width: 320, height: 280 },
+          grid: { originX: 703, originY: 35, cellSize: 40, columns: 8, rows: 7 },
+        },
         fields: [
           { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
@@ -2692,6 +2840,15 @@ const unit1TeachAdditionalCards = [
         id: "D",
         label: "Parallelogram D",
         prompt: "Record a base, its corresponding height, and the area of Parallelogram D.",
+        annotation: {
+          label: "Parallelogram D base-height planning",
+          tools: ["line", "erase"],
+          defaultTool: "line",
+          naturalWidth: 1240,
+          naturalHeight: 350,
+          bounds: { x: 1023, y: 35, width: 200, height: 280 },
+          grid: { originX: 1023, originY: 35, cellSize: 40, columns: 5, rows: 7 },
+        },
         fields: [
           { id: "base", label: "Base (units)", responseType: "number", placeholder: "Type length" },
           { id: "height", label: "Height (units)", responseType: "number", placeholder: "Type length" },
@@ -2775,6 +2932,15 @@ const unit1TeachAdditionalCards = [
         id: "count",
         label: "Count",
         prompt: "How many dots are in the image? How do you see them?",
+        annotation: {
+          label: "Dot grouping planning",
+          tools: ["rectangle", "line", "erase"],
+          defaultTool: "rectangle",
+          naturalWidth: 780,
+          naturalHeight: 780,
+          bounds: { x: 70, y: 60, width: 690, height: 690 },
+          grid: { originX: 70, originY: 60, cellSize: 10, columns: 69, rows: 69 },
+        },
         responseType: "number",
         inputLabel: "Number of dots",
         placeholder: "Type the total",
@@ -2854,6 +3020,13 @@ const unit1TeachAdditionalCards = [
         id: "A",
         label: "Triangle A",
         prompt: "Find the area of Triangle A in square units. Show your reasoning.",
+        annotation: {
+          label: "Triangle A area planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 2, y: 2, width: 292, height: 256 },
+          grid: { originX: 2, originY: 2, cellX: 24.5, cellY: 24.5, columns: 12, rows: 10 },
+        },
         responseType: "number",
         inputLabel: "Area of Triangle A",
         placeholder: "Type area",
@@ -2874,6 +3047,13 @@ const unit1TeachAdditionalCards = [
         id: "B",
         label: "Triangle B",
         prompt: "Find the area of Triangle B in square units. Show your reasoning.",
+        annotation: {
+          label: "Triangle B area planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 2, y: 258, width: 292, height: 256 },
+          grid: { originX: 2, originY: 258, cellX: 24.5, cellY: 24.5, columns: 12, rows: 10 },
+        },
         responseType: "number",
         inputLabel: "Area of Triangle B",
         placeholder: "Type area",
@@ -2894,6 +3074,13 @@ const unit1TeachAdditionalCards = [
         id: "C",
         label: "Triangle C",
         prompt: "Find the area of Triangle C in square units. Show your reasoning.",
+        annotation: {
+          label: "Triangle C area planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 294, y: 2, width: 292, height: 256 },
+          grid: { originX: 294, originY: 2, cellX: 24.5, cellY: 24.5, columns: 12, rows: 10 },
+        },
         responseType: "number",
         inputLabel: "Area of Triangle C",
         placeholder: "Type area",
@@ -2914,6 +3101,13 @@ const unit1TeachAdditionalCards = [
         id: "D",
         label: "Triangle D",
         prompt: "Find the area of Triangle D in square units. Show your reasoning.",
+        annotation: {
+          label: "Triangle D area planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 294, y: 258, width: 292, height: 256 },
+          grid: { originX: 294, originY: 258, cellX: 24.5, cellY: 24.5, columns: 12, rows: 10 },
+        },
         responseType: "number",
         inputLabel: "Area of Triangle D",
         placeholder: "Type area",
@@ -3074,6 +3268,13 @@ const unit1TeachAdditionalCards = [
       { id: "E", label: "Triangle E", prompt: "Check a usable labeled base for Triangle E. You may also complete its area calculation; areas are required for any three triangles.", fields: [{ id: "base", label: "Usable base (required)", responseType: "number", placeholder: "Type length" }, { id: "area", label: "Area (complete for any 3)", responseType: "number", placeholder: "Type area" }], acceptedFieldSets: [{ base: ["6"], area: ["15"] }], reasoningPrompt: "Show the base-height calculation when completing this area.", reasoningConcepts: [["6", "5"], ["30", "half"], ["15", "square"]], baseCorrectFeedback: "Correct. 6 cm is the usable labeled base for Triangle E.", hint: "The 6 cm base has a 5 cm corresponding height outside the triangle.", correctFeedback: "Correct. Triangle E has area 1/2 x 6 x 5 = 15 square centimeters.", incorrectFeedback: "Not quite. Use the 6 cm base and the 5 cm perpendicular height drawn to its extension." },
     ].map((question) => ({
       ...question,
+      annotation: ({
+        A: { label: "Triangle A base-height marking", tools: ["line", "erase"], defaultTool: "line", bounds: { x: 0, y: 0, width: 190, height: 220 }, grid: { originX: 0, originY: 0, cellSize: 5, columns: 38, rows: 44 } },
+        B: { label: "Triangle B base-height marking", tools: ["line", "erase"], defaultTool: "line", bounds: { x: 190, y: 0, width: 200, height: 220 }, grid: { originX: 190, originY: 0, cellSize: 5, columns: 40, rows: 44 } },
+        C: { label: "Triangle C base-height marking", tools: ["line", "erase"], defaultTool: "line", bounds: { x: 390, y: 0, width: 185, height: 230 }, grid: { originX: 390, originY: 0, cellSize: 5, columns: 37, rows: 46 } },
+        D: { label: "Triangle D base-height marking", tools: ["line", "erase"], defaultTool: "line", bounds: { x: 0, y: 220, width: 290, height: 205 }, grid: { originX: 0, originY: 220, cellSize: 5, columns: 58, rows: 41 } },
+        E: { label: "Triangle E base-height marking", tools: ["line", "erase"], defaultTool: "line", bounds: { x: 290, y: 220, width: 285, height: 205 }, grid: { originX: 290, originY: 220, cellSize: 5, columns: 57, rows: 41 } },
+      })[question.id],
       visualCropPath: "lesson-09-p003-applying-formula-9-3.png",
       visualWidth: 575,
       visualHeight: 425,
@@ -3205,6 +3406,13 @@ const unit1TeachAdditionalCards = [
         label: "Optional challenge",
         optional: true,
         prompt: "Find the area of the optional triangle. Show your reasoning.",
+        annotation: {
+          label: "Optional triangle enclosure planning",
+          tools: ["square", "line", "erase"],
+          defaultTool: "square",
+          bounds: { x: 3, y: 4, width: 299, height: 299 },
+          grid: { originX: 3, originY: 4, cellX: 21.35, cellY: 21.35, columns: 14, rows: 14 },
+        },
         responseType: "number",
         inputLabel: "Area of the optional triangle",
         placeholder: "Type area",
@@ -3223,6 +3431,12 @@ const unit1TeachAdditionalCards = [
       },
     ].map((question) => question.visualCropPath ? question : ({
       ...question,
+      annotation: ({
+        A: { label: "Triangle A base-height planning", tools: ["line", "rectangle", "erase"], defaultTool: "line", bounds: { x: 2, y: 2, width: 306, height: 180 }, grid: { originX: 2, originY: 2, cellSize: 18, columns: 17, rows: 10 } },
+        B: { label: "Triangle B base-height planning", tools: ["line", "rectangle", "erase"], defaultTool: "line", bounds: { x: 308, y: 2, width: 286, height: 180 }, grid: { originX: 308, originY: 2, cellSize: 18, columns: 16, rows: 10 } },
+        C: { label: "Triangle C base-height planning", tools: ["line", "rectangle", "erase"], defaultTool: "line", bounds: { x: 2, y: 182, width: 378, height: 162 }, grid: { originX: 2, originY: 182, cellSize: 18, columns: 21, rows: 9 } },
+        D: { label: "Triangle D base-height planning", tools: ["line", "rectangle", "erase"], defaultTool: "line", bounds: { x: 380, y: 182, width: 214, height: 162 }, grid: { originX: 380, originY: 182, cellSize: 18, columns: 12, rows: 9 } },
+      })[question.id],
       visualCropPath: "lesson-10-p003-better-bases-10-3.png",
       visualWidth: 595,
       visualHeight: 345,
@@ -3390,6 +3604,14 @@ const unit1TeachAdditionalCards = [
       },
     ].map((question) => question.visualCropPath ? question : ({
       ...question,
+      annotation: ({
+        A: { label: "Quadrilateral A area planning", tools: ["line", "rectangle", "square", "erase"], defaultTool: "line", bounds: { x: 3, y: 4, width: 140, height: 160 }, grid: { originX: 3, originY: 4, cellSize: 20, columns: 7, rows: 8 } },
+        B: { label: "Quadrilateral B area planning", tools: ["line", "rectangle", "square", "erase"], defaultTool: "rectangle", bounds: { x: 143, y: 4, width: 140, height: 160 }, grid: { originX: 143, originY: 4, cellSize: 20, columns: 7, rows: 8 } },
+        C: { label: "Quadrilateral C area planning", tools: ["line", "rectangle", "square", "erase"], defaultTool: "line", bounds: { x: 283, y: 4, width: 260, height: 160 }, grid: { originX: 283, originY: 4, cellSize: 20, columns: 13, rows: 8 } },
+        D: { label: "Quadrilateral D area planning", tools: ["line", "rectangle", "square", "erase"], defaultTool: "line", bounds: { x: 3, y: 164, width: 140, height: 180 }, grid: { originX: 3, originY: 164, cellSize: 20, columns: 7, rows: 9 } },
+        E: { label: "Quadrilateral E area planning", tools: ["line", "rectangle", "square", "erase"], defaultTool: "line", bounds: { x: 143, y: 164, width: 220, height: 180 }, grid: { originX: 143, originY: 164, cellSize: 20, columns: 11, rows: 9 } },
+        F: { label: "Quadrilateral F area planning", tools: ["line", "rectangle", "square", "erase"], defaultTool: "line", bounds: { x: 363, y: 164, width: 180, height: 180 }, grid: { originX: 363, originY: 164, cellSize: 20, columns: 9, rows: 9 } },
+      })[question.id],
       visualCropPath: "lesson-11-p003-quadrilateral-strategies-11-3.png",
       visualWidth: 545,
       visualHeight: 350,
@@ -3418,6 +3640,13 @@ const unit1TeachAdditionalCards = [
         id: "pinwheel",
         label: "Pinwheel",
         prompt: "Find the area of the shaded region in square units.",
+        annotation: {
+          label: "Pinwheel decomposition and enclosure planning",
+          tools: ["line", "rectangle", "square", "erase"],
+          defaultTool: "line",
+          bounds: { x: 9, y: 12, width: 319, height: 322 },
+          grid: { originX: 9, originY: 12, cellSize: 23, columns: 14, rows: 14 },
+        },
         responseType: "number",
         inputLabel: "Shaded area",
         placeholder: "Type area",
@@ -6093,57 +6322,192 @@ function tangramConstructionFeedback(card, question) {
   return question.incorrectFeedback;
 }
 
-const gridTriangleFitStage = { width: 760, height: 420 };
-const gridTriangleFitTarget = { x: 500, y: 95, size: 210 };
+const gridTriangleFitStage = { width: 760, height: 420, cell: 30 };
+const gridTriangleFitFigureC = { x: 30, y: 105 };
+const gridTriangleFitFigureD = { x: 490, y: 105 };
+const gridTriangleFitShapeC = { x: 60, y: 135 };
+const gridTriangleFitShapeD = { x: 520, y: 135 };
+
+function gridTriangleFitGridPoint(origin, column, row) {
+  return {
+    x: origin.x + column * gridTriangleFitStage.cell,
+    y: origin.y + row * gridTriangleFitStage.cell,
+  };
+}
+
+const gridTriangleFitTargetPoints = [
+  gridTriangleFitGridPoint(gridTriangleFitShapeD, 2, 0),
+  gridTriangleFitGridPoint(gridTriangleFitShapeD, 6, 2),
+  gridTriangleFitGridPoint(gridTriangleFitShapeD, 4, 6),
+  gridTriangleFitGridPoint(gridTriangleFitShapeD, 0, 4),
+];
+
 const gridTriangleFitDefinitions = [
-  { id: "triangle-1", label: "Triangle 1", colorClass: "is-one", initial: { x: 30, y: 45, angle: 0 } },
-  { id: "triangle-2", label: "Triangle 2", colorClass: "is-two", initial: { x: 60, y: 220, angle: 180 } },
-  { id: "triangle-3", label: "Triangle 3", colorClass: "is-three", initial: { x: 235, y: 45, angle: 0 } },
-  { id: "triangle-4", label: "Triangle 4", colorClass: "is-four", initial: { x: 265, y: 220, angle: 180 } },
+  {
+    id: "triangle-1",
+    label: "Triangle 1",
+    sourcePoints: [
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 0, 0),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 2, 0),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 0, 4),
+    ],
+  },
+  {
+    id: "triangle-2",
+    label: "Triangle 2",
+    sourcePoints: [
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 2, 0),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 6, 0),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 6, 2),
+    ],
+  },
+  {
+    id: "triangle-3",
+    label: "Triangle 3",
+    sourcePoints: [
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 6, 2),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 6, 6),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 4, 6),
+    ],
+  },
+  {
+    id: "triangle-4",
+    label: "Triangle 4",
+    sourcePoints: [
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 4, 6),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 0, 6),
+      gridTriangleFitGridPoint(gridTriangleFitShapeC, 0, 4),
+    ],
+  },
 ];
-const gridTriangleFitLocalPoints = [
-  { x: 0, y: 0 },
-  { x: 180, y: 0 },
-  { x: 0, y: 90 },
+
+const gridTriangleFitSnapTargets = [
+  {
+    id: "side-1",
+    points: [
+      gridTriangleFitTargetPoints[0],
+      gridTriangleFitTargetPoints[3],
+      gridTriangleFitGridPoint(gridTriangleFitShapeD, 3.2, 1.6),
+    ],
+  },
+  {
+    id: "side-2",
+    points: [
+      gridTriangleFitTargetPoints[0],
+      gridTriangleFitTargetPoints[1],
+      gridTriangleFitGridPoint(gridTriangleFitShapeD, 4.4, 3.2),
+    ],
+  },
+  {
+    id: "side-3",
+    points: [
+      gridTriangleFitTargetPoints[1],
+      gridTriangleFitTargetPoints[2],
+      gridTriangleFitGridPoint(gridTriangleFitShapeD, 2.8, 4.4),
+    ],
+  },
+  {
+    id: "side-4",
+    points: [
+      gridTriangleFitTargetPoints[2],
+      gridTriangleFitTargetPoints[3],
+      gridTriangleFitGridPoint(gridTriangleFitShapeD, 1.6, 2.8),
+    ],
+  },
 ];
-const gridTriangleFitCenter = { x: 60, y: 30 };
+
+function cloneGridTriangleFitPoints(points) {
+  return points.map((point) => ({ ...point }));
+}
 
 function initialGridTriangleFitPieces() {
-  return Object.fromEntries(gridTriangleFitDefinitions.map((piece) => [piece.id, { ...piece.initial }]));
+  return Object.fromEntries(gridTriangleFitDefinitions.map((piece) => [piece.id, {
+    points: cloneGridTriangleFitPoints(piece.sourcePoints),
+    slot: null,
+  }]));
 }
 
 function getGridTriangleFitPieces() {
-  if (!state.teachGridTrianglePieces) state.teachGridTrianglePieces = initialGridTriangleFitPieces();
+  const pieces = state.teachGridTrianglePieces;
+  const isCurrentGeometry = pieces && gridTriangleFitDefinitions.every((definition) => (
+    Array.isArray(pieces[definition.id]?.points) && pieces[definition.id].points.length === 3
+  ));
+  if (!isCurrentGeometry) state.teachGridTrianglePieces = initialGridTriangleFitPieces();
   return state.teachGridTrianglePieces;
 }
 
-function gridTriangleFitTransform(pieceId) {
-  const piece = getGridTriangleFitPieces()[pieceId];
-  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${gridTriangleFitCenter.x} ${gridTriangleFitCenter.y})`;
+function gridTriangleFitPoints(pieceId) {
+  return getGridTriangleFitPieces()[pieceId]?.points || [];
 }
 
-function gridTriangleFitPoints(pieceId) {
+function gridTriangleFitPointsAttribute(points) {
+  return points.map((point) => `${Number(point.x.toFixed(2))},${Number(point.y.toFixed(2))}`).join(" ");
+}
+
+function gridTriangleFitCentroid(points) {
+  return {
+    x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
+    y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
+  };
+}
+
+function gridTriangleFitPointInsideTarget(point, tolerance = 2) {
+  let direction = 0;
+  for (let index = 0; index < gridTriangleFitTargetPoints.length; index += 1) {
+    const start = gridTriangleFitTargetPoints[index];
+    const end = gridTriangleFitTargetPoints[(index + 1) % gridTriangleFitTargetPoints.length];
+    const cross = (end.x - start.x) * (point.y - start.y) - (end.y - start.y) * (point.x - start.x);
+    if (Math.abs(cross) <= tolerance) continue;
+    const nextDirection = Math.sign(cross);
+    if (direction && nextDirection !== direction) return false;
+    direction = nextDirection;
+  }
+  return true;
+}
+
+function translateGridTriangleFitPiece(pieceId, dx, dy) {
   const piece = getGridTriangleFitPieces()[pieceId];
-  const angle = piece.angle * Math.PI / 180;
-  const cos = Math.cos(angle);
-  const sin = Math.sin(angle);
-  return gridTriangleFitLocalPoints.map((point) => {
-    const offsetX = point.x - gridTriangleFitCenter.x;
-    const offsetY = point.y - gridTriangleFitCenter.y;
-    return {
-      x: piece.x + gridTriangleFitCenter.x + offsetX * cos - offsetY * sin,
-      y: piece.y + gridTriangleFitCenter.y + offsetX * sin + offsetY * cos,
-    };
-  });
+  if (!piece) return;
+  const minX = Math.min(...piece.points.map((point) => point.x));
+  const maxX = Math.max(...piece.points.map((point) => point.x));
+  const minY = Math.min(...piece.points.map((point) => point.y));
+  const maxY = Math.max(...piece.points.map((point) => point.y));
+  const clampedX = clampNumber(dx, -20 - minX, gridTriangleFitStage.width + 20 - maxX);
+  const clampedY = clampNumber(dy, -20 - minY, gridTriangleFitStage.height + 20 - maxY);
+  piece.points = piece.points.map((point) => ({ x: point.x + clampedX, y: point.y + clampedY }));
+  piece.slot = null;
+}
+
+function snapGridTriangleFitPiece(pieceId) {
+  const pieces = getGridTriangleFitPieces();
+  const piece = pieces[pieceId];
+  if (!piece) return false;
+  const occupiedSlots = new Set(Object.entries(pieces)
+    .filter(([candidateId]) => candidateId !== pieceId)
+    .map(([, candidate]) => candidate.slot)
+    .filter(Boolean));
+  const center = gridTriangleFitCentroid(piece.points);
+  const nearest = gridTriangleFitSnapTargets
+    .filter((target) => !occupiedSlots.has(target.id))
+    .map((target) => ({
+      target,
+      distance: Math.hypot(
+        center.x - gridTriangleFitCentroid(target.points).x,
+        center.y - gridTriangleFitCentroid(target.points).y,
+      ),
+    }))
+    .sort((first, second) => first.distance - second.distance)[0];
+  if (!nearest || nearest.distance > 60) return false;
+  piece.points = cloneGridTriangleFitPoints(nearest.target.points);
+  piece.slot = nearest.target.id;
+  return true;
 }
 
 function gridTriangleFitAnalysis() {
-  const target = gridTriangleFitTarget;
   const polygons = Object.fromEntries(gridTriangleFitDefinitions.map((piece) => [piece.id, gridTriangleFitPoints(piece.id)]));
-  const insideIds = gridTriangleFitDefinitions.filter((piece) => polygons[piece.id].every((point) => (
-    point.x >= target.x - 1 && point.x <= target.x + target.size + 1
-      && point.y >= target.y - 1 && point.y <= target.y + target.size + 1
-  ))).map((piece) => piece.id);
+  const insideIds = gridTriangleFitDefinitions.filter((piece) => (
+    polygons[piece.id].every((point) => gridTriangleFitPointInsideTarget(point))
+  )).map((piece) => piece.id);
   const overlap = gridTriangleFitDefinitions.some((piece, index) => (
     gridTriangleFitDefinitions.slice(index + 1).some((other) => tangramPolygonsOverlap(polygons[piece.id], polygons[other.id]))
   ));
@@ -6156,10 +6520,10 @@ function gridTriangleFitAnalysis() {
 
 function gridTriangleFitWasChanged() {
   const pieces = getGridTriangleFitPieces();
-  return gridTriangleFitDefinitions.some((definition) => {
-    const piece = pieces[definition.id];
-    return piece.x !== definition.initial.x || piece.y !== definition.initial.y || piece.angle !== definition.initial.angle;
-  });
+  return gridTriangleFitDefinitions.some((definition) => pieces[definition.id].points.some((point, index) => {
+    const initialPoint = definition.sourcePoints[index];
+    return Math.abs(point.x - initialPoint.x) > 1 || Math.abs(point.y - initialPoint.y) > 1;
+  }));
 }
 
 function markGridTriangleFitChanged(cardId = "teach-l3-2-extension") {
@@ -6175,8 +6539,11 @@ function resetGridTriangleFit(cardId = "teach-l3-2-extension") {
 
 function gridTriangleFitFeedback() {
   const analysis = gridTriangleFitAnalysis();
+  if (analysis.overlap && analysis.insideIds.length < gridTriangleFitDefinitions.length) {
+    return `${analysis.insideIds.length} of 4 triangles are completely inside Figure D, and at least two triangles overlap. Separate the pieces and keep every vertex inside the tilted outline.`;
+  }
   if (analysis.insideIds.length < gridTriangleFitDefinitions.length) {
-    return `${analysis.insideIds.length} of 4 triangles are completely inside Figure D. Move every vertex of each remaining triangle inside the outline.`;
+    return `${analysis.insideIds.length} of 4 triangles are completely inside Figure D. Move a triangle near a side of Figure D to align the two equal slanted sides.`;
   }
   if (analysis.overlap) return "All four triangles are inside Figure D, but at least two overlap. Separate their interiors before submitting again.";
   return "All four triangles are inside Figure D without overlaps.";
@@ -6195,18 +6562,30 @@ function renderGridTriangleFitWorkspace(card) {
   `).join("");
   const pieces = gridTriangleFitDefinitions.map((piece) => `
     <g
-      class="grid-triangle-piece-group ${piece.colorClass} ${piece.id === selectedId ? "is-selected" : ""}"
+      class="grid-triangle-piece-group ${piece.id === selectedId ? "is-selected" : ""}"
       data-grid-triangle-piece="${piece.id}"
-      transform="${gridTriangleFitTransform(piece.id)}"
       role="button"
       tabindex="0"
-      aria-label="${escapeHtml(piece.label)} from Figure C"
+      aria-label="${escapeHtml(piece.label)} from Figure C. Use arrow keys to move it and press Enter to align it when it is near a side of Figure D."
     >
       <title>${escapeHtml(piece.label)} from Figure C</title>
-      <polygon points="0,0 180,0 0,90"></polygon>
-      <circle cx="60" cy="30" r="5"></circle>
+      <polygon points="${gridTriangleFitPointsAttribute(gridTriangleFitPoints(piece.id))}"></polygon>
     </g>
   `).join("");
+  const renderGrid = (origin) => Array.from({ length: 9 }, (_, index) => {
+    const offset = index * gridTriangleFitStage.cell;
+    const size = gridTriangleFitStage.cell * 8;
+    return `
+      <line class="grid-triangle-fit-grid-line" x1="${origin.x + offset}" y1="${origin.y}" x2="${origin.x + offset}" y2="${origin.y + size}"></line>
+      <line class="grid-triangle-fit-grid-line" x1="${origin.x}" y1="${origin.y + offset}" x2="${origin.x + size}" y2="${origin.y + offset}"></line>
+    `;
+  }).join("");
+  const figureCInnerPoints = [
+    gridTriangleFitGridPoint(gridTriangleFitShapeC, 2, 0),
+    gridTriangleFitGridPoint(gridTriangleFitShapeC, 6, 2),
+    gridTriangleFitGridPoint(gridTriangleFitShapeC, 4, 6),
+    gridTriangleFitGridPoint(gridTriangleFitShapeC, 0, 4),
+  ];
   return `
     <section class="grid-triangle-fit-workspace" aria-label="Rearrange the four triangles from Figure C inside Figure D">
       <div class="grid-triangle-fit-toolbar">
@@ -6214,17 +6593,23 @@ function renderGridTriangleFitWorkspace(card) {
         <div class="grid-triangle-fit-actions" role="group" aria-label="Triangle controls">
           <button class="hint-button" type="button" data-grid-triangle-rotate="-90">Rotate left</button>
           <button class="hint-button" type="button" data-grid-triangle-rotate="90">Rotate right</button>
+          <button class="hint-button" type="button" data-grid-triangle-flip>Flip triangle</button>
           <button class="hint-button" type="button" data-grid-triangle-reset>Reset triangles</button>
         </div>
       </div>
-      <svg class="grid-triangle-fit-stage" data-grid-triangle-stage viewBox="0 0 ${gridTriangleFitStage.width} ${gridTriangleFitStage.height}" role="img" aria-label="Four movable right triangles beside Figure D, which is rotated without resizing so its sides align with the workspace.">
+      <svg class="grid-triangle-fit-stage" data-grid-triangle-stage viewBox="0 0 ${gridTriangleFitStage.width} ${gridTriangleFitStage.height}" role="img" aria-label="Source Figures C and D on matching grids. The four shaded corner triangles in Figure C can be moved into the tilted square in Figure D.">
         <rect class="grid-triangle-fit-board" x="1" y="1" width="758" height="418"></rect>
-        <text class="grid-triangle-fit-label" x="220" y="28" text-anchor="middle">Four triangles from Figure C</text>
-        <text class="grid-triangle-fit-label" x="605" y="68" text-anchor="middle">Figure D (rotated, not resized)</text>
-        <rect class="grid-triangle-fit-target" x="${gridTriangleFitTarget.x}" y="${gridTriangleFitTarget.y}" width="${gridTriangleFitTarget.size}" height="${gridTriangleFitTarget.size}"></rect>
+        <text class="grid-triangle-fit-label" x="150" y="68" text-anchor="middle">Figure C</text>
+        <text class="grid-triangle-fit-label" x="610" y="68" text-anchor="middle">Figure D</text>
+        ${renderGrid(gridTriangleFitFigureC)}
+        ${renderGrid(gridTriangleFitFigureD)}
+        <rect class="grid-triangle-fit-grid-border" x="${gridTriangleFitFigureC.x}" y="${gridTriangleFitFigureC.y}" width="240" height="240"></rect>
+        <rect class="grid-triangle-fit-grid-border" x="${gridTriangleFitFigureD.x}" y="${gridTriangleFitFigureD.y}" width="240" height="240"></rect>
+        <polygon class="grid-triangle-fit-source-inner" points="${gridTriangleFitPointsAttribute(figureCInnerPoints)}"></polygon>
+        <polygon class="grid-triangle-fit-target" points="${gridTriangleFitPointsAttribute(gridTriangleFitTargetPoints)}"></polygon>
         ${pieces}
       </svg>
-      <p class="grid-triangle-fit-status" aria-live="polite">${analysis.insideIds.length} of 4 triangles completely inside Figure D${analysis.overlap ? "; overlap detected" : ""}.</p>
+      <p class="grid-triangle-fit-status" aria-live="polite">${analysis.insideIds.length} of 4 triangles completely inside Figure D${analysis.overlap ? "; overlap detected" : ""}. Drag a triangle near a side of Figure D to align it.</p>
     </section>
   `;
 }
@@ -9349,6 +9734,318 @@ function cancelPracticeSourceAnnotationPointer(event) {
   return true;
 }
 
+function teachSourceAnnotationConfig(card, scopeId) {
+  if (!card || !scopeId) return null;
+  if (card.responseType === "gridFigureAreas") {
+    return gridFigureAreaDefinition(card, scopeId)?.annotation || null;
+  }
+  if (card.responseType !== "questionSet") return null;
+  const question = questionSetDefinition(card, scopeId);
+  if (!question) return null;
+  if (question.annotation) return question.annotation;
+  return Array.isArray(card.annotationQuestionIds) && card.annotationQuestionIds.includes(scopeId)
+    ? card.annotation || null
+    : null;
+}
+
+function teachSourceAnnotationTarget(cardId, scopeId) {
+  const card = teachCardById(cardId);
+  const config = teachSourceAnnotationConfig(card, scopeId);
+  if (!card || !config) return null;
+  const question = card.responseType === "questionSet" ? questionSetDefinition(card, scopeId) : null;
+  const gridFigureVisual = card.responseType === "gridFigureAreas"
+    ? gridFigureAreaVisualConfig(card)
+    : null;
+  const width = Number(config.naturalWidth || question?.visualWidth || card.visualWidth || gridFigureVisual?.width) || 1000;
+  const height = Number(config.naturalHeight || question?.visualHeight || card.visualHeight || gridFigureVisual?.height) || 1000;
+  const bounds = config.bounds || {};
+  const normalizedBounds = {
+    x: clampNumber(Number(bounds.x) || 0, 0, width),
+    y: clampNumber(Number(bounds.y) || 0, 0, height),
+    width: clampNumber(Number(bounds.width) || width, 1, width),
+    height: clampNumber(Number(bounds.height) || height, 1, height),
+  };
+  normalizedBounds.width = Math.min(normalizedBounds.width, width - normalizedBounds.x);
+  normalizedBounds.height = Math.min(normalizedBounds.height, height - normalizedBounds.y);
+  return {
+    card,
+    question,
+    scopeId,
+    config,
+    bounds: normalizedBounds,
+    item: {
+      id: `teach-source-annotation:${card.id}:${scopeId}`,
+      visualModelData: {
+        naturalWidth: width,
+        naturalHeight: height,
+        annotationGrid: config.grid || {},
+        annotationTools: config.tools,
+        defaultAnnotationTool: config.defaultTool,
+        displayMaxHeight: config.displayMaxHeight,
+      },
+    },
+  };
+}
+
+function initialTeachSourceAnnotation(target) {
+  return initialPracticeSourceAnnotation(target.item);
+}
+
+function getTeachSourceAnnotation(target) {
+  const definition = practiceSourceAnnotationDefinition(target.item);
+  let workspace = state.teachSourceAnnotations[target.item.id];
+  if (!workspace || !Array.isArray(workspace.marks)) {
+    workspace = initialTeachSourceAnnotation(target);
+    state.teachSourceAnnotations[target.item.id] = workspace;
+  }
+  if (!definition.tools.includes(workspace.tool)) workspace.tool = definition.defaultTool;
+  if (!Number.isInteger(workspace.nextId) || workspace.nextId < 1) {
+    workspace.nextId = workspace.marks.reduce((highest, mark) => Math.max(highest, Number(mark.id) || 0), 0) + 1;
+  }
+  if (!workspace.cursor) workspace.cursor = { column: 0, row: 0 };
+  return workspace;
+}
+
+function teachSourceAnnotationStatus(target) {
+  const workspace = getTeachSourceAnnotation(target);
+  const label = practiceSourceAnnotationToolLabels[workspace.tool] || "Annotation";
+  const count = workspace.marks.length;
+  if (workspace.tool === "erase") {
+    return `Erase selected - choose a mark to remove it - ${count} ${count === 1 ? "mark" : "marks"}`;
+  }
+  return workspace.keyboardStart
+    ? `${label}: start point set - click the end point - ${count} ${count === 1 ? "mark" : "marks"}`
+    : `${label}: drag to draw or click two points - ${count} ${count === 1 ? "mark" : "marks"}`;
+}
+
+function renderTeachSourceAnnotationMark(target, mark, workspace) {
+  const label = mark.type === "line" ? "line" : mark.type;
+  const eraseAttributes = workspace.tool === "erase"
+    ? `tabindex="0" role="button" aria-label="Erase ${label} ${mark.id}"`
+    : `tabindex="-1" aria-hidden="true"`;
+  return practiceSourceAnnotationShapeMarkup(
+    target.item,
+    mark,
+    `practice-source-annotation-mark practice-source-annotation-mark--${mark.type}`,
+    `data-teach-source-annotation-mark="${mark.id}" data-card-id="${target.card.id}" data-scope-id="${target.scopeId}" ${eraseAttributes}`,
+  );
+}
+
+function renderTeachSourceAnnotationToolbar(target) {
+  const definition = practiceSourceAnnotationDefinition(target.item);
+  const workspace = getTeachSourceAnnotation(target);
+  return `
+    <div class="practice-source-annotation-toolbar teach-source-annotation-toolbar" role="toolbar" aria-label="Planning tools for ${escapeHtml(target.config.label || `Figure ${target.scopeId}`)}">
+      ${definition.tools.map((tool) => `
+        <button
+          class="page-chip practice-source-annotation-tool ${workspace.tool === tool ? "is-active" : ""}"
+          type="button"
+          data-teach-source-annotation-tool="${target.card.id}"
+          data-scope-id="${target.scopeId}"
+          data-annotation-tool="${tool}"
+          aria-pressed="${workspace.tool === tool}"
+          title="${tool === "erase" ? "Select a mark to erase it" : `Draw a ${practiceSourceAnnotationToolLabels[tool].toLowerCase()} on the source visual`}"
+        >${practiceSourceAnnotationToolLabels[tool]}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderTeachSourceAnnotationBoard(target, extraClass = "") {
+  const definition = practiceSourceAnnotationDefinition(target.item);
+  const workspace = getTeachSourceAnnotation(target);
+  const cursor = practiceSourceAnnotationGridPoint(definition, workspace.cursor);
+  const instructionId = `${target.card.id}-${target.scopeId}-annotation-instructions`;
+  return `
+    <svg
+      class="practice-source-annotation-board teach-source-annotation-board ${extraClass} ${workspace.tool === "erase" ? "is-erase" : ""}"
+      viewBox="0 0 ${definition.width} ${definition.height}"
+      preserveAspectRatio="xMidYMid meet"
+      tabindex="0"
+      role="group"
+      aria-label="Optional planning layer for ${escapeHtml(target.config.label || `Figure ${target.scopeId}`)}"
+      aria-describedby="${instructionId}"
+      aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Enter Space Escape Delete"
+      data-teach-source-annotation-board="${target.card.id}"
+      data-scope-id="${target.scopeId}"
+    >
+      <rect class="practice-source-annotation-hit-area" x="${target.bounds.x}" y="${target.bounds.y}" width="${target.bounds.width}" height="${target.bounds.height}"></rect>
+      <g data-teach-source-annotation-marks>
+        ${workspace.marks.map((mark) => renderTeachSourceAnnotationMark(target, mark, workspace)).join("")}
+      </g>
+      <g data-teach-source-annotation-preview aria-hidden="true"></g>
+      <circle class="practice-source-annotation-cursor" cx="${cursor.x}" cy="${cursor.y}" r="10" vector-effect="non-scaling-stroke" aria-hidden="true"></circle>
+    </svg>
+    <span class="practice-source-annotation-instructions" id="${instructionId}">
+      Drag between planning points to draw. With the drawing layer focused, use arrow keys to move the cursor and Enter or Space to set each endpoint. Press Delete to undo the last mark.
+    </span>
+  `;
+}
+
+function renderTeachSourceAnnotationFooter(target) {
+  const workspace = getTeachSourceAnnotation(target);
+  return `
+    <div class="practice-source-annotation-footer teach-source-annotation-footer">
+      <span class="practice-source-annotation-status" data-teach-source-annotation-status="${target.card.id}" data-scope-id="${target.scopeId}" aria-live="polite">${escapeHtml(teachSourceAnnotationStatus(target))}</span>
+      <div class="practice-source-annotation-actions">
+        <button class="hint-button" type="button" data-teach-source-annotation-undo="${target.card.id}" data-scope-id="${target.scopeId}" ${workspace.marks.length ? "" : "disabled"}>Undo</button>
+        <button class="hint-button" type="button" data-teach-source-annotation-clear="${target.card.id}" data-scope-id="${target.scopeId}" ${workspace.marks.length ? "" : "disabled"}>Clear</button>
+      </div>
+    </div>
+  `;
+}
+
+function addTeachSourceAnnotationMark(target, type, start, requestedEnd) {
+  const workspace = getTeachSourceAnnotation(target);
+  const end = practiceSourceAnnotationConstrainedEnd(target.item, type, start, requestedEnd);
+  if (!practiceSourceAnnotationMarkIsValid(type, start, end)) return false;
+  workspace.marks.push({
+    id: workspace.nextId,
+    type,
+    start: { ...start },
+    end: { ...end },
+  });
+  workspace.nextId += 1;
+  workspace.cursor = { ...end };
+  workspace.keyboardStart = null;
+  return true;
+}
+
+function removeTeachSourceAnnotationMark(target, markId) {
+  const workspace = getTeachSourceAnnotation(target);
+  const index = workspace.marks.findIndex((mark) => Number(mark.id) === Number(markId));
+  if (index < 0) return false;
+  workspace.marks.splice(index, 1);
+  workspace.keyboardStart = null;
+  return true;
+}
+
+function teachSourceAnnotationTargetFromNode(node) {
+  return teachSourceAnnotationTarget(node?.dataset.cardId || node?.dataset.teachSourceAnnotationBoard, node?.dataset.scopeId);
+}
+
+function focusTeachSourceAnnotationBoard(cardId, scopeId) {
+  requestAnimationFrame(() => {
+    document.querySelector(`[data-teach-source-annotation-board="${cardId}"][data-scope-id="${scopeId}"]`)
+      ?.focus({ preventScroll: true });
+  });
+}
+
+function updateTeachSourceAnnotationCursorDom(target) {
+  const definition = practiceSourceAnnotationDefinition(target.item);
+  const workspace = getTeachSourceAnnotation(target);
+  const cursor = practiceSourceAnnotationGridPoint(definition, workspace.cursor);
+  const board = document.querySelector(`[data-teach-source-annotation-board="${target.card.id}"][data-scope-id="${target.scopeId}"]`);
+  board?.querySelector(".practice-source-annotation-cursor")?.setAttribute("cx", String(cursor.x));
+  board?.querySelector(".practice-source-annotation-cursor")?.setAttribute("cy", String(cursor.y));
+  const status = document.querySelector(`[data-teach-source-annotation-status="${target.card.id}"][data-scope-id="${target.scopeId}"]`);
+  if (status) status.textContent = teachSourceAnnotationStatus(target);
+}
+
+function updateTeachSourceAnnotationPreview(target, start, requestedEnd) {
+  const workspace = getTeachSourceAnnotation(target);
+  const preview = document.querySelector(`[data-teach-source-annotation-board="${target.card.id}"][data-scope-id="${target.scopeId}"] [data-teach-source-annotation-preview]`);
+  if (!preview) return;
+  const end = practiceSourceAnnotationConstrainedEnd(target.item, workspace.tool, start, requestedEnd);
+  preview.innerHTML = practiceSourceAnnotationMarkIsValid(workspace.tool, start, end)
+    ? practiceSourceAnnotationShapeMarkup(target.item, { type: workspace.tool, start, end }, "practice-source-annotation-preview", "")
+    : "";
+}
+
+function startTeachSourceAnnotationPointer(event) {
+  const board = event.target.closest?.("[data-teach-source-annotation-board]");
+  if (!board) return false;
+  const target = teachSourceAnnotationTargetFromNode(board);
+  if (!target) return false;
+  const workspace = getTeachSourceAnnotation(target);
+  if (workspace.tool === "erase") {
+    const markNode = event.target.closest?.("[data-teach-source-annotation-mark]");
+    if (markNode && removeTeachSourceAnnotationMark(target, markNode.dataset.teachSourceAnnotationMark)) renderTeachMe();
+    event.preventDefault();
+    return true;
+  }
+  const start = practiceSourceAnnotationSnap(target.item, board, event);
+  workspace.cursor = { ...start };
+  teachSourceAnnotationPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    cardId: target.card.id,
+    scopeId: target.scopeId,
+    board,
+    start,
+    current: start,
+    pendingStart: workspace.keyboardStart ? { ...workspace.keyboardStart } : null,
+    dragged: false,
+  };
+  updateTeachSourceAnnotationPreview(target, workspace.keyboardStart || start, start);
+  updateTeachSourceAnnotationCursorDom(target);
+  if (event.pointerId !== undefined) board.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  return true;
+}
+
+function updateTeachSourceAnnotationPointer(event) {
+  if (!teachSourceAnnotationPointer
+    || (event.pointerId ?? "mouse") !== teachSourceAnnotationPointer.pointerId) return false;
+  const target = teachSourceAnnotationTarget(teachSourceAnnotationPointer.cardId, teachSourceAnnotationPointer.scopeId);
+  if (!target) return false;
+  const current = practiceSourceAnnotationSnap(target.item, teachSourceAnnotationPointer.board, event);
+  teachSourceAnnotationPointer.current = current;
+  const workspace = getTeachSourceAnnotation(target);
+  if (current.column !== teachSourceAnnotationPointer.start.column
+    || current.row !== teachSourceAnnotationPointer.start.row) {
+    teachSourceAnnotationPointer.dragged = true;
+    workspace.keyboardStart = null;
+  }
+  workspace.cursor = { ...current };
+  updateTeachSourceAnnotationPreview(target, teachSourceAnnotationPointer.start, current);
+  updateTeachSourceAnnotationCursorDom(target);
+  event.preventDefault();
+  return true;
+}
+
+function endTeachSourceAnnotationPointer(event) {
+  if (!teachSourceAnnotationPointer
+    || (event.pointerId ?? "mouse") !== teachSourceAnnotationPointer.pointerId) return false;
+  const pointer = teachSourceAnnotationPointer;
+  teachSourceAnnotationPointer = null;
+  const target = teachSourceAnnotationTarget(pointer.cardId, pointer.scopeId);
+  if (target) {
+    const workspace = getTeachSourceAnnotation(target);
+    const endsAtDifferentPoint = pointer.current.column !== pointer.start.column
+      || pointer.current.row !== pointer.start.row;
+    let markAdded = false;
+    if (pointer.dragged && endsAtDifferentPoint) {
+      markAdded = addTeachSourceAnnotationMark(target, workspace.tool, pointer.start, pointer.current);
+    } else if (pointer.pendingStart) {
+      markAdded = addTeachSourceAnnotationMark(target, workspace.tool, pointer.pendingStart, pointer.current);
+    } else {
+      workspace.cursor = { ...pointer.current };
+      workspace.keyboardStart = { ...pointer.current };
+      updateTeachSourceAnnotationCursorDom(target);
+      updateTeachSourceAnnotationPreview(target, workspace.keyboardStart, workspace.cursor);
+      pointer.board.focus({ preventScroll: true });
+      return true;
+    }
+    if (markAdded) {
+      renderTeachMe();
+      focusTeachSourceAnnotationBoard(target.card.id, target.scopeId);
+    } else {
+      updateTeachSourceAnnotationCursorDom(target);
+      updateTeachSourceAnnotationPreview(target, workspace.keyboardStart || workspace.cursor, workspace.cursor);
+      pointer.board.focus({ preventScroll: true });
+    }
+  }
+  return true;
+}
+
+function cancelTeachSourceAnnotationPointer(event) {
+  if (!teachSourceAnnotationPointer
+    || (event.pointerId ?? "mouse") !== teachSourceAnnotationPointer.pointerId) return false;
+  teachSourceAnnotationPointer = null;
+  renderTeachMe();
+  return true;
+}
+
 function practiceHeightAnnotationIsEnabled(item) {
   return item?.visualModelData?.type === "sourceHeightPlacement"
     && item.visualModelData.allowTrialLines === true;
@@ -10858,6 +11555,31 @@ function renderQuestionSetVisual(card) {
   const height = positiveInteger(question.visualHeight);
   const maxWidth = positiveInteger(question.visualDisplayMaxWidth) || width || 640;
   const dimensions = width && height ? ` width="${width}" height="${height}"` : "";
+  const annotationTarget = teachSourceAnnotationTarget(card.id, question.id);
+  if (annotationTarget) {
+    return `
+      <figure class="teach-visual-frame question-set-visual teach-source-annotation-visual" style="--question-visual-max-width: ${Math.min(maxWidth, width || maxWidth)}px;">
+        ${question.visualDirections ? `<figcaption>${escapeHtml(question.visualDirections)}</figcaption>` : ""}
+        ${renderQuestionSetReferenceVisual(question)}
+        ${renderTeachSourceAnnotationToolbar(annotationTarget)}
+        <div
+          class="practice-source-annotation-canvas teach-source-annotation-canvas"
+          style="--practice-annotation-max-width: ${Math.min(maxWidth, width || maxWidth)}px; aspect-ratio: ${width || annotationTarget.item.visualModelData.naturalWidth} / ${height || annotationTarget.item.visualModelData.naturalHeight};"
+        >
+          <img
+            class="practice-source-visual-image"
+            src="${encodeURI(`artifacts/unit 1/_teachme-crops/${cropPath}`)}"
+            alt="${escapeHtml(question.visualAlt || card.visualAlt)}"
+            ${dimensions}
+            loading="lazy"
+            draggable="false"
+          >
+          ${renderTeachSourceAnnotationBoard(annotationTarget)}
+        </div>
+        ${renderTeachSourceAnnotationFooter(annotationTarget)}
+      </figure>
+    `;
+  }
   return `
     <figure class="teach-visual-frame question-set-visual" style="--question-visual-max-width: ${Math.min(maxWidth, width || maxWidth)}px;">
       ${question.visualDirections ? `<figcaption>${escapeHtml(question.visualDirections)}</figcaption>` : ""}
@@ -15003,8 +15725,10 @@ function gridFigureAreaHitStyle(figure) {
 function renderGridFigureAreaVisual(card) {
   const activeId = gridFigureAreaActiveId(card);
   const visual = gridFigureAreaVisualConfig(card);
+  const annotationTarget = teachSourceAnnotationTarget(card.id, activeId);
   return `
     <figure class="teach-visual-frame grid-area-visual">
+      ${annotationTarget ? renderTeachSourceAnnotationToolbar(annotationTarget) : ""}
       <div
         class="grid-area-image-shell"
         style="--figure-area-max-width: ${visual.displayMaxWidth}px; --figure-area-columns: ${visual.columns}; --figure-area-rows: ${visual.rows};"
@@ -15032,7 +15756,9 @@ function renderGridFigureAreaVisual(card) {
             `;
           }).join("")}
         </div>
+        ${annotationTarget ? renderTeachSourceAnnotationBoard(annotationTarget, "grid-area-source-annotation-board") : ""}
       </div>
+      ${annotationTarget ? renderTeachSourceAnnotationFooter(annotationTarget) : ""}
     </figure>
   `;
 }
@@ -16645,7 +17371,7 @@ function rotateSelectedTangramPiece(card, delta) {
 
 function updateGridTrianglePieceDom(pieceId) {
   document.querySelectorAll(`[data-grid-triangle-piece="${pieceId}"]`).forEach((pieceNode) => {
-    pieceNode.setAttribute("transform", gridTriangleFitTransform(pieceId));
+    pieceNode.querySelector("polygon")?.setAttribute("points", gridTriangleFitPointsAttribute(gridTriangleFitPoints(pieceId)));
   });
 }
 
@@ -16673,7 +17399,10 @@ function startGridTrianglePointer(event) {
     pointerId: event.pointerId ?? "mouse",
     pieceId,
     startPointer: tangramSvgPoint(svgNode, event),
-    startPiece: { ...piece },
+    startPiece: {
+      points: cloneGridTriangleFitPoints(piece.points),
+      slot: piece.slot,
+    },
   };
   if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
   updateGridTriangleSelectionDom();
@@ -16691,8 +17420,9 @@ function updateGridTrianglePointer(event) {
   if (!piece) return false;
   const dx = pointer.x - gridTrianglePointer.startPointer.x;
   const dy = pointer.y - gridTrianglePointer.startPointer.y;
-  piece.x = clampNumber(gridTrianglePointer.startPiece.x + dx, -100, gridTriangleFitStage.width - 25);
-  piece.y = clampNumber(gridTrianglePointer.startPiece.y + dy, -100, gridTriangleFitStage.height - 25);
+  piece.points = cloneGridTriangleFitPoints(gridTrianglePointer.startPiece.points);
+  piece.slot = gridTrianglePointer.startPiece.slot;
+  translateGridTriangleFitPiece(gridTrianglePointer.pieceId, dx, dy);
   if (Math.abs(dx) >= 2 || Math.abs(dy) >= 2) markGridTriangleFitChanged();
   updateGridTrianglePieceDom(gridTrianglePointer.pieceId);
   event.preventDefault();
@@ -16701,15 +17431,39 @@ function updateGridTrianglePointer(event) {
 
 function endGridTrianglePointer(event) {
   if (!gridTrianglePointer || (event.pointerId ?? "mouse") !== gridTrianglePointer.pointerId) return false;
+  const pieceId = gridTrianglePointer.pieceId;
+  snapGridTriangleFitPiece(pieceId);
   gridTrianglePointer = null;
+  renderTeachMe();
   return true;
 }
 
 function rotateSelectedGridTriangle(delta) {
   const piece = getGridTriangleFitPieces()[state.teachGridTriangleSelectedPiece];
   if (!piece) return;
-  piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  const center = gridTriangleFitCentroid(piece.points);
+  const angle = delta * Math.PI / 180;
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  piece.points = piece.points.map((point) => {
+    const offsetX = point.x - center.x;
+    const offsetY = point.y - center.y;
+    return {
+      x: center.x + offsetX * cos - offsetY * sin,
+      y: center.y + offsetX * sin + offsetY * cos,
+    };
+  });
+  piece.slot = null;
   if (delta) markGridTriangleFitChanged();
+}
+
+function flipSelectedGridTriangle() {
+  const piece = getGridTriangleFitPieces()[state.teachGridTriangleSelectedPiece];
+  if (!piece) return;
+  const center = gridTriangleFitCentroid(piece.points);
+  piece.points = piece.points.map((point) => ({ x: center.x * 2 - point.x, y: point.y }));
+  piece.slot = null;
+  markGridTriangleFitChanged();
 }
 
 function startPracticeCompositionPointer(event) {
@@ -17398,6 +18152,7 @@ function bindEvents() {
     renderVocabulary();
   });
   document.addEventListener("pointerdown", (event) => {
+    if (startTeachSourceAnnotationPointer(event)) return;
     if (startPracticeHeightAnnotationPointer(event)) return;
     if (startPracticeSourceAnnotationPointer(event)) return;
     if (startBaseHeightChallengePointer(event)) return;
@@ -17420,6 +18175,7 @@ function bindEvents() {
     }
   });
   document.addEventListener("pointermove", (event) => {
+    if (updateTeachSourceAnnotationPointer(event)) return;
     if (updatePracticeHeightAnnotationPointer(event)) return;
     if (updatePracticeSourceAnnotationPointer(event)) return;
     if (updateBaseHeightChallengePointer(event)) return;
@@ -17434,6 +18190,7 @@ function bindEvents() {
     updateSourceModalPointer(event);
   });
   document.addEventListener("pointerup", (event) => {
+    if (endTeachSourceAnnotationPointer(event)) return;
     if (endPracticeHeightAnnotationPointer(event)) return;
     if (endPracticeSourceAnnotationPointer(event)) return;
     if (endBaseHeightChallengePointer(event)) return;
@@ -17448,6 +18205,7 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("pointercancel", (event) => {
+    if (cancelTeachSourceAnnotationPointer(event)) return;
     if (cancelPracticeHeightAnnotationPointer(event)) return;
     if (cancelPracticeSourceAnnotationPointer(event)) return;
     if (endBaseHeightChallengePointer(event)) return;
@@ -17482,6 +18240,48 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("click", (event) => {
+    const teachSourceAnnotationTool = event.target.closest("[data-teach-source-annotation-tool]");
+    if (teachSourceAnnotationTool) {
+      const target = teachSourceAnnotationTarget(
+        teachSourceAnnotationTool.dataset.teachSourceAnnotationTool,
+        teachSourceAnnotationTool.dataset.scopeId,
+      );
+      const tool = teachSourceAnnotationTool.dataset.annotationTool;
+      const definition = target ? practiceSourceAnnotationDefinition(target.item) : null;
+      if (!target || !definition.tools.includes(tool)) return;
+      const workspace = getTeachSourceAnnotation(target);
+      workspace.tool = tool;
+      workspace.keyboardStart = null;
+      renderTeachMe();
+      return;
+    }
+    const teachSourceAnnotationUndo = event.target.closest("[data-teach-source-annotation-undo]");
+    if (teachSourceAnnotationUndo) {
+      const target = teachSourceAnnotationTarget(
+        teachSourceAnnotationUndo.dataset.teachSourceAnnotationUndo,
+        teachSourceAnnotationUndo.dataset.scopeId,
+      );
+      if (!target) return;
+      const workspace = getTeachSourceAnnotation(target);
+      workspace.marks.pop();
+      workspace.keyboardStart = null;
+      renderTeachMe();
+      return;
+    }
+    const teachSourceAnnotationClear = event.target.closest("[data-teach-source-annotation-clear]");
+    if (teachSourceAnnotationClear) {
+      const target = teachSourceAnnotationTarget(
+        teachSourceAnnotationClear.dataset.teachSourceAnnotationClear,
+        teachSourceAnnotationClear.dataset.scopeId,
+      );
+      if (!target) return;
+      const workspace = getTeachSourceAnnotation(target);
+      workspace.marks = [];
+      workspace.nextId = 1;
+      workspace.keyboardStart = null;
+      renderTeachMe();
+      return;
+    }
     const practiceHeightAnnotationUndo = event.target.closest("[data-practice-height-annotation-undo]");
     if (practiceHeightAnnotationUndo) {
       const item = practiceBank.find((entry) => entry.id === practiceHeightAnnotationUndo.dataset.practiceHeightAnnotationUndo);
@@ -19000,6 +19800,12 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const gridTriangleFlipButton = event.target.closest("[data-grid-triangle-flip]");
+    if (gridTriangleFlipButton) {
+      flipSelectedGridTriangle();
+      renderTeachMe();
+      return;
+    }
     const gridTriangleResetButton = event.target.closest("[data-grid-triangle-reset]");
     if (gridTriangleResetButton) {
       resetGridTriangleFit();
@@ -19445,6 +20251,66 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const teachAnnotationMark = event.target.closest?.("[data-teach-source-annotation-mark]");
+    if (teachAnnotationMark && ["Enter", " ", "Spacebar", "Delete", "Backspace"].includes(event.key)) {
+      const target = teachSourceAnnotationTargetFromNode(teachAnnotationMark);
+      if (target && getTeachSourceAnnotation(target).tool === "erase") {
+        event.preventDefault();
+        if (removeTeachSourceAnnotationMark(target, teachAnnotationMark.dataset.teachSourceAnnotationMark)) {
+          renderTeachMe();
+          focusTeachSourceAnnotationBoard(target.card.id, target.scopeId);
+        }
+        return;
+      }
+    }
+    const teachAnnotationBoard = event.target.closest?.("[data-teach-source-annotation-board]");
+    if (teachAnnotationBoard) {
+      const target = teachSourceAnnotationTargetFromNode(teachAnnotationBoard);
+      if (target) {
+        const definition = practiceSourceAnnotationDefinition(target.item);
+        const workspace = getTeachSourceAnnotation(target);
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+          event.preventDefault();
+          const dx = event.key === "ArrowLeft" ? -1 : event.key === "ArrowRight" ? 1 : 0;
+          const dy = event.key === "ArrowUp" ? -1 : event.key === "ArrowDown" ? 1 : 0;
+          workspace.cursor = {
+            column: clampNumber(workspace.cursor.column + dx, 0, definition.columns),
+            row: clampNumber(workspace.cursor.row + dy, 0, definition.rows),
+          };
+          updateTeachSourceAnnotationCursorDom(target);
+          if (workspace.keyboardStart) updateTeachSourceAnnotationPreview(target, workspace.keyboardStart, workspace.cursor);
+          return;
+        }
+        if (["Enter", " ", "Spacebar"].includes(event.key) && workspace.tool !== "erase") {
+          event.preventDefault();
+          if (!workspace.keyboardStart) {
+            workspace.keyboardStart = { ...workspace.cursor };
+            updateTeachSourceAnnotationCursorDom(target);
+            updateTeachSourceAnnotationPreview(target, workspace.keyboardStart, workspace.cursor);
+          } else {
+            addTeachSourceAnnotationMark(target, workspace.tool, workspace.keyboardStart, workspace.cursor);
+            renderTeachMe();
+            focusTeachSourceAnnotationBoard(target.card.id, target.scopeId);
+          }
+          return;
+        }
+        if (event.key === "Escape" && workspace.keyboardStart) {
+          event.preventDefault();
+          workspace.keyboardStart = null;
+          updateTeachSourceAnnotationCursorDom(target);
+          updateTeachSourceAnnotationPreview(target, workspace.cursor, workspace.cursor);
+          return;
+        }
+        if (["Delete", "Backspace"].includes(event.key) && workspace.marks.length) {
+          event.preventDefault();
+          workspace.marks.pop();
+          workspace.keyboardStart = null;
+          renderTeachMe();
+          focusTeachSourceAnnotationBoard(target.card.id, target.scopeId);
+          return;
+        }
+      }
+    }
     const heightAnnotationBoard = event.target.closest?.("[data-practice-height-annotation-board]");
     if (heightAnnotationBoard) {
       const item = practiceBank.find((entry) => entry.id === heightAnnotationBoard.dataset.practiceHeightAnnotationBoard);
@@ -19641,6 +20507,7 @@ function bindEvents() {
     const gridTrianglePiece = event.target.closest?.("[data-grid-triangle-piece]");
     if (gridTrianglePiece && (event.key === "Enter" || event.key === " ")) {
       state.teachGridTriangleSelectedPiece = gridTrianglePiece.dataset.gridTrianglePiece;
+      if (snapGridTriangleFitPiece(gridTrianglePiece.dataset.gridTrianglePiece)) markGridTriangleFitChanged();
       event.preventDefault();
       renderTeachMe();
       return;
@@ -19675,12 +20542,9 @@ function bindEvents() {
       const piece = getGridTriangleFitPieces()[gridTrianglePiece.dataset.gridTrianglePiece];
       if (!piece) return;
       const distance = event.shiftKey ? 2 : 10;
-      if (event.key === "ArrowLeft") piece.x -= distance;
-      if (event.key === "ArrowRight") piece.x += distance;
-      if (event.key === "ArrowUp") piece.y -= distance;
-      if (event.key === "ArrowDown") piece.y += distance;
-      piece.x = clampNumber(piece.x, -100, gridTriangleFitStage.width - 25);
-      piece.y = clampNumber(piece.y, -100, gridTriangleFitStage.height - 25);
+      const dx = event.key === "ArrowLeft" ? -distance : event.key === "ArrowRight" ? distance : 0;
+      const dy = event.key === "ArrowUp" ? -distance : event.key === "ArrowDown" ? distance : 0;
+      translateGridTriangleFitPiece(gridTrianglePiece.dataset.gridTrianglePiece, dx, dy);
       state.teachGridTriangleSelectedPiece = gridTrianglePiece.dataset.gridTrianglePiece;
       markGridTriangleFitChanged();
       event.preventDefault();

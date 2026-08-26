@@ -2861,6 +2861,8 @@ body[data-mode="teach"] #unit1Practice {
 }
 
 .tangram-select-button.is-included {
+  border-color: #21998e;
+  background: #e3f5f2;
   box-shadow: inset 0 -3px #21998e;
 }
 
@@ -2974,9 +2976,21 @@ body[data-mode="teach"] #unit1Practice {
   stroke-width: 2;
 }
 
+.tangram-square-target rect {
+  fill: rgba(14, 111, 102, 0.035);
+  stroke: #168b80;
+  stroke-width: 3;
+  stroke-dasharray: 9 7;
+}
+
+.tangram-square-target text {
+  fill: #0e6f66;
+  font-size: 14px;
+  font-weight: 800;
+}
+
 .tangram-piece-group {
   cursor: grab;
-  transition: opacity 120ms ease;
 }
 
 .tangram-piece-group:active {
@@ -2984,7 +2998,7 @@ body[data-mode="teach"] #unit1Practice {
 }
 
 .tangram-piece-group.is-set-aside {
-  opacity: 0.34;
+  opacity: 1;
 }
 
 .tangram-piece-group.is-included {
@@ -3023,6 +3037,18 @@ body[data-mode="teach"] #unit1Practice {
   stroke: #1f2a33;
   stroke-width: 1.6;
   pointer-events: none;
+}
+
+.tangram-piece-group.is-included .tangram-piece {
+  stroke: #087f73;
+  stroke-width: 5;
+  filter: drop-shadow(0 3px 5px rgba(8, 127, 115, 0.28));
+}
+
+.tangram-piece-group.is-included .tangram-rotation-dot {
+  fill: #087f73;
+  stroke: white;
+  stroke-width: 2.4;
 }
 
 .tangram-reference rect,

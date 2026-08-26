@@ -2149,7 +2149,7 @@ const unit1TeachAdditionalCards = [
         minimumPieces: 2,
         rejectSquare: true,
         visualType: "tangram",
-        constructionNote: "Mark the pieces used in your shape, drag and turn them into one non-overlapping figure, then submit this question.",
+        constructionNote: "Select each piece you plan to use, then choose Use selected in shape to mark it as part of your answer. For a marked piece, the button changes to Set selected aside so you can unmark it. Mark every piece in your shape, drag and turn the pieces into one connected, non-overlapping figure, then submit this question.",
         hint: "The same two small triangles that make the unit square can be rearranged into a different shape without changing their combined area.",
         correctFeedback: "Correct. Your connected, non-overlapping shape uses pieces totaling 1 square unit and is not a square.",
         incorrectFeedback: "Revise the construction. It must use at least two pieces, form one connected shape without overlaps, total 1 square unit, and not be a square.",
@@ -2163,7 +2163,7 @@ const unit1TeachAdditionalCards = [
         targetArea: 2,
         minimumPieces: 2,
         visualType: "tangram",
-        constructionNote: "Mark the pieces used in your shape, compose one connected non-overlapping figure, then submit this question.",
+        constructionNote: "Select each piece you plan to use, then choose Use selected in shape to mark it as part of your answer. For a marked piece, the button changes to Set selected aside so you can unmark it. Mark every piece in your shape, compose one connected, non-overlapping figure, then submit this question.",
         hint: "You can combine pieces whose areas add to two unit squares, then rearrange them without changing area.",
         correctFeedback: "Correct. Your connected, non-overlapping composition has area 2 square units.",
         incorrectFeedback: "Revise the construction so the used pieces form one connected, non-overlapping shape with area 2 square units.",
@@ -2178,7 +2178,7 @@ const unit1TeachAdditionalCards = [
         minimumPieces: 2,
         differentFromQuestionId: "area-2-first",
         visualType: "tangram",
-        constructionNote: "Build and submit an area-2 composition whose piece arrangement differs from your saved Question 3 shape.",
+        constructionNote: "Select each piece you plan to use, then choose Use selected in shape to mark it as part of your answer. For a marked piece, the button changes to Set selected aside so you can unmark it. Mark every piece in a connected, non-overlapping area-2 composition that differs from your saved Question 3 shape, then submit this question.",
         hint: "Change which pieces you use or rearrange the same pieces into a visibly different outline.",
         correctFeedback: "Correct. This is a second, different connected composition with area 2 square units.",
         incorrectFeedback: "Build one connected, non-overlapping area-2 shape that is meaningfully different from your saved Question 3 construction.",
@@ -2192,7 +2192,7 @@ const unit1TeachAdditionalCards = [
         targetArea: 4,
         minimumPieces: 2,
         visualType: "tangram",
-        constructionNote: "Mark the pieces used in your shape, compose one connected non-overlapping figure, then submit this question.",
+        constructionNote: "Select each piece you plan to use, then choose Use selected in shape to mark it as part of your answer. For a marked piece, the button changes to Set selected aside so you can unmark it. Mark every piece in your shape, compose one connected, non-overlapping figure, then submit this question.",
         hint: "A large triangle has the same area as four small triangles, or two unit squares. Combine enough pieces to make 4 square units.",
         correctFeedback: "Correct. Your connected, non-overlapping composition has area 4 square units.",
         incorrectFeedback: "Revise the construction so the used pieces form one connected, non-overlapping shape with area 4 square units.",
@@ -2210,8 +2210,8 @@ const unit1TeachAdditionalCards = [
         requireAreaAnswer: true,
         optional: true,
         visualType: "tangram",
-        constructionNote: "Use every piece, with no gaps or overlaps, to make one square. The app checks the construction and its total area.",
-        hint: "The complete Blackline Master set was cut from one large square. Use all eight pieces and make its outer boundary square.",
+        constructionNote: "All eight pieces are already marked for this challenge. First try to turn and arrange them into one square. Show the hint to reveal an outer target and optional fit support. The app checks the completed construction and its total area.",
+        hint: "One source set was cut from one large square. Use all eight pieces and make their outside boundary match the target square. A correctly turned piece snaps when it is close, and keyboard users can choose Fit selected into target.",
         correctFeedback: "Correct. All eight pieces recompose the original large square, whose area is 8 square units.",
         incorrectFeedback: "Use all eight pieces to form one connected, non-overlapping square. The full set has area 8 square units.",
       },
@@ -6029,10 +6029,27 @@ const tangramCompositionTargets = [
   { id: "all-pieces-square", label: "Ready for more: all pieces as one square" },
 ];
 
-function initialTangramPieces() {
+const tangramOptionalSquareTarget = {
+  x: 300,
+  y: 220,
+  side: 181.02,
+};
+
+const tangramOptionalSquareSlots = [
+  { id: "large-a", group: "large", x: 347.81, y: 207.423, angle: 225 },
+  { id: "large-b", group: "large", x: 287.423, y: 267.81, angle: 135 },
+  { id: "square", group: "square", x: 403.765, y: 278.51, angle: 315 },
+  { id: "medium", group: "medium", x: 420.419, y: 340.419, angle: 180 },
+  { id: "small-a", group: "small", x: 444.587, y: 243.955, angle: 315 },
+  { id: "small-b", group: "small", x: 323.955, y: 364.587, angle: 45 },
+  { id: "small-c", group: "small", x: 354.078, y: 334.465, angle: 315 },
+  { id: "small-d", group: "small", x: 384.342, y: 334.465, angle: 135 },
+];
+
+function initialTangramPieces(includeAll = false) {
   return Object.fromEntries(tangramPieceDefinitions.map((piece) => [
     piece.id,
-    { ...piece.initial, included: false },
+    { ...piece.initial, included: includeAll },
   ]));
 }
 
@@ -6046,19 +6063,88 @@ function tangramWorkspaceKey(card, questionId = "") {
   return `${card?.id || "legacy"}:${tangramWorkspaceQuestionId(card, questionId)}`;
 }
 
+function tangramWorkspaceQuestion(card, questionId = "") {
+  if (card?.responseType !== "questionSet") return null;
+  return questionSetDefinition(card, tangramWorkspaceQuestionId(card, questionId));
+}
+
 function getTangramPieces(card, questionId = "") {
   const key = tangramWorkspaceKey(card, questionId);
-  if (!state.teachTangramWorkspaces[key]) state.teachTangramWorkspaces[key] = initialTangramPieces();
+  if (!state.teachTangramWorkspaces[key]) {
+    const question = tangramWorkspaceQuestion(card, questionId);
+    state.teachTangramWorkspaces[key] = initialTangramPieces(Boolean(question?.requireAllPieces));
+  }
   return state.teachTangramWorkspaces[key];
 }
 
 function resetTangramPieces(card, questionId = "") {
-  state.teachTangramWorkspaces[tangramWorkspaceKey(card, questionId)] = initialTangramPieces();
+  const question = tangramWorkspaceQuestion(card, questionId);
+  state.teachTangramWorkspaces[tangramWorkspaceKey(card, questionId)] = initialTangramPieces(Boolean(question?.requireAllPieces));
   state.teachTangramSelectedPiece = "square";
 }
 
 function tangramPieceById(pieceId) {
   return tangramPieceDefinitions.find((piece) => piece.id === pieceId);
+}
+
+function tangramPieceGroup(pieceId) {
+  if (pieceId.startsWith("large-")) return "large";
+  if (pieceId.startsWith("small-")) return "small";
+  return pieceId;
+}
+
+function tangramAnglesMatch(first, second) {
+  const difference = Math.abs((((first - second) % 360) + 540) % 360 - 180);
+  return difference < 0.01;
+}
+
+function tangramOptionalSquareQuestion(card, questionId = "") {
+  const question = tangramWorkspaceQuestion(card, questionId);
+  return question?.id === "all-pieces-square" && question.requireSquare && question.requireAllPieces
+    ? question
+    : null;
+}
+
+function tangramOptionalSquareScaffoldVisible(card, questionId = "") {
+  const question = tangramOptionalSquareQuestion(card, questionId);
+  return Boolean(question && isTeachQuestionHintVisible(card, question.id));
+}
+
+function tangramOptionalSquareSlotOccupied(card, slot, movingPieceId, questionId = "") {
+  const workspace = getTangramPieces(card, questionId);
+  return tangramPieceDefinitions.some((definition) => {
+    if (definition.id === movingPieceId || tangramPieceGroup(definition.id) !== slot.group) return false;
+    const piece = workspace[definition.id];
+    return piece
+      && tangramAnglesMatch(piece.angle, slot.angle)
+      && Math.hypot(piece.x - slot.x, piece.y - slot.y) < 2;
+  });
+}
+
+function tangramOptionalSquareSnapCandidate(card, pieceId, questionId = "", requireNear = true) {
+  if (!tangramOptionalSquareScaffoldVisible(card, questionId)) return null;
+  const piece = getTangramPieces(card, questionId)[pieceId];
+  if (!piece) return null;
+  const group = tangramPieceGroup(pieceId);
+  const candidates = tangramOptionalSquareSlots
+    .filter((slot) => slot.group === group)
+    .filter((slot) => tangramAnglesMatch(piece.angle, slot.angle))
+    .filter((slot) => !tangramOptionalSquareSlotOccupied(card, slot, pieceId, questionId))
+    .map((slot) => ({ ...slot, distance: Math.hypot(piece.x - slot.x, piece.y - slot.y) }))
+    .sort((first, second) => first.distance - second.distance);
+  if (!candidates.length || (requireNear && candidates[0].distance > 92)) return null;
+  return candidates[0];
+}
+
+function snapTangramPieceToOptionalSquare(card, pieceId, questionId = "", requireNear = true) {
+  const slot = tangramOptionalSquareSnapCandidate(card, pieceId, questionId, requireNear);
+  if (!slot) return false;
+  const piece = getTangramPieces(card, questionId)[pieceId];
+  piece.x = slot.x;
+  piece.y = slot.y;
+  piece.angle = slot.angle;
+  markTangramWorkspaceChanged(card, questionId);
+  return true;
 }
 
 function tangramPieceTransform(card, pieceId, questionId = "") {
@@ -6069,14 +6155,18 @@ function tangramPieceTransform(card, pieceId, questionId = "") {
 
 function renderTangramWorkspace(card) {
   const questionId = tangramWorkspaceQuestionId(card);
-  const question = card?.responseType === "questionSet" ? questionSetDefinition(card, questionId) : null;
+  const question = tangramWorkspaceQuestion(card, questionId);
+  const tracksConstruction = question?.responseType === "construction";
+  const optionalSquare = Boolean(tangramOptionalSquareQuestion(card, questionId));
+  const optionalSquareScaffoldVisible = tangramOptionalSquareScaffoldVisible(card, questionId);
   const selectedPiece = state.teachTangramSelectedPiece;
   const workspace = getTangramPieces(card, questionId);
   const selectedIsIncluded = Boolean(workspace[selectedPiece]?.included);
+  const optionalSquareSnapAvailable = Boolean(tangramOptionalSquareSnapCandidate(card, selectedPiece, questionId, false));
   const includedCount = Object.values(workspace).filter((piece) => piece.included).length;
   const selectionButtons = tangramPieceDefinitions.map((piece) => `
     <button
-      class="page-chip tangram-select-button ${piece.id === selectedPiece ? "is-active" : ""} ${workspace[piece.id]?.included ? "is-included" : ""}"
+      class="page-chip tangram-select-button ${piece.id === selectedPiece ? "is-active" : ""} ${tracksConstruction && workspace[piece.id]?.included ? "is-included" : ""}"
       type="button"
       data-tangram-select="${piece.id}"
       aria-pressed="${piece.id === selectedPiece}"
@@ -6087,7 +6177,9 @@ function renderTangramWorkspace(card) {
   `).join("");
   const pieces = tangramPieceDefinitions.map((piece) => {
     const selected = piece.id === selectedPiece ? " is-selected" : "";
-    const included = workspace[piece.id]?.included ? " is-included" : " is-set-aside";
+    const included = tracksConstruction
+      ? (workspace[piece.id]?.included ? " is-included" : " is-set-aside")
+      : "";
     return `
       <g
         class="tangram-piece-group${included}"
@@ -6104,16 +6196,17 @@ function renderTangramWorkspace(card) {
     `;
   }).join("");
   return `
-    <section class="tangram-workspace" aria-label="Interactive tangram workspace">
+    <section class="tangram-workspace" data-tangram-mode="${tracksConstruction ? "construction" : "explore"}" aria-label="Interactive tangram workspace">
       <div class="tangram-toolbar">
         ${question ? `<p class="tangram-active-task"><strong>${escapeHtml(question.label)}:</strong> ${escapeHtml(question.prompt)}</p>` : ""}
         <div class="tangram-selectors" role="group" aria-label="Select a tangram piece">
           ${selectionButtons}
         </div>
         <div class="tangram-actions" role="group" aria-label="Tangram controls">
-          <button class="hint-button" type="button" data-tangram-include>${selectedIsIncluded ? "Set selected aside" : "Use selected in shape"}</button>
+          ${tracksConstruction && !question?.requireAllPieces ? `<button class="hint-button" type="button" data-tangram-include>${selectedIsIncluded ? "Set selected aside" : "Use selected in shape"}</button>` : ""}
           <button class="hint-button" type="button" data-tangram-rotate="-45">Rotate left</button>
           <button class="hint-button" type="button" data-tangram-rotate="45">Rotate right</button>
+          ${optionalSquareScaffoldVisible ? `<button class="hint-button" type="button" data-tangram-square-snap ${optionalSquareSnapAvailable ? "" : "disabled"}>Fit selected into target</button>` : ""}
           <button class="hint-button" type="button" data-tangram-reset>Reset pieces</button>
         </div>
       </div>
@@ -6127,6 +6220,12 @@ function renderTangramWorkspace(card) {
         aria-label="One unit square, four small triangles, one medium triangle, and two large triangles."
       >
         <rect x="1" y="1" width="${tangramStage.width - 2}" height="${tangramStage.height - 2}" class="tangram-board"></rect>
+        ${optionalSquareScaffoldVisible ? `
+          <g class="tangram-square-target" aria-hidden="true">
+            <text x="${tangramOptionalSquareTarget.x + tangramOptionalSquareTarget.side / 2}" y="${tangramOptionalSquareTarget.y - 12}" text-anchor="middle">Build one square inside this boundary</text>
+            <rect x="${tangramOptionalSquareTarget.x}" y="${tangramOptionalSquareTarget.y}" width="${tangramOptionalSquareTarget.side}" height="${tangramOptionalSquareTarget.side}"></rect>
+          </g>
+        ` : ""}
         <g class="tangram-reference" aria-hidden="true">
           <rect x="48" y="302" width="64" height="64"></rect>
           <line x1="48" y1="302" x2="112" y2="366"></line>
@@ -6134,7 +6233,13 @@ function renderTangramWorkspace(card) {
         </g>
         ${pieces}
       </svg>
-      <p class="tangram-caption">Pieces marked for the construction: ${includedCount} of ${tangramPieceDefinitions.length}. The workspace uses the source set: 1 square, 4 small right triangles, 1 medium right triangle, and 2 large right triangles.</p>
+      <p class="tangram-caption">${optionalSquare
+        ? optionalSquareScaffoldVisible
+          ? "All 8 of 8 source pieces are already included. Turn and drag each piece toward the hint target; a correctly turned piece snaps when it is close. The large square has the same total area as these pieces. "
+          : "All 8 of 8 source pieces are already included. Turn and drag them to compose one square. Show the hint only if you want an outer target and fit support. The large square has the same total area as these pieces. "
+        : tracksConstruction
+          ? `Pieces marked for the construction: ${includedCount} of ${tangramPieceDefinitions.length}. `
+          : "Move and rotate the pieces to compare their areas. "}The workspace uses the source set: 1 square, 4 small right triangles, 1 medium right triangle, and 2 large right triangles.</p>
     </section>
   `;
 }
@@ -6301,13 +6406,30 @@ function markTangramWorkspaceChanged(card, questionId = "") {
   state.teachQuestionSubmitted[teachQuestionStateKey(card.id, activeQuestionId)] = false;
 }
 
+function tangramConstructionSuccessFeedback(card, question) {
+  if (question.requireAllPieces) return question.correctFeedback;
+  const areaTerms = tangramIncludedPieceIds(card, question.id)
+    .map((pieceId) => tangramPieceById(pieceId)?.areaText)
+    .filter(Boolean);
+  if (!areaTerms.length) return question.correctFeedback;
+  const areaList = areaTerms.length === 1
+    ? areaTerms[0]
+    : `${areaTerms.slice(0, -1).join(", ")}, and ${areaTerms.at(-1)}`;
+  const condition = question.rejectSquare
+    ? " The resulting shape is not a square, as required."
+    : question.differentFromQuestionId
+      ? " Its marked pieces or arrangement are different from the saved Question 3 shape."
+      : "";
+  return `Correct. The marked pieces have areas ${areaList} square units. Since ${areaTerms.join(" + ")} = ${question.targetArea}, their total area is ${question.targetArea} square units. Rearranging them into this connected, non-overlapping shape does not change that total.${condition}`;
+}
+
 function tangramConstructionFeedback(card, question) {
   const saved = String(getTeachCustomResponse(card)[tangramSavedField(question.id)] || "");
   if (saved && question.requireAreaAnswer
     && !answerMatches(questionSetValue(card, question.id, "area"), String(question.targetArea))) {
     return `Your construction is a valid square. Recheck its area using the areas of all ${tangramPieceDefinitions.length} source pieces.`;
   }
-  if (saved) return question.correctFeedback;
+  if (saved) return tangramConstructionSuccessFeedback(card, question);
   const analysis = tangramConstructionAnalysis(card, question);
   if (!analysis.pieceIds.length) return "Mark at least two pieces as used, then compose them in the workspace.";
   if (analysis.pieceIds.length < (Number(question.minimumPieces) || 1)) return `Use at least ${question.minimumPieces} pieces in this composition.`;
@@ -15092,7 +15214,7 @@ function questionSetResolvedFeedback(card, question, correct) {
     return correct ? question.correctFeedback : question.incorrectFeedback;
   }
   if (question.dynamicAnswer === "tangramConstruction") {
-    return correct ? question.correctFeedback : tangramConstructionFeedback(card, question);
+    return correct ? tangramConstructionSuccessFeedback(card, question) : tangramConstructionFeedback(card, question);
   }
   if (question.dynamicAnswer === "pyramidFamilyLooseNet") {
     return pyramidNetFeedbackText(card);
@@ -17294,16 +17416,26 @@ function updateTangramPieceDom(card, pieceId, questionId = "") {
   });
 }
 
-function updateTangramSelectionDom() {
-  document.querySelectorAll("[data-tangram-piece]").forEach((pieceNode) => {
+function updateTangramSelectionDom(card, questionId = "") {
+  const cardNode = card
+    ? [...document.querySelectorAll("[data-teach-card]")].find((node) => node.dataset.teachCard === card.id)
+    : null;
+  const root = cardNode || document;
+  root.querySelectorAll("[data-tangram-piece]").forEach((pieceNode) => {
     const selected = pieceNode.dataset.tangramPiece === state.teachTangramSelectedPiece;
     pieceNode.querySelector(".tangram-piece")?.classList.toggle("is-selected", selected);
   });
-  document.querySelectorAll("[data-tangram-select]").forEach((button) => {
+  root.querySelectorAll("[data-tangram-select]").forEach((button) => {
     const selected = button.dataset.tangramSelect === state.teachTangramSelectedPiece;
     button.classList.toggle("is-active", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
+  if (card) {
+    const selectedPiece = getTangramPieces(card, questionId)[state.teachTangramSelectedPiece];
+    root.querySelectorAll("[data-tangram-include]").forEach((button) => {
+      button.textContent = selectedPiece?.included ? "Set selected aside" : "Use selected in shape";
+    });
+  }
 }
 
 function startTangramPointer(event) {
@@ -17328,7 +17460,7 @@ function startTangramPointer(event) {
     startPiece: { ...piece },
   };
   if (event.pointerId !== undefined) pieceNode.setPointerCapture?.(event.pointerId);
-  updateTangramSelectionDom();
+  updateTangramSelectionDom(card, questionId);
   event.preventDefault();
   event.stopPropagation();
   return true;
@@ -17355,7 +17487,15 @@ function updateTangramPointer(event) {
 
 function endTangramPointer(event) {
   if (!tangramPointer || (event.pointerId ?? "mouse") !== tangramPointer.pointerId) return false;
+  const completedPointer = tangramPointer;
   tangramPointer = null;
+  const card = teachCardById(completedPointer.cardId);
+  if (card && snapTangramPieceToOptionalSquare(
+    card,
+    completedPointer.pieceId,
+    completedPointer.questionId,
+    true,
+  )) renderTeachMe();
   return true;
 }
 
@@ -19776,6 +19916,14 @@ function bindEvents() {
       if (!card) return;
       rotateSelectedTangramPiece(card, Number(tangramRotateButton.dataset.tangramRotate) || 0);
       renderTeachMe();
+      return;
+    }
+    const tangramSquareSnapButton = event.target.closest("[data-tangram-square-snap]");
+    if (tangramSquareSnapButton) {
+      const card = teachCardById(tangramSquareSnapButton.closest("[data-teach-card]")?.dataset.teachCard);
+      if (!card) return;
+      const questionId = tangramWorkspaceQuestionId(card);
+      if (snapTangramPieceToOptionalSquare(card, state.teachTangramSelectedPiece, questionId, false)) renderTeachMe();
       return;
     }
     const tangramResetButton = event.target.closest("[data-tangram-reset]");

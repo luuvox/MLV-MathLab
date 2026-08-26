@@ -71,6 +71,7 @@ const state = {
   teachCustomResponses: {},
   teachQuestionSubmitted: {},
   teachQuestionHints: {},
+  teachSummaryStages: {},
   teachGridAreaActive: {},
   teachSourceAnnotations: {},
   teachQuestionSetActive: {},
@@ -518,6 +519,25 @@ const unit1TeachCards = [
     incorrectFeedback: "Keep building. The rectangle must be completely covered, both shape types must be used, and squares and dominoes must cover equal total areas.",
   },
   {
+    id: "teach-l1-summary",
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Tiling the Plane",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 1 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summaryParagraphs: [
+      "In this lesson, we learned about tiling the plane, which means covering a two-dimensional region with copies of the same shape or shapes such that there are no gaps or overlaps.",
+      "Then, we compared tiling patterns and the shapes in them. In thinking about which patterns and shapes cover more of the plane, we have started to reason about area.",
+      "We will continue this work, and to learn how to use mathematical tools strategically to help us do mathematics.",
+    ],
+  },
+  {
     id: "teach-l2",
     lessonNumber: 2,
     section: "A",
@@ -579,6 +599,55 @@ const unit1TeachCards = [
     ],
   },
   {
+    id: "teach-l3-summary",
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Reasoning to Find Area",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 3 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summaryIntroduction: "There are different strategies we can use to find the area of a region. We can:",
+    summarySections: [
+      {
+        paragraphs: [
+          "Decompose it into shapes whose areas you know how to calculate; find the area of each of those shapes, and then add the areas.",
+        ],
+        cropPath: "lesson-03-p003-summary-decompose.png",
+        visualAlt: "A source region decomposed into two rectangles whose areas can be added.",
+        visualDisplayMaxWidth: 600,
+      },
+      {
+        paragraphs: [
+          "Decompose it and rearrange the pieces into shapes whose areas you know how to calculate; find the area of each of those shapes, and then add the areas.",
+        ],
+        cropPath: "lesson-03-p003-summary-rearrange.png",
+        visualAlt: "A source region decomposed and rearranged into a rectangle in three stages.",
+        visualDisplayMaxWidth: 885,
+      },
+      {
+        paragraphs: [
+          "Consider it as a shape with a missing piece; calculate the area of the shape and the missing piece, and then subtract the area of the piece from the area of the shape.",
+        ],
+        cropPath: "lesson-03-p003-summary-subtract.png",
+        visualAlt: "A source region treated as a rectangle with a missing rectangular piece.",
+        visualDisplayMaxWidth: 600,
+      },
+      {
+        paragraphs: [
+          "The area of a figure is always measured in square units. When both side lengths of a rectangle are given in centimeters, then the area is given in square centimeters. For example, the area of this rectangle is 32 square centimeters.",
+        ],
+        cropPath: "lesson-03-p003-summary-square-units.png",
+        visualAlt: "A source rectangle measuring 8 centimeters by 4 centimeters.",
+        visualDisplayMaxWidth: 460,
+      },
+    ],
+  },
+  {
     id: "teach-l4",
     lessonNumber: 4,
     section: "B",
@@ -634,6 +703,55 @@ const unit1TeachCards = [
         hint: "Compare the corners directly across from one another, especially in the slanted Figure A.",
         correctFeedback: "Correct. Opposite angles of a parallelogram have equal measure.",
         incorrectFeedback: "Not quite. Opposite angles have equal measure. They do not all need to be right angles, as Figure A shows.",
+      },
+    ],
+  },
+  {
+    id: "teach-l4-summary",
+    lessonNumber: 4,
+    section: "B",
+    idea: "Idea 2",
+    title: "Parallelograms",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 4 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "A parallelogram is a quadrilateral (it has four sides). The opposite sides of a parallelogram are parallel. It is also true that the opposite sides of a parallelogram have equal length, and the opposite angles of a parallelogram have equal measure.",
+        ],
+        cropPath: "lesson-04-p003-summary-properties.png",
+        visualAlt: "Two source parallelograms labeled to show equal opposite side lengths and equal opposite angle measures.",
+        visualDisplayMaxWidth: 945,
+      },
+      {
+        paragraphs: [
+          "There are several strategies for finding the area of a parallelogram.",
+          "We can decompose and rearrange a parallelogram to form a rectangle. Here are three ways:",
+        ],
+        cropPath: "lesson-04-p003-summary-rearrange.png",
+        visualAlt: "Three source ways to decompose and rearrange a parallelogram into a rectangle.",
+        visualDisplayMaxWidth: 900,
+      },
+      {
+        paragraphs: [
+          "We can enclose the parallelogram and then subtract the area of the two triangles in the corner.",
+        ],
+        cropPath: "lesson-04-p003-summary-enclose.png",
+        visualAlt: "A source parallelogram enclosed in a rectangle with the corner triangles rearranged for subtraction.",
+        visualDisplayMaxWidth: 735,
+      },
+      {
+        paragraphs: [
+          "Both of these ways will work for any parallelogram. However, for some parallelograms the process of decomposing and rearranging requires a lot more steps than if we enclose the parallelogram with a rectangle and subtract the combined area of the two triangles in the corners.",
+        ],
+        cropPath: "lesson-04-p003-summary-strategy-choice.png",
+        visualAlt: "A long source parallelogram partitioned to compare area-finding strategies.",
+        visualDisplayMaxWidth: 435,
       },
     ],
   },
@@ -700,6 +818,58 @@ const unit1TeachCards = [
         hint: "Look for a right angle between h and b, or between h and a line extending b.",
         correctFeedback: "Correct. Not all five are correct: A, C, and D show a height perpendicular to the chosen base or its extension. B and E do not.",
         incorrectFeedback: "Not quite. A, C, and D are correctly labeled. In B and E, the segment labeled h is not perpendicular to the chosen base.",
+      },
+    ],
+  },
+  {
+    id: "teach-l5-summary",
+    lessonNumber: 5,
+    section: "B",
+    idea: "Idea 2",
+    title: "Bases and Heights of Parallelograms",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 5 Summary",
+    pdfPage: 5,
+    pdfPages: [5, 6],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "We can choose any of the four sides of a parallelogram as the base. Both the side (the segment) and its length (the measurement) are called the base.",
+          "If we draw any perpendicular segment from a point on the base to the opposite side of the parallelogram, that segment will always have the same length. We call that value the height. There are infinitely many segments that can represent the height!",
+          "Here are two copies of the same parallelogram. On the left, the side that is the base is 6 units long. Its corresponding height is 4 units. On the right, the side that is the base is 5 units long. Its corresponding height is 4.8 units. For both, three different segments are shown to represent the height. We could draw in many more!",
+          "No matter which side is chosen as the base, the area of the parallelogram is the product of that base and its corresponding height. We can check this: 4 \u00b7 6 = 24 and 4.8 \u00b7 5 = 24.",
+        ],
+        cropPath: "lesson-05-p005-summary-base-heights.png",
+        visualAlt: "Two source copies of the same parallelogram with bases 6 and 5 and corresponding heights 4 and 4.8.",
+        visualDisplayMaxWidth: 760,
+      },
+      {
+        paragraphs: [
+          "We can see why this is true by decomposing and rearranging the parallelograms into rectangles.",
+          "Notice that the side lengths of each rectangle are the base and height of the parallelogram. Even though the two rectangles have different side lengths, the products of the side lengths are equal, so they have the same area! And both rectangles have the same area as the parallelogram.",
+        ],
+        cropPath: "lesson-05-p005-summary-rearrange.png",
+        visualAlt: "The two source parallelograms decomposed and rearranged into equal-area rectangles.",
+        visualDisplayMaxWidth: 760,
+      },
+      {
+        paragraphs: [
+          "We often use letters to stand for numbers. If b is the base of a parallelogram (in units), and h is the corresponding height (in units), then the area of the parallelogram (in square units) is the product of these two numbers: A = b \u00b7 h.",
+          "Notice that we write the multiplication symbol with a small dot instead of a \u00d7 symbol. This is so that we don't get confused about whether x means multiply, or whether the letter x is standing in for a number.",
+        ],
+      },
+      {
+        paragraphs: [
+          "In high school, you will be able to prove that a perpendicular segment from a point on one side of a parallelogram to the opposite side will always have the same length.",
+          "You can see this most easily when you draw a parallelogram on graph paper. For now, we will just use this as a fact.",
+        ],
+        cropPath: "lesson-05-p006-summary-many-heights.png",
+        visualAlt: "A source parallelogram with several perpendicular segments that all represent the same height h.",
+        visualDisplayMaxWidth: 570,
       },
     ],
   },
@@ -931,6 +1101,48 @@ const unit1TeachCards = [
     ],
   },
   {
+    id: "teach-l6-summary",
+    lessonNumber: 6,
+    section: "B",
+    idea: "Idea 2",
+    title: "Area of Parallelograms",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 6 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "Any pair of base and corresponding height can help us find the area of a parallelogram, but some base-height pairs are more easily identified than others.",
+          "When a parallelogram is drawn on a grid and has horizontal sides, we can use a horizontal side as the base. When it has vertical sides, we can use a vertical side as the base. The grid can help us find (or estimate) the lengths of the base and of the corresponding height.",
+        ],
+        cropPath: "lesson-06-p003-summary-grid-base-heights.png",
+        visualAlt: "Two source parallelograms on grids with horizontal and vertical base-height pairs labeled b and h.",
+        visualDisplayMaxWidth: 710,
+      },
+      {
+        paragraphs: [
+          "When a parallelogram is not drawn on a grid, we can still find its area if a base and a corresponding height are known.",
+          "In this parallelogram, the corresponding height for the side that is 10 units long is not given, but the height for the side that is 8 units long is given. This base-height pair can help us find the area.",
+        ],
+        cropPath: "lesson-06-p003-summary-off-grid.png",
+        visualAlt: "A source parallelogram off the grid with sides 10 and 8 and the corresponding height for the 8-unit base labeled 8.",
+        visualDisplayMaxWidth: 370,
+      },
+      {
+        paragraphs: [
+          "Regardless of their shape, parallelograms that have the same base and the same height will have the same area; the product of the base and height will be equal. Here are some parallelograms with the same pair of base-height measurements.",
+        ],
+        cropPath: "lesson-06-p003-summary-equal-area.png",
+        visualAlt: "Four source parallelograms with different shapes and the same base 3 and height 4.",
+        visualDisplayMaxWidth: 800,
+      },
+    ],
+  },
+  {
     id: "teach-l7",
     lessonNumber: 7,
     section: "C",
@@ -980,6 +1192,51 @@ const unit1TeachCards = [
         hint: "Use the area from the left copy, then divide by the right copy's 2 cm height.",
         correctFeedback: "Correct. The shared area is 2.4 square centimeters, and 2.4 / 2 = 1.2, so the base is 1.2 centimeters.",
         incorrectFeedback: "Not quite. The two copies have the same 2.4-square-centimeter area. Find the base that makes base x 2 = 2.4.",
+      },
+    ],
+  },
+  {
+    id: "teach-l7-summary",
+    lessonNumber: 7,
+    section: "C",
+    idea: "Idea 3",
+    title: "From Parallelograms to Triangles",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 7 Summary",
+    pdfPage: 4,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "A parallelogram can always be decomposed into two identical triangles by a segment that connects opposite vertices.",
+        ],
+        cropPath: "lesson-07-p004-summary-decompose.png",
+        visualAlt: "Three source parallelograms decomposed into pairs of identical triangles by segments connecting opposite vertices.",
+        visualDisplayMaxWidth: 800,
+      },
+      {
+        paragraphs: [
+          "Going the other way around, two identical copies of a triangle can always be arranged to form a parallelogram, regardless of the type of triangle being used.",
+          "To produce a parallelogram, we can join a triangle and its copy along any of the three sides, so the same pair of triangles can make different parallelograms.",
+          "Here are examples of how two copies of both Triangle A and Triangle F can be composed into three different parallelograms.",
+        ],
+        cropPath: "lesson-07-p004-summary-triangle-a.png",
+        visualAlt: "Two copies of source Triangle A joined along three different sides to make three parallelograms.",
+        visualDisplayMaxWidth: 650,
+      },
+      {
+        paragraphs: [],
+        cropPath: "lesson-07-p004-summary-triangle-f.png",
+        visualAlt: "Two copies of source Triangle F joined along three different sides to make three parallelograms.",
+        visualDisplayMaxWidth: 650,
+      },
+      {
+        paragraphs: [
+          "This special relationship between triangles and parallelograms can help us reason about the area of any triangle.",
+        ],
       },
     ],
   },
@@ -1085,6 +1342,64 @@ const unit1TeachCards = [
         hint: "Use a 6-unit horizontal side as the base and the 4-unit vertical distance as its height.",
         correctFeedback: "Correct. The right parallelogram has base 6, corresponding height 4, and area 24 square units. Triangle M is half of it, with area 12.",
         incorrectFeedback: "Not quite. The horizontal base is 6 units and the corresponding height is 4 units, so the area is 24.",
+      },
+    ],
+  },
+  {
+    id: "teach-l8-summary",
+    lessonNumber: 8,
+    section: "C",
+    idea: "Idea 3",
+    title: "Area of Triangles",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 8 Summary",
+    pdfPage: 5,
+    pdfPages: [5, 6],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "We can reason about the area of a triangle by using what we know about parallelograms. Here are three general ways to do this.",
+          "Make a copy of the triangle and join the original and the copy along an edge to create a parallelogram. Because the two triangles have the same area, one copy of the triangle has half the area of that parallelogram.",
+        ],
+        cropPath: "lesson-08-p005-summary-copy-join.png",
+        visualAlt: "Source Triangles A and C beside parallelograms B and D made by joining each triangle with an identical copy.",
+        visualDisplayMaxWidth: 780,
+      },
+      {
+        paragraphs: [
+          "Parallelogram B has area 16 square units because its base is 8 units and its height is 2 units, so Triangle A has area 8 square units. Parallelogram D has area 24 square units because its base is 4 units and its height is 6 units, so Triangle C has area 12 square units.",
+          "A second method is to decompose the triangle into smaller pieces and compose them into a parallelogram.",
+        ],
+        cropPath: "lesson-08-p005-summary-decompose.png",
+        visualAlt: "A source triangle decomposed into pieces and rearranged into a parallelogram.",
+        visualDisplayMaxWidth: 690,
+      },
+      {
+        paragraphs: [
+          "In the new parallelogram, the base is 6, the height is 2, and 6 x 2 = 12, so its area is 12 square units. Because the original triangle and the parallelogram are composed of the same parts, the area of the original triangle is also 12 square units.",
+          "A third method is to draw a rectangle around the triangle. Sometimes the triangle has half of the area of the rectangle.",
+        ],
+        cropPath: "lesson-08-p006-summary-enclose-half.png",
+        visualAlt: "A source triangle enclosed in a rectangle and divided into two right triangles that are halves of smaller rectangles.",
+        visualDisplayMaxWidth: 900,
+      },
+      {
+        paragraphs: [
+          "The large rectangle can be decomposed into smaller rectangles. The one on the left has area 4 x 3, or 12 square units, and the one on the right has area 2 x 3, or 6 square units. Each of the two right triangles is half of a smaller rectangle, so their areas are 6 and 3 square units. The large triangle has area 9 square units.",
+          "Sometimes the triangle is half of what is left of the rectangle after removing two copies of the smaller right triangles.",
+        ],
+        cropPath: "lesson-08-p006-summary-enclose-subtract.png",
+        visualAlt: "A source triangle enclosed in a rectangle, with two exterior right triangles removed and recomposed beside the remaining parallelogram.",
+        visualDisplayMaxWidth: 900,
+      },
+      {
+        paragraphs: [
+          "The removed right triangles can be composed into a small rectangle with area 2 x 3. What remains is a parallelogram with area 5 x 3 - 2 x 3, which is 9 square units. Two copies of the original triangle compose that parallelogram, so the triangle's area is one half of 9, or 4.5 square units.",
+        ],
       },
     ],
   },
@@ -1241,6 +1556,72 @@ const unit1TeachCards = [
     ],
   },
   {
+    id: "teach-l9-summary",
+    lessonNumber: 9,
+    section: "C",
+    idea: "Idea 3",
+    title: "Formula for the Area of a Triangle",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 9 Summary",
+    pdfPage: 4,
+    pdfPages: [4, 5],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "We can choose any of the three sides of a triangle to call the base. The term base refers to both the side and its length.",
+          "The corresponding height is the length of a perpendicular segment from the base to the vertex opposite it. The opposite vertex is the vertex that is not an endpoint of the base.",
+          "Here are three pairs of bases and heights for the same triangle. The dashed segments represent heights.",
+        ],
+        cropPath: "lesson-09-p004-summary-base-height-pairs.png",
+        visualAlt: "The same source triangle shown with each of its three sides selected as a base and the corresponding perpendicular height marked.",
+        visualDisplayMaxWidth: 690,
+      },
+      {
+        paragraphs: [
+          "A segment showing a height must be drawn at a right angle to the base, but it can be drawn in more than one place. It does not have to go through the opposite vertex, as long as it connects the base and a line parallel to the base that passes through the opposite vertex.",
+        ],
+        cropPath: "lesson-09-p004-summary-height-positions.png",
+        visualAlt: "A source triangle between parallel lines with three valid perpendicular height segments drawn in different positions.",
+        visualDisplayMaxWidth: 280,
+      },
+      {
+        paragraphs: [
+          "The base-height pairs in a triangle are closely related to those in a parallelogram. Two copies of a triangle can be composed into one or more parallelograms, and each parallelogram shares at least one base with the triangle.",
+        ],
+        cropPath: "lesson-09-p004-summary-shared-base-height.png",
+        visualAlt: "Two source triangle-and-parallelogram compositions showing shared bases and corresponding heights.",
+        visualDisplayMaxWidth: 635,
+      },
+      {
+        paragraphs: [
+          "For any base that the triangle and parallelogram share, the corresponding height is also shared.",
+          "We can use base-height measurements and our knowledge of parallelograms to find the area of any triangle. A parallelogram with base b and height h has area b x h. A triangle takes up half the area of a parallelogram with the same base and height, so A = 1/2 x b x h.",
+        ],
+        cropPath: "lesson-09-p005-summary-formula-examples.png",
+        visualAlt: "Source Triangles A, B, and C with bases and corresponding heights labeled for the triangle area formula.",
+        visualDisplayMaxWidth: 880,
+      },
+      {
+        paragraphs: [
+          "Triangle A has area 15 square units because 1/2 x 5 x 6 = 15. Triangle B has area 4.5 square units because 1/2 x 3 x 3 = 4.5. Triangle C has area 24 square units because 1/2 x 12 x 4 = 24.",
+          "In each case, one side is the base, but neither of the other sides is the height because the angle between them is not a right angle. In a right triangle, however, the two perpendicular sides can be a base and a height.",
+        ],
+        cropPath: "lesson-09-p005-summary-right-triangle.png",
+        visualAlt: "A source right triangle on a grid with perpendicular sides labeled 9 and 4 as interchangeable base-height choices.",
+        visualDisplayMaxWidth: 470,
+      },
+      {
+        paragraphs: [
+          "The right triangle has area 18 square units whether we use 4 units or 9 units for the base.",
+        ],
+      },
+    ],
+  },
+  {
     id: "teach-l10",
     lessonNumber: 10,
     section: "C",
@@ -1260,6 +1641,50 @@ const unit1TeachCards = [
     hint: "A height is perpendicular to the base line and reaches the opposite vertex. Sometimes the base line has to be extended.",
     correctFeedback: "Correct. Each marked height is perpendicular to the chosen base line and connects that line to the opposite vertex. Some heights land outside the triangle because the base line has to be extended.",
     incorrectFeedback: "Recheck each mark. The height must meet the base line at a right angle and reach the opposite vertex; for obtuse triangles, the foot of the height may be outside the triangle.",
+  },
+  {
+    id: "teach-l10-summary",
+    lessonNumber: 10,
+    section: "C",
+    idea: "Idea 3",
+    title: "Bases and Heights of Triangles",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 10 Summary",
+    pdfPage: 4,
+    pdfPages: [4, 5],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "A height of a triangle is a perpendicular segment between the side chosen as the base and the opposite vertex. We can use tools with right angles to help us draw height segments.",
+          "An index card, or any stiff paper with a right angle, is a useful tool for drawing a line perpendicular to another line.",
+          "First choose a side of the triangle as the base and identify its opposite vertex. Line up one edge of the card with the base, slide the card until a perpendicular edge meets the opposite vertex, and use that edge to draw the height from the vertex to the base.",
+        ],
+        cropPath: "lesson-10-p004-summary-index-card.png",
+        visualAlt: "A four-stage source diagram showing an index card sliding along a triangle's base and guiding a perpendicular height through the opposite vertex.",
+        visualDisplayMaxWidth: 860,
+      },
+      {
+        paragraphs: [
+          "Sometimes we need to extend the line containing the base to identify the height, such as for an obtuse triangle or whenever the opposite vertex is not directly over the base. In these cases, the height segment is typically drawn outside the triangle.",
+        ],
+        cropPath: "lesson-10-p005-summary-outside-height.png",
+        visualAlt: "A source sequence using an index card to draw a perpendicular height outside an obtuse triangle on an extension of its base.",
+        visualDisplayMaxWidth: 800,
+      },
+      {
+        paragraphs: [
+          "Even though any side of a triangle can be a base, some base-height pairs are easier to determine than others, so it helps to choose strategically. For a right triangle, it often makes sense to use the two sides that form the right angle because one is already perpendicular to the other.",
+          "If a triangle is on a grid and has a horizontal or vertical side, we can use that side as a base and use the grid to find the height.",
+        ],
+        cropPath: "lesson-10-p005-summary-grid-pairs.png",
+        visualAlt: "Two source triangles on grids with strategic horizontal and vertical bases and corresponding heights labeled b and h.",
+        visualDisplayMaxWidth: 650,
+      },
+    ],
   },
   {
     id: "teach-l11",
@@ -1310,6 +1735,45 @@ const unit1TeachCards = [
     ],
   },
   {
+    id: "teach-l11-summary",
+    lessonNumber: 11,
+    section: "D",
+    idea: "Idea 4",
+    title: "Polygons",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 11 Summary",
+    pdfPage: 5,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "A polygon is a two-dimensional figure composed of straight line segments. Each end of a line segment connects to one other line segment, and the point where two segments connect is a vertex.",
+          "The segments are called the edges or sides of the polygon. The sides never cross each other, and there are always equal numbers of vertices and sides.",
+          "Here is a polygon with 5 sides. Its vertices are labeled A, B, C, D, and E. A polygon encloses a region, and finding its area means finding the area of the region inside it.",
+        ],
+        cropPath: "lesson-11-p005-summary-polygon-definition.png",
+        visualAlt: "A source five-sided polygon with vertices A, B, C, D, and E labeled.",
+        visualDisplayMaxWidth: 315,
+      },
+      {
+        paragraphs: [
+          "We can find the area of a polygon by decomposing the region inside it into triangles and rectangles.",
+        ],
+        cropPath: "lesson-11-p005-summary-area-strategies.png",
+        visualAlt: "Three source diagrams of the same polygon: two decomposed into triangles and rectangles and one enclosed in a rectangle for subtraction.",
+        visualDisplayMaxWidth: 940,
+      },
+      {
+        paragraphs: [
+          "In the first two diagrams, the sum of the areas of the triangles and rectangles is the polygon's area. In the last diagram, subtracting the areas of the outside triangles from the enclosing rectangle gives the polygon's area.",
+        ],
+      },
+    ],
+  },
+  {
     id: "teach-l12",
     lessonNumber: 12,
     section: "E",
@@ -1327,6 +1791,37 @@ const unit1TeachCards = [
     hint: "The source prism has dimensions 3 by 2 by 2. Choose a different factor triple with product 12, then add the areas of all 6 outside faces.",
     correctFeedback: "Correct. Your selected dimensions use 12 cubes, form a different rectangular prism, and the surface area matches the sum of all 6 faces.",
     incorrectFeedback: "Check that your prism uses exactly 12 cubes, is different from the 3 by 2 by 2 source prism, and that your surface area counts all outside faces.",
+  },
+  {
+    id: "teach-l12-summary",
+    lessonNumber: 12,
+    section: "E",
+    idea: "Idea 5",
+    title: "What is Surface Area?",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 12 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "The surface area of a figure, in square units, is the number of unit squares needed to cover the entire surface without gaps or overlaps.",
+          "If a three-dimensional figure has flat sides, the sides are called faces. The surface area is the total of the areas of the faces.",
+          "For example, a rectangular prism has six faces, and its surface area is the total of the areas of those six rectangular faces.",
+        ],
+        cropPath: "lesson-12-p003-summary-prism-faces.png",
+        visualAlt: "A source 2-by-3-by-4 rectangular prism partitioned into unit-square faces.",
+        visualDisplayMaxWidth: 220,
+      },
+      {
+        paragraphs: [
+          "A rectangular prism with edge lengths 2 cm, 3 cm, and 4 cm has surface area (2 x 3) + (2 x 3) + (2 x 4) + (2 x 4) + (3 x 4) + (3 x 4), or 52 square centimeters.",
+        ],
+      },
+    ],
   },
   {
     id: "teach-l13",
@@ -2271,6 +2766,85 @@ const unit1TeachAdditionalCards = [
         hint: "A large triangle can be decomposed into four small triangles, which can be rearranged into two unit squares.",
         correctFeedback: "Correct. Four small triangles compose the large triangle and can be rearranged into two unit squares, so its area is 2 square units.",
         incorrectFeedback: "Compare one large triangle with four small triangles, then regroup those small triangles into unit squares.",
+      },
+    ],
+  },
+  {
+    id: "teach-l2-summary",
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Finding Area by Decomposing and Rearranging",
+    partLabel: "Summary",
+    activityOrder: 99,
+    activityTitle: "Lesson 2 Summary",
+    pdfPage: 5,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summaryIntroduction: "Here are two important principles for finding area:",
+    summaryTakeawayLabel: "What stays the same?",
+    summaryTakeaway: "Decomposing and rearranging the pieces changes the figure's shape, but not its total area.",
+    summaryPrinciples: [
+      "If two figures can be placed one on top of the other so that they match up exactly, then they have the same area.",
+      "We can decompose a figure (break a figure into pieces) and rearrange the pieces (move the pieces around) to find its area.",
+    ],
+    summaryExamples: [
+      {
+        id: "squares-to-triangle",
+        title: "Two squares become one large triangle",
+        explanation: "Each square can be decomposed into 2 triangles. The 4 triangles can be rearranged into one large triangle, so the large triangle has the same area as the 2 squares.",
+        stages: [
+          {
+            id: "start",
+            label: "Start",
+            caption: "Start with 2 squares.",
+            cropPath: "lesson-02-p005-summary-squares-start.png",
+            visualAlt: "Two source squares, each divided into two triangles by a diagonal.",
+          },
+          {
+            id: "decompose",
+            label: "Decompose",
+            caption: "Decompose each square into 2 triangles.",
+            cropPath: "lesson-02-p005-summary-squares-decompose.png",
+            visualAlt: "The two source squares separated along their diagonals into four triangles.",
+          },
+          {
+            id: "rearrange",
+            label: "Rearrange",
+            caption: "Rearrange the same 4 triangles into one large triangle.",
+            cropPath: "lesson-02-p005-summary-squares-rearrange.png",
+            visualAlt: "Four source triangles rearranged into one large triangle.",
+          },
+        ],
+      },
+      {
+        id: "triangle-to-squares",
+        title: "One large triangle becomes two squares",
+        explanation: "A large triangle can be decomposed into 4 equal triangles and rearranged into 2 squares. If each square has area 1 square unit, the large triangle has area 2 square units and each small triangle has area 1/2 square unit.",
+        stages: [
+          {
+            id: "start",
+            label: "Start",
+            caption: "Start with 1 large triangle.",
+            cropPath: "lesson-02-p005-summary-triangle-start.png",
+            visualAlt: "One source large triangle divided into four equal triangles.",
+          },
+          {
+            id: "decompose",
+            label: "Decompose",
+            caption: "Decompose it into 4 equal triangles.",
+            cropPath: "lesson-02-p005-summary-triangle-decompose.png",
+            visualAlt: "The source large triangle separated into four equal triangles.",
+          },
+          {
+            id: "rearrange",
+            label: "Rearrange",
+            caption: "Rearrange the same 4 triangles into 2 squares.",
+            cropPath: "lesson-02-p005-summary-triangle-rearrange.png",
+            visualAlt: "Four source triangles rearranged into two squares.",
+          },
+        ],
       },
     ],
   },
@@ -5010,6 +5584,283 @@ const unit1TeachAdditionalCards = [
         hint: "Find how far each comparison estimate is from your tent's estimate, then compare the two differences.",
         correctFeedback: "Correct. You compared the size of each change in fabric area, not just the new totals.",
         incorrectFeedback: "Compare each alternative with your tent and choose the larger absolute change in square feet.",
+      },
+    ],
+  },
+  {
+    id: "teach-l13-summary",
+    lessonNumber: 13,
+    section: "E",
+    idea: "Idea 5",
+    title: "Polyhedra",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 13 Summary",
+    pdfPage: 4,
+    pdfPages: [4, 5],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "A polyhedron is a three-dimensional figure composed of faces. Each face is a filled-in polygon and meets only one other face along a complete edge. The ends of the edges meet at points called vertices.",
+          "A polyhedron always encloses a three-dimensional region. The plural of polyhedron is polyhedra.",
+        ],
+        cropPath: "lesson-13-p004-summary-parts.png",
+        visualAlt: "Source polyhedra with face, edge, and vertex labels.",
+        visualDisplayMaxWidth: 760,
+      },
+      {
+        paragraphs: [
+          "Polyhedra can have many different arrangements of flat polygon faces.",
+        ],
+        cropPath: "lesson-13-p004-summary-examples.png",
+        visualAlt: "Three source examples of polyhedra with different polygon faces.",
+        visualDisplayMaxWidth: 670,
+      },
+      {
+        paragraphs: [
+          "A prism is a type of polyhedron with two identical, parallel faces called bases. The bases are connected by rectangles, or sometimes parallelograms.",
+          "A prism is named for the shape of its bases. For example, a prism with pentagonal bases is a pentagonal prism.",
+        ],
+        cropPath: "lesson-13-p004-summary-prisms.png",
+        visualAlt: "Source triangular, pentagonal, and rectangular prisms.",
+        visualDisplayMaxWidth: 610,
+      },
+      {
+        paragraphs: [
+          "A pyramid is a type of polyhedron with one special face called the base. All of its other faces are triangles that meet at one vertex.",
+          "A pyramid is named for the shape of its base. For example, a pyramid with a pentagonal base is a pentagonal pyramid.",
+        ],
+        cropPath: "lesson-13-p005-summary-pyramids.png",
+        visualAlt: "Source rectangular, hexagonal, heptagonal, and decagonal pyramids.",
+        visualDisplayMaxWidth: 850,
+      },
+      {
+        paragraphs: [
+          "A net is a two-dimensional representation made from the polygons that form a polyhedron's faces. A net can be cut out and folded to make a model of the polyhedron.",
+          "A cube has six square faces, so its net is made from six squares. Each cube face shares its edges with four other squares. Some edges are open in the flat net, but they join other edges when the net is folded.",
+          "It takes practice to visualize the final polyhedron by looking at a net.",
+        ],
+        cropPath: "lesson-13-p005-summary-cube-net.png",
+        visualAlt: "A source net made from six squares that folds into a cube.",
+        visualDisplayMaxWidth: 300,
+      },
+    ],
+  },
+  {
+    id: "teach-l14-summary",
+    lessonNumber: 14,
+    section: "E",
+    idea: "Idea 5",
+    title: "Nets and Surface Area",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 14 Summary",
+    pdfPage: 3,
+    pdfPages: [3, 4],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "A pyramid net has one polygon for the base. All of the other polygons are triangles.",
+        ],
+        cropPath: "lesson-14-p003-summary-pyramid-net.png",
+        visualAlt: "A source pentagonal pyramid beside its net with one pentagonal base and five triangles.",
+        visualDisplayMaxWidth: 635,
+      },
+      {
+        paragraphs: [
+          "A prism net has two copies of the polygon used for the base. All of the other polygons are rectangles.",
+        ],
+        cropPath: "lesson-14-p003-summary-prism-net.png",
+        visualAlt: "A source pentagonal prism beside its net with two pentagonal bases and rectangular faces.",
+        visualDisplayMaxWidth: 660,
+      },
+      {
+        paragraphs: [
+          "A rectangular prism has three pairs of parallel, identical rectangles. Any one of these three pairs can be chosen as the bases.",
+        ],
+        cropPath: "lesson-14-p004-summary-base-pairs.png",
+        visualAlt: "Three source copies of one rectangular prism showing each pair of identical rectangles as bases.",
+        visualDisplayMaxWidth: 930,
+      },
+      {
+        paragraphs: [
+          "A net shows every face of a polyhedron, so it can be used to find surface area.",
+          "This rectangular prism has pairs of 4-by-2, 3-by-2, and 4-by-3 rectangles. Their areas are 8, 6, and 12 square units. Counting each pair gives 2 x 8 + 2 x 6 + 2 x 12 = 52 square units.",
+        ],
+        cropPath: "lesson-14-p004-summary-surface-net.png",
+        visualAlt: "A source rectangular-prism net with face areas 8, 6, and 12 square units.",
+        visualDisplayMaxWidth: 850,
+      },
+    ],
+  },
+  {
+    id: "teach-l15-summary",
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "More Nets, More Surface Area",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 15 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "The surface area of a polyhedron is the sum of the areas of all its faces. A net helps us find surface area because it shows all of the faces at once. We can find the area of every polygon in the net and add the areas.",
+        ],
+      },
+      {
+        paragraphs: [
+          "A square pyramid has one square face and four triangular faces. Its surface area is the area of the square base plus the areas of the four triangles.",
+          "For the source pyramid, the square base is 6 by 6 and each triangle has base 6 and height 5. Its surface area is (6 x 6) + 4 x (1/2 x 5 x 6) = 96 square units.",
+        ],
+        cropPath: "lesson-15-p003-summary-square-pyramid.png",
+        visualAlt: "A source square pyramid and its net with base side 6 and triangle height 5.",
+        visualDisplayMaxWidth: 925,
+      },
+    ],
+  },
+  {
+    id: "teach-l16-summary",
+    lessonNumber: 16,
+    section: "F",
+    idea: "Idea 6",
+    title: "Distinguishing Between Surface Area and Volume",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 16 Summary",
+    pdfPage: 3,
+    pdfPages: [3, 4],
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "Length is a one-dimensional attribute of a geometric figure. We measure length with units such as millimeters, centimeters, meters, kilometers, inches, feet, yards, and miles.",
+        ],
+        cropPath: "lesson-16-p003-summary-length.png",
+        visualAlt: "A source pencil and ruler illustrating a one-dimensional length measurement.",
+        visualDisplayMaxWidth: 360,
+      },
+      {
+        paragraphs: [
+          "Area is a two-dimensional attribute. We measure area in square units. For example, a square that is 1 centimeter on each side has an area of 1 square centimeter.",
+        ],
+        cropPath: "lesson-16-p003-summary-area.png",
+        visualAlt: "A source rectangular picture frame with rulers illustrating two-dimensional area.",
+        visualDisplayMaxWidth: 325,
+      },
+      {
+        paragraphs: [
+          "Volume is a three-dimensional attribute. We measure volume in cubic units. For example, a cube that is 1 kilometer on each side has a volume of 1 cubic kilometer.",
+        ],
+        cropPath: "lesson-16-p003-summary-volume.png",
+        visualAlt: "Source stacked boxes with rulers illustrating three-dimensional volume.",
+        visualDisplayMaxWidth: 335,
+      },
+      {
+        paragraphs: [
+          "Surface area and volume are different attributes of three-dimensional figures. Surface area is a two-dimensional measure, while volume is a three-dimensional measure.",
+        ],
+      },
+      {
+        paragraphs: [
+          "Two figures can have the same volume but different surface areas. A 1-by-2-by-2 rectangular prism has volume 4 cubic centimeters and surface area 16 square centimeters. A 1-by-1-by-4 rectangular prism has the same volume but surface area 18 square centimeters.",
+        ],
+        cropPath: "lesson-16-p004-summary-same-volume.png",
+        visualAlt: "Source 1-by-2-by-2 and 1-by-1-by-4 prisms with the same volume and different surface areas.",
+        visualDisplayMaxWidth: 395,
+      },
+      {
+        paragraphs: [
+          "Two figures can also have the same surface area but different volumes. A 1-by-1-by-5 rectangular prism has surface area 22 square centimeters and volume 5 cubic centimeters. A 1-by-2-by-3 rectangular prism has the same surface area but volume 6 cubic centimeters.",
+        ],
+        cropPath: "lesson-16-p004-summary-same-area.png",
+        visualAlt: "Source 1-by-1-by-5 and 1-by-2-by-3 prisms with the same surface area and different volumes.",
+        visualDisplayMaxWidth: 395,
+      },
+    ],
+  },
+  {
+    id: "teach-l17-summary",
+    lessonNumber: 17,
+    section: "F",
+    idea: "Idea 6",
+    title: "Squares and Cubes",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 17 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "When we multiply two copies of the same number, we say we are squaring the number. For example, 5 x 5 can be written 5². Because 5 x 5 = 25, we say, '5 squared is 25.'",
+        ],
+      },
+      {
+        paragraphs: [
+          "When we multiply three copies of the same number, we say we are cubing the number. For example, 4 x 4 x 4 can be written 4³. Because 4 x 4 x 4 = 64, we say, '4 cubed is 64.'",
+        ],
+      },
+      {
+        paragraphs: [
+          "We also use second- and third-power notation for square and cubic units. A square with side length 5 inches has area 25 in². A cube with edge length 4 centimeters has volume 64 cm³.",
+        ],
+      },
+      {
+        paragraphs: [
+          "We read 25 in² as '25 square inches.' A square with side length 7 kilometers has area 7² square kilometers. A cube with edge length 2 millimeters has volume 2³ cubic millimeters.",
+        ],
+      },
+      {
+        paragraphs: [
+          "In general, a square with side length s has area s², and a cube with edge length s has volume s³.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "teach-l18-summary",
+    lessonNumber: 18,
+    section: "F",
+    idea: "Idea 6",
+    title: "Surface Area of a Cube",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 18 Summary",
+    pdfPage: 3,
+    cropPath: null,
+    customVisual: "lessonSummary",
+    responseType: "lessonSummary",
+    summarySections: [
+      {
+        paragraphs: [
+          "The volume of a cube with edge length s is s³.",
+        ],
+        cropPath: "lesson-18-p003-summary-cube.png",
+        visualAlt: "A source cube with all three visible edge dimensions labeled s.",
+        visualDisplayMaxWidth: 300,
+      },
+      {
+        paragraphs: [
+          "A cube has six faces that are all identical squares. Each face has area s², so the surface area of a cube with edge length s is 6 x s².",
+        ],
+        cropPath: "lesson-18-p003-summary-net.png",
+        visualAlt: "A source cube net with each of its six square faces labeled s squared.",
+        visualDisplayMaxWidth: 555,
       },
     ],
   },
@@ -11561,12 +12412,131 @@ function renderTeachPartSwitcher(group, activeCard) {
   `;
 }
 
+function lessonSummaryStageKey(card, example) {
+  return `${card.id}:${example.id}`;
+}
+
+function lessonSummaryActiveStage(card, example) {
+  const savedStageId = state.teachSummaryStages[lessonSummaryStageKey(card, example)];
+  return example.stages.find((stage) => stage.id === savedStageId) || example.stages[0];
+}
+
+function lessonSummaryVisibleStages(card, example) {
+  const activeStage = lessonSummaryActiveStage(card, example);
+  const activeStageIndex = Math.max(0, example.stages.findIndex((stage) => stage.id === activeStage.id));
+  return example.stages.slice(0, activeStageIndex + 1);
+}
+
+function renderLessonSummary(card) {
+  const paragraphs = Array.isArray(card.summaryParagraphs) ? card.summaryParagraphs : [];
+  const principles = Array.isArray(card.summaryPrinciples) ? card.summaryPrinciples : [];
+  const sections = Array.isArray(card.summarySections) ? card.summarySections : [];
+  const examples = Array.isArray(card.summaryExamples) ? card.summaryExamples : [];
+  const hasExamples = examples.length > 0;
+  return `
+    <section class="lesson-summary" aria-label="${escapeHtml(card.activityTitle)}">
+      ${card.summaryIntroduction ? `<p class="lesson-summary-introduction">${escapeHtml(card.summaryIntroduction)}</p>` : ""}
+      ${paragraphs.length ? `
+        <div class="lesson-summary-paragraphs">
+          ${paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
+        </div>
+      ` : ""}
+      ${principles.length ? `
+        <ol class="lesson-summary-principles">
+          ${principles.map((principle) => `<li>${escapeHtml(principle)}</li>`).join("")}
+        </ol>
+      ` : ""}
+      ${sections.length ? `
+        <div class="lesson-summary-sections">
+          ${sections.map((section) => {
+            const sectionParagraphs = Array.isArray(section.paragraphs) ? section.paragraphs : [];
+            const requestedMaxWidth = Number.isInteger(section.visualDisplayMaxWidth) && section.visualDisplayMaxWidth > 0
+              ? section.visualDisplayMaxWidth
+              : null;
+            const visualStyle = requestedMaxWidth
+              ? ` style="--lesson-summary-visual-max-width: ${requestedMaxWidth}px;"`
+              : "";
+            return `
+              <section class="lesson-summary-section">
+                ${sectionParagraphs.length ? `
+                  <div class="lesson-summary-section-copy">
+                    ${sectionParagraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
+                  </div>
+                ` : ""}
+                ${section.cropPath ? `
+                  <figure class="lesson-summary-source-visual"${visualStyle}>
+                    <img
+                      src="${teachCropUrl({ cropPath: section.cropPath })}"
+                      alt="${escapeHtml(section.visualAlt || "Source lesson summary diagram.")}"
+                      loading="lazy"
+                    >
+                  </figure>
+                ` : ""}
+              </section>
+            `;
+          }).join("")}
+        </div>
+      ` : ""}
+      ${hasExamples ? `
+        <p class="lesson-summary-example-introduction">${escapeHtml(card.summaryExampleIntroduction || "Follow each source illustration from its starting figure through decomposition and rearrangement.")}</p>
+        <div class="lesson-summary-examples">
+        ${examples.map((example) => {
+          const activeStage = lessonSummaryActiveStage(card, example);
+          const visibleStages = lessonSummaryVisibleStages(card, example);
+          return `
+            <section class="lesson-summary-example" data-summary-example-panel="${example.id}" aria-labelledby="${card.id}-${example.id}-title">
+              <h3 id="${card.id}-${example.id}-title">${escapeHtml(example.title)}</h3>
+              <div class="lesson-summary-stage-switcher" role="group" aria-label="Stages for ${escapeHtml(example.title)}">
+                ${example.stages.map((stage) => `
+                  <button
+                    class="page-chip lesson-summary-stage-button ${visibleStages.some((visibleStage) => visibleStage.id === stage.id) ? "is-active" : ""} ${stage.id === activeStage.id ? "is-current" : ""}"
+                    type="button"
+                    data-lesson-summary-stage="${card.id}"
+                    data-summary-example="${example.id}"
+                    data-summary-stage="${stage.id}"
+                    aria-pressed="${visibleStages.some((visibleStage) => visibleStage.id === stage.id)}"
+                  >${escapeHtml(stage.label)}</button>
+                `).join("")}
+              </div>
+              <div
+                class="lesson-summary-stage-sequence is-stage-count-${visibleStages.length}"
+                style="--summary-visible-stage-count: ${visibleStages.length};"
+                aria-live="polite"
+              >
+                ${visibleStages.map((stage) => `
+                  <figure class="lesson-summary-stage-visual" data-summary-stage-panel="${stage.id}">
+                    <span class="lesson-summary-stage-label">${escapeHtml(stage.label)}</span>
+                    <img
+                      src="${teachCropUrl({ cropPath: stage.cropPath })}"
+                      alt="${escapeHtml(stage.visualAlt)}"
+                      loading="lazy"
+                    >
+                    <figcaption>${escapeHtml(stage.caption)}</figcaption>
+                  </figure>
+                `).join("")}
+              </div>
+              <p class="lesson-summary-example-explanation">${escapeHtml(example.explanation)}</p>
+            </section>
+          `;
+        }).join("")}
+        </div>
+      ` : ""}
+      ${card.summaryTakeaway ? `
+        <p class="lesson-summary-takeaway">
+          ${card.summaryTakeawayLabel ? `<strong>${escapeHtml(card.summaryTakeawayLabel)}</strong> ` : ""}${escapeHtml(card.summaryTakeaway)}
+        </p>
+      ` : ""}
+    </section>
+  `;
+}
+
 function renderTeachLessonGroup(group) {
   const card = activeTeachCardForGroup(group);
   return renderTeachCard(card, group);
 }
 
 function renderTeachVisualContent(card) {
+  if (card.customVisual === "lessonSummary") return renderLessonSummary(card);
   if (card.customVisual === "tilingCompare") return renderTilingCompareWorkspace(card);
   if (card.customVisual === "equalAreaTiling") return renderEqualAreaTilingWorkspace(card);
   if (card.customVisual === "gridTriangleFit") return renderGridTriangleFitWorkspace(card);
@@ -14410,11 +15380,12 @@ function renderParallelogramPairWorkspace(card, question) {
 
 function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lessonNumber }) {
   const visualContent = renderTeachVisualContent(card);
+  const isLessonSummary = card.responseType === "lessonSummary";
   const usesIndependentSubmission = card.responseType === "areaMeaning"
     || card.responseType === "gridFigureAreas"
     || card.responseType === "questionSet";
   return `
-    <article class="teach-lesson-card teach-card" id="${teachCardDomId(card)}" data-teach-card="${card.id}" data-teach-lesson="${card.lessonNumber}">
+    <article class="teach-lesson-card teach-card ${isLessonSummary ? "is-lesson-summary" : ""}" id="${teachCardDomId(card)}" data-teach-card="${card.id}" data-teach-lesson="${card.lessonNumber}">
       <div class="teach-lesson-copy">
         <p class="eyebrow">${escapeHtml(card.idea)} · Section ${escapeHtml(card.section)} · Lesson ${card.lessonNumber}</p>
         <div class="teach-card-heading">
@@ -14429,22 +15400,24 @@ function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lesso
         ${card.activityTitle ? `<p class="teach-activity-title">${escapeHtml(card.activityTitle)}</p>` : ""}
         ${card.sourceContext ? `<p class="teach-source-context">${escapeHtml(card.sourceContext)}</p>` : ""}
       </div>
-      <div class="teach-card-body ${card.sourceDirections ? "has-visual-directions" : ""}">
+      <div class="teach-card-body ${card.sourceDirections ? "has-visual-directions" : ""} ${isLessonSummary ? "is-lesson-summary" : ""}">
         ${card.sourceDirections ? `<p class="teach-visual-directions">${escapeHtml(card.sourceDirections)}</p>` : ""}
         <div class="teach-workspace">
           ${visualContent}
         </div>
-        <div class="answer-panel teach-answer-panel">
-          ${renderTeachResponseControl(card)}
-          ${usesIndependentSubmission ? "" : `
-            <div class="practice-actions teach-actions">
-              <button class="practice-submit" type="button" data-teach-submit="${card.id}">Submit</button>
-              <button class="hint-button" type="button" data-teach-hint="${card.id}">${state.teachHints[card.id] ? "Hide hint" : "Show hint"}</button>
-            </div>
-            ${renderTeachFeedback(card)}
-            ${renderTeachHint(card)}
-          `}
-        </div>
+        ${isLessonSummary ? "" : `
+          <div class="answer-panel teach-answer-panel">
+            ${renderTeachResponseControl(card)}
+            ${usesIndependentSubmission ? "" : `
+              <div class="practice-actions teach-actions">
+                <button class="practice-submit" type="button" data-teach-submit="${card.id}">Submit</button>
+                <button class="hint-button" type="button" data-teach-hint="${card.id}">${state.teachHints[card.id] ? "Hide hint" : "Show hint"}</button>
+              </div>
+              ${renderTeachFeedback(card)}
+              ${renderTeachHint(card)}
+            `}
+          </div>
+        `}
       </div>
     </article>
   `;
@@ -16803,6 +17776,7 @@ function renderTeachVariantControl(card) {
 }
 
 function renderTeachResponseControl(card) {
+  if (card.responseType === "lessonSummary") return "";
   if (card.responseType === "questionSet") {
     return renderQuestionSetControl(card);
   }
@@ -19829,6 +20803,20 @@ function bindEvents() {
       if (!card) return;
       state.teachActiveParts[card.lessonNumber] = card.id;
       state.teachOpenDropdown = null;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const lessonSummaryStageButton = event.target.closest("[data-lesson-summary-stage]");
+    if (lessonSummaryStageButton) {
+      const card = teachCardById(lessonSummaryStageButton.dataset.lessonSummaryStage);
+      const example = card?.summaryExamples?.find((entry) => entry.id === lessonSummaryStageButton.dataset.summaryExample);
+      const stage = example?.stages.find((entry) => entry.id === lessonSummaryStageButton.dataset.summaryStage);
+      if (!card || card.responseType !== "lessonSummary" || !example || !stage) return;
+      const activeStage = lessonSummaryActiveStage(card, example);
+      const activeStageIndex = example.stages.findIndex((entry) => entry.id === activeStage.id);
+      const requestedStageIndex = example.stages.findIndex((entry) => entry.id === stage.id);
+      state.teachSummaryStages[lessonSummaryStageKey(card, example)] = example.stages[Math.max(activeStageIndex, requestedStageIndex)].id;
       state.sourceModalItemId = null;
       renderTeachMe();
       return;

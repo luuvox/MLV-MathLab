@@ -5036,6 +5036,93 @@ input[type="search"] {
   line-height: 1.48;
 }
 
+.practice-lesson-copy {
+  gap: 8px;
+}
+
+.practice-lesson-copy > .eyebrow {
+  max-width: none;
+  color: var(--blue);
+}
+
+.practice-lesson-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(180px, 1fr);
+  gap: 12px 18px;
+  align-items: start;
+  min-width: 0;
+}
+
+.practice-lesson-title-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  min-width: 0;
+}
+
+.practice-lesson-title-group h3 {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.practice-part-switcher {
+  flex: 0 1 auto;
+}
+
+.practice-part-button {
+  position: relative;
+  min-width: 44px;
+}
+
+.practice-part-button.is-correct:not(.is-active),
+.practice-part-button.is-incorrect:not(.is-active) {
+  padding-right: 17px;
+}
+
+.practice-part-status-indicator {
+  position: absolute;
+  top: 7px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.practice-part-button.is-correct:not(.is-active) .practice-part-status-indicator {
+  background: #2a9d8f;
+}
+
+.practice-part-button.is-incorrect:not(.is-active) .practice-part-status-indicator {
+  background: #c75b3b;
+}
+
+.practice-lesson-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.practice-source-label {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.practice-copy .practice-activity-title {
+  color: var(--ink);
+  font-weight: 760;
+}
+
+.practice-copy .practice-source-path {
+  font-size: 0.9rem;
+}
+
 .practice-meta {
   display: flex;
   flex-wrap: wrap;
@@ -6138,6 +6225,14 @@ input[type="search"] {
   .teach-card-toolbar {
     justify-content: flex-end;
   }
+
+  .practice-lesson-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .practice-lesson-toolbar {
+    justify-content: flex-start;
+  }
 }
 
 @container learning-card (max-width: 760px) {
@@ -6721,6 +6816,318 @@ input[type="search"] {
   .unit-hero h2,
   .vocabulary-header h2 {
     font-size: 1.5rem;
+  }
+}
+
+.practice-construction-workspace {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  background: #f8fbfc;
+}
+
+.practice-construction-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.practice-construction-heading h4,
+.practice-construction-heading p,
+.practice-construction-status,
+.practice-target-progress,
+.practice-target-feedback,
+.practice-construction-check-hint {
+  margin: 0;
+}
+
+.practice-construction-heading p,
+.practice-construction-status,
+.practice-target-progress,
+.practice-construction-check-hint {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.practice-construction-measure {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.practice-construction-board {
+  fill: #fff;
+  stroke: #8ca0ac;
+  stroke-width: 2;
+}
+
+.practice-construction-grid-line {
+  stroke: #9eacb5;
+  stroke-width: 1.2;
+  pointer-events: none;
+}
+
+.practice-quadrilateral-board,
+.practice-tiling-board {
+  width: 100%;
+  max-height: 500px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.practice-quadrilateral-shape {
+  fill: rgb(42 157 143 / 34%);
+  stroke: #1f2f38;
+  stroke-width: 4;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.practice-quadrilateral-shape.is-open {
+  fill: none;
+}
+
+.practice-quadrilateral-point-target {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.practice-quadrilateral-point-target:hover,
+.practice-quadrilateral-point-target:focus-visible {
+  fill: rgb(22 124 181 / 18%);
+  stroke: #167cb5;
+  stroke-width: 3;
+}
+
+.practice-quadrilateral-point-target.is-selected {
+  fill: rgb(255 255 255 / 1%);
+}
+
+.practice-quadrilateral-vertex {
+  fill: #167cb5;
+  stroke: #fff;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.practice-quadrilateral-vertex-label {
+  fill: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.practice-tiling-toolbar,
+.practice-target-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.practice-tiling-copy rect {
+  stroke: #20333d;
+  stroke-width: 3;
+  pointer-events: none;
+}
+
+.practice-tiling-copy--0 rect { fill: #77c5b7; }
+.practice-tiling-copy--1 rect { fill: #f6b45f; }
+.practice-tiling-copy--2 rect { fill: #78b7dd; }
+.practice-tiling-copy--3 rect { fill: #df8b98; }
+
+.practice-tiling-copy text {
+  fill: #1f2a33;
+  font-size: 17px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.practice-tiling-cell-target {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.practice-tiling-cell-target:hover,
+.practice-tiling-cell-target:focus-visible {
+  fill: rgb(22 124 181 / 13%);
+  stroke: #167cb5;
+  stroke-width: 3;
+}
+
+.practice-multi-target-response,
+.practice-construction-checklist,
+.practice-area-comparison-response {
+  display: grid;
+  gap: 10px;
+}
+
+.practice-target-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.practice-area-strategy-response .practice-target-tabs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.practice-target-tab {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  min-height: 62px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.practice-target-tab span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.practice-target-tab.is-active {
+  border-color: #167cb5;
+  background: #eaf4fa;
+}
+
+.practice-target-tab.is-correct {
+  border-color: #2a9d8f;
+}
+
+.practice-target-tab.is-incorrect {
+  border-color: #dc765b;
+}
+
+.practice-target-feedback {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #edf2f4;
+  color: var(--ink);
+  font-weight: 750;
+  line-height: 1.42;
+}
+
+.practice-target-feedback.is-correct {
+  background: #e5f5e9;
+  color: #207044;
+}
+
+.practice-target-feedback.is-incorrect {
+  background: #fff0e7;
+  color: #924018;
+}
+
+.practice-construction-checklist dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.practice-construction-checklist dl > div {
+  display: grid;
+  gap: 2px;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.practice-construction-checklist dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.practice-construction-checklist dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.practice-strategy-options {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.practice-area-comparison-visual {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+}
+
+.practice-area-comparison-visual figure {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.practice-area-comparison-visual figcaption {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.practice-area-comparison-shape {
+  stroke: #20333d;
+  stroke-width: 4;
+}
+
+.practice-area-comparison-shape.is-rectangle { fill: #78b7dd; }
+.practice-area-comparison-shape.is-square { fill: #f6b45f; }
+
+.practice-area-comparison-measure {
+  stroke: #20333d;
+  stroke-width: 2;
+}
+
+.practice-area-comparison-visual text {
+  fill: #1f2a33;
+  font-size: 24px;
+  font-weight: 850;
+}
+
+.practice-area-comparison-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@container learning-card (max-width: 720px) {
+  .practice-target-tabs,
+  .practice-area-strategy-response .practice-target-tabs,
+  .practice-area-comparison-visual,
+  .practice-area-comparison-inputs,
+  .practice-construction-checklist dl {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

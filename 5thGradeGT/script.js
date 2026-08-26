@@ -6,7 +6,12 @@ function lessonRoutePad(lessonNumber) {
   return String(lessonNumber).padStart(2, "0");
 }
 
-function normalizeAppUnitRoute({ unit = 1, lesson = 1, mode = "teach" } = {}) {
+function normalizeRoutePart(part) {
+  const value = typeof part === "string" ? part.trim().toLowerCase() : "";
+  return value || null;
+}
+
+function normalizeAppUnitRoute({ unit = 1, lesson = 1, mode = "teach", part = null } = {}) {
   const unitNumber = Number(unit);
   const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
   const normalizedUnit = appUnitRoutes[unitNumber] ? unitNumber : 1;
@@ -21,6 +26,7 @@ function normalizeAppUnitRoute({ unit = 1, lesson = 1, mode = "teach" } = {}) {
     unit: normalizedUnit,
     lesson: normalizedLesson,
     mode: mode === "practice" ? "practice" : "teach",
+    part: normalizeRoutePart(part),
   };
 }
 
@@ -28,12 +34,19 @@ function parseAppRoute(hash = window.location.hash) {
   const routePath = String(hash || "").replace(/^#\/?/, "").replace(/\/$/, "");
   if (routePath === "vocabulary") return { view: "vocabulary" };
 
-  const unitRouteMatch = routePath.match(/^unit-(\d+)\/lesson-(\d{1,2})\/(teach|practice)$/);
+  const unitRouteMatch = routePath.match(/^unit-(\d+)\/lesson-(\d{1,2})\/(teach|practice)(?:\/part-([^/]+))?$/);
   if (unitRouteMatch) {
+    let part = null;
+    try {
+      part = unitRouteMatch[4] ? decodeURIComponent(unitRouteMatch[4]) : null;
+    } catch (_error) {
+      part = null;
+    }
     return normalizeAppUnitRoute({
       unit: unitRouteMatch[1],
       lesson: unitRouteMatch[2],
       mode: unitRouteMatch[3],
+      part,
     });
   }
 
@@ -48,7 +61,8 @@ function parseAppRoute(hash = window.location.hash) {
 function appRouteHash(route) {
   if (route?.view === "vocabulary") return "#vocabulary";
   const normalized = normalizeAppUnitRoute(route);
-  return `#unit-${normalized.unit}/lesson-${lessonRoutePad(normalized.lesson)}/${normalized.mode}`;
+  const partPath = normalized.part ? `/part-${encodeURIComponent(normalized.part)}` : "";
+  return `#unit-${normalized.unit}/lesson-${lessonRoutePad(normalized.lesson)}/${normalized.mode}${partPath}`;
 }
 
 const initialLocationHash = window.location.hash;
@@ -112,9 +126,12 @@ const state = {
   practiceResponses: {},
   practiceReasoning: {},
   practiceSelections: {},
+  practiceActiveParts: {},
   practiceActiveGroups: {},
   practiceOpenDropdown: null,
   practiceCompositionWorkspaces: {},
+  practiceQuadrilateralWorkspaces: {},
+  practiceTilingWorkspaces: {},
   practiceSourceAnnotations: {},
   practiceHeightAnnotations: {},
   practicePrismNets: {},
@@ -9713,7 +9730,13 @@ function getPracticeValue(item) {
   if (item.responseType === "multiSelect") {
     return state.practiceSelections[item.id] || [];
   }
-  if (["matching", "groupedChoice", "cubeNetExpressions", "tentDesignEstimate"].includes(item.responseType)) {
+  if (item.responseType === "quadrilateralAreaSet") {
+    return getPracticeQuadrilateralWorkspace(item);
+  }
+  if (item.responseType === "rectangleTiling") {
+    return getPracticeRectangleTilingWorkspace(item);
+  }
+  if (["matching", "groupedChoice", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item.responseType)) {
     return state.practiceResponses[item.id] || {};
   }
   return state.practiceResponses[item.id] || "";
@@ -9722,6 +9745,19 @@ function getPracticeValue(item) {
 function isPracticePrimaryCorrect(item) {
   if (item.responseType === "open") return false;
   const answer = getPracticeValue(item);
+  if (item.responseType === "quadrilateralAreaSet") {
+    return answer.drawings.length === 3
+      && answer.drawings.every((drawing, index) => practiceQuadrilateralValidation(item, index).correct);
+  }
+  if (item.responseType === "rectangleTiling") {
+    return practiceRectangleTilingValidation(item).correct;
+  }
+  if (item.responseType === "areaStrategyPair") {
+    return practiceAreaStrategyPairIsCorrect(item);
+  }
+  if (item.responseType === "areaComparison") {
+    return practiceAreaComparisonIsCorrect(item);
+  }
   if (item.responseType === "validatedText") {
     return practicePrimaryTextValidatorResult(item, answer);
   }
@@ -9992,6 +10028,12 @@ function isPracticeCorrect(item) {
 
 function hasPracticeResponse(item) {
   const answer = getPracticeValue(item);
+  if (item.responseType === "quadrilateralAreaSet") {
+    return answer.drawings.some((drawing) => drawing.vertices.length > 0);
+  }
+  if (item.responseType === "rectangleTiling") {
+    return answer.placements.length > 0;
+  }
   if (Array.isArray(answer)) return answer.length > 0;
   if (answer && typeof answer === "object") {
     return Object.values(answer).some((value) => normalizeAnswer(value).length > 0);
@@ -10000,6 +10042,24 @@ function hasPracticeResponse(item) {
 }
 
 function practiceIncorrectFeedback(item) {
+  if (item.responseType === "quadrilateralAreaSet") {
+    const workspace = getPracticeQuadrilateralWorkspace(item);
+    const unfinished = workspace.drawings.findIndex((drawing, index) => (
+      !drawing.submitted || !practiceQuadrilateralValidation(item, index).correct
+    ));
+    return unfinished >= 0
+      ? `Drawing ${unfinished + 1} still needs revision. Open that drawing to see its specific feedback.`
+      : item.incorrectFeedback;
+  }
+  if (item.responseType === "rectangleTiling") {
+    return practiceRectangleTilingValidation(item).feedback;
+  }
+  if (item.responseType === "areaStrategyPair") {
+    return "Both methods must give 42 square units and use two different strategies. Open each method to see its feedback.";
+  }
+  if (item.responseType === "areaComparison") {
+    return practiceAreaComparisonFeedback(item);
+  }
   if (item.responseType === "tentDesignEstimate") {
     const response = practiceTentResponse(item.id);
     const { plan, fields } = practiceTentWorksheet(item.id);
@@ -10226,6 +10286,666 @@ function updatePracticeCompositionDom(itemId) {
   if (stage) stage.dataset.joinedSide = joinedSide;
   const status = root.querySelector("[data-practice-composition-status]");
   if (status) status.textContent = practiceCompositionStatus(itemId);
+}
+
+function initialPracticeQuadrilateralWorkspace() {
+  return {
+    activeDrawing: 0,
+    drawings: Array.from({ length: 3 }, () => ({
+      vertices: [],
+      submitted: false,
+    })),
+  };
+}
+
+function getPracticeQuadrilateralWorkspace(item) {
+  let workspace = state.practiceQuadrilateralWorkspaces[item.id];
+  if (!workspace || !Array.isArray(workspace.drawings) || workspace.drawings.length !== 3) {
+    workspace = initialPracticeQuadrilateralWorkspace();
+    state.practiceQuadrilateralWorkspaces[item.id] = workspace;
+  }
+  workspace.activeDrawing = clampNumber(Number(workspace.activeDrawing) || 0, 0, 2);
+  workspace.drawings.forEach((drawing) => {
+    if (!Array.isArray(drawing.vertices)) drawing.vertices = [];
+    drawing.vertices = drawing.vertices
+      .filter((point) => Number.isInteger(point?.x) && Number.isInteger(point?.y))
+      .slice(0, 4);
+    drawing.submitted = Boolean(drawing.submitted);
+  });
+  return workspace;
+}
+
+function practicePolygonCross(first, second, third) {
+  return (second.x - first.x) * (third.y - first.y)
+    - (second.y - first.y) * (third.x - first.x);
+}
+
+function practicePolygonPointOnSegment(first, second, point) {
+  return Math.abs(practicePolygonCross(first, second, point)) < 1e-9
+    && point.x >= Math.min(first.x, second.x)
+    && point.x <= Math.max(first.x, second.x)
+    && point.y >= Math.min(first.y, second.y)
+    && point.y <= Math.max(first.y, second.y);
+}
+
+function practicePolygonSegmentsIntersect(first, second, third, fourth) {
+  const firstTurn = practicePolygonCross(first, second, third);
+  const secondTurn = practicePolygonCross(first, second, fourth);
+  const thirdTurn = practicePolygonCross(third, fourth, first);
+  const fourthTurn = practicePolygonCross(third, fourth, second);
+  if (firstTurn * secondTurn < 0 && thirdTurn * fourthTurn < 0) return true;
+  return (Math.abs(firstTurn) < 1e-9 && practicePolygonPointOnSegment(first, second, third))
+    || (Math.abs(secondTurn) < 1e-9 && practicePolygonPointOnSegment(first, second, fourth))
+    || (Math.abs(thirdTurn) < 1e-9 && practicePolygonPointOnSegment(third, fourth, first))
+    || (Math.abs(fourthTurn) < 1e-9 && practicePolygonPointOnSegment(third, fourth, second));
+}
+
+function formatPracticeNumber(value) {
+  return Number.isInteger(value) ? String(value) : String(Math.round(value * 100) / 100);
+}
+
+function practicePolygonArea(vertices) {
+  if (!Array.isArray(vertices) || vertices.length < 3) return 0;
+  return Math.abs(vertices.reduce((sum, point, index) => {
+    const next = vertices[(index + 1) % vertices.length];
+    return sum + point.x * next.y - next.x * point.y;
+  }, 0)) / 2;
+}
+
+function practiceQuadrilateralGeometryValidation(vertices) {
+  if (vertices.length !== 4) {
+    return { correct: false, feedback: `Choose ${4 - vertices.length} more ${4 - vertices.length === 1 ? "vertex" : "vertices"}.` };
+  }
+  if (new Set(vertices.map((point) => `${point.x},${point.y}`)).size !== 4) {
+    return { correct: false, feedback: "Use four different grid points." };
+  }
+  const hasFlatCorner = vertices.some((point, index) => (
+    Math.abs(practicePolygonCross(vertices[(index + 3) % 4], point, vertices[(index + 1) % 4])) < 1e-9
+  ));
+  if (hasFlatCorner) {
+    return { correct: false, feedback: "One selected point lies on a straight side. Make four actual corners." };
+  }
+  if (practicePolygonSegmentsIntersect(vertices[0], vertices[1], vertices[2], vertices[3])
+    || practicePolygonSegmentsIntersect(vertices[1], vertices[2], vertices[3], vertices[0])) {
+    return { correct: false, feedback: "The sides cross. Select the four corners in order around the shape." };
+  }
+  const area = practicePolygonArea(vertices);
+  if (Math.abs(area - 12) > 1e-9) {
+    return { correct: false, area, feedback: `This quadrilateral has area ${formatPracticeNumber(area)}, not 12 square units.` };
+  }
+  return { correct: true, area, feedback: "This is a simple quadrilateral with area 12 square units." };
+}
+
+function practiceQuadrilateralCanonicalSignature(vertices) {
+  const transforms = [
+    (point) => ({ x: point.x, y: point.y }),
+    (point) => ({ x: -point.y, y: point.x }),
+    (point) => ({ x: -point.x, y: -point.y }),
+    (point) => ({ x: point.y, y: -point.x }),
+    (point) => ({ x: -point.x, y: point.y }),
+    (point) => ({ x: point.x, y: -point.y }),
+    (point) => ({ x: point.y, y: point.x }),
+    (point) => ({ x: -point.y, y: -point.x }),
+  ];
+  const signatures = [];
+  transforms.forEach((transform) => {
+    const transformed = vertices.map(transform);
+    const minX = Math.min(...transformed.map((point) => point.x));
+    const minY = Math.min(...transformed.map((point) => point.y));
+    const normalized = transformed.map((point) => ({ x: point.x - minX, y: point.y - minY }));
+    [normalized, [...normalized].reverse()].forEach((ordered) => {
+      for (let offset = 0; offset < ordered.length; offset += 1) {
+        signatures.push(ordered
+          .map((_, index) => ordered[(index + offset) % ordered.length])
+          .map((point) => `${point.x},${point.y}`)
+          .join("|"));
+      }
+    });
+  });
+  return signatures.sort()[0] || "";
+}
+
+function practiceQuadrilateralValidation(item, drawingIndex) {
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  const drawing = workspace.drawings[drawingIndex];
+  const geometry = practiceQuadrilateralGeometryValidation(drawing.vertices);
+  if (!geometry.correct) return geometry;
+  const signature = practiceQuadrilateralCanonicalSignature(drawing.vertices);
+  const duplicateIndex = workspace.drawings.findIndex((other, index) => (
+    index !== drawingIndex
+    && other.submitted
+    && practiceQuadrilateralGeometryValidation(other.vertices).correct
+    && practiceQuadrilateralCanonicalSignature(other.vertices) === signature
+  ));
+  if (duplicateIndex >= 0) {
+    return {
+      correct: false,
+      area: geometry.area,
+      feedback: `This is the same shape as Drawing ${duplicateIndex + 1}, moved, turned, or flipped. Draw a different quadrilateral with area 12.`,
+    };
+  }
+  return geometry;
+}
+
+function practiceQuadrilateralChanged(item, drawingIndex) {
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  workspace.drawings[drawingIndex].submitted = false;
+  state.practiceSubmitted[item.id] = false;
+  state.practiceSamples[item.id] = false;
+  state.sourceModalItemId = null;
+}
+
+function renderPracticeQuadrilateralWorkspace(item) {
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  const drawing = workspace.drawings[workspace.activeDrawing];
+  const columns = Number(item.visualModelData?.columns) || 16;
+  const rows = Number(item.visualModelData?.rows) || 10;
+  const cell = 42;
+  const padding = 30;
+  const width = columns * cell + padding * 2;
+  const height = rows * cell + padding * 2;
+  const grid = [];
+  for (let column = 0; column <= columns; column += 1) {
+    const x = padding + column * cell;
+    grid.push(`<line x1="${x}" y1="${padding}" x2="${x}" y2="${height - padding}" class="practice-construction-grid-line"></line>`);
+  }
+  for (let row = 0; row <= rows; row += 1) {
+    const y = padding + row * cell;
+    grid.push(`<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" class="practice-construction-grid-line"></line>`);
+  }
+  const selectedKeys = new Set(drawing.vertices.map((point) => `${point.x},${point.y}`));
+  const pointTargets = [];
+  for (let row = 0; row <= rows; row += 1) {
+    for (let column = 0; column <= columns; column += 1) {
+      const selected = selectedKeys.has(`${column},${row}`);
+      pointTargets.push(`
+        <circle
+          class="practice-quadrilateral-point-target ${selected ? "is-selected" : ""}"
+          cx="${padding + column * cell}"
+          cy="${padding + row * cell}"
+          r="12"
+          role="button"
+          tabindex="0"
+          aria-label="Grid point column ${column}, row ${row}${selected ? ", selected" : ""}"
+          data-practice-quadrilateral-point="${item.id}"
+          data-column="${column}"
+          data-row="${row}"
+        ></circle>
+      `);
+    }
+  }
+  const vertexPoints = drawing.vertices
+    .map((point) => `${padding + point.x * cell},${padding + point.y * cell}`)
+    .join(" ");
+  const shape = drawing.vertices.length >= 2
+    ? drawing.vertices.length === 4
+      ? `<polygon points="${vertexPoints}" class="practice-quadrilateral-shape"></polygon>`
+      : `<polyline points="${vertexPoints}" class="practice-quadrilateral-shape is-open"></polyline>`
+    : "";
+  const vertexLabels = drawing.vertices.map((point, index) => `
+    <g aria-hidden="true">
+      <circle cx="${padding + point.x * cell}" cy="${padding + point.y * cell}" r="9" class="practice-quadrilateral-vertex"></circle>
+      <text x="${padding + point.x * cell}" y="${padding + point.y * cell + 4}" text-anchor="middle" class="practice-quadrilateral-vertex-label">${index + 1}</text>
+    </g>
+  `).join("");
+  const geometry = practiceQuadrilateralGeometryValidation(drawing.vertices);
+  return `
+    <section class="practice-construction-workspace practice-quadrilateral-workspace" aria-label="Area 12 quadrilateral drawing workspace">
+      <div class="practice-construction-heading">
+        <div>
+          <h4>Drawing ${workspace.activeDrawing + 1}</h4>
+          <p>Select four corners in order around the quadrilateral. The fourth point closes the shape.</p>
+        </div>
+        <span class="practice-construction-measure">${drawing.vertices.length === 4 ? `Area: ${formatPracticeNumber(geometry.area || 0)}` : `${drawing.vertices.length} of 4 vertices`}</span>
+      </div>
+      <svg class="practice-quadrilateral-board" viewBox="0 0 ${width} ${height}" role="group" aria-label="${columns}-by-${rows} square grid">
+        <rect x="1" y="1" width="${width - 2}" height="${height - 2}" class="practice-construction-board"></rect>
+        ${grid.join("")}
+        ${shape}
+        ${pointTargets.join("")}
+        ${vertexLabels}
+      </svg>
+    </section>
+  `;
+}
+
+function initialPracticeRectangleTilingWorkspace() {
+  return {
+    tool: "horizontal",
+    nextId: 1,
+    placements: [],
+    message: "Choose an orientation, then place rectangle copies on the grid.",
+  };
+}
+
+function getPracticeRectangleTilingWorkspace(item) {
+  let workspace = state.practiceTilingWorkspaces[item.id];
+  if (!workspace || !Array.isArray(workspace.placements)) {
+    workspace = initialPracticeRectangleTilingWorkspace();
+    state.practiceTilingWorkspaces[item.id] = workspace;
+  }
+  if (!["horizontal", "vertical", "erase"].includes(workspace.tool)) workspace.tool = "horizontal";
+  return workspace;
+}
+
+function practiceRectangleTilingCells(item, placement) {
+  const data = item.visualModelData || {};
+  const horizontalWidth = Number(data.pieceWidth) || 3;
+  const horizontalHeight = Number(data.pieceHeight) || 2;
+  const width = placement.orientation === "vertical" ? horizontalHeight : horizontalWidth;
+  const height = placement.orientation === "vertical" ? horizontalWidth : horizontalHeight;
+  const cells = [];
+  for (let y = placement.y; y < placement.y + height; y += 1) {
+    for (let x = placement.x; x < placement.x + width; x += 1) cells.push({ x, y });
+  }
+  return cells;
+}
+
+function practiceRectangleTilingCoverage(item) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  const occupied = new Map();
+  let overlap = false;
+  workspace.placements.forEach((placement) => {
+    practiceRectangleTilingCells(item, placement).forEach((cell) => {
+      const key = `${cell.x},${cell.y}`;
+      if (occupied.has(key)) overlap = true;
+      occupied.set(key, placement.id);
+    });
+  });
+  return { occupied, overlap };
+}
+
+function practiceRectangleTilingEnclosedGap(item, occupied) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  if (!workspace.placements.length) return null;
+  const cells = workspace.placements.flatMap((placement) => practiceRectangleTilingCells(item, placement));
+  const minX = Math.min(...cells.map((cell) => cell.x));
+  const maxX = Math.max(...cells.map((cell) => cell.x));
+  const minY = Math.min(...cells.map((cell) => cell.y));
+  const maxY = Math.max(...cells.map((cell) => cell.y));
+  for (let y = minY + 1; y < maxY; y += 1) {
+    for (let x = minX + 1; x < maxX; x += 1) {
+      if (occupied.has(`${x},${y}`)) continue;
+      const hasLeft = Array.from({ length: x - minX }, (_, offset) => occupied.has(`${x - offset - 1},${y}`)).some(Boolean);
+      const hasRight = Array.from({ length: maxX - x }, (_, offset) => occupied.has(`${x + offset + 1},${y}`)).some(Boolean);
+      const hasAbove = Array.from({ length: y - minY }, (_, offset) => occupied.has(`${x},${y - offset - 1}`)).some(Boolean);
+      const hasBelow = Array.from({ length: maxY - y }, (_, offset) => occupied.has(`${x},${y + offset + 1}`)).some(Boolean);
+      if (hasLeft && hasRight && hasAbove && hasBelow) return { x, y };
+    }
+  }
+  return null;
+}
+
+function practiceRectangleTilingValidation(item) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  const data = item.visualModelData || {};
+  const totalCells = (Number(data.columns) || 9) * (Number(data.rows) || 6);
+  const { occupied, overlap } = practiceRectangleTilingCoverage(item);
+  if (!workspace.placements.length) return { correct: false, feedback: item.missingFeedback };
+  if (overlap) return { correct: false, feedback: "Two rectangle copies overlap. Move or erase a copy so every covered square belongs to only one rectangle." };
+  if (item.tilingGoal === "cover") {
+    return occupied.size === totalCells
+      ? { correct: true, feedback: item.correctFeedback }
+      : { correct: false, feedback: `${occupied.size} of ${totalCells} grid squares are covered. Fill every remaining square without overlaps.` };
+  }
+  if (workspace.placements.length < 4) {
+    return { correct: false, feedback: `Place at least four copies. You currently have ${workspace.placements.length}.` };
+  }
+  const gap = practiceRectangleTilingEnclosedGap(item, occupied);
+  return gap
+    ? { correct: true, feedback: item.correctFeedback }
+    : { correct: false, feedback: "The copies do not yet surround an interior gap. Leave an uncovered square with rectangle copies above, below, to its left, and to its right." };
+}
+
+function practiceRectangleTilingChanged(item, message) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  workspace.message = message;
+  state.practiceSubmitted[item.id] = false;
+  state.practiceSamples[item.id] = false;
+  state.sourceModalItemId = null;
+}
+
+function renderPracticeRectangleTilingWorkspace(item) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  const data = item.visualModelData || {};
+  const columns = Number(data.columns) || 9;
+  const rows = Number(data.rows) || 6;
+  const cell = 54;
+  const width = columns * cell;
+  const height = rows * cell;
+  const { occupied } = practiceRectangleTilingCoverage(item);
+  const grid = [];
+  for (let column = 0; column <= columns; column += 1) {
+    grid.push(`<line x1="${column * cell}" y1="0" x2="${column * cell}" y2="${height}" class="practice-construction-grid-line"></line>`);
+  }
+  for (let row = 0; row <= rows; row += 1) {
+    grid.push(`<line x1="0" y1="${row * cell}" x2="${width}" y2="${row * cell}" class="practice-construction-grid-line"></line>`);
+  }
+  const placements = workspace.placements.map((placement, index) => {
+    const cells = practiceRectangleTilingCells(item, placement);
+    const minX = Math.min(...cells.map((entry) => entry.x));
+    const maxX = Math.max(...cells.map((entry) => entry.x));
+    const minY = Math.min(...cells.map((entry) => entry.y));
+    const maxY = Math.max(...cells.map((entry) => entry.y));
+    return `
+      <g class="practice-tiling-copy practice-tiling-copy--${index % 4}">
+        <rect x="${minX * cell + 2}" y="${minY * cell + 2}" width="${(maxX - minX + 1) * cell - 4}" height="${(maxY - minY + 1) * cell - 4}"></rect>
+        <text x="${(minX + maxX + 1) * cell / 2}" y="${(minY + maxY + 1) * cell / 2 + 6}" text-anchor="middle">3 x 2</text>
+      </g>
+    `;
+  }).join("");
+  const hitCells = [];
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      hitCells.push(`
+        <rect
+          x="${column * cell}"
+          y="${row * cell}"
+          width="${cell}"
+          height="${cell}"
+          class="practice-tiling-cell-target"
+          role="button"
+          tabindex="0"
+          aria-label="Grid square column ${column + 1}, row ${row + 1}${occupied.has(`${column},${row}`) ? ", covered" : ""}"
+          data-practice-tiling-cell="${item.id}"
+          data-column="${column}"
+          data-row="${row}"
+        ></rect>
+      `);
+    }
+  }
+  return `
+    <section class="practice-construction-workspace practice-tiling-workspace" aria-label="Rectangle-copy tiling workspace">
+      <div class="practice-construction-heading">
+        <div>
+          <h4>${item.tilingGoal === "cover" ? "Build a repeating tiling sample" : "Build an arrangement with an interior gap"}</h4>
+          <p>Each copy is the source 3-by-2 rectangle. Choose an orientation, then select its top-left grid square.</p>
+        </div>
+        <span class="practice-construction-measure">${workspace.placements.length} ${workspace.placements.length === 1 ? "copy" : "copies"}</span>
+      </div>
+      <div class="practice-tiling-toolbar" role="toolbar" aria-label="Rectangle placement tools">
+        <button class="page-chip ${workspace.tool === "horizontal" ? "is-active" : ""}" type="button" data-practice-tiling-tool="${item.id}" data-tool="horizontal" aria-pressed="${workspace.tool === "horizontal"}">Horizontal 3 x 2</button>
+        <button class="page-chip ${workspace.tool === "vertical" ? "is-active" : ""}" type="button" data-practice-tiling-tool="${item.id}" data-tool="vertical" aria-pressed="${workspace.tool === "vertical"}">Vertical 2 x 3</button>
+        <button class="page-chip ${workspace.tool === "erase" ? "is-active" : ""}" type="button" data-practice-tiling-tool="${item.id}" data-tool="erase" aria-pressed="${workspace.tool === "erase"}">Erase</button>
+        <button class="hint-button" type="button" data-practice-tiling-reset="${item.id}" ${workspace.placements.length ? "" : "disabled"}>Reset</button>
+      </div>
+      <svg class="practice-tiling-board" viewBox="0 0 ${width} ${height}" role="group" aria-label="${columns}-by-${rows} tiling grid">
+        <rect x="1" y="1" width="${width - 2}" height="${height - 2}" class="practice-construction-board"></rect>
+        ${grid.join("")}
+        ${placements}
+        ${hitCells.join("")}
+      </svg>
+      <p class="practice-construction-status" aria-live="polite">${escapeHtml(workspace.message)}</p>
+    </section>
+  `;
+}
+
+function addPracticeQuadrilateralPoint(item, column, row) {
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  const data = item.visualModelData || {};
+  if (!Number.isInteger(column) || !Number.isInteger(row)
+    || column < 0 || column > (Number(data.columns) || 16)
+    || row < 0 || row > (Number(data.rows) || 10)) return false;
+  const drawing = workspace.drawings[workspace.activeDrawing];
+  if (drawing.vertices.length >= 4
+    || drawing.vertices.some((point) => point.x === column && point.y === row)) return false;
+  drawing.vertices.push({ x: column, y: row });
+  practiceQuadrilateralChanged(item, workspace.activeDrawing);
+  return true;
+}
+
+function placePracticeRectangleCopy(item, column, row) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  const data = item.visualModelData || {};
+  const columns = Number(data.columns) || 9;
+  const rows = Number(data.rows) || 6;
+  if (!Number.isInteger(column) || !Number.isInteger(row)
+    || column < 0 || column >= columns || row < 0 || row >= rows) return false;
+  const coveringPlacement = workspace.placements.find((placement) => (
+    practiceRectangleTilingCells(item, placement).some((cell) => cell.x === column && cell.y === row)
+  ));
+  if (workspace.tool === "erase") {
+    if (!coveringPlacement) {
+      practiceRectangleTilingChanged(item, "Choose a covered square to erase its rectangle copy.");
+      return false;
+    }
+    workspace.placements = workspace.placements.filter((placement) => placement.id !== coveringPlacement.id);
+    practiceRectangleTilingChanged(item, "Rectangle copy erased.");
+    return true;
+  }
+  const candidate = {
+    id: workspace.nextId,
+    x: column,
+    y: row,
+    orientation: workspace.tool,
+  };
+  const cells = practiceRectangleTilingCells(item, candidate);
+  if (cells.some((cell) => cell.x < 0 || cell.x >= columns || cell.y < 0 || cell.y >= rows)) {
+    practiceRectangleTilingChanged(item, "That copy would extend beyond the sample window. Choose a different top-left square or orientation.");
+    return false;
+  }
+  const occupied = practiceRectangleTilingCoverage(item).occupied;
+  if (cells.some((cell) => occupied.has(`${cell.x},${cell.y}`))) {
+    practiceRectangleTilingChanged(item, "That copy would overlap another rectangle. Choose an uncovered starting square.");
+    return false;
+  }
+  workspace.placements.push(candidate);
+  workspace.nextId += 1;
+  practiceRectangleTilingChanged(item, `${workspace.tool === "horizontal" ? "Horizontal" : "Vertical"} rectangle placed.`);
+  return true;
+}
+
+function practiceAreaStrategyResponse(item) {
+  const response = state.practiceResponses[item.id];
+  return response && typeof response === "object" && !Array.isArray(response) ? response : {};
+}
+
+function practiceAreaStrategyGroupIds() {
+  return ["method1", "method2"];
+}
+
+function practiceAreaStrategyValidation(item, groupId) {
+  const response = practiceAreaStrategyResponse(item);
+  const strategy = response[`${groupId}Strategy`] || "";
+  const area = parseMathNumber(response[`${groupId}Area`]);
+  if (!strategy) return { correct: false, feedback: "Choose the strategy used for this method." };
+  if (area === null) return { correct: false, feedback: "Enter the area found by this method." };
+  if (Math.abs(area - 42) > 1e-9) return { correct: false, feedback: "Recheck the labeled lengths. This method should account for the entire shaded region exactly once." };
+  const otherId = groupId === "method1" ? "method2" : "method1";
+  const otherStrategy = response[`${otherId}Strategy`] || "";
+  if (otherStrategy && otherStrategy === strategy) {
+    return { correct: false, feedback: "The source asks for two different ways. Choose the other strategy for one method." };
+  }
+  return {
+    correct: true,
+    feedback: strategy === "decompose"
+      ? "Correct. This method decomposes the figure into non-overlapping parts whose areas total 42 square units."
+      : "Correct. This method encloses the figure and subtracts the missing regions to get 42 square units.",
+  };
+}
+
+function practiceAreaStrategyPairIsCorrect(item) {
+  return practiceAreaStrategyGroupIds().every((groupId) => practiceAreaStrategyValidation(item, groupId).correct);
+}
+
+function activePracticeAreaStrategyGroup(item) {
+  const active = state.practiceActiveGroups[item.id];
+  return practiceAreaStrategyGroupIds().includes(active) ? active : "method1";
+}
+
+function practiceAreaComparisonResponse(item) {
+  const response = state.practiceResponses[item.id];
+  return response && typeof response === "object" && !Array.isArray(response) ? response : {};
+}
+
+function practiceAreaComparisonIsCorrect(item) {
+  const response = practiceAreaComparisonResponse(item);
+  const rectangleArea = parseMathNumber(response.rectangleArea);
+  const squareArea = parseMathNumber(response.squareArea);
+  return rectangleArea !== null
+    && squareArea !== null
+    && Math.abs(rectangleArea - 5.25) < 1e-9
+    && Math.abs(squareArea - 6.25) < 1e-9
+    && response.largerShape === "square";
+}
+
+function practiceAreaComparisonFeedback(item) {
+  const response = practiceAreaComparisonResponse(item);
+  const rectangleArea = parseMathNumber(response.rectangleArea);
+  const squareArea = parseMathNumber(response.squareArea);
+  if (rectangleArea === null || squareArea === null || !response.largerShape) return item.missingFeedback;
+  if (Math.abs(rectangleArea - 5.25) > 1e-9) return "Recheck the rectangle: multiply 7 by 3/4 and report square inches.";
+  if (Math.abs(squareArea - 6.25) > 1e-9) return "The rectangle area is correct. Recheck the square by multiplying 2 1/2 by 2 1/2.";
+  return "Both areas are correct. Compare 5 1/4 and 6 1/4, then revise which shape is larger.";
+}
+
+function renderPracticeQuadrilateralAnswerControl(item) {
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  const activeIndex = workspace.activeDrawing;
+  const activeDrawing = workspace.drawings[activeIndex];
+  const activeValidation = practiceQuadrilateralValidation(item, activeIndex);
+  const completed = workspace.drawings.filter((drawing, index) => (
+    drawing.submitted && practiceQuadrilateralValidation(item, index).correct
+  )).length;
+  const feedback = activeDrawing.submitted
+    ? activeValidation.feedback
+    : "Select four vertices, then check this drawing for area and shape validity.";
+  return `
+    <section class="practice-multi-target-response" aria-label="Three quadrilateral responses">
+      <div class="practice-target-tabs" role="tablist" aria-label="Choose a quadrilateral drawing">
+        ${workspace.drawings.map((drawing, index) => {
+          const validation = practiceQuadrilateralValidation(item, index);
+          const status = drawing.submitted ? (validation.correct ? "Correct" : "Revise") : "Not submitted";
+          return `
+            <button
+              class="practice-target-tab ${activeIndex === index ? "is-active" : ""} ${drawing.submitted ? (validation.correct ? "is-correct" : "is-incorrect") : ""}"
+              type="button"
+              role="tab"
+              data-practice-quadrilateral-tab="${item.id}"
+              data-drawing-index="${index}"
+              aria-selected="${activeIndex === index}"
+            ><strong>Drawing ${index + 1}</strong><span>${status}</span></button>
+          `;
+        }).join("")}
+      </div>
+      <p class="practice-target-progress">Completed ${completed} of 3 different quadrilaterals.</p>
+      <h4>Drawing ${activeIndex + 1}</h4>
+      <p>Choose four corners in order around a quadrilateral with area 12 square units.</p>
+      <div class="practice-target-actions">
+        <button class="practice-submit" type="button" data-practice-quadrilateral-check="${item.id}">Check Drawing ${activeIndex + 1}</button>
+        <button class="hint-button" type="button" data-practice-quadrilateral-undo="${item.id}" ${activeDrawing.vertices.length ? "" : "disabled"}>Undo point</button>
+        <button class="hint-button" type="button" data-practice-quadrilateral-clear="${item.id}" ${activeDrawing.vertices.length ? "" : "disabled"}>Clear drawing</button>
+      </div>
+      <p class="practice-target-feedback ${activeDrawing.submitted ? (activeValidation.correct ? "is-correct" : "is-incorrect") : ""}" aria-live="polite">${escapeHtml(feedback)}</p>
+    </section>
+  `;
+}
+
+function renderPracticeRectangleTilingAnswerControl(item) {
+  const workspace = getPracticeRectangleTilingWorkspace(item);
+  const validation = practiceRectangleTilingValidation(item);
+  const { occupied } = practiceRectangleTilingCoverage(item);
+  const total = (Number(item.visualModelData?.columns) || 9) * (Number(item.visualModelData?.rows) || 6);
+  return `
+    <section class="practice-construction-checklist" aria-label="Construction requirements">
+      <h4>${item.tilingGoal === "cover" ? "Tiling target" : "Non-tiling target"}</h4>
+      ${item.tilingGoal === "cover" ? `
+        <p>Cover every square in the sample window exactly once.</p>
+        <dl>
+          <div><dt>Rectangle copies</dt><dd>${workspace.placements.length}</dd></div>
+          <div><dt>Grid squares covered</dt><dd>${occupied.size} of ${total}</dd></div>
+        </dl>
+      ` : `
+        <p>Use at least four non-overlapping copies to surround an uncovered interior grid square.</p>
+        <dl>
+          <div><dt>Rectangle copies</dt><dd>${workspace.placements.length} of at least 4</dd></div>
+          <div><dt>Interior gap found</dt><dd>${practiceRectangleTilingEnclosedGap(item, occupied) ? "Yes" : "Not yet"}</dd></div>
+        </dl>
+      `}
+      <p class="practice-construction-check-hint">${escapeHtml(validation.correct ? "The construction is ready to submit." : validation.feedback)}</p>
+    </section>
+  `;
+}
+
+function renderPracticeAreaStrategyAnswerControl(item) {
+  const response = practiceAreaStrategyResponse(item);
+  const activeGroup = activePracticeAreaStrategyGroup(item);
+  const groupIds = practiceAreaStrategyGroupIds();
+  const activeSubmitted = Boolean(state.practiceGroupSubmitted[practiceGroupStateKey(item.id, activeGroup)]);
+  const validation = practiceAreaStrategyValidation(item, activeGroup);
+  const completed = groupIds.filter((groupId) => (
+    state.practiceGroupSubmitted[practiceGroupStateKey(item.id, groupId)]
+      && practiceAreaStrategyValidation(item, groupId).correct
+  )).length;
+  return `
+    <section class="practice-multi-target-response practice-area-strategy-response" aria-label="Two different area methods">
+      <div class="practice-target-tabs" role="tablist" aria-label="Choose an area method">
+        ${groupIds.map((groupId, index) => {
+          const submitted = Boolean(state.practiceGroupSubmitted[practiceGroupStateKey(item.id, groupId)]);
+          const groupValidation = practiceAreaStrategyValidation(item, groupId);
+          const status = submitted ? (groupValidation.correct ? "Correct" : "Revise") : "Not submitted";
+          return `
+            <button
+              class="practice-target-tab ${activeGroup === groupId ? "is-active" : ""} ${submitted ? (groupValidation.correct ? "is-correct" : "is-incorrect") : ""}"
+              type="button"
+              role="tab"
+              data-practice-strategy-tab="${item.id}"
+              data-group-id="${groupId}"
+              aria-selected="${activeGroup === groupId}"
+            ><strong>Method ${index + 1}</strong><span>${status}</span></button>
+          `;
+        }).join("")}
+      </div>
+      <p class="practice-target-progress">Completed ${completed} of 2 different methods.</p>
+      <fieldset class="practice-strategy-options">
+        <legend>How does Method ${activeGroup === "method1" ? "1" : "2"} find the area?</legend>
+        <div class="option-grid">
+          ${(item.strategyChoices || []).map((choice) => {
+            const selected = response[`${activeGroup}Strategy`] === choice.id;
+            return `<button class="option-button ${selected ? "is-selected" : ""}" type="button" data-practice-strategy-option="${item.id}" data-group-id="${activeGroup}" data-option-id="${choice.id}" aria-pressed="${selected}">${escapeHtml(choice.label)}</button>`;
+          }).join("")}
+        </div>
+      </fieldset>
+      <label>
+        Area found by Method ${activeGroup === "method1" ? "1" : "2"} (square units)
+        <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="${activeGroup}Area" value="${escapeHtml(response[`${activeGroup}Area`] || "")}" placeholder="Type the area">
+      </label>
+      <button class="practice-submit" type="button" data-practice-strategy-submit="${item.id}" data-group-id="${activeGroup}">Check Method ${activeGroup === "method1" ? "1" : "2"}</button>
+      <p class="practice-target-feedback ${activeSubmitted ? (validation.correct ? "is-correct" : "is-incorrect") : ""}" aria-live="polite">${escapeHtml(activeSubmitted ? validation.feedback : "Choose a strategy, enter its area, and check this method.")}</p>
+    </section>
+  `;
+}
+
+function renderPracticeAreaComparisonAnswerControl(item) {
+  const response = practiceAreaComparisonResponse(item);
+  const choices = [
+    { id: "rectangle", label: "The rectangle has the larger area." },
+    { id: "square", label: "The square has the larger area." },
+    { id: "equal", label: "The areas are equal." },
+  ];
+  return `
+    <section class="practice-area-comparison-response" aria-label="Area calculations and comparison">
+      <div class="practice-area-comparison-inputs">
+        <label>
+          Rectangle area (square inches)
+          <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="rectangleArea" value="${escapeHtml(response.rectangleArea || "")}" placeholder="Type the rectangle area">
+        </label>
+        <label>
+          Square area (square inches)
+          <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="squareArea" value="${escapeHtml(response.squareArea || "")}" placeholder="Type the square area">
+        </label>
+      </div>
+      <fieldset>
+        <legend>Which shape has the larger area?</legend>
+        <div class="option-grid">
+          ${choices.map((choice) => {
+            const selected = response.largerShape === choice.id;
+            return `<button class="option-button ${selected ? "is-selected" : ""}" type="button" data-practice-comparison-option="${item.id}" data-option-id="${choice.id}" aria-pressed="${selected}">${escapeHtml(choice.label)}</button>`;
+          }).join("")}
+        </div>
+      </fieldset>
+    </section>
+  `;
 }
 
 function getPracticeCubeNetCells(itemId) {
@@ -11292,6 +12012,32 @@ function handlePracticeHeightAnnotationKeydown(event, board, item) {
 
 function practiceVisual(item) {
   const data = item.visualModelData || {};
+  if (data.type === "quadrilateralAreaSet") return renderPracticeQuadrilateralWorkspace(item);
+  if (data.type === "rectangleTiling") return renderPracticeRectangleTilingWorkspace(item);
+  if (data.type === "areaComparisonShapes") {
+    return `
+      <section class="practice-area-comparison-visual" aria-label="Rectangle and square dimensions">
+        <figure>
+          <figcaption>Rectangle</figcaption>
+          <svg viewBox="0 0 420 230" role="img" aria-label="Rectangle measuring 7 inches by three-fourths inch" data-unit-scale="42">
+            <rect x="50" y="96" width="294" height="31.5" class="practice-area-comparison-shape is-rectangle" data-width-units="7" data-height-units="0.75"></rect>
+            <line x1="50" y1="158" x2="344" y2="158" class="practice-area-comparison-measure"></line>
+            <text x="197" y="198" text-anchor="middle">7 inches</text>
+            <line x1="365" y1="96" x2="365" y2="127.5" class="practice-area-comparison-measure"></line>
+            <text x="374" y="120">3/4 in.</text>
+          </svg>
+        </figure>
+        <figure>
+          <figcaption>Square</figcaption>
+          <svg viewBox="0 0 420 230" role="img" aria-label="Square with side length two and one-half inches" data-unit-scale="42">
+            <rect x="157.5" y="45" width="105" height="105" class="practice-area-comparison-shape is-square" data-side-units="2.5"></rect>
+            <line x1="157.5" y1="180" x2="262.5" y2="180" class="practice-area-comparison-measure"></line>
+            <text x="210" y="218" text-anchor="middle">2 1/2 inches</text>
+          </svg>
+        </figure>
+      </section>
+    `;
+  }
   if (data.type === "rectPrismNetBuilder") return renderRectangularPrismNetVisual(item);
   if (data.type === "interactiveCubeNet") return renderPracticeCubeNet(item);
   if (data.type === "interactiveTentDesigner") return renderPracticeTentDesigner(item);
@@ -11757,6 +12503,18 @@ function renderAnswerControl(item) {
       </label>
     `
     : "";
+  if (item.responseType === "quadrilateralAreaSet") {
+    return renderPracticeQuadrilateralAnswerControl(item);
+  }
+  if (item.responseType === "rectangleTiling") {
+    return renderPracticeRectangleTilingAnswerControl(item);
+  }
+  if (item.responseType === "areaStrategyPair") {
+    return renderPracticeAreaStrategyAnswerControl(item);
+  }
+  if (item.responseType === "areaComparison") {
+    return renderPracticeAreaComparisonAnswerControl(item);
+  }
   if (item.responseType === "number") {
     return `
       <label>
@@ -12078,11 +12836,96 @@ function setActiveLessonForUnit(unitNumber, lessonNumber) {
   return normalized.lesson;
 }
 
-function normalizeNavigationRoute(route) {
-  return route?.view === "vocabulary" ? { view: "vocabulary" } : normalizeAppUnitRoute(route);
+function routePartSlug(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9.]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-let lastAppliedRouteHash = appRouteHash(initialAppRoute);
+function teachRoutePartId(card) {
+  return routePartSlug(card?.routePart || teachPartLabel(card) || card?.id);
+}
+
+function practiceRoutePartId(item) {
+  const semanticId = String(item?.id || "").replace(/^u\d+-practice-/, "");
+  return routePartSlug(item?.routePart || semanticId || item?.id);
+}
+
+function routeLessonStateKey(unitNumber, lessonNumber) {
+  return `${Number(unitNumber)}:${Number(lessonNumber)}`;
+}
+
+function teachCardsForLesson(unitNumber, lessonNumber) {
+  if (Number(unitNumber) !== 1) return [];
+  return unit1TeachCards.filter((card) => card.lessonNumber === Number(lessonNumber));
+}
+
+function practiceItemsForLesson(unitNumber, lessonNumber) {
+  if (Number(unitNumber) !== 1) return [];
+  return practiceBank.filter((item) => item.lesson === Number(lessonNumber));
+}
+
+function routePartEntries(mode, unitNumber, lessonNumber) {
+  if (mode === "practice") {
+    return practiceItemsForLesson(unitNumber, lessonNumber).map((item) => ({
+      id: item.id,
+      routePart: practiceRoutePartId(item),
+      item,
+    }));
+  }
+  return teachCardsForLesson(unitNumber, lessonNumber).map((card) => ({
+    id: card.id,
+    routePart: teachRoutePartId(card),
+    item: card,
+  }));
+}
+
+function resolvedRoutePartEntry(route) {
+  const entries = routePartEntries(route.mode, route.unit, route.lesson);
+  if (!entries.length) return null;
+  const requestedPart = normalizeRoutePart(route.part);
+  const requested = requestedPart
+    ? entries.find((entry) => entry.routePart === requestedPart)
+    : null;
+  if (requested) return requested;
+  const lessonKey = routeLessonStateKey(route.unit, route.lesson);
+  const rememberedId = route.mode === "practice"
+    ? state.practiceActiveParts[lessonKey]
+    : state.teachActiveParts[lessonKey];
+  return entries.find((entry) => entry.id === rememberedId) || entries[0];
+}
+
+function normalizeNavigationRoute(route) {
+  if (route?.view === "vocabulary") return { view: "vocabulary" };
+  const normalized = normalizeAppUnitRoute(route);
+  const partEntry = resolvedRoutePartEntry(normalized);
+  return {
+    ...normalized,
+    part: partEntry?.routePart || null,
+  };
+}
+
+function rememberRoutePart(route) {
+  const entry = resolvedRoutePartEntry(route);
+  if (!entry) return;
+  const lessonKey = routeLessonStateKey(route.unit, route.lesson);
+  if (route.mode === "practice") {
+    state.practiceActiveParts[lessonKey] = entry.id;
+  } else {
+    state.teachActiveParts[lessonKey] = entry.id;
+  }
+}
+
+function activePracticeItemForLesson(unitNumber, lessonNumber) {
+  const items = practiceItemsForLesson(unitNumber, lessonNumber);
+  const activeId = state.practiceActiveParts[routeLessonStateKey(unitNumber, lessonNumber)];
+  return items.find((item) => item.id === activeId) || items[0] || null;
+}
+
+let lastAppliedRouteHash = appRouteHash(normalizeNavigationRoute(initialAppRoute));
 
 function applyAppRouteState(route, { scroll = true } = {}) {
   const normalized = normalizeNavigationRoute(route);
@@ -12093,6 +12936,7 @@ function applyAppRouteState(route, { scroll = true } = {}) {
     state.view = normalized.view;
     state.mode = normalized.mode;
     setActiveLessonForUnit(normalized.unit, normalized.lesson);
+    rememberRoutePart(normalized);
     if (state.mode === "practice") ensurePracticeLessonIsRendered(normalized.lesson);
   }
   renderView();
@@ -12110,8 +12954,32 @@ function navigateToAppRoute(route, { replace = false, scroll = true } = {}) {
   applyAppRouteState(normalized, { scroll });
 }
 
+function activatePracticePartFromInteraction(item) {
+  if (!item || state.view !== "unit1" || state.mode !== "practice") return;
+  const route = normalizeNavigationRoute({
+    unit: 1,
+    lesson: item.lesson,
+    mode: "practice",
+    part: practiceRoutePartId(item),
+  });
+  const routeHash = appRouteHash(route);
+  const lessonKey = routeLessonStateKey(route.unit, route.lesson);
+  const alreadyActive = state.activeUnit === route.unit
+    && activeLessonForUnit(route.unit) === route.lesson
+    && state.practiceActiveParts[lessonKey] === item.id
+    && window.location.hash === routeHash;
+  if (alreadyActive) return;
+  state.view = route.view;
+  state.mode = route.mode;
+  setActiveLessonForUnit(route.unit, route.lesson);
+  rememberRoutePart(route);
+  window.history.replaceState({ appRoute: routeHash }, "", routeHash);
+  lastAppliedRouteHash = routeHash;
+  renderTeachLessonNav();
+}
+
 function syncAppRouteFromLocation() {
-  const route = parseAppRoute(window.location.hash);
+  const route = normalizeNavigationRoute(parseAppRoute(window.location.hash));
   const canonicalHash = appRouteHash(route);
   if (window.location.hash !== canonicalHash) {
     window.history.replaceState({ appRoute: canonicalHash }, "", canonicalHash);
@@ -12135,7 +13003,7 @@ function teachCardDomId(card) {
 }
 
 function activeTeachCardForGroup(group) {
-  const activePartId = state.teachActiveParts[group.lessonNumber];
+  const activePartId = state.teachActiveParts[routeLessonStateKey(1, group.lessonNumber)];
   return group.cards.find((card) => card.id === activePartId) || group.cards[0];
 }
 
@@ -12150,7 +13018,7 @@ function renderTeachLessonNav() {
     const card = group.cards[0];
     const link = document.createElement("a");
     const isActive = group.lessonNumber === activeLessonForUnit(1);
-    link.href = appRouteHash({ unit: 1, lesson: group.lessonNumber, mode: state.mode });
+    link.href = appRouteHash(normalizeNavigationRoute({ unit: 1, lesson: group.lessonNumber, mode: state.mode }));
     link.dataset.teachLessonLink = String(group.lessonNumber);
     link.textContent = `Lesson ${group.lessonNumber}`;
     link.setAttribute("aria-label", `Lesson ${group.lessonNumber}: ${card.title}`);
@@ -12189,7 +13057,10 @@ function scrollToTeachLesson(lessonNumber) {
 }
 
 function scrollToPracticeLesson(lessonNumber) {
-  const target = document.querySelector(`[data-practice-lesson="${lessonNumber}"]`);
+  const activeItem = activePracticeItemForLesson(1, lessonNumber);
+  const target = activeItem
+    ? document.querySelector(`[data-practice-card="${activeItem.id}"]`)
+    : document.querySelector(`[data-practice-lesson="${lessonNumber}"]`);
   if (!target) return;
 
   window.requestAnimationFrame(() => {
@@ -12408,6 +13279,48 @@ function renderTeachPartSwitcher(group, activeCard) {
           ${escapeHtml(teachPartLabel(card))}
         </button>`
       )).join("")}
+    </div>
+  `;
+}
+
+function practicePartLabel(item) {
+  if (item.practicePartLabel) return item.practicePartLabel;
+  const sourceMatch = String(item.sourceItem || "").match(/^Problem\s+(.+)$/i);
+  return sourceMatch ? sourceMatch[1] : `Part ${practiceRoutePartId(item)}`;
+}
+
+function practicePartStatus(item) {
+  if (!isPracticeSubmitted(item)) return { label: "Not submitted", className: "" };
+  return isPracticeCorrect(item)
+    ? { label: "Correct", className: "is-correct" }
+    : { label: "Revise", className: "is-incorrect" };
+}
+
+function renderPracticePartSwitcher(items, activeItem) {
+  if (items.length < 2) return "";
+  return `
+    <div class="teach-part-switcher practice-part-switcher" role="tablist" aria-label="Lesson ${activeItem.lesson} Practice problems">
+      ${items.map((item) => {
+        const status = practicePartStatus(item);
+        const isActive = item.id === activeItem.id;
+        const label = practicePartLabel(item);
+        return `
+          <button
+            class="page-chip teach-part-button practice-part-button ${isActive ? "is-active" : ""} ${status.className}"
+            id="practice-part-tab-${item.id}"
+            type="button"
+            role="tab"
+            data-practice-part="${item.id}"
+            title="${escapeHtml(`${item.sourceItem}: ${item.skill}`)}"
+            aria-label="${escapeHtml(`${item.sourceItem}: ${item.skill}. ${status.label}.`)}"
+            aria-selected="${isActive}"
+            aria-controls="practice-part-panel-${activeItem.practiceLessonGroup}"
+            tabindex="${isActive ? "0" : "-1"}"
+          >
+            ${escapeHtml(label)}<span class="practice-part-status-indicator" aria-hidden="true"></span>
+          </button>
+        `;
+      }).join("")}
     </div>
   `;
 }
@@ -17978,7 +18891,8 @@ function renderTeachHint(card) {
   return `<p class="practice-hints teach-hint"><strong>Hint:</strong> ${escapeHtml(getTeachHintText(card))}</p>`;
 }
 
-function renderPracticeCard(item, index) {
+function renderPracticeCard(item, index, lessonParts = []) {
+  const isLessonGroup = lessonParts.length > 1;
   const submitted = isPracticeSubmitted(item);
   const answered = hasPracticeResponse(item);
   const primaryCorrect = submitted && isPracticePrimaryCorrect(item);
@@ -18021,8 +18935,26 @@ function renderPracticeCard(item, index) {
   const feedback = submitted && primaryCorrect && item.reasoningRequired && !reasoning.correct
     ? appendFeedbackCriteria(baseFeedback, reasoningCriteria)
     : baseFeedback;
-  return `
-    <article class="practice-card ${statusClass}" data-practice-card="${item.id}" data-practice-lesson="${item.lesson}">
+  const copy = isLessonGroup
+    ? `
+      <div class="practice-copy practice-lesson-copy">
+        <p class="eyebrow">Section ${escapeHtml(item.section)} · Lesson ${item.lesson} Practice</p>
+        <div class="practice-lesson-heading">
+          <div class="practice-lesson-title-group">
+            <h3>${escapeHtml(item.practiceLessonTitle || `Lesson ${item.lesson} Practice`)}</h3>
+            ${renderPracticePartSwitcher(lessonParts, item)}
+          </div>
+          <div class="practice-lesson-toolbar">
+            <span class="practice-source-label">Sources</span>
+            ${renderSourceMeta(item)}
+          </div>
+        </div>
+        <p class="practice-activity-title"><strong>${escapeHtml(item.sourceItem)}:</strong> ${escapeHtml(item.skill)}</p>
+        <p>${escapeHtml(item.prompt)}</p>
+        <p class="practice-source-path"><strong>Source:</strong> ${escapeHtml(item.source)}</p>
+      </div>
+    `
+    : `
       <div class="practice-copy">
         <div class="practice-meta">
           <span>Card ${index + 1}</span>
@@ -18035,14 +18967,18 @@ function renderPracticeCard(item, index) {
         <p>${escapeHtml(item.prompt)}</p>
         <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
       </div>
-      <div class="practice-work">
+    `;
+  return `
+    <article class="practice-card ${isLessonGroup ? "practice-lesson-group" : ""} ${statusClass}" data-practice-card="${item.id}" data-practice-lesson="${item.lesson}" ${isLessonGroup ? `data-practice-lesson-group="${escapeHtml(item.practiceLessonGroup)}"` : ""}>
+      ${copy}
+      <div class="practice-work" ${isLessonGroup ? `id="practice-part-panel-${escapeHtml(item.practiceLessonGroup)}" role="tabpanel" aria-labelledby="practice-part-tab-${item.id}"` : ""}>
         <div class="practice-visual">
           <div class="practice-model">${practiceVisual(item)}</div>
         </div>
         <div class="answer-panel">
           ${renderAnswerControl(item)}
           <div class="practice-actions">
-            ${item.responseType === "groupedChoice" ? "" : `<button class="practice-submit" type="button" data-practice-submit="${item.id}">${item.responseType === "open" ? "Save response" : "Submit"}</button>`}
+            ${["groupedChoice", "quadrilateralAreaSet", "areaStrategyPair"].includes(item.responseType) ? "" : `<button class="practice-submit" type="button" data-practice-submit="${item.id}">${item.responseType === "open" ? "Save response" : "Submit"}</button>`}
             <button class="hint-button" type="button" data-practice-hint="${item.id}">${state.practiceHints[item.id] ? "Hide hint" : "Show hint"}</button>
             <button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>
           </div>
@@ -18053,6 +18989,33 @@ function renderPracticeCard(item, index) {
       </div>
     </article>
   `;
+}
+
+function practiceRenderEntries(items) {
+  const entries = [];
+  const groupedEntries = new Map();
+  items.forEach((item, index) => {
+    if (!item.practiceLessonGroup) {
+      entries.push({ item, index, lessonParts: [] });
+      return;
+    }
+    const existing = groupedEntries.get(item.practiceLessonGroup);
+    if (existing) {
+      existing.lessonParts.push(item);
+      return;
+    }
+    const entry = { item, index, lessonParts: [item] };
+    groupedEntries.set(item.practiceLessonGroup, entry);
+    entries.push(entry);
+  });
+  return entries.map((entry) => {
+    if (entry.lessonParts.length < 2) return entry;
+    const activeId = state.practiceActiveParts[routeLessonStateKey(1, entry.item.lesson)];
+    return {
+      ...entry,
+      item: entry.lessonParts.find((item) => item.id === activeId) || entry.item,
+    };
+  });
 }
 
 function renderPracticeStats() {
@@ -18069,7 +19032,9 @@ function renderPractice() {
   const list = document.getElementById("practiceList");
   if (!list) return;
   const items = filteredPracticeItems();
-  list.innerHTML = items.map((item, index) => renderPracticeCard(item, index)).join("");
+  list.innerHTML = practiceRenderEntries(items)
+    .map(({ item, index, lessonParts }) => renderPracticeCard(item, index, lessonParts))
+    .join("");
   renderSourceModalHost();
 }
 
@@ -19353,7 +20318,35 @@ function bindEvents() {
     if (window.PointerEvent) return;
     endSourceModalPointer(event);
   });
+  document.addEventListener("focusin", (event) => {
+    const practiceCard = event.target.closest?.("[data-practice-card]");
+    if (!practiceCard) return;
+    activatePracticePartFromInteraction(
+      practiceBank.find((item) => item.id === practiceCard.dataset.practiceCard),
+    );
+  });
   document.addEventListener("click", (event) => {
+    const practicePartButton = event.target.closest("[data-practice-part]");
+    if (practicePartButton) {
+      const item = practiceBank.find((entry) => entry.id === practicePartButton.dataset.practicePart);
+      if (!item) return;
+      state.practiceOpenDropdown = null;
+      state.sourceModalItemId = null;
+      navigateToAppRoute({
+        unit: 1,
+        lesson: item.lesson,
+        mode: "practice",
+        part: practiceRoutePartId(item),
+      }, { scroll: false });
+      document.querySelector(`[data-practice-part="${item.id}"]`)?.focus();
+      return;
+    }
+    const interactedPracticeCard = event.target.closest("[data-practice-card]");
+    if (interactedPracticeCard) {
+      activatePracticePartFromInteraction(
+        practiceBank.find((item) => item.id === interactedPracticeCard.dataset.practiceCard),
+      );
+    }
     const teachSourceAnnotationTool = event.target.closest("[data-teach-source-annotation-tool]");
     if (teachSourceAnnotationTool) {
       const target = teachSourceAnnotationTarget(
@@ -20801,10 +21794,14 @@ function bindEvents() {
     if (teachPartButton) {
       const card = teachCardById(teachPartButton.dataset.teachPart);
       if (!card) return;
-      state.teachActiveParts[card.lessonNumber] = card.id;
       state.teachOpenDropdown = null;
       state.sourceModalItemId = null;
-      renderTeachMe();
+      navigateToAppRoute({
+        unit: 1,
+        lesson: card.lessonNumber,
+        mode: "teach",
+        part: teachRoutePartId(card),
+      }, { scroll: false });
       return;
     }
     const lessonSummaryStageButton = event.target.closest("[data-lesson-summary-stage]");
@@ -20978,6 +21975,136 @@ function bindEvents() {
       state.teachSubmitted[id] = false;
       state.sourceModalItemId = null;
       renderTeachMe();
+      return;
+    }
+    const quadrilateralTab = event.target.closest("[data-practice-quadrilateral-tab]");
+    if (quadrilateralTab) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralTab.dataset.practiceQuadrilateralTab);
+      const drawingIndex = Number(quadrilateralTab.dataset.drawingIndex);
+      if (!item || item.responseType !== "quadrilateralAreaSet" || !Number.isInteger(drawingIndex) || drawingIndex < 0 || drawingIndex > 2) return;
+      getPracticeQuadrilateralWorkspace(item).activeDrawing = drawingIndex;
+      renderPractice();
+      return;
+    }
+    const quadrilateralPoint = event.target.closest("[data-practice-quadrilateral-point]");
+    if (quadrilateralPoint) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralPoint.dataset.practiceQuadrilateralPoint);
+      if (!item || item.responseType !== "quadrilateralAreaSet") return;
+      addPracticeQuadrilateralPoint(item, Number(quadrilateralPoint.dataset.column), Number(quadrilateralPoint.dataset.row));
+      renderPractice();
+      return;
+    }
+    const quadrilateralUndo = event.target.closest("[data-practice-quadrilateral-undo]");
+    if (quadrilateralUndo) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralUndo.dataset.practiceQuadrilateralUndo);
+      if (!item || item.responseType !== "quadrilateralAreaSet") return;
+      const workspace = getPracticeQuadrilateralWorkspace(item);
+      workspace.drawings[workspace.activeDrawing].vertices.pop();
+      practiceQuadrilateralChanged(item, workspace.activeDrawing);
+      renderPractice();
+      return;
+    }
+    const quadrilateralClear = event.target.closest("[data-practice-quadrilateral-clear]");
+    if (quadrilateralClear) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralClear.dataset.practiceQuadrilateralClear);
+      if (!item || item.responseType !== "quadrilateralAreaSet") return;
+      const workspace = getPracticeQuadrilateralWorkspace(item);
+      workspace.drawings[workspace.activeDrawing].vertices = [];
+      practiceQuadrilateralChanged(item, workspace.activeDrawing);
+      renderPractice();
+      return;
+    }
+    const quadrilateralCheck = event.target.closest("[data-practice-quadrilateral-check]");
+    if (quadrilateralCheck) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralCheck.dataset.practiceQuadrilateralCheck);
+      if (!item || item.responseType !== "quadrilateralAreaSet") return;
+      const workspace = getPracticeQuadrilateralWorkspace(item);
+      workspace.drawings[workspace.activeDrawing].submitted = true;
+      state.practiceSubmitted[item.id] = workspace.drawings.every((drawing) => drawing.submitted);
+      if (!canShowPracticeSample(item)) state.practiceSamples[item.id] = false;
+      renderPractice();
+      return;
+    }
+    const tilingTool = event.target.closest("[data-practice-tiling-tool]");
+    if (tilingTool) {
+      const item = practiceBank.find((entry) => entry.id === tilingTool.dataset.practiceTilingTool);
+      const tool = tilingTool.dataset.tool;
+      if (!item || item.responseType !== "rectangleTiling" || !["horizontal", "vertical", "erase"].includes(tool)) return;
+      getPracticeRectangleTilingWorkspace(item).tool = tool;
+      practiceRectangleTilingChanged(item, tool === "erase" ? "Choose a covered square to erase its rectangle copy." : `Place a ${tool} rectangle by choosing its top-left grid square.`);
+      renderPractice();
+      return;
+    }
+    const tilingCell = event.target.closest("[data-practice-tiling-cell]");
+    if (tilingCell) {
+      const item = practiceBank.find((entry) => entry.id === tilingCell.dataset.practiceTilingCell);
+      if (!item || item.responseType !== "rectangleTiling") return;
+      placePracticeRectangleCopy(item, Number(tilingCell.dataset.column), Number(tilingCell.dataset.row));
+      renderPractice();
+      return;
+    }
+    const tilingReset = event.target.closest("[data-practice-tiling-reset]");
+    if (tilingReset) {
+      const item = practiceBank.find((entry) => entry.id === tilingReset.dataset.practiceTilingReset);
+      if (!item || item.responseType !== "rectangleTiling") return;
+      state.practiceTilingWorkspaces[item.id] = initialPracticeRectangleTilingWorkspace();
+      state.practiceSubmitted[item.id] = false;
+      state.practiceSamples[item.id] = false;
+      renderPractice();
+      return;
+    }
+    const strategyTab = event.target.closest("[data-practice-strategy-tab]");
+    if (strategyTab) {
+      const item = practiceBank.find((entry) => entry.id === strategyTab.dataset.practiceStrategyTab);
+      const groupId = strategyTab.dataset.groupId;
+      if (!item || item.responseType !== "areaStrategyPair" || !practiceAreaStrategyGroupIds().includes(groupId)) return;
+      state.practiceActiveGroups[item.id] = groupId;
+      renderPractice();
+      return;
+    }
+    const strategyOption = event.target.closest("[data-practice-strategy-option]");
+    if (strategyOption) {
+      const item = practiceBank.find((entry) => entry.id === strategyOption.dataset.practiceStrategyOption);
+      const groupId = strategyOption.dataset.groupId;
+      const optionId = strategyOption.dataset.optionId;
+      if (!item || item.responseType !== "areaStrategyPair"
+        || !practiceAreaStrategyGroupIds().includes(groupId)
+        || !item.strategyChoices?.some((choice) => choice.id === optionId)) return;
+      state.practiceResponses[item.id] = {
+        ...practiceAreaStrategyResponse(item),
+        [`${groupId}Strategy`]: optionId,
+      };
+      state.practiceGroupSubmitted[practiceGroupStateKey(item.id, groupId)] = false;
+      state.practiceSubmitted[item.id] = false;
+      state.practiceSamples[item.id] = false;
+      renderPractice();
+      return;
+    }
+    const strategySubmit = event.target.closest("[data-practice-strategy-submit]");
+    if (strategySubmit) {
+      const item = practiceBank.find((entry) => entry.id === strategySubmit.dataset.practiceStrategySubmit);
+      const groupId = strategySubmit.dataset.groupId;
+      if (!item || item.responseType !== "areaStrategyPair" || !practiceAreaStrategyGroupIds().includes(groupId)) return;
+      state.practiceGroupSubmitted[practiceGroupStateKey(item.id, groupId)] = true;
+      state.practiceSubmitted[item.id] = practiceAreaStrategyGroupIds().every((id) => (
+        state.practiceGroupSubmitted[practiceGroupStateKey(item.id, id)]
+      ));
+      if (!canShowPracticeSample(item)) state.practiceSamples[item.id] = false;
+      renderPractice();
+      return;
+    }
+    const comparisonOption = event.target.closest("[data-practice-comparison-option]");
+    if (comparisonOption) {
+      const item = practiceBank.find((entry) => entry.id === comparisonOption.dataset.practiceComparisonOption);
+      const optionId = comparisonOption.dataset.optionId;
+      if (!item || item.responseType !== "areaComparison" || !["rectangle", "square", "equal"].includes(optionId)) return;
+      state.practiceResponses[item.id] = {
+        ...practiceAreaComparisonResponse(item),
+        largerShape: optionId,
+      };
+      state.practiceSubmitted[item.id] = false;
+      state.practiceSamples[item.id] = false;
+      renderPractice();
       return;
     }
     const groupTabButton = event.target.closest("[data-practice-group-tab]");
@@ -21345,16 +22472,24 @@ function bindEvents() {
     if (!input) return;
     const id = input.dataset.practiceInput;
     const item = practiceBank.find((entry) => entry.id === id);
-    if (["cubeNetExpressions", "tentDesignEstimate"].includes(item?.responseType)) {
+    if (["cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item?.responseType)) {
       const field = input.dataset.practiceField;
       const permittedFields = item.responseType === "cubeNetExpressions"
         ? ["surfaceArea", "volume"]
-        : ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"];
+        : item.responseType === "tentDesignEstimate"
+          ? ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"]
+          : item.responseType === "areaStrategyPair"
+            ? ["method1Area", "method2Area"]
+            : ["rectangleArea", "squareArea"];
       if (!permittedFields.includes(field)) return;
       state.practiceResponses[id] = {
         ...(state.practiceResponses[id] || {}),
         [field]: enforceTextareaValueLimit(input),
       };
+      if (item.responseType === "areaStrategyPair") {
+        const groupId = field.startsWith("method2") ? "method2" : "method1";
+        state.practiceGroupSubmitted[practiceGroupStateKey(id, groupId)] = false;
+      }
     } else {
       state.practiceResponses[id] = enforceTextareaValueLimit(input);
     }
@@ -21387,6 +22522,51 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const practicePartTab = event.target.closest?.("[data-practice-part]");
+    if (practicePartTab && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+      const currentItem = practiceBank.find((item) => item.id === practicePartTab.dataset.practicePart);
+      const lessonParts = currentItem
+        ? practiceItemsForLesson(1, currentItem.lesson).filter((item) => item.practiceLessonGroup === currentItem.practiceLessonGroup)
+        : [];
+      const currentIndex = lessonParts.findIndex((item) => item.id === currentItem?.id);
+      if (currentIndex >= 0 && lessonParts.length > 1) {
+        event.preventDefault();
+        const nextIndex = event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? lessonParts.length - 1
+            : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + lessonParts.length) % lessonParts.length;
+        const nextItem = lessonParts[nextIndex];
+        navigateToAppRoute({
+          unit: 1,
+          lesson: nextItem.lesson,
+          mode: "practice",
+          part: practiceRoutePartId(nextItem),
+        }, { scroll: false });
+        document.querySelector(`[data-practice-part="${nextItem.id}"]`)?.focus();
+      }
+      return;
+    }
+    const quadrilateralPoint = event.target.closest?.("[data-practice-quadrilateral-point]");
+    if (quadrilateralPoint && ["Enter", " ", "Spacebar"].includes(event.key)) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralPoint.dataset.practiceQuadrilateralPoint);
+      if (item?.responseType === "quadrilateralAreaSet") {
+        event.preventDefault();
+        addPracticeQuadrilateralPoint(item, Number(quadrilateralPoint.dataset.column), Number(quadrilateralPoint.dataset.row));
+        renderPractice();
+      }
+      return;
+    }
+    const tilingCell = event.target.closest?.("[data-practice-tiling-cell]");
+    if (tilingCell && ["Enter", " ", "Spacebar"].includes(event.key)) {
+      const item = practiceBank.find((entry) => entry.id === tilingCell.dataset.practiceTilingCell);
+      if (item?.responseType === "rectangleTiling") {
+        event.preventDefault();
+        placePracticeRectangleCopy(item, Number(tilingCell.dataset.column), Number(tilingCell.dataset.row));
+        renderPractice();
+      }
+      return;
+    }
     const teachAnnotationMark = event.target.closest?.("[data-teach-source-annotation-mark]");
     if (teachAnnotationMark && ["Enter", " ", "Spacebar", "Delete", "Backspace"].includes(event.key)) {
       const target = teachSourceAnnotationTargetFromNode(teachAnnotationMark);
@@ -21745,11 +22925,13 @@ function renderAll() {
   renderView();
 }
 
-const initialCanonicalHash = appRouteHash(initialAppRoute);
+const initialNavigationRoute = normalizeNavigationRoute(initialAppRoute);
+rememberRoutePart(initialNavigationRoute);
+const initialCanonicalHash = appRouteHash(initialNavigationRoute);
 if (window.location.hash !== initialCanonicalHash) {
   window.history.replaceState({ appRoute: initialCanonicalHash }, "", initialCanonicalHash);
 }
 lastAppliedRouteHash = initialCanonicalHash;
 bindEvents();
-renderAll();
+applyAppRouteState(initialNavigationRoute, { scroll: false });
 if (initialLocationHash && initialAppRoute.view !== "vocabulary") scrollToActiveLesson();

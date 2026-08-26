@@ -4,6 +4,235 @@ window.unit1PracticeBank = [
     "unitTitle": "Area and Surface Area",
     "topicMapping": "unit1",
     "readyForAutoGrade": true,
+    "id": "u1-practice-square-cover-comparison",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 1,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 1,
+    "sourceItem": "Problem 1",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "1",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-001.png",
+    "skill": "Compare the area covered by different-size squares",
+    "activityForm": "single-choice visual comparison with optional reasoning",
+    "prompt": "Which square - large, medium, or small - covers more of the plane? Explain your reasoning.",
+    "responseType": "singleChoice",
+    "choices": [
+      {
+        "id": "large",
+        "label": "Large squares"
+      },
+      {
+        "id": "medium",
+        "label": "Medium squares"
+      },
+      {
+        "id": "small",
+        "label": "Small squares"
+      }
+    ],
+    "answerKey": [
+      "medium"
+    ],
+    "reasoningPrompt": "Explain how you compared the total area covered by each size of square.",
+    "reasoningRequired": false,
+    "missingFeedback": "Choose the square size that covers the greatest total area.",
+    "correctFeedback": "Correct. Using a small square as 1 area unit, the 4 large squares cover 4 x 9 = 36 units, the 10 medium squares cover 10 x 4 = 40 units, and the 10 small squares cover 10 units. The medium squares cover the most area.",
+    "incorrectFeedback": "Not quite. Compare total covered area, not just the size of one square. Count each size and express every square's area in the same small-square unit.",
+    "visualModelData": {
+      "type": "sourceVisual",
+      "imagePath": "artifacts/unit 1/_practice-crops/lesson-01-square-cover-pattern.png",
+      "alt": "The exact source pattern containing four large white squares, ten medium green squares, and ten small yellow squares.",
+      "naturalWidth": 700,
+      "naturalHeight": 515,
+      "displayVariant": "compactSquare"
+    },
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 2,
+      "appActionTargets": 2,
+      "unitOfAction": "one comparison choice and one available explanation field",
+      "sourceObjects": [
+        "four large white squares",
+        "ten medium green squares",
+        "ten small yellow squares"
+      ],
+      "notes": "Preserves source Problem 1 and uses a high-resolution visual-only crop of the exact square pattern. The explanation remains available but optional because the app does not reject mathematically valid prose it cannot reliably parse."
+    },
+    "hints": [
+      "Use the smallest square as one area unit.",
+      "A medium square covers 4 small-square units, and a large square covers 9 small-square units."
+    ],
+    "sampleAnswer": "The medium squares cover the most. The large squares cover 4 x 9 = 36 small-square units, the medium squares cover 10 x 4 = 40, and the small squares cover 10 x 1 = 10.",
+    "implementationNotes": "Directly adapted from Lesson 1 cumulative practice, Problem 1. The exact visual is cropped from the cited PDF; the source prompt is app-rendered text.",
+    "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.1"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-three-area-12-quadrilaterals",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 1,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 1,
+    "sourceItem": "Problem 2",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "2",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-001.png",
+    "skill": "Draw three different quadrilaterals with area 12",
+    "activityForm": "three independently checked grid constructions",
+    "prompt": "Draw three different quadrilaterals, each with an area of 12 square units.",
+    "responseType": "quadrilateralAreaSet",
+    "answerKey": [],
+    "visualModelData": {
+      "type": "quadrilateralAreaSet",
+      "columns": 16,
+      "rows": 10
+    },
+    "missingFeedback": "Complete and check all three quadrilateral drawings.",
+    "correctFeedback": "Correct. All three drawings are different simple quadrilaterals, and each has area 12 square units.",
+    "incorrectFeedback": "One or more drawings still needs revision. Each drawing must have four vertices, no crossing sides, area 12 square units, and a shape different from the other two.",
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 3,
+      "appActionTargets": 3,
+      "unitOfAction": "each independently saved and checked area-12 quadrilateral",
+      "sourceObjects": [
+        "one square grid",
+        "three different student-drawn quadrilaterals"
+      ],
+      "notes": "Recreates the source grid as an interactive point-construction workspace. It saves three drawings, checks each target independently, and compares shapes up to translation, rotation, and reflection so repositioning one shape does not count as a different quadrilateral."
+    },
+    "hints": [
+      "A 3-by-4 rectangle has area 12, but your other two quadrilaterals must have different outlines.",
+      "For a slanted shape, enclose it in a rectangle and subtract the corner regions."
+    ],
+    "sampleAnswer": "Examples include a 3-by-4 rectangle, a parallelogram with base 4 and height 3, and a different four-sided shape whose decomposed parts total 12 square units.",
+    "implementationNotes": "Directly adapts Lesson 1 cumulative practice, Problem 2, with three persistent, independently validated grid drawings instead of one representative construction.",
+    "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.1"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-rectangle-tiles-plane",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 1,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 2,
+    "sourceItem": "Problem 3a",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "3a",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-002.png",
+    "skill": "Use rectangle copies to tile a region",
+    "activityForm": "interactive rectangle-copy tiling construction",
+    "prompt": "Use copies of the 3-by-2 rectangle to show how a rectangle could tile the plane.",
+    "responseType": "rectangleTiling",
+    "tilingGoal": "cover",
+    "answerKey": [],
+    "visualModelData": {
+      "type": "rectangleTiling",
+      "columns": 9,
+      "rows": 6,
+      "pieceWidth": 3,
+      "pieceHeight": 2
+    },
+    "missingFeedback": "Place rectangle copies in the sample window before submitting.",
+    "correctFeedback": "Correct. The rectangle copies cover the entire sample window with no gaps or overlaps, so the arrangement can repeat to tile the plane.",
+    "incorrectFeedback": "Keep arranging copies until every square in the sample window is covered exactly once. Rotate a copy when that helps continue the repeating pattern.",
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 1,
+      "appActionTargets": 1,
+      "unitOfAction": "one constructed repeating region fully covered by copies of the source 3-by-2 rectangle",
+      "sourceObjects": [
+        "3-by-2 rectangle copies",
+        "square-grid tiling region"
+      ],
+      "notes": "Turns source Problem 3a into a local construction. A completely covered 9-by-6 window is a finite, inspectable sample of a gap-free repeating tiling."
+    },
+    "hints": [
+      "Try keeping every copy horizontal first.",
+      "A 9-by-6 window can be filled by rows of 3-by-2 rectangles."
+    ],
+    "sampleAnswer": "Three horizontal rectangles fit across each row band, and three row bands fill the 9-by-6 window without gaps or overlaps.",
+    "implementationNotes": "Directly adapts Lesson 1 cumulative practice, Problem 3a, as a rectangle-copy placement workspace.",
+    "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.2"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-rectangle-does-not-tile-plane",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 1,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 2,
+    "sourceItem": "Problem 3b",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "3b",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-002.png",
+    "skill": "Arrange rectangle copies so they do not tile a region",
+    "activityForm": "interactive rectangle-copy non-tiling construction",
+    "prompt": "Use copies of the 3-by-2 rectangle to show how a rectangle could not tile the plane.",
+    "responseType": "rectangleTiling",
+    "tilingGoal": "gap",
+    "answerKey": [],
+    "visualModelData": {
+      "type": "rectangleTiling",
+      "columns": 9,
+      "rows": 6,
+      "pieceWidth": 3,
+      "pieceHeight": 2
+    },
+    "missingFeedback": "Place at least four non-overlapping rectangle copies before submitting.",
+    "correctFeedback": "Correct. The copies surround uncovered squares inside their arrangement. Repeating this arrangement preserves a gap, so this particular arrangement does not tile the plane.",
+    "incorrectFeedback": "Make one connected-looking arrangement of at least four non-overlapping copies that leaves an uncovered square inside the arrangement's outer bounding rectangle.",
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 1,
+      "appActionTargets": 1,
+      "unitOfAction": "one rectangle-copy arrangement with an enclosed gap and no overlaps",
+      "sourceObjects": [
+        "3-by-2 rectangle copies",
+        "square-grid construction region",
+        "an intentional uncovered gap"
+      ],
+      "notes": "Turns source Problem 3b into a checkable construction by requiring a non-overlapping arrangement whose bounding rectangle contains an uncovered square. This checks the student's particular non-tiling arrangement, not a claim that rectangles can never tile."
+    },
+    "hints": [
+      "Use both horizontal and vertical copies.",
+      "Arrange copies around at least one uncovered grid square rather than leaving all empty space outside the group."
+    ],
+    "sampleAnswer": "A valid response places at least four copies around an interior uncovered square, with no two copies overlapping.",
+    "implementationNotes": "Directly adapts Lesson 1 cumulative practice, Problem 3b, while making clear that the app checks one non-tiling arrangement rather than the rectangle's overall ability to tile.",
+    "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.2"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
     "id": "u1-practice-area-meaning-statements",
     "section": "A",
     "sectionName": "Reasoning to Find Area",
@@ -12,6 +241,10 @@ window.unit1PracticeBank = [
     "sourceFolder": "Cumulative Practice Problems",
     "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
     "sourcePage": 2,
+    "sourceItem": "Problem 4",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "4",
     "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-002.png",
     "skill": "Use valid area reasoning",
     "activityForm": "multi-select reasoning",
@@ -72,6 +305,133 @@ window.unit1PracticeBank = [
     "sampleAnswer": "The shape can be covered by 24 unit squares, counted inside, or decomposed into rectangles with areas 4 × 3 and 6 × 2.",
     "implementationNotes": "Directly adapted from Lesson 1 cumulative practice, problem 4. The grid polygon is an exact visual-only crop from the cited PDF page.",
     "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.2"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-two-area-strategies",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 1,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 3,
+    "sourceItem": "Problem 5",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "5",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-003.png",
+    "skill": "Show two different ways to find the same area",
+    "activityForm": "two independently checked area strategies with annotation",
+    "prompt": "Here are two copies of the same figure. Show two different ways for finding the area of the shaded region. All angles are right angles.",
+    "responseType": "areaStrategyPair",
+    "answerKey": [],
+    "strategyChoices": [
+      {
+        "id": "decompose",
+        "label": "Decompose the figure and add the parts"
+      },
+      {
+        "id": "enclose",
+        "label": "Enclose the figure and subtract missing parts"
+      }
+    ],
+    "visualModelData": {
+      "type": "annotatableSourceVisual",
+      "imagePath": "artifacts/unit 1/_practice-crops/lesson-01-two-area-strategies.png",
+      "alt": "Two exact source copies of the same stepped shaded figure with side lengths 10, 3, 5, 2, 3, 1, 2, and 6.",
+      "naturalWidth": 1325,
+      "naturalHeight": 470,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 25,
+        "cellY": 25,
+        "columns": 53,
+        "rows": 18
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 430
+    },
+    "missingFeedback": "Complete and check both different area strategies.",
+    "correctFeedback": "Correct. Both methods give 42 square units, and the two checked methods use different valid strategies.",
+    "incorrectFeedback": "Revise the active method. Its area must be 42 square units, and the two completed methods must use different strategies.",
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 2,
+      "appActionTargets": 2,
+      "unitOfAction": "each independently submitted method for one of the two exact source copies",
+      "sourceObjects": [
+        "two identical stepped shaded figures",
+        "all source side labels and right-angle markers",
+        "two distinct area strategies"
+      ],
+      "notes": "Uses a high-resolution visual-only crop of both exact source figures. The app provides annotation tools plus two independently checked strategy-and-area responses, preserving the source requirement to show two different methods."
+    },
+    "hints": [
+      "One method can split the shape into rectangles and add their areas.",
+      "A different method can begin with a 10-by-6 rectangle and subtract the missing rectangles."
+    ],
+    "sampleAnswer": "Method 1: 10 x 3 + 5 x 2 + 2 x 1 = 42. Method 2: 10 x 6 - 5 x 3 - 3 x 1 = 42 square units.",
+    "implementationNotes": "Directly adapts Lesson 1 cumulative practice, Problem 5, with the exact two source figures, optional planning annotations, and two independently validated methods.",
+    "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.3"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-fractional-area-comparison",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 1,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-1-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 3,
+    "sourceItem": "Problem 6",
+    "practiceLessonGroup": "lesson-1-practice",
+    "practiceLessonTitle": "Tiling the Plane",
+    "practicePartLabel": "6",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-003.png",
+    "skill": "Compare fractional areas of a rectangle and square",
+    "activityForm": "two area calculations and one comparison",
+    "prompt": "Which shape has a larger area: a rectangle that is 7 inches by 3/4 inch, or a square with side length 2 1/2 inches? Show your reasoning.",
+    "responseType": "areaComparison",
+    "answerKey": [],
+    "visualModelData": {
+      "type": "areaComparisonShapes"
+    },
+    "missingFeedback": "Enter both areas and choose which shape has the larger area.",
+    "correctFeedback": "Correct. The rectangle's area is 7 x 3/4 = 21/4 = 5 1/4 square inches. The square's area is 2 1/2 x 2 1/2 = 25/4 = 6 1/4 square inches, so the square is larger by 1 square inch.",
+    "incorrectFeedback": "Recheck both products using square inches, then compare them. The rectangle uses 7 x 3/4; the square uses 2 1/2 x 2 1/2.",
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 3,
+      "appActionTargets": 3,
+      "unitOfAction": "rectangle area, square area, and larger-shape comparison",
+      "sourceObjects": [
+        "7-inch by 3/4-inch rectangle",
+        "square with side length 2 1/2 inches",
+        "area comparison"
+      ],
+      "notes": "Preserves all source quantities and turns the requested reasoning into two independently visible calculations plus the final comparison, avoiding fragile free-text grading."
+    },
+    "hints": [
+      "Multiply 7 by 3/4 for the rectangle.",
+      "Multiply 2 1/2 by itself for the square, then compare the two areas."
+    ],
+    "sampleAnswer": "Rectangle: 7 x 3/4 = 5 1/4 square inches. Square: 2 1/2 x 2 1/2 = 6 1/4 square inches. The square is larger by 1 square inch.",
+    "implementationNotes": "Directly adapts Lesson 1 cumulative practice, Problem 6, with app-rendered dimensions and structured, meaningfully validated reasoning fields.",
+    "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
     "unit": "unit1",

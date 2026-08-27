@@ -5435,6 +5435,54 @@ input[type="search"] {
   line-height: 1.4;
 }
 
+.practice-composition-source-figure {
+  display: grid;
+  grid-template-columns: auto minmax(220px, 360px);
+  align-items: center;
+  justify-content: center;
+  gap: 8px 18px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbfa;
+}
+
+.practice-composition-source-figure figcaption {
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.practice-composition-source-figure svg {
+  display: block;
+  width: 100%;
+  max-height: 150px;
+}
+
+.practice-composition-source-shape {
+  fill: rgba(124, 199, 220, 0.22);
+  stroke: #1f2a33;
+  stroke-width: 4;
+}
+
+.practice-composition-source-grid {
+  stroke: #a7b6bf;
+  stroke-width: 1.5;
+}
+
+.practice-composition-source-diagonal {
+  stroke: #1f2a33;
+  stroke-width: 4;
+}
+
+.practice-composition-source-figure text {
+  fill: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+}
+
 .practice-composition-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -5513,6 +5561,13 @@ input[type="search"] {
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .practice-composition-source-figure {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
 }
 
 .practice-cube-net-workspace {

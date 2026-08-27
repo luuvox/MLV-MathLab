@@ -438,6 +438,147 @@ window.unit1PracticeBank = [
     "unitTitle": "Area and Surface Area",
     "topicMapping": "unit1",
     "readyForAutoGrade": true,
+    "id": "u1-practice-diagonal-rectangle-recompose",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 2,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-2-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 1,
+    "sourceItem": "Problem 1",
+    "practiceLessonGroup": "lesson-2-practice",
+    "practiceLessonTitle": "Finding Area by Decomposing and Rearranging",
+    "practicePartLabel": "1",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set/page-001.png",
+    "skill": "Preserve area while decomposing and rearranging a rectangle",
+    "activityForm": "two-piece recomposition workspace and area comparison",
+    "prompt": "The diagonal of a 3-by-2 rectangle is shown. Decompose the rectangle along the diagonal and recompose the two pieces to make a different shape. Then compare the area of the new shape with the area of the original rectangle.",
+    "responseType": "singleChoice",
+    "choices": [
+      {
+        "id": "greater",
+        "label": "The new shape has greater area."
+      },
+      {
+        "id": "same",
+        "label": "The new shape has the same area."
+      },
+      {
+        "id": "less",
+        "label": "The new shape has less area."
+      }
+    ],
+    "answerKey": [
+      "same"
+    ],
+    "requiresCompositionJoin": true,
+    "requiredCompositionSide": "leg",
+    "reasoningPrompt": "Optional: Explain how the two pieces support your comparison.",
+    "reasoningRequired": false,
+    "missingFeedback": "Join the two pieces into a new shape and choose an area comparison.",
+    "correctFeedback": "Correct. Both the rectangle and the new shape are composed of the same two triangles. Rearranging the pieces changes the outline but does not change their total area of 6 square units.",
+    "incorrectFeedback": "Use both triangle pieces to make one joined shape, then track the pieces: no area is added or removed when the two original pieces are rearranged.",
+    "visualModelData": {
+      "type": "triangleComposition",
+      "workspaceVariant": "diagonalRectangle",
+      "alt": "A 3-by-2 rectangle split along its diagonal and two movable copies of the resulting right triangle.",
+      "direction": "Use both pieces to compose one different shape. Select a piece, then drag it or use the arrow keys. Rotate a selected piece to test complete-side joins.",
+      "sourceNote": "The starting diagram and movable pieces use the exact 3-by-2 proportions from the source.",
+      "sourceRectangle": {
+        "widthUnits": 3,
+        "heightUnits": 2
+      },
+      "pieceLabels": [
+        "1",
+        "2"
+      ],
+      "compositionGeometry": {
+        "width": 180,
+        "height": 120,
+        "centerX": 90,
+        "centerY": 60,
+        "points": "0,0 180,0 180,120",
+        "vertices": [
+          [
+            0,
+            0
+          ],
+          [
+            180,
+            0
+          ],
+          [
+            180,
+            120
+          ]
+        ],
+        "edges": [
+          {
+            "id": "long-leg",
+            "kind": "leg",
+            "vertices": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "short-leg",
+            "kind": "leg",
+            "vertices": [
+              1,
+              2
+            ]
+          },
+          {
+            "id": "hypotenuse",
+            "kind": "hypotenuse",
+            "vertices": [
+              2,
+              0
+            ]
+          }
+        ],
+        "boundSize": 180,
+        "initialPieces": {
+          "copy-a": {
+            "x": 105,
+            "y": 110,
+            "angle": 0
+          },
+          "copy-b": {
+            "x": 435,
+            "y": 110,
+            "angle": 0
+          }
+        }
+      }
+    },
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 2,
+      "appActionTargets": 2,
+      "unitOfAction": "one two-piece recomposition and one area comparison",
+      "sourceObjects": [
+        "3-by-2 rectangle on a square grid",
+        "diagonal cut",
+        "two resulting right triangles"
+      ],
+      "notes": "Recreates the source's exact 3-by-2 geometry as a local movable two-piece workspace. Submission requires the two pieces to share a complete matching edge, while the comparison is checked independently of optional prose."
+    },
+    "hints": [
+      "Join one complete side of a triangle to a matching side of the other triangle.",
+      "The new shape still contains exactly the same two pieces as the original rectangle."
+    ],
+    "sampleAnswer": "The areas are the same because both shapes are composed of the same two triangles. The original rectangle has area 3 x 2 = 6 square units.",
+    "implementationNotes": "Directly adapts Lesson 2 cumulative practice, Problem 1. The construction uses app-rendered source geometry because the pieces must remain movable.",
+    "source": "Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set.pdf p.1"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
     "id": "u1-practice-area-half-units",
     "section": "A",
     "sectionName": "Reasoning to Find Area",
@@ -446,6 +587,10 @@ window.unit1PracticeBank = [
     "sourceFolder": "Cumulative Practice Problems",
     "sourceFile": "Grade6-1-2-Lesson-curated-practice-problem-set.pdf",
     "sourcePage": 1,
+    "sourceItem": "Problem 2",
+    "practiceLessonGroup": "lesson-2-practice",
+    "practiceLessonTitle": "Finding Area by Decomposing and Rearranging",
+    "practicePartLabel": "2",
     "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set/page-001.png",
     "skill": "Compare area after rearranging pieces",
     "activityForm": "single choice visual reasoning",
@@ -501,6 +646,226 @@ window.unit1PracticeBank = [
     "sampleAnswer": "The two figures have the same area because the new figure uses the same 16 equal-size squares as the original square.",
     "implementationNotes": "Replaced an inspired numeric area card with the exact Lesson 2 visual comparison action and source-derived figure crop.",
     "source": "Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set.pdf p.1"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-area-one-and-half-figures",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 2,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-2-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 2,
+    "sourceItem": "Problem 3",
+    "practiceLessonGroup": "lesson-2-practice",
+    "practiceLessonTitle": "Finding Area by Decomposing and Rearranging",
+    "practicePartLabel": "3",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set/page-002.png",
+    "skill": "Compare composed figures using a unit square and half-square triangles",
+    "activityForm": "source-faithful multi-select visual comparison",
+    "prompt": "The area of the square is 1 square unit. Two small triangles can be put together to make a square or a medium triangle. Which figures also have an area of 1 1/2 square units? Select all that apply.",
+    "responseType": "multiSelect",
+    "choices": [
+      {
+        "id": "a",
+        "label": "Figure A"
+      },
+      {
+        "id": "b",
+        "label": "Figure B"
+      },
+      {
+        "id": "c",
+        "label": "Figure C"
+      },
+      {
+        "id": "d",
+        "label": "Figure D"
+      }
+    ],
+    "answerKey": [
+      "a",
+      "b",
+      "c"
+    ],
+    "missingFeedback": "Select every figure you think has an area of 1 1/2 square units.",
+    "correctFeedback": "Correct. A small triangle has area 1/2 square unit, and the medium triangle has area 1 square unit. Figures A, B, and C can each be decomposed or rearranged into 1 1/2 square units; Figure D has more area.",
+    "incorrectFeedback": "Not quite. Use the small triangle as 1/2 square unit and the medium triangle as 1 square unit. Decompose or rearrange each labeled figure into those reference pieces.",
+    "visualModelData": {
+      "type": "sourceVisualGallery",
+      "showAll": true,
+      "figures": [
+        {
+          "id": "reference",
+          "label": "Area reference pieces",
+          "imagePath": "artifacts/unit 1/_practice-crops/lesson-02-area-one-and-half-reference.png",
+          "alt": "The exact source unit square, small triangle, and medium triangle.",
+          "naturalWidth": 450,
+          "naturalHeight": 105
+        },
+        {
+          "id": "figures",
+          "label": "Figures A-D",
+          "imagePath": "artifacts/unit 1/_practice-crops/lesson-02-area-one-and-half-figures.png",
+          "alt": "The exact source figures A, B, C, and D composed from triangular and square pieces.",
+          "naturalWidth": 545,
+          "naturalHeight": 270
+        }
+      ]
+    },
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 4,
+      "appActionTargets": 4,
+      "unitOfAction": "each source Figure A-D considered in one select-all response",
+      "sourceObjects": [
+        "unit square",
+        "small triangle",
+        "medium triangle",
+        "Figures A-D with all internal boundaries"
+      ],
+      "notes": "Uses two visual-only crops so the exact source reference pieces and Figures A-D stay visible without cropping PDF prompt or answer text into the card."
+    },
+    "hints": [
+      "Two small triangles cover 1 square unit, so one small triangle covers 1/2 square unit.",
+      "Try to see three small-triangle units, or one medium triangle plus one small triangle, in each figure."
+    ],
+    "sampleAnswer": "Figures A, B, and C. Each has the same area as three small triangles, which is 3 x 1/2 = 1 1/2 square units.",
+    "implementationNotes": "Directly adapts Lesson 2 cumulative practice, Problem 3, with exact visual-only crops and all four source choices.",
+    "source": "Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set.pdf p.2"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-playground-width",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 2,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-2-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 2,
+    "sourceItem": "Problem 4",
+    "practiceLessonGroup": "lesson-2-practice",
+    "practiceLessonTitle": "Finding Area by Decomposing and Rearranging",
+    "practicePartLabel": "4",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set/page-002.png",
+    "skill": "Find a missing rectangle dimension from area",
+    "activityForm": "numeric missing-dimension response",
+    "prompt": "The area of a rectangular playground is 78 square meters. If the length of the playground is 13 meters, what is its width?",
+    "responseType": "number",
+    "answerKey": [
+      "6"
+    ],
+    "missingFeedback": "Enter the playground width in meters.",
+    "correctFeedback": "Correct. Since 13 x 6 = 78, the playground is 6 meters wide.",
+    "incorrectFeedback": "Not quite. Find the missing factor in 13 x width = 78, or divide 78 by 13.",
+    "visualModelData": {
+      "type": "rectangleMissingDimension",
+      "length": 13,
+      "area": 78,
+      "unit": "meters"
+    },
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 1,
+      "appActionTargets": 1,
+      "unitOfAction": "one numeric playground width",
+      "sourceObjects": [
+        "rectangular playground with area 78 square meters and length 13 meters"
+      ],
+      "notes": "The source is text-only. The app adds a clearly labeled rectangle scaffold without supplying the missing width; all quantities come directly from the source prompt."
+    },
+    "hints": [
+      "Use area = length x width.",
+      "Solve 13 x width = 78."
+    ],
+    "sampleAnswer": "78 / 13 = 6, so the width is 6 meters.",
+    "implementationNotes": "Directly adapts Lesson 2 cumulative practice, Problem 4. The app-added rectangle is a non-answer-bearing scaffold for the source quantities.",
+    "source": "Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set.pdf p.2"
+  },
+  {
+    "unit": "unit1",
+    "unitTitle": "Area and Surface Area",
+    "topicMapping": "unit1",
+    "readyForAutoGrade": true,
+    "id": "u1-practice-irregular-area-reasoning",
+    "section": "A",
+    "sectionName": "Reasoning to Find Area",
+    "lesson": 2,
+    "sourceType": "Cumulative Practice Problem",
+    "sourceFolder": "Cumulative Practice Problems",
+    "sourceFile": "Grade6-1-2-Lesson-curated-practice-problem-set.pdf",
+    "sourcePage": 3,
+    "sourceItem": "Problem 5",
+    "practiceLessonGroup": "lesson-2-practice",
+    "practiceLessonTitle": "Finding Area by Decomposing and Rearranging",
+    "practicePartLabel": "5",
+    "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set/page-003.png",
+    "skill": "Explain how to find the area of an irregular rectilinear region",
+    "activityForm": "structured multi-select explanation with optional elaboration",
+    "prompt": "A student said, ‘We cannot find the area of this shaded region because the shape has many different measurements, instead of just a length and a width that we could multiply.’ Which methods explain why the student's statement is incorrect? Select all that apply.",
+    "responseType": "multiSelect",
+    "choices": [
+      {
+        "id": "decompose",
+        "label": "Break the region into non-overlapping rectangles, find each rectangle's area, and add the areas."
+      },
+      {
+        "id": "enclose",
+        "label": "Enclose the region in a 60-by-30 rectangle, then subtract the areas of the unshaded rectangles."
+      },
+      {
+        "id": "singleProduct",
+        "label": "Multiply 60 by 30 and use that product as the shaded area without subtracting anything."
+      },
+      {
+        "id": "impossible",
+        "label": "The different side measurements make the shaded area impossible to determine."
+      }
+    ],
+    "answerKey": [
+      "decompose",
+      "enclose"
+    ],
+    "reasoningPrompt": "Optional: Describe how one selected method would account for every part of the shaded region exactly once.",
+    "reasoningRequired": false,
+    "missingFeedback": "Select every method that correctly explains how the shaded area can be found.",
+    "correctFeedback": "Correct. The shaded region can be decomposed into rectangles and added, or enclosed in a 60-by-30 rectangle so the unshaded rectangles can be subtracted. Area does not require the entire outline to be one rectangle.",
+    "incorrectFeedback": "Not quite. A valid method must account for every shaded part exactly once. Look for both an addition strategy using smaller rectangles and a subtraction strategy using the 60-by-30 enclosing rectangle.",
+    "visualModelData": {
+      "type": "sourceVisual",
+      "imagePath": "artifacts/unit 1/_practice-crops/lesson-02-irregular-area-measurements.png",
+      "alt": "The exact source shaded rectilinear region with measurements 60, 30, 35, 15, and 10.",
+      "naturalWidth": 365,
+      "naturalHeight": 205,
+      "displayVariant": "compactSquare"
+    },
+    "visualRules": {
+      "status": "passes",
+      "sourceActionTargets": 1,
+      "appActionTargets": 1,
+      "unitOfAction": "one structured explanation identifying every valid area strategy",
+      "sourceObjects": [
+        "exact shaded rectilinear region",
+        "all source side measurements",
+        "60-by-30 enclosing dimensions"
+      ],
+      "notes": "Uses an exact visual-only source crop. The source's open explanation is converted to meaningfully validated method choices, with optional free text for further explanation rather than fragile required prose matching."
+    },
+    "hints": [
+      "The figure can be split along horizontal or vertical edges to make rectangles.",
+      "The 60 and 30 labels describe a rectangle that encloses the entire shaded region."
+    ],
+    "sampleAnswer": "The statement is incorrect because the region can be decomposed into rectangles and their areas added. Another valid method is to subtract the missing rectangles from a 60-by-30 enclosing rectangle.",
+    "implementationNotes": "Directly adapts Lesson 2 cumulative practice, Problem 5, preserving the exact source figure while giving the explanation a reliable structured response path.",
+    "source": "Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
     "unit": "unit1",

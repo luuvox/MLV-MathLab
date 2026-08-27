@@ -9742,6 +9742,14 @@ function getPracticeValue(item) {
   return state.practiceResponses[item.id] || "";
 }
 
+function practiceCompositionRequirementIsMet(item) {
+  if (!item.requiresCompositionJoin) return true;
+  const joinedSide = practiceCompositionJoinedSide(item.id);
+  return item.requiredCompositionSide
+    ? joinedSide === item.requiredCompositionSide
+    : joinedSide !== "none";
+}
+
 function isPracticePrimaryCorrect(item) {
   if (item.responseType === "open") return false;
   const answer = getPracticeValue(item);
@@ -9783,7 +9791,8 @@ function isPracticePrimaryCorrect(item) {
     return item.answerKey.some((accepted) => normalized === normalizeAnswer(String(accepted)));
   }
   if (item.responseType === "singleChoice") {
-    return answer === item.answerKey[0];
+    return answer === item.answerKey[0]
+      && practiceCompositionRequirementIsMet(item);
   }
   if (item.responseType === "multiSelect") {
     const selected = [...answer].sort();
@@ -10060,6 +10069,13 @@ function practiceIncorrectFeedback(item) {
   if (item.responseType === "areaComparison") {
     return practiceAreaComparisonFeedback(item);
   }
+  if (item.requiresCompositionJoin && !practiceCompositionRequirementIsMet(item)) {
+    const joinedSide = practiceCompositionJoinedSide(item.id);
+    if (item.requiredCompositionSide === "leg" && joinedSide === "hypotenuse") {
+      return "That hypotenuse join rebuilds the original rectangle. Join matching legs instead so the same two pieces make a different shape.";
+    }
+    return "Join both source pieces along one complete matching edge before submitting the area comparison.";
+  }
   if (item.responseType === "tentDesignEstimate") {
     const response = practiceTentResponse(item.id);
     const { plan, fields } = practiceTentWorksheet(item.id);
@@ -10160,41 +10176,67 @@ const practiceCompositionTriangle = {
   ],
 };
 
-function initialPracticeCompositionWorkspace() {
+function practiceCompositionDefinition(itemId) {
+  const item = practiceBank.find((entry) => entry.id === itemId);
+  const geometry = item?.visualModelData?.compositionGeometry || {};
+  const width = Number(geometry.width) || practiceCompositionTriangle.size;
+  const height = Number(geometry.height) || practiceCompositionTriangle.size;
+  return {
+    width,
+    height,
+    boundSize: Number(geometry.boundSize) || Math.max(width, height),
+    centerX: Number.isFinite(Number(geometry.centerX)) ? Number(geometry.centerX) : width / 2,
+    centerY: Number.isFinite(Number(geometry.centerY)) ? Number(geometry.centerY) : height / 2,
+    points: geometry.points || practiceCompositionTriangle.points,
+    vertices: Array.isArray(geometry.vertices) && geometry.vertices.length === 3
+      ? geometry.vertices
+      : practiceCompositionTriangle.vertices,
+    edges: Array.isArray(geometry.edges) && geometry.edges.length === 3
+      ? geometry.edges
+      : practiceCompositionTriangle.edges,
+    initialPieces: geometry.initialPieces || null,
+  };
+}
+
+function initialPracticeCompositionWorkspace(itemId) {
+  const definition = practiceCompositionDefinition(itemId);
+  const firstInitial = definition.initialPieces?.["copy-a"] || { x: 180, y: 78, angle: 0 };
+  const secondInitial = definition.initialPieces?.["copy-b"] || { x: 470, y: 78, angle: 0 };
   return {
     selectedPiece: "copy-a",
     pieces: {
-      "copy-a": { x: 180, y: 78, angle: 0 },
-      "copy-b": { x: 470, y: 78, angle: 0 },
+      "copy-a": { ...firstInitial },
+      "copy-b": { ...secondInitial },
     },
   };
 }
 
 function getPracticeCompositionWorkspace(itemId) {
   if (!state.practiceCompositionWorkspaces[itemId]) {
-    state.practiceCompositionWorkspaces[itemId] = initialPracticeCompositionWorkspace();
+    state.practiceCompositionWorkspaces[itemId] = initialPracticeCompositionWorkspace(itemId);
   }
   return state.practiceCompositionWorkspaces[itemId];
 }
 
 function resetPracticeCompositionWorkspace(itemId) {
-  state.practiceCompositionWorkspaces[itemId] = initialPracticeCompositionWorkspace();
+  state.practiceCompositionWorkspaces[itemId] = initialPracticeCompositionWorkspace(itemId);
 }
 
 function practiceCompositionPieceTransform(itemId, pieceId) {
+  const definition = practiceCompositionDefinition(itemId);
   const piece = getPracticeCompositionWorkspace(itemId).pieces[pieceId];
-  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${practiceCompositionTriangle.centerX} ${practiceCompositionTriangle.centerY})`;
+  return `translate(${piece.x} ${piece.y}) rotate(${piece.angle} ${definition.centerX} ${definition.centerY})`;
 }
 
-function practiceCompositionPoint(piece, vertex) {
+function practiceCompositionPoint(definition, piece, vertex) {
   const radians = piece.angle * Math.PI / 180;
   const cosine = Math.cos(radians);
   const sine = Math.sin(radians);
-  const dx = vertex[0] - practiceCompositionTriangle.centerX;
-  const dy = vertex[1] - practiceCompositionTriangle.centerY;
+  const dx = vertex[0] - definition.centerX;
+  const dy = vertex[1] - definition.centerY;
   return {
-    x: piece.x + practiceCompositionTriangle.centerX + dx * cosine - dy * sine,
-    y: piece.y + practiceCompositionTriangle.centerY + dx * sine + dy * cosine,
+    x: piece.x + definition.centerX + dx * cosine - dy * sine,
+    y: piece.y + definition.centerY + dx * sine + dy * cosine,
   };
 }
 
@@ -10202,18 +10244,19 @@ function practiceCompositionDistance(first, second) {
   return Math.hypot(first.x - second.x, first.y - second.y);
 }
 
-function practiceCompositionTransformedEdges(piece) {
-  return practiceCompositionTriangle.edges.map((edge) => ({
+function practiceCompositionTransformedEdges(itemId, piece) {
+  const definition = practiceCompositionDefinition(itemId);
+  return definition.edges.map((edge) => ({
     ...edge,
-    start: practiceCompositionPoint(piece, practiceCompositionTriangle.vertices[edge.vertices[0]]),
-    end: practiceCompositionPoint(piece, practiceCompositionTriangle.vertices[edge.vertices[1]]),
+    start: practiceCompositionPoint(definition, piece, definition.vertices[edge.vertices[0]]),
+    end: practiceCompositionPoint(definition, piece, definition.vertices[edge.vertices[1]]),
   }));
 }
 
 function practiceCompositionJoinedSide(itemId, tolerance = 2) {
   const pieces = getPracticeCompositionWorkspace(itemId).pieces;
-  const firstEdges = practiceCompositionTransformedEdges(pieces["copy-a"]);
-  const secondEdges = practiceCompositionTransformedEdges(pieces["copy-b"]);
+  const firstEdges = practiceCompositionTransformedEdges(itemId, pieces["copy-a"]);
+  const secondEdges = practiceCompositionTransformedEdges(itemId, pieces["copy-b"]);
   for (const firstEdge of firstEdges) {
     for (const secondEdge of secondEdges) {
       const reverseStart = practiceCompositionDistance(firstEdge.start, secondEdge.end);
@@ -10229,11 +10272,12 @@ function practiceCompositionJoinedSide(itemId, tolerance = 2) {
 }
 
 function snapPracticeCompositionPiece(itemId, pieceId) {
+  const definition = practiceCompositionDefinition(itemId);
   const workspace = getPracticeCompositionWorkspace(itemId);
   const movingPiece = workspace.pieces[pieceId];
   const otherPiece = workspace.pieces[pieceId === "copy-a" ? "copy-b" : "copy-a"];
-  const movingEdges = practiceCompositionTransformedEdges(movingPiece);
-  const otherEdges = practiceCompositionTransformedEdges(otherPiece);
+  const movingEdges = practiceCompositionTransformedEdges(itemId, movingPiece);
+  const otherEdges = practiceCompositionTransformedEdges(itemId, otherPiece);
   let closest = null;
   for (const movingEdge of movingEdges) {
     for (const otherEdge of otherEdges) {
@@ -10250,17 +10294,30 @@ function snapPracticeCompositionPiece(itemId, pieceId) {
     + (closest.otherEdge.start.x - closest.movingEdge.end.x)) / 2;
   const dy = ((closest.otherEdge.end.y - closest.movingEdge.start.y)
     + (closest.otherEdge.start.y - closest.movingEdge.end.y)) / 2;
-  movingPiece.x = clampNumber(movingPiece.x + dx, -8, practiceCompositionStage.width - practiceCompositionTriangle.size + 8);
-  movingPiece.y = clampNumber(movingPiece.y + dy, -8, practiceCompositionStage.height - practiceCompositionTriangle.size + 8);
+  movingPiece.x = clampNumber(movingPiece.x + dx, -8, practiceCompositionStage.width - definition.boundSize + 8);
+  movingPiece.y = clampNumber(movingPiece.y + dy, -8, practiceCompositionStage.height - definition.boundSize + 8);
   return true;
 }
 
+function markPracticeCompositionChanged(itemId) {
+  state.practiceSubmitted[itemId] = false;
+  state.practiceSamples[itemId] = false;
+  state.sourceModalItemId = null;
+}
+
 function practiceCompositionStatus(itemId) {
+  const item = practiceBank.find((entry) => entry.id === itemId);
   const joinedSide = practiceCompositionJoinedSide(itemId);
   if (joinedSide === "hypotenuse") {
+    if (item?.requiredCompositionSide === "leg") {
+      return "This hypotenuse join rebuilds the original rectangle. Try joining matching legs to make a different shape.";
+    }
     return "The triangles are joined along their hypotenuses. Trace the outside boundary.";
   }
   if (joinedSide === "leg") {
+    if (item?.requiredCompositionSide === "leg") {
+      return "The triangles are joined along matching legs and make a different shape.";
+    }
     return "The triangles are joined along a leg. Trace the outside boundary.";
   }
   return "Move and rotate the triangles. Bring one complete matching side onto the other.";
@@ -12010,6 +12067,39 @@ function handlePracticeHeightAnnotationKeydown(event, board, item) {
   return false;
 }
 
+function renderPracticeCompositionSourceRectangle(item) {
+  const source = item.visualModelData?.sourceRectangle;
+  if (!source) return "";
+  const widthUnits = Math.max(1, Number(source.widthUnits) || 3);
+  const heightUnits = Math.max(1, Number(source.heightUnits) || 2);
+  const cell = 72;
+  const x = 54;
+  const y = 24;
+  const width = widthUnits * cell;
+  const height = heightUnits * cell;
+  const verticalLines = Array.from({ length: Math.max(0, widthUnits - 1) }, (_, index) => {
+    const lineX = x + (index + 1) * cell;
+    return `<line x1="${lineX}" y1="${y}" x2="${lineX}" y2="${y + height}" class="practice-composition-source-grid"></line>`;
+  }).join("");
+  const horizontalLines = Array.from({ length: Math.max(0, heightUnits - 1) }, (_, index) => {
+    const lineY = y + (index + 1) * cell;
+    return `<line x1="${x}" y1="${lineY}" x2="${x + width}" y2="${lineY}" class="practice-composition-source-grid"></line>`;
+  }).join("");
+  return `
+    <figure class="practice-composition-source-figure">
+      <figcaption>Starting rectangle</figcaption>
+      <svg viewBox="0 0 ${width + 150} ${height + 68}" role="img" aria-label="${widthUnits}-by-${heightUnits} rectangle on a unit grid, divided by a diagonal">
+        <rect x="${x}" y="${y}" width="${width}" height="${height}" class="practice-composition-source-shape"></rect>
+        ${verticalLines}
+        ${horizontalLines}
+        <line x1="${x}" y1="${y}" x2="${x + width}" y2="${y + height}" class="practice-composition-source-diagonal"></line>
+        <text x="${x + width / 2}" y="${y + height + 42}" text-anchor="middle">${widthUnits} units</text>
+        <text x="${x + width + 22}" y="${y + height / 2 + 6}">${heightUnits} units</text>
+      </svg>
+    </figure>
+  `;
+}
+
 function practiceVisual(item) {
   const data = item.visualModelData || {};
   if (data.type === "quadrilateralAreaSet") return renderPracticeQuadrilateralWorkspace(item);
@@ -12043,8 +12133,10 @@ function practiceVisual(item) {
   if (data.type === "interactiveTentDesigner") return renderPracticeTentDesigner(item);
   if (data.type === "annotatableSourceVisual") return renderPracticeSourceAnnotation(item);
   if (data.type === "triangleComposition") {
+    const definition = practiceCompositionDefinition(item.id);
     const workspace = getPracticeCompositionWorkspace(item.id);
     const joinedSide = practiceCompositionJoinedSide(item.id);
+    const pieceLabels = Array.isArray(data.pieceLabels) ? data.pieceLabels : ["R", "R"];
     const pieces = ["copy-a", "copy-b"].map((pieceId, index) => `
       <g
         class="practice-composition-piece-group ${pieceId === workspace.selectedPiece ? "is-selected" : ""}"
@@ -12057,13 +12149,14 @@ function practiceVisual(item) {
         aria-label="Triangle ${index + 1}, draggable. Use arrow keys to move it."
       >
         <title>Triangle ${index + 1}</title>
-        <polygon points="${escapeHtml(data.piecePoints || practiceCompositionTriangle.points)}" class="practice-composition-piece practice-composition-piece--${index + 1}"></polygon>
-        <text x="120" y="73" text-anchor="middle">R</text>
+        <polygon points="${escapeHtml(definition.points)}" class="practice-composition-piece practice-composition-piece--${index + 1}"></polygon>
+        <text x="${definition.centerX}" y="${definition.centerY + 10}" text-anchor="middle">${escapeHtml(pieceLabels[index] || "")}</text>
       </g>
     `).join("");
     return `
-      <section class="practice-composition-workspace" data-practice-composition-workspace="${item.id}" aria-label="Triangle R composition workspace">
-        <p class="practice-composition-direction">Select a triangle, then drag or use the arrow keys to move it. Use quarter turns to test different complete-side joins.</p>
+      <section class="practice-composition-workspace ${data.workspaceVariant ? `practice-composition-workspace--${escapeHtml(data.workspaceVariant)}` : ""}" data-practice-composition-workspace="${item.id}" aria-label="${escapeHtml(data.alt || "Triangle composition workspace")}">
+        <p class="practice-composition-direction">${escapeHtml(data.direction || "Select a triangle, then drag or use the arrow keys to move it. Use quarter turns to test different complete-side joins.")}</p>
+        ${renderPracticeCompositionSourceRectangle(item)}
         <div class="practice-composition-toolbar">
           <div class="practice-composition-selectors" role="group" aria-label="Select a triangle">
             <button class="page-chip ${workspace.selectedPiece === "copy-a" ? "is-active" : ""}" type="button" data-practice-composition-select="copy-a" data-item-id="${item.id}" aria-pressed="${workspace.selectedPiece === "copy-a"}">Triangle 1</button>
@@ -12087,7 +12180,7 @@ function practiceVisual(item) {
           ${pieces}
         </svg>
         <p class="practice-composition-status" data-practice-composition-status aria-live="polite">${escapeHtml(practiceCompositionStatus(item.id))}</p>
-        <p class="practice-composition-source-note">The triangle shapes are traced from the source diagram.</p>
+        <p class="practice-composition-source-note">${escapeHtml(data.sourceNote || "The triangle shapes are traced from the source diagram.")}</p>
       </section>
     `;
   }
@@ -12095,14 +12188,15 @@ function practiceVisual(item) {
     const activeGroup = activePracticeChoiceGroup(item);
     const figures = data.figures || [];
     const activeFigure = figures.find((figure) => figure.id === activeGroup?.id) || figures[0];
+    const visibleFigures = data.showAll ? figures : activeFigure ? [activeFigure] : [];
     return `
       <div class="practice-source-gallery">
-        ${activeFigure ? `
+        ${visibleFigures.map((figure) => `
           <figure class="practice-source-gallery-item">
-            <figcaption>${escapeHtml(activeFigure.label || "Source strategy")}</figcaption>
-            <img src="${escapeHtml(activeFigure.imagePath)}" alt="${escapeHtml(activeFigure.alt || "Source strategy visual")}" width="${activeFigure.naturalWidth || ""}" height="${activeFigure.naturalHeight || ""}">
+            <figcaption>${escapeHtml(figure.label || "Source strategy")}</figcaption>
+            <img src="${escapeHtml(figure.imagePath)}" alt="${escapeHtml(figure.alt || "Source strategy visual")}" width="${figure.naturalWidth || ""}" height="${figure.naturalHeight || ""}">
           </figure>
-        ` : ""}
+        `).join("")}
       </div>
     `;
   }
@@ -12187,6 +12281,20 @@ function practiceVisual(item) {
         <img class="${imageClass}" src="${escapeHtml(data.imagePath)}" alt="${escapeHtml(data.alt || fallbackAlt)}"${sizeAttributes}>
         ${data.caption ? `<figcaption>${escapeHtml(data.caption)}</figcaption>` : ""}
       </figure>
+    `;
+  }
+  if (data.type === "rectangleMissingDimension") {
+    const length = Number(data.length) || 13;
+    const area = Number(data.area) || 78;
+    return `
+      <svg class="practice-missing-dimension-visual" viewBox="0 0 560 330" role="img" aria-label="Rectangle with length ${length} meters, area ${area} square meters, and unknown width">
+        <rect x="78" y="54" width="348" height="174" class="shape-fill teal"></rect>
+        <line x1="78" y1="264" x2="426" y2="264" class="measure-line"></line>
+        <text x="252" y="300" text-anchor="middle" class="measure-label">length ${length} m</text>
+        <line x1="460" y1="54" x2="460" y2="228" class="measure-line"></line>
+        <text x="472" y="147" class="measure-label">width ?</text>
+        <text x="252" y="148" text-anchor="middle" class="face-label">area ${area} m²</text>
+      </svg>
     `;
   }
   if (data.type === "areaHalfUnits") {
@@ -19580,8 +19688,10 @@ function updatePracticeCompositionPointer(event) {
   const workspace = getPracticeCompositionWorkspace(practiceCompositionPointer.itemId);
   const piece = workspace.pieces[practiceCompositionPointer.pieceId];
   if (!piece) return false;
-  piece.x = clampNumber(practiceCompositionPointer.startPiece.x + dx, -8, practiceCompositionStage.width - practiceCompositionTriangle.size + 8);
-  piece.y = clampNumber(practiceCompositionPointer.startPiece.y + dy, -8, practiceCompositionStage.height - practiceCompositionTriangle.size + 8);
+  const definition = practiceCompositionDefinition(practiceCompositionPointer.itemId);
+  piece.x = clampNumber(practiceCompositionPointer.startPiece.x + dx, -8, practiceCompositionStage.width - definition.boundSize + 8);
+  piece.y = clampNumber(practiceCompositionPointer.startPiece.y + dy, -8, practiceCompositionStage.height - definition.boundSize + 8);
+  markPracticeCompositionChanged(practiceCompositionPointer.itemId);
   updatePracticeCompositionDom(practiceCompositionPointer.itemId);
   event.preventDefault();
   return true;
@@ -19601,16 +19711,19 @@ function rotatePracticeCompositionPiece(itemId, delta) {
   const piece = workspace.pieces[workspace.selectedPiece];
   if (!piece) return;
   piece.angle = ((piece.angle + delta) % 360 + 360) % 360;
+  markPracticeCompositionChanged(itemId);
   snapPracticeCompositionPiece(itemId, workspace.selectedPiece);
   updatePracticeCompositionDom(itemId);
 }
 
 function movePracticeCompositionPiece(itemId, dx, dy) {
+  const definition = practiceCompositionDefinition(itemId);
   const workspace = getPracticeCompositionWorkspace(itemId);
   const piece = workspace.pieces[workspace.selectedPiece];
   if (!piece) return;
-  piece.x = clampNumber(piece.x + dx, -8, practiceCompositionStage.width - practiceCompositionTriangle.size + 8);
-  piece.y = clampNumber(piece.y + dy, -8, practiceCompositionStage.height - practiceCompositionTriangle.size + 8);
+  piece.x = clampNumber(piece.x + dx, -8, practiceCompositionStage.width - definition.boundSize + 8);
+  piece.y = clampNumber(piece.y + dy, -8, practiceCompositionStage.height - definition.boundSize + 8);
+  markPracticeCompositionChanged(itemId);
   snapPracticeCompositionPiece(itemId, workspace.selectedPiece);
   updatePracticeCompositionDom(itemId);
 }
@@ -20467,6 +20580,7 @@ function bindEvents() {
     if (practiceCompositionReset) {
       const itemId = practiceCompositionReset.dataset.itemId;
       resetPracticeCompositionWorkspace(itemId);
+      markPracticeCompositionChanged(itemId);
       updatePracticeCompositionDom(itemId);
       return;
     }

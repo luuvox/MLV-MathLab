@@ -1,6 +1,7 @@
 :root {
   color-scheme: light;
   --desktop-topbar-height: 90px;
+  --lesson-scroll-offset: calc(var(--desktop-topbar-height) + 8px);
   --bg: #f4f7f5;
   --paper: #ffffff;
   --paper-soft: #f8fbfc;
@@ -357,7 +358,7 @@ body[data-mode="teach"] #unit1Practice {
 }
 
 .teach-lesson-card {
-  scroll-margin-top: 98px;
+  scroll-margin-top: var(--lesson-scroll-offset);
   container-name: learning-card;
   container-type: inline-size;
   display: grid;
@@ -2013,6 +2014,19 @@ body[data-mode="teach"] #unit1Practice {
   font-size: 0.9rem;
   font-weight: 720;
   line-height: 1.4;
+}
+
+.rectangular-prism-net-assigned-solid {
+  margin: 6px 0 0;
+}
+
+.rectangular-prism-net-assigned-solid img {
+  display: block;
+  width: auto;
+  max-width: min(100%, 500px);
+  max-height: 180px;
+  margin: 0 auto;
+  object-fit: contain;
 }
 
 .rectangular-prism-net-tools {
@@ -4996,6 +5010,7 @@ input[type="search"] {
 }
 
 .practice-card {
+  scroll-margin-top: var(--lesson-scroll-offset);
   container-name: learning-card;
   container-type: inline-size;
   display: grid;
@@ -5334,8 +5349,25 @@ input[type="search"] {
 }
 
 .practice-source-annotation-mark--line,
+.practice-source-annotation-mark--base,
+.practice-source-annotation-mark--height,
 .practice-source-annotation-preview:is(line) {
   fill: none;
+}
+
+.practice-source-annotation-mark--point {
+  fill: #a33e23;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+
+.practice-source-annotation-mark--base {
+  stroke: #156f63;
+}
+
+.practice-source-annotation-mark--height {
+  stroke: #167cb5;
+  stroke-dasharray: 11 7;
 }
 
 .practice-source-annotation-mark--rectangle,
@@ -6781,6 +6813,10 @@ input[type="search"] {
 }
 
 @media (max-width: 840px) {
+  :root {
+    --lesson-scroll-offset: 8px;
+  }
+
   .topbar {
     position: static;
     align-items: flex-start;
@@ -6874,6 +6910,120 @@ input[type="search"] {
   }
 }
 
+.practice-parallelogram-rearrange {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.practice-parallelogram-rearrange.is-attempting {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.practice-parallelogram-source-attempt {
+  min-width: 0;
+}
+
+.practice-parallelogram-source-attempt > h4,
+.practice-parallelogram-action > h4 {
+  margin: 0 0 8px;
+}
+
+.practice-parallelogram-source,
+.practice-parallelogram-action {
+  min-width: 0;
+  margin: 0;
+}
+
+.practice-parallelogram-source figcaption,
+.practice-rearrange-status {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.practice-parallelogram-source img,
+.practice-parallelogram-action svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.practice-rearrange-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.practice-rearrange-board {
+  fill: #fff;
+  stroke: #d3e0e6;
+  stroke-width: 2;
+}
+
+.practice-rearrange-main {
+  fill: #80cce6;
+  stroke: #1f2a33;
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+.practice-rearrange-piece {
+  fill: #f6b45f;
+  stroke: #1f2a33;
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+
+.practice-rearrange-cut {
+  fill: none;
+  stroke: #1f2a33;
+  stroke-width: 4;
+  stroke-dasharray: 10 8;
+}
+
+.practice-rearrange-status {
+  min-height: 48px;
+  margin-top: 8px;
+}
+
+.practice-action-response {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: #eef3f5;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.practice-action-response.is-complete {
+  border-color: #82c9be;
+  background: #e4f5f1;
+  color: #17675f;
+}
+
+.practice-pair-board {
+  fill: #ffffff;
+  stroke: var(--line);
+  stroke-width: 2px;
+}
+
+@media (max-width: 820px) {
+  .practice-parallelogram-rearrange {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container learning-card (max-width: 1250px) {
+  .practice-parallelogram-rearrange {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .practice-construction-workspace {
   display: grid;
   gap: 10px;
@@ -6951,6 +7101,100 @@ input[type="search"] {
   fill: none;
 }
 
+.practice-quadrilateral-reference-shape {
+  fill: rgb(36 120 191 / 14%);
+  stroke: #2478bf;
+  stroke-width: 4;
+  stroke-dasharray: 11 7;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.practice-quadrilateral-reference-shape.is-open {
+  fill: none;
+}
+
+.practice-quadrilateral-reference-label {
+  fill: #175f9d;
+  stroke: #fff;
+  stroke-width: 5px;
+  paint-order: stroke fill;
+  font-size: 18px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.practice-quadrilateral-reference-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.practice-quadrilateral-reference-summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.practice-quadrilateral-reference-swatch {
+  width: 22px;
+  height: 10px;
+  border: 2px dashed #2478bf;
+  background: rgb(36 120 191 / 14%);
+}
+
+.practice-quadrilateral-cut {
+  fill: none;
+  stroke: #9a4f13;
+  stroke-width: 4;
+  stroke-dasharray: 12 9;
+  pointer-events: none;
+}
+
+.practice-quadrilateral-types {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.practice-quadrilateral-types legend {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.practice-quadrilateral-dimensions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.practice-quadrilateral-dimensions label {
+  min-width: 0;
+}
+
+@media (max-width: 620px) {
+  .practice-quadrilateral-dimensions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.practice-base-height-reminder svg {
+  display: block;
+  width: 100%;
+  max-height: 390px;
+}
+
+.practice-right-angle-mark {
+  fill: none;
+  stroke: #137064;
+  stroke-width: 4;
+}
+
 .practice-quadrilateral-point-target {
   fill: transparent;
   stroke: transparent;
@@ -6967,6 +7211,35 @@ input[type="search"] {
 
 .practice-quadrilateral-point-target.is-selected {
   fill: rgb(255 255 255 / 1%);
+}
+
+.practice-quadrilateral-point-target.is-inactive {
+  pointer-events: none;
+  cursor: default;
+}
+
+.practice-quadrilateral-point-target.is-draggable {
+  fill: rgb(255 255 255 / 96%);
+  stroke: #167cb5;
+  stroke-width: 3;
+  cursor: grab;
+  touch-action: none;
+}
+
+.practice-quadrilateral-point-target.is-draggable:hover,
+.practice-quadrilateral-point-target.is-draggable:focus-visible {
+  fill: #fff;
+  stroke: #0b665d;
+  stroke-width: 4;
+}
+
+.practice-quadrilateral-point-target.is-draggable.is-dragging,
+.practice-quadrilateral-board.is-vertex-dragging .practice-quadrilateral-point-target.is-draggable {
+  cursor: grabbing;
+}
+
+.practice-quadrilateral-board.has-editable-vertices {
+  user-select: none;
 }
 
 .practice-quadrilateral-vertex {
@@ -7444,5 +7717,117 @@ input[type="search"] {
   .tiling-piece-lab,
   .equal-area-tiling-workspace {
     padding: 8px;
+  }
+}
+/* Source-faithful edge labeling for nets and other fold diagrams. */
+.practice-net-edge-labeler {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.42fr) minmax(300px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.practice-net-solid-reference,
+.practice-net-edge-workspace {
+  margin: 0;
+  min-width: 0;
+}
+
+.practice-net-solid-reference {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.practice-net-solid-reference figcaption {
+  justify-self: start;
+  font-weight: 800;
+}
+
+.practice-net-solid-reference img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+}
+
+.practice-net-edge-workspace > p {
+  margin: 0 0 8px;
+}
+
+.practice-net-edge-workspace svg {
+  display: block;
+  width: 100%;
+  max-height: 430px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.practice-net-edge-mask {
+  fill: #fff;
+}
+
+.practice-net-edge-hitbox {
+  fill: rgba(255, 255, 255, 0.001);
+  cursor: pointer;
+}
+
+.practice-net-edge-hitbox:focus {
+  outline: none;
+}
+
+.practice-net-edge-highlight {
+  stroke: transparent;
+  stroke-width: 18;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.practice-net-edge-target.is-selected .practice-net-edge-highlight {
+  stroke: rgba(28, 126, 190, 0.82);
+  stroke-width: 8;
+}
+
+.practice-net-edge-target.is-labeled:not(.is-selected) .practice-net-edge-highlight {
+  stroke: rgba(35, 155, 143, 0.34);
+  stroke-width: 6;
+}
+
+.practice-net-edge-target text {
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 7px;
+  stroke-linejoin: round;
+  fill: var(--ink);
+  font-size: 18px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.practice-net-edge-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.practice-net-edge-status,
+.practice-net-edge-answer-summary p {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.practice-net-edge-answer-summary h4,
+.practice-net-edge-answer-summary p {
+  margin: 0 0 8px;
+}
+
+@media (max-width: 820px) {
+  .practice-net-edge-labeler {
+    grid-template-columns: 1fr;
   }
 }

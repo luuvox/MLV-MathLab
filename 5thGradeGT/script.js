@@ -130,6 +130,7 @@ const state = {
   practiceActiveGroups: {},
   practiceOpenDropdown: null,
   practiceCompositionWorkspaces: {},
+  practiceParallelogramStages: {},
   practiceQuadrilateralWorkspaces: {},
   practiceTilingWorkspaces: {},
   practiceSourceAnnotations: {},
@@ -153,6 +154,7 @@ let trianglePairPointer = null;
 let practiceCompositionPointer = null;
 let practiceSourceAnnotationPointer = null;
 let practiceHeightAnnotationPointer = null;
+let practiceQuadrilateralVertexPointer = null;
 let decomposePointer = null;
 let pyramidNetPointer = null;
 let baseHeightChallengePointer = null;
@@ -9724,6 +9726,25 @@ function parseMathNumber(value) {
 }
 
 function getPracticeValue(item) {
+  if (item.responseType === "annotationAttempt") {
+    return getPracticeSourceAnnotation(item).marks;
+  }
+  if (item.responseType === "parallelogramRearrange") {
+    const stage = state.practiceParallelogramStages[item.id] || 0;
+    return stage === 2 ? "rearranged" : stage === 1 ? "decomposed" : "";
+  }
+  if (item.responseType === "heightDrawing") {
+    return getPracticeSourceAnnotation(item).marks;
+  }
+  if (item.responseType === "compositionJoin") {
+    return practiceCompositionJoinedSide(item.id);
+  }
+  if (item.responseType === "netEdgeLabeling") {
+    return getPracticeNetEdgeLabelWorkspace(item);
+  }
+  if (item.responseType === "rectPrismNet") {
+    return rectangularPrismNetFaces(item);
+  }
   if (item.responseType === "singleChoice") {
     return state.practiceSelections[item.id]?.[0] || "";
   }
@@ -9742,6 +9763,20 @@ function getPracticeValue(item) {
   return state.practiceResponses[item.id] || "";
 }
 
+function practiceHeightDrawingIsCorrect(item) {
+  if (Array.isArray(item.visualModelData?.requiredAnnotationMarks)) {
+    return practiceRequiredSourceAnnotationResult(item).correct;
+  }
+  return getPracticeSourceAnnotation(item).marks.some((mark) => {
+    if (mark.type !== "line" || mark.start.column !== mark.end.column) return false;
+    const rows = [mark.start.row, mark.end.row].sort((a, b) => a - b);
+    return rows[0] === 1
+      && rows[1] === 3
+      && mark.start.column >= 4
+      && mark.start.column <= 5;
+  });
+}
+
 function practiceCompositionRequirementIsMet(item) {
   if (!item.requiresCompositionJoin) return true;
   const joinedSide = practiceCompositionJoinedSide(item.id);
@@ -9753,9 +9788,30 @@ function practiceCompositionRequirementIsMet(item) {
 function isPracticePrimaryCorrect(item) {
   if (item.responseType === "open") return false;
   const answer = getPracticeValue(item);
+  if (item.responseType === "annotationAttempt") return false;
+  if (item.responseType === "parallelogramRearrange") {
+    return answer === "rearranged";
+  }
+  if (item.responseType === "heightDrawing") {
+    return practiceHeightDrawingIsCorrect(item);
+  }
+  if (item.responseType === "compositionJoin") {
+    return answer !== "none";
+  }
+  if (item.responseType === "netEdgeLabeling") {
+    const edges = item.visualModelData?.edges || [];
+    return edges.length > 0
+      && edges.every((edge) => answer.labels[edge.id] === String(edge.answer));
+  }
+  if (item.responseType === "rectPrismNet") {
+    return rectangularPrismNetAnalysis(item).valid;
+  }
   if (item.responseType === "quadrilateralAreaSet") {
-    return answer.drawings.length === 3
+    const drawingsCorrect = answer.drawings.length === practiceQuadrilateralDrawingCount(item)
       && answer.drawings.every((drawing, index) => practiceQuadrilateralValidation(item, index).correct);
+    return drawingsCorrect
+      && (item.visualModelData?.validationMode !== "identicalTriangleCuts"
+        || practiceQuadrilateralSetHasNonRightAngles(item));
   }
   if (item.responseType === "rectangleTiling") {
     return practiceRectangleTilingValidation(item).correct;
@@ -9771,9 +9827,10 @@ function isPracticePrimaryCorrect(item) {
   }
   if (item.responseType === "cubeNetExpressions") {
     const cells = getPracticeCubeNetCells(item.id);
-    return cubeNetIsValid(cells)
-      && cubeSurfaceExpressionIsCorrect(answer.surfaceArea)
-      && cubeVolumeExpressionIsCorrect(answer.volume);
+    const netIsRequired = item.visualModelData?.requiresNetConstruction !== false;
+    return (!netIsRequired || cubeNetIsValid(cells))
+      && cubeSurfaceExpressionIsCorrect(answer.surfaceArea, item)
+      && cubeVolumeExpressionIsCorrect(answer.volume, item);
   }
   if (item.responseType === "tentDesignEstimate") {
     return practiceTentDesignIsCorrect(item);
@@ -9791,7 +9848,7 @@ function isPracticePrimaryCorrect(item) {
     return item.answerKey.some((accepted) => normalized === normalizeAnswer(String(accepted)));
   }
   if (item.responseType === "singleChoice") {
-    return answer === item.answerKey[0]
+    return item.answerKey.includes(answer)
       && practiceCompositionRequirementIsMet(item);
   }
   if (item.responseType === "multiSelect") {
@@ -9805,7 +9862,9 @@ function isPracticePrimaryCorrect(item) {
   }
   if (item.responseType === "groupedChoice") {
     const groups = item.choiceGroups || [];
-    return groups.length > 0 && groups.every((group) => answer[group.id] === group.correctChoiceId);
+    return groups.length > 0
+      && groups.every((group) => practiceGroupCorrectChoiceIds(item, group).includes(answer[group.id]))
+      && practiceRequiredSourceAnnotationResult(item).correct;
   }
   return false;
 }
@@ -9819,7 +9878,21 @@ function isPracticeGroupSubmitted(item, group) {
 }
 
 function practiceGroupIsCorrect(item, group) {
-  return getPracticeValue(item)[group.id] === group.correctChoiceId;
+  return practiceGroupCorrectChoiceIds(item, group).includes(getPracticeValue(item)[group.id]);
+}
+
+function practiceGroupCorrectChoiceIds(item, group) {
+  if (group.dynamicAnswer === "tentComparisonLeast") {
+    return practiceTentComparisonAnswerIds(item, "least");
+  }
+  if (group.dynamicAnswer === "tentComparisonMost") {
+    return practiceTentComparisonAnswerIds(item, "most");
+  }
+  if (group.dynamicAnswer === "tentComparisonImpact") {
+    return practiceTentComparisonAnswerIds(item, "impact");
+  }
+  if (Array.isArray(group.correctChoiceIds)) return group.correctChoiceIds;
+  return group.correctChoiceId ? [group.correctChoiceId] : [];
 }
 
 function activePracticeChoiceGroup(item) {
@@ -9899,9 +9972,23 @@ function triangularPrismAreaErrorIsCorrect(response) {
   return (namesTriangle && usesHalf) || dividesTrianglesByTwo || correctsTwelveToSix;
 }
 
+function quadrilateralNotParallelogramReasoningIsCorrect(response) {
+  const text = normalizeAnswer(response);
+  const hasSideContext = /\b(?:side|sides|opposite|left|right|slanted)\b/.test(text);
+  const saysNotParallel = /\b(?:not|aren['’]?t|isn['’]?t|don['’]?t|doesn['’]?t)\b[^.]{0,36}\bparallel\b/.test(text)
+    || /\bparallel\b[^.]{0,36}\b(?:not|aren['’]?t|isn['’]?t)\b/.test(text);
+  const comparesSlopes = /\bdifferent\s+slopes?\b|\bslopes?\s+(?:are\s+)?(?:different|unequal)\b/.test(text);
+  const onlyOneParallelPair = /\bonly\s+(?:one|1)\s+(?:pair\s+of\s+)?parallel\b/.test(text)
+    || /\b(?:one|1)\s+parallel\s+pair\b/.test(text);
+  return hasSideContext && (saysNotParallel || comparesSlopes || onlyOneParallelPair);
+}
+
 function practicePrimaryTextValidatorResult(item, response) {
   if (item.responseValidator === "triangularPrismAreaError") {
     return triangularPrismAreaErrorIsCorrect(response);
+  }
+  if (item.responseValidator === "quadrilateralNotParallelogram") {
+    return quadrilateralNotParallelogramReasoningIsCorrect(response);
   }
   return false;
 }
@@ -9950,12 +10037,64 @@ function cubeMonomialMatches(value, expectedCoefficient, expectedExponent) {
     && parsed.exponent === expectedExponent;
 }
 
-function cubeSurfaceExpressionIsCorrect(value) {
-  return cubeMonomialMatches(value, 6, 2);
+function normalizeCubeNumericExpression(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/\bmultiplied\s+by\b|\btimes\b/gi, "*")
+    .replace(/\s+[xX]\s+/g, "*")
+    .replace(/[×·]/g, "*")
+    .replace(/\bsquared\b/gi, "^2")
+    .replace(/\bcubed\b/gi, "^3")
+    .replace(/²/g, "^2")
+    .replace(/³/g, "^3")
+    .replace(/\)\s*\(/g, ")*(")
+    .replace(/([0-9])\s*\(/g, "$1*(")
+    .replace(/\)\s*([0-9])/g, ")*$1")
+    .replace(/\s+/g, "")
+    .replace(/[()]/g, "");
 }
 
-function cubeVolumeExpressionIsCorrect(value) {
-  return cubeMonomialMatches(value, 1, 3);
+function cubeNumericProductMatches(value, edgeLength, expectedCoefficient, expectedExponent) {
+  const expression = normalizeCubeNumericExpression(value);
+  if (!expression || /[^0-9.*^]/.test(expression)) return false;
+  const factors = expression.split("*");
+  if (factors.some((factor) => !factor)) return false;
+
+  let coefficient = 1;
+  let edgeExponent = 0;
+  for (const factor of factors) {
+    const match = factor.match(/^(\d+(?:\.\d+)?)(?:\^(\d+))?$/);
+    if (!match) return false;
+    const base = Number(match[1]);
+    const exponent = match[2] ? Number(match[2]) : 1;
+    let representedEdgeExponent = 0;
+    for (let power = 1; power <= expectedExponent; power += 1) {
+      if (Math.abs(base - edgeLength ** power) < 1e-9) {
+        representedEdgeExponent = power * exponent;
+        break;
+      }
+    }
+    if (representedEdgeExponent) edgeExponent += representedEdgeExponent;
+    else coefficient *= base ** exponent;
+  }
+
+  return Number.isFinite(coefficient)
+    && Math.abs(coefficient - expectedCoefficient) < 1e-9
+    && edgeExponent === expectedExponent;
+}
+
+function cubeSurfaceExpressionIsCorrect(value, item = null) {
+  const edgeLength = Number(item?.visualModelData?.expressionEdgeLength);
+  return Number.isFinite(edgeLength) && edgeLength > 0
+    ? cubeNumericProductMatches(value, edgeLength, 6, 2)
+    : cubeMonomialMatches(value, 6, 2);
+}
+
+function cubeVolumeExpressionIsCorrect(value, item = null) {
+  const edgeLength = Number(item?.visualModelData?.expressionEdgeLength);
+  return Number.isFinite(edgeLength) && edgeLength > 0
+    ? cubeNumericProductMatches(value, edgeLength, 1, 3)
+    : cubeMonomialMatches(value, 1, 3);
 }
 
 function practiceTentDecisionIds(response) {
@@ -10037,6 +10176,12 @@ function isPracticeCorrect(item) {
 
 function hasPracticeResponse(item) {
   const answer = getPracticeValue(item);
+  if (item.responseType === "netEdgeLabeling") {
+    return Object.keys(answer.labels).length > 0;
+  }
+  if (item.responseType === "rectPrismNet") {
+    return answer.length > 0;
+  }
   if (item.responseType === "quadrilateralAreaSet") {
     return answer.drawings.some((drawing) => drawing.vertices.length > 0);
   }
@@ -10051,23 +10196,49 @@ function hasPracticeResponse(item) {
 }
 
 function practiceIncorrectFeedback(item) {
+  const annotationResult = practiceRequiredSourceAnnotationResult(item);
+  if (!annotationResult.correct) {
+    return item.annotationRequiredFeedback
+      || `Complete the required source drawing marks. ${annotationResult.matched} of ${annotationResult.required} are in the expected locations.`;
+  }
   if (item.responseType === "quadrilateralAreaSet") {
     const workspace = getPracticeQuadrilateralWorkspace(item);
     const unfinished = workspace.drawings.findIndex((drawing, index) => (
       !drawing.submitted || !practiceQuadrilateralValidation(item, index).correct
     ));
-    return unfinished >= 0
-      ? `Drawing ${unfinished + 1} still needs revision. Open that drawing to see its specific feedback.`
-      : item.incorrectFeedback;
+    if (unfinished >= 0) {
+      return `Drawing ${unfinished + 1} still needs revision. Open that drawing to see its specific feedback.`;
+    }
+    if (item.visualModelData?.validationMode === "identicalTriangleCuts" && !practiceQuadrilateralSetHasNonRightAngles(item)) {
+      return "All three drawings work, but the source also requires one or more quadrilaterals with non-right angles. Revise one drawing as a slanted parallelogram or rhombus.";
+    }
+    return item.incorrectFeedback;
   }
   if (item.responseType === "rectangleTiling") {
     return practiceRectangleTilingValidation(item).feedback;
   }
   if (item.responseType === "areaStrategyPair") {
-    return "Both methods must give 42 square units and use two different strategies. Open each method to see its feedback.";
+    const targetArea = Number(item.strategyTargetArea) || 42;
+    return `Both methods must give ${formatPracticeNumber(targetArea)} ${item.strategyAreaUnit || "square units"}${(item.strategyChoices || []).length ? " and use two different strategies" : ""}. Open each method to see its feedback.`;
   }
   if (item.responseType === "areaComparison") {
     return practiceAreaComparisonFeedback(item);
+  }
+  if (item.responseType === "compositionJoin") {
+    return "Move and rotate the copy until the two triangles share one complete matching edge and their outside boundary is a parallelogram.";
+  }
+  if (item.responseType === "netEdgeLabeling") {
+    const workspace = getPracticeNetEdgeLabelWorkspace(item);
+    const edges = item.visualModelData?.edges || [];
+    const unlabeled = edges.filter((edge) => !workspace.labels[edge.id]).length;
+    if (unlabeled) {
+      return `${unlabeled} ${unlabeled === 1 ? "edge is" : "edges are"} still unlabeled. Select each edge in the exact source net and assign its folded-solid length.`;
+    }
+    const incorrect = edges.filter((edge) => workspace.labels[edge.id] !== String(edge.answer)).length;
+    return `${incorrect} ${incorrect === 1 ? "edge has" : "edges have"} a length that does not match the folded solid. Trace which solid edge each net edge becomes.`;
+  }
+  if (item.responseType === "rectPrismNet") {
+    return rectangularPrismNetFeedbackText(item);
   }
   if (item.requiresCompositionJoin && !practiceCompositionRequirementIsMet(item)) {
     const joinedSide = practiceCompositionJoinedSide(item.id);
@@ -10101,15 +10272,18 @@ function practiceIncorrectFeedback(item) {
   }
   const cells = getPracticeCubeNetCells(item.id);
   const answer = getPracticeValue(item);
-  if (cells.length !== 6) return "Select exactly six squares for the cube net, then submit again.";
-  if (!cubeNetIsValid(cells)) {
+  const netIsRequired = item.visualModelData?.requiresNetConstruction !== false;
+  const edgeLength = Number(item.visualModelData?.expressionEdgeLength);
+  const edgeLabel = Number.isFinite(edgeLength) && edgeLength > 0 ? String(edgeLength) : "x";
+  if (netIsRequired && cells.length !== 6) return "Select exactly six squares for the cube net, then submit again.";
+  if (netIsRequired && !cubeNetIsValid(cells)) {
     return "The expressions may be revised later, but the six-square drawing is not yet a cube net. Arrange six edge-connected squares so each folds onto a different cube face.";
   }
-  if (!cubeSurfaceExpressionIsCorrect(answer.surfaceArea)) {
-    return "The net is valid. Revise the surface-area expression: a cube has six square faces, and each face has area x squared. Use * or the word times for multiplication.";
+  if (!cubeSurfaceExpressionIsCorrect(answer.surfaceArea, item)) {
+    return `${netIsRequired ? "The net is valid. " : ""}Revise the surface-area expression: a cube has six square faces, and each face has area ${edgeLabel} squared. Use * or the word times for multiplication.`;
   }
-  if (!cubeVolumeExpressionIsCorrect(answer.volume)) {
-    return "The net and surface-area expression are correct. Revise the volume expression using three factors of the edge length x. Use * or the word times for multiplication.";
+  if (!cubeVolumeExpressionIsCorrect(answer.volume, item)) {
+    return `${netIsRequired ? "The net and surface-area expression are" : "The surface-area expression is"} correct. Revise the volume expression using three factors of the edge length ${edgeLabel}. Use * or the word times for multiplication.`;
   }
   return item.incorrectFeedback || "Revise the response and try again.";
 }
@@ -10308,6 +10482,11 @@ function markPracticeCompositionChanged(itemId) {
 function practiceCompositionStatus(itemId) {
   const item = practiceBank.find((entry) => entry.id === itemId);
   const joinedSide = practiceCompositionJoinedSide(itemId);
+  if (item?.responseType === "compositionJoin") {
+    return joinedSide === "none"
+      ? "Move and rotate one copy until the triangles share one complete matching edge."
+      : "The two copies share one complete edge. Check that the outside boundary is a parallelogram.";
+  }
   if (joinedSide === "hypotenuse") {
     if (item?.requiredCompositionSide === "leg") {
       return "This hypotenuse join rebuilds the original rectangle. Try joining matching legs to make a different shape.";
@@ -10345,28 +10524,44 @@ function updatePracticeCompositionDom(itemId) {
   if (status) status.textContent = practiceCompositionStatus(itemId);
 }
 
-function initialPracticeQuadrilateralWorkspace() {
+function practiceQuadrilateralDrawingCount(item) {
+  const configuredCount = Number(item?.visualModelData?.drawingCount);
+  return Number.isInteger(configuredCount) && configuredCount > 0 ? configuredCount : 3;
+}
+
+function practiceQuadrilateralVertexCount(item) {
+  const configuredCount = Number(item?.visualModelData?.vertexCount);
+  if (Number.isInteger(configuredCount) && configuredCount >= 3) return configuredCount;
+  return item?.visualModelData?.validationMode === "equalAreaTriangles" ? 3 : 4;
+}
+
+function initialPracticeQuadrilateralWorkspace(item) {
   return {
     activeDrawing: 0,
-    drawings: Array.from({ length: 3 }, () => ({
+    drawings: Array.from({ length: practiceQuadrilateralDrawingCount(item) }, () => ({
       vertices: [],
+      base: "",
+      height: "",
       submitted: false,
     })),
   };
 }
 
 function getPracticeQuadrilateralWorkspace(item) {
+  const drawingCount = practiceQuadrilateralDrawingCount(item);
   let workspace = state.practiceQuadrilateralWorkspaces[item.id];
-  if (!workspace || !Array.isArray(workspace.drawings) || workspace.drawings.length !== 3) {
-    workspace = initialPracticeQuadrilateralWorkspace();
+  if (!workspace || !Array.isArray(workspace.drawings) || workspace.drawings.length !== drawingCount) {
+    workspace = initialPracticeQuadrilateralWorkspace(item);
     state.practiceQuadrilateralWorkspaces[item.id] = workspace;
   }
-  workspace.activeDrawing = clampNumber(Number(workspace.activeDrawing) || 0, 0, 2);
+  workspace.activeDrawing = clampNumber(Number(workspace.activeDrawing) || 0, 0, drawingCount - 1);
   workspace.drawings.forEach((drawing) => {
     if (!Array.isArray(drawing.vertices)) drawing.vertices = [];
     drawing.vertices = drawing.vertices
       .filter((point) => Number.isInteger(point?.x) && Number.isInteger(point?.y))
-      .slice(0, 4);
+      .slice(0, practiceQuadrilateralVertexCount(item));
+    drawing.base = typeof drawing.base === "string" ? drawing.base : "";
+    drawing.height = typeof drawing.height === "string" ? drawing.height : "";
     drawing.submitted = Boolean(drawing.submitted);
   });
   return workspace;
@@ -10409,28 +10604,82 @@ function practicePolygonArea(vertices) {
   }, 0)) / 2;
 }
 
-function practiceQuadrilateralGeometryValidation(vertices) {
-  if (vertices.length !== 4) {
-    return { correct: false, feedback: `Choose ${4 - vertices.length} more ${4 - vertices.length === 1 ? "vertex" : "vertices"}.` };
+function practiceQuadrilateralBasicGeometryValidation(vertices, requiredVertices = 4) {
+  if (vertices.length !== requiredVertices) {
+    const remaining = requiredVertices - vertices.length;
+    return { correct: false, feedback: `Choose ${remaining} more ${remaining === 1 ? "vertex" : "vertices"}.` };
   }
-  if (new Set(vertices.map((point) => `${point.x},${point.y}`)).size !== 4) {
-    return { correct: false, feedback: "Use four different grid points." };
+  if (new Set(vertices.map((point) => `${point.x},${point.y}`)).size !== requiredVertices) {
+    return { correct: false, feedback: `Use ${requiredVertices} different grid points.` };
   }
   const hasFlatCorner = vertices.some((point, index) => (
-    Math.abs(practicePolygonCross(vertices[(index + 3) % 4], point, vertices[(index + 1) % 4])) < 1e-9
+    Math.abs(practicePolygonCross(
+      vertices[(index + requiredVertices - 1) % requiredVertices],
+      point,
+      vertices[(index + 1) % requiredVertices],
+    )) < 1e-9
   ));
   if (hasFlatCorner) {
-    return { correct: false, feedback: "One selected point lies on a straight side. Make four actual corners." };
+    return { correct: false, feedback: `One selected point lies on a straight side. Make ${requiredVertices} actual corners.` };
   }
-  if (practicePolygonSegmentsIntersect(vertices[0], vertices[1], vertices[2], vertices[3])
-    || practicePolygonSegmentsIntersect(vertices[1], vertices[2], vertices[3], vertices[0])) {
-    return { correct: false, feedback: "The sides cross. Select the four corners in order around the shape." };
+  for (let firstIndex = 0; firstIndex < requiredVertices; firstIndex += 1) {
+    const firstNext = (firstIndex + 1) % requiredVertices;
+    for (let secondIndex = firstIndex + 1; secondIndex < requiredVertices; secondIndex += 1) {
+      const secondNext = (secondIndex + 1) % requiredVertices;
+      const sharesEndpoint = firstIndex === secondIndex
+        || firstIndex === secondNext
+        || firstNext === secondIndex
+        || firstNext === secondNext;
+      if (sharesEndpoint) continue;
+      if (practicePolygonSegmentsIntersect(
+        vertices[firstIndex],
+        vertices[firstNext],
+        vertices[secondIndex],
+        vertices[secondNext],
+      )) {
+        return { correct: false, feedback: `The sides cross. Select the ${requiredVertices} corners in order around the shape.` };
+      }
+    }
   }
   const area = practicePolygonArea(vertices);
+  return { correct: true, area, feedback: "This is a simple quadrilateral." };
+}
+
+function practiceQuadrilateralGeometryValidation(vertices) {
+  const basic = practiceQuadrilateralBasicGeometryValidation(vertices);
+  if (!basic.correct) return basic;
+  const { area } = basic;
   if (Math.abs(area - 12) > 1e-9) {
     return { correct: false, area, feedback: `This quadrilateral has area ${formatPracticeNumber(area)}, not 12 square units.` };
   }
   return { correct: true, area, feedback: "This is a simple quadrilateral with area 12 square units." };
+}
+
+function practiceQuadrilateralCalculatedType(vertices) {
+  const basic = practiceQuadrilateralBasicGeometryValidation(vertices);
+  if (!basic.correct) return "";
+  const [first, second, third, fourth] = vertices;
+  const isParallelogram = first.x + third.x === second.x + fourth.x
+    && first.y + third.y === second.y + fourth.y;
+  if (!isParallelogram) return "";
+  const sideA = { x: second.x - first.x, y: second.y - first.y };
+  const sideB = { x: third.x - second.x, y: third.y - second.y };
+  const rightAngle = sideA.x * sideB.x + sideA.y * sideB.y === 0;
+  const equalAdjacentSides = sideA.x ** 2 + sideA.y ** 2 === sideB.x ** 2 + sideB.y ** 2;
+  if (rightAngle && equalAdjacentSides) return "square";
+  if (rightAngle) return "rectangle";
+  if (equalAdjacentSides) return "rhombus";
+  return "parallelogram";
+}
+
+function practiceQuadrilateralClassifications(item) {
+  const response = state.practiceResponses[item.id];
+  if (!response || typeof response !== "object" || Array.isArray(response)) {
+    state.practiceResponses[item.id] = { classifications: {} };
+  } else if (!response.classifications || typeof response.classifications !== "object") {
+    response.classifications = {};
+  }
+  return state.practiceResponses[item.id].classifications;
 }
 
 function practiceQuadrilateralCanonicalSignature(vertices) {
@@ -10465,23 +10714,151 @@ function practiceQuadrilateralCanonicalSignature(vertices) {
 function practiceQuadrilateralValidation(item, drawingIndex) {
   const workspace = getPracticeQuadrilateralWorkspace(item);
   const drawing = workspace.drawings[drawingIndex];
-  const geometry = practiceQuadrilateralGeometryValidation(drawing.vertices);
+  const validationMode = item.visualModelData?.validationMode;
+  const cutMode = validationMode === "identicalTriangleCuts";
+  const equalAreaMode = validationMode === "equalAreaParallelograms";
+  const triangleMode = validationMode === "equalAreaTriangles";
+  const polygonTargetMode = validationMode === "targetPolygonArea";
+  const requiresDimensions = equalAreaMode
+    || (triangleMode && item.visualModelData?.requireDimensions !== false);
+  const geometry = cutMode || equalAreaMode || triangleMode || polygonTargetMode
+    ? practiceQuadrilateralBasicGeometryValidation(drawing.vertices, practiceQuadrilateralVertexCount(item))
+    : practiceQuadrilateralGeometryValidation(drawing.vertices);
   if (!geometry.correct) return geometry;
+  if (cutMode) {
+    const calculatedType = practiceQuadrilateralCalculatedType(drawing.vertices);
+    if (!calculatedType) {
+      return {
+        correct: false,
+        area: geometry.area,
+        feedback: "This diagonal does not split the quadrilateral into two identical triangles. Try a parallelogram, rectangle, square, or rhombus.",
+      };
+    }
+    const classification = practiceQuadrilateralClassifications(item)[drawingIndex];
+    if (!classification) {
+      return { correct: false, area: geometry.area, feedback: "Choose the type of this quadrilateral before checking it." };
+    }
+    if (classification !== calculatedType) {
+      return { correct: false, area: geometry.area, feedback: `Recheck the shape name. This drawing is a ${calculatedType}.` };
+    }
+  }
+  if (equalAreaMode || triangleMode || polygonTargetMode) {
+    const calculatedType = equalAreaMode ? practiceQuadrilateralCalculatedType(drawing.vertices) : "";
+    if (equalAreaMode && !calculatedType) {
+      return {
+        correct: false,
+        area: geometry.area,
+        feedback: "This quadrilateral is not a parallelogram. Both pairs of opposite sides must be parallel.",
+      };
+    }
+    if (triangleMode && item.visualModelData?.requiredTriangleType) {
+      const triangleType = practiceTriangleAngleType(drawing.vertices);
+      if (triangleType !== item.visualModelData.requiredTriangleType) {
+        return {
+          correct: false,
+          area: geometry.area,
+          feedback: `This is ${triangleType ? practiceTriangleTypeWithArticle(triangleType) : "not a valid"} triangle. Draw ${practiceTriangleTypeWithArticle(item.visualModelData.requiredTriangleType)} triangle.`,
+        };
+      }
+    }
+    const targetArea = Number(item.visualModelData?.targetArea);
+    if (Number.isFinite(targetArea) && Math.abs(geometry.area - targetArea) > 1e-9) {
+      const targetShape = triangleMode
+        ? "triangle"
+        : polygonTargetMode
+          ? item.visualModelData?.shapeLabel || "polygon"
+          : "parallelogram";
+      return {
+        correct: false,
+        area: geometry.area,
+        feedback: item.visualModelData?.showCalculatedArea !== true
+          ? `This ${targetShape} does not have area ${formatPracticeNumber(targetArea)} square units yet. Revise the construction and check again.`
+          : `This ${targetShape} has area ${formatPracticeNumber(geometry.area)}, not ${formatPracticeNumber(targetArea)} square units.`,
+      };
+    }
+    if (!requiresDimensions) {
+      // Some source drawing tasks ask only for the figure. Do not add a
+      // base-height response that the source never requested.
+    } else {
+    const base = parseMathNumber(drawing.base);
+    const height = parseMathNumber(drawing.height);
+    if (base === null || height === null || base <= 0 || height <= 0) {
+      return {
+        correct: false,
+        area: geometry.area,
+        feedback: `Enter a positive base length and its corresponding perpendicular height for this ${triangleMode ? "triangle" : "parallelogram"}.`,
+      };
+    }
+    const areaFromLabels = triangleMode ? base * height / 2 : base * height;
+    if (Math.abs(areaFromLabels - geometry.area) > 1e-9) {
+      return {
+        correct: false,
+        area: geometry.area,
+        feedback: `This drawing has area ${formatPracticeNumber(geometry.area)} square units, but ${triangleMode ? "one half of " : ""}${formatPracticeNumber(base)} x ${formatPracticeNumber(height)} does not equal that area. Recheck the corresponding base and height.`,
+      };
+    }
+    }
+    const comparison = equalAreaMode ? workspace.drawings.find((other, index) => (
+      index !== drawingIndex
+      && other.submitted
+      && practiceQuadrilateralCalculatedType(other.vertices)
+      && parseMathNumber(other.base) !== null
+      && parseMathNumber(other.height) !== null
+    )) : null;
+    if (comparison) {
+      const comparisonArea = practicePolygonArea(comparison.vertices);
+      if (Math.abs(comparisonArea - geometry.area) > 1e-9) {
+        return {
+          correct: false,
+          area: geometry.area,
+          feedback: `This parallelogram has area ${formatPracticeNumber(geometry.area)}, but the other one has area ${formatPracticeNumber(comparisonArea)}. Revise one drawing so the areas are equal.`,
+        };
+      }
+    }
+  }
   const signature = practiceQuadrilateralCanonicalSignature(drawing.vertices);
   const duplicateIndex = workspace.drawings.findIndex((other, index) => (
     index !== drawingIndex
     && other.submitted
-    && practiceQuadrilateralGeometryValidation(other.vertices).correct
+    && (cutMode || equalAreaMode
+      ? Boolean(practiceQuadrilateralCalculatedType(other.vertices))
+      : triangleMode
+        ? practiceQuadrilateralBasicGeometryValidation(other.vertices, 3).correct
+      : practiceQuadrilateralGeometryValidation(other.vertices).correct)
     && practiceQuadrilateralCanonicalSignature(other.vertices) === signature
   ));
   if (duplicateIndex >= 0) {
     return {
       correct: false,
       area: geometry.area,
-      feedback: `This is the same shape as Drawing ${duplicateIndex + 1}, moved, turned, or flipped. Draw a different quadrilateral with area 12.`,
+      feedback: `This is the same shape as Drawing ${duplicateIndex + 1}, moved, turned, or flipped. Draw a different ${triangleMode ? "triangle" : "quadrilateral"}.`,
     };
   }
-  return geometry;
+  return cutMode
+    ? { correct: true, area: geometry.area, feedback: `Correct. This ${practiceQuadrilateralCalculatedType(drawing.vertices)} is cut into two identical triangles by the shown diagonal.` }
+    : equalAreaMode
+      ? { correct: true, area: geometry.area, feedback: `Correct. This ${practiceQuadrilateralCalculatedType(drawing.vertices)} has area ${formatPracticeNumber(geometry.area)} square units, and its base-height product matches.` }
+      : triangleMode
+        ? { correct: true, area: geometry.area, feedback: `Correct. This ${item.visualModelData?.requiredTriangleType ? `${item.visualModelData.requiredTriangleType} ` : ""}triangle has area ${formatPracticeNumber(geometry.area)} square units${requiresDimensions ? ", and one half of its base-height product matches" : ""}.` }
+        : polygonTargetMode
+          ? { correct: true, area: geometry.area, feedback: `Correct. This ${item.visualModelData?.shapeLabel || "polygon"} has ${practiceQuadrilateralVertexCount(item)} sides and area ${formatPracticeNumber(geometry.area)} square units.` }
+    : geometry;
+}
+
+function practiceTriangleAngleType(vertices) {
+  const basic = practiceQuadrilateralBasicGeometryValidation(vertices, 3);
+  if (!basic.correct) return "";
+  const squaredLengths = vertices.map((point, index) => {
+    const next = vertices[(index + 1) % 3];
+    return (next.x - point.x) ** 2 + (next.y - point.y) ** 2;
+  }).sort((first, second) => first - second);
+  const comparison = squaredLengths[0] + squaredLengths[1] - squaredLengths[2];
+  if (Math.abs(comparison) < 1e-9) return "right";
+  return comparison > 0 ? "acute" : "obtuse";
+}
+
+function practiceTriangleTypeWithArticle(type) {
+  return `${type === "right" ? "a" : "an"} ${type}`;
 }
 
 function practiceQuadrilateralChanged(item, drawingIndex) {
@@ -10490,6 +10867,13 @@ function practiceQuadrilateralChanged(item, drawingIndex) {
   state.practiceSubmitted[item.id] = false;
   state.practiceSamples[item.id] = false;
   state.sourceModalItemId = null;
+}
+
+function practiceQuadrilateralSetHasNonRightAngles(item) {
+  return getPracticeQuadrilateralWorkspace(item).drawings.some((drawing) => {
+    const type = practiceQuadrilateralCalculatedType(drawing.vertices);
+    return type === "parallelogram" || type === "rhombus";
+  });
 }
 
 function renderPracticeQuadrilateralWorkspace(item) {
@@ -10510,21 +10894,70 @@ function renderPracticeQuadrilateralWorkspace(item) {
     const y = padding + row * cell;
     grid.push(`<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" class="practice-construction-grid-line"></line>`);
   }
-  const selectedKeys = new Set(drawing.vertices.map((point) => `${point.x},${point.y}`));
+  const vertexCount = practiceQuadrilateralVertexCount(item);
+  const completedDrawing = drawing.vertices.length === vertexCount;
+  const allowVertexEditing = item.visualModelData?.allowVertexEditing !== false && completedDrawing;
+  const showCalculatedArea = item.visualModelData?.showCalculatedArea === true;
+  const referenceDrawings = item.visualModelData?.retainInactiveDrawings === true
+    ? workspace.drawings
+      .map((referenceDrawing, index) => ({ drawing: referenceDrawing, index }))
+      .filter((entry) => entry.index !== workspace.activeDrawing && entry.drawing.vertices.length >= 2)
+    : [];
+  const referenceShapes = referenceDrawings.map((entry) => {
+    const points = entry.drawing.vertices
+      .map((point) => `${padding + point.x * cell},${padding + point.y * cell}`)
+      .join(" ");
+    const tagName = entry.drawing.vertices.length === vertexCount ? "polygon" : "polyline";
+    const openClass = tagName === "polyline" ? " is-open" : "";
+    return `<${tagName} points="${points}" class="practice-quadrilateral-reference-shape${openClass}" data-practice-quadrilateral-reference-drawing="${entry.index}" aria-hidden="true"></${tagName}>`;
+  }).join("");
+  const referenceLabels = referenceDrawings.length > 1
+    ? referenceDrawings.map((entry) => {
+      const center = entry.drawing.vertices.reduce((total, point) => ({
+        x: total.x + point.x,
+        y: total.y + point.y,
+      }), { x: 0, y: 0 });
+      const divisor = entry.drawing.vertices.length;
+      return `<text x="${padding + center.x / divisor * cell}" y="${padding + center.y / divisor * cell + 6}" text-anchor="middle" class="practice-quadrilateral-reference-label" data-practice-quadrilateral-reference-label="${entry.index}" aria-hidden="true">D${entry.index + 1}</text>`;
+    }).join("")
+    : "";
+  const referenceSummary = referenceDrawings.length
+    ? `
+      <div class="practice-quadrilateral-reference-summary" aria-label="Retained earlier drawings">
+        ${referenceDrawings.map((entry) => {
+          const dimensions = [
+            entry.drawing.base ? `Base ${entry.drawing.base}` : "",
+            entry.drawing.height ? `Height ${entry.drawing.height}` : "",
+          ].filter(Boolean).join(" · ");
+          return `
+            <div data-practice-quadrilateral-reference-summary="${entry.index}">
+              <span class="practice-quadrilateral-reference-swatch" aria-hidden="true"></span>
+              <strong>Drawing ${entry.index + 1} reference</strong>
+              ${dimensions ? `<span>${escapeHtml(dimensions)}</span>` : ""}
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `
+    : "";
+  const selectedIndexByKey = new Map(drawing.vertices.map((point, index) => [`${point.x},${point.y}`, index]));
   const pointTargets = [];
   for (let row = 0; row <= rows; row += 1) {
     for (let column = 0; column <= columns; column += 1) {
-      const selected = selectedKeys.has(`${column},${row}`);
+      const vertexIndex = selectedIndexByKey.get(`${column},${row}`);
+      const selected = Number.isInteger(vertexIndex);
+      const draggable = allowVertexEditing && selected;
+      const pointCanBeAdded = !completedDrawing;
+      const interactive = draggable || pointCanBeAdded;
       pointTargets.push(`
         <circle
-          class="practice-quadrilateral-point-target ${selected ? "is-selected" : ""}"
+          class="practice-quadrilateral-point-target ${selected ? "is-selected" : ""} ${draggable ? "is-draggable" : ""} ${interactive ? "" : "is-inactive"}"
           cx="${padding + column * cell}"
           cy="${padding + row * cell}"
-          r="12"
-          role="button"
-          tabindex="0"
-          aria-label="Grid point column ${column}, row ${row}${selected ? ", selected" : ""}"
-          data-practice-quadrilateral-point="${item.id}"
+          r="${draggable ? 16 : 12}"
+          ${interactive ? `role="button" tabindex="0" aria-label="${draggable ? `Vertex ${vertexIndex + 1} at column ${column}, row ${row}. Drag it or use the arrow keys to move it.` : `Grid point column ${column}, row ${row}${selected ? ", selected" : ""}`}"` : `aria-hidden="true"`}
+          ${pointCanBeAdded ? `data-practice-quadrilateral-point="${item.id}"` : ""}
+          ${draggable ? `data-practice-quadrilateral-vertex="${item.id}" data-drawing-index="${workspace.activeDrawing}" data-vertex-index="${vertexIndex}"` : ""}
           data-column="${column}"
           data-row="${row}"
         ></circle>
@@ -10535,30 +10968,45 @@ function renderPracticeQuadrilateralWorkspace(item) {
     .map((point) => `${padding + point.x * cell},${padding + point.y * cell}`)
     .join(" ");
   const shape = drawing.vertices.length >= 2
-    ? drawing.vertices.length === 4
-      ? `<polygon points="${vertexPoints}" class="practice-quadrilateral-shape"></polygon>`
+    ? drawing.vertices.length === vertexCount
+      ? `<polygon points="${vertexPoints}" class="practice-quadrilateral-shape" data-practice-quadrilateral-shape></polygon>`
       : `<polyline points="${vertexPoints}" class="practice-quadrilateral-shape is-open"></polyline>`
     : "";
+  const cutLine = item.visualModelData?.validationMode === "identicalTriangleCuts" && drawing.vertices.length === 4
+    ? `<line x1="${padding + drawing.vertices[0].x * cell}" y1="${padding + drawing.vertices[0].y * cell}" x2="${padding + drawing.vertices[2].x * cell}" y2="${padding + drawing.vertices[2].y * cell}" class="practice-quadrilateral-cut"></line>`
+    : "";
   const vertexLabels = drawing.vertices.map((point, index) => `
-    <g aria-hidden="true">
-      <circle cx="${padding + point.x * cell}" cy="${padding + point.y * cell}" r="9" class="practice-quadrilateral-vertex"></circle>
-      <text x="${padding + point.x * cell}" y="${padding + point.y * cell + 4}" text-anchor="middle" class="practice-quadrilateral-vertex-label">${index + 1}</text>
+    <g aria-hidden="true" transform="translate(${padding + point.x * cell} ${padding + point.y * cell})" data-practice-quadrilateral-vertex-display="${index}">
+      <circle cx="0" cy="0" r="9" class="practice-quadrilateral-vertex"></circle>
+      <text x="0" y="4" text-anchor="middle" class="practice-quadrilateral-vertex-label">${index + 1}</text>
     </g>
   `).join("");
-  const geometry = practiceQuadrilateralGeometryValidation(drawing.vertices);
+  const validationMode = item.visualModelData?.validationMode;
+  const cutMode = validationMode === "identicalTriangleCuts";
+  const equalAreaMode = validationMode === "equalAreaParallelograms";
+  const triangleMode = validationMode === "equalAreaTriangles";
+  const polygonTargetMode = validationMode === "targetPolygonArea";
+  const shapeLabel = polygonTargetMode ? item.visualModelData?.shapeLabel || "polygon" : triangleMode ? "triangle" : "quadrilateral";
+  const geometry = cutMode || equalAreaMode || triangleMode || polygonTargetMode
+    ? practiceQuadrilateralBasicGeometryValidation(drawing.vertices, vertexCount)
+    : practiceQuadrilateralGeometryValidation(drawing.vertices);
   return `
-    <section class="practice-construction-workspace practice-quadrilateral-workspace" aria-label="Area 12 quadrilateral drawing workspace">
+    <section class="practice-construction-workspace practice-quadrilateral-workspace" aria-label="${cutMode ? "Identical-triangle quadrilateral drawing workspace" : equalAreaMode ? "Equal-area parallelogram drawing workspace" : triangleMode ? "Area-target triangle drawing workspace" : polygonTargetMode ? `Area-target ${shapeLabel} drawing workspace` : "Area 12 quadrilateral drawing workspace"}">
       <div class="practice-construction-heading">
         <div>
           <h4>Drawing ${workspace.activeDrawing + 1}</h4>
-          <p>Select four corners in order around the quadrilateral. The fourth point closes the shape.</p>
+          <p>${allowVertexEditing ? `Drag a numbered vertex to revise the ${shapeLabel}. It snaps to the grid${showCalculatedArea ? ", and the area updates as it moves" : ""}.` : cutMode ? "Select four corners in order. The app shows the single diagonal cut after the fourth corner." : equalAreaMode ? "Select four corners in order around a parallelogram. The fourth point closes the shape." : triangleMode ? `Select three vertices${item.visualModelData?.requiredTriangleType ? ` for ${practiceTriangleTypeWithArticle(item.visualModelData.requiredTriangleType)} triangle` : ""}. The third point closes the triangle.` : polygonTargetMode ? `Select ${vertexCount} corners in order around the ${shapeLabel}. The last point closes the shape.` : "Select four corners in order around the quadrilateral. The fourth point closes the shape."}</p>
         </div>
-        <span class="practice-construction-measure">${drawing.vertices.length === 4 ? `Area: ${formatPracticeNumber(geometry.area || 0)}` : `${drawing.vertices.length} of 4 vertices`}</span>
+        <span class="practice-construction-measure" data-practice-construction-measure="${item.id}" aria-live="polite">${drawing.vertices.length === vertexCount ? (cutMode ? "Diagonal shown" : showCalculatedArea ? `Area: ${formatPracticeNumber(geometry.area || 0)}` : `${vertexCount} vertices placed`) : `${drawing.vertices.length} of ${vertexCount} vertices`}</span>
       </div>
-      <svg class="practice-quadrilateral-board" viewBox="0 0 ${width} ${height}" role="group" aria-label="${columns}-by-${rows} square grid">
+      ${referenceSummary}
+      <svg class="practice-quadrilateral-board ${allowVertexEditing ? "has-editable-vertices" : ""}" viewBox="0 0 ${width} ${height}" role="group" aria-label="${columns}-by-${rows} square grid" data-practice-quadrilateral-board="${item.id}">
         <rect x="1" y="1" width="${width - 2}" height="${height - 2}" class="practice-construction-board"></rect>
         ${grid.join("")}
+        ${referenceShapes}
         ${shape}
+        ${referenceLabels}
+        ${cutLine}
         ${pointTargets.join("")}
         ${vertexLabels}
       </svg>
@@ -10744,10 +11192,182 @@ function addPracticeQuadrilateralPoint(item, column, row) {
     || column < 0 || column > (Number(data.columns) || 16)
     || row < 0 || row > (Number(data.rows) || 10)) return false;
   const drawing = workspace.drawings[workspace.activeDrawing];
-  if (drawing.vertices.length >= 4
+  if (drawing.vertices.length >= practiceQuadrilateralVertexCount(item)
     || drawing.vertices.some((point) => point.x === column && point.y === row)) return false;
   drawing.vertices.push({ x: column, y: row });
   practiceQuadrilateralChanged(item, workspace.activeDrawing);
+  return true;
+}
+
+function practiceQuadrilateralGridGeometry(item) {
+  return {
+    columns: Number(item?.visualModelData?.columns) || 16,
+    rows: Number(item?.visualModelData?.rows) || 10,
+    cell: 42,
+    padding: 30,
+  };
+}
+
+function practiceQuadrilateralVertexPointIsAvailable(drawing, vertexIndex, point) {
+  return !drawing.vertices.some((vertex, index) => (
+    index !== vertexIndex && vertex.x === point.x && vertex.y === point.y
+  ));
+}
+
+function movePracticeQuadrilateralVertex(item, drawingIndex, vertexIndex, point) {
+  if (item?.visualModelData?.allowVertexEditing === false) return false;
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  const drawing = workspace.drawings[drawingIndex];
+  const geometry = practiceQuadrilateralGridGeometry(item);
+  if (!drawing
+    || drawing.vertices.length !== practiceQuadrilateralVertexCount(item)
+    || !Number.isInteger(vertexIndex)
+    || vertexIndex < 0
+    || vertexIndex >= drawing.vertices.length
+    || !Number.isInteger(point?.x)
+    || !Number.isInteger(point?.y)
+    || point.x < 0
+    || point.x > geometry.columns
+    || point.y < 0
+    || point.y > geometry.rows
+    || !practiceQuadrilateralVertexPointIsAvailable(drawing, vertexIndex, point)) return false;
+  const current = drawing.vertices[vertexIndex];
+  if (current.x === point.x && current.y === point.y) return false;
+  drawing.vertices[vertexIndex] = { x: point.x, y: point.y };
+  practiceQuadrilateralChanged(item, drawingIndex);
+  return true;
+}
+
+function focusPracticeQuadrilateralVertex(itemId, vertexIndex) {
+  requestAnimationFrame(() => {
+    document.querySelector(`[data-practice-quadrilateral-vertex="${itemId}"][data-vertex-index="${vertexIndex}"]`)?.focus();
+  });
+}
+
+function practiceQuadrilateralPointerGridPoint(item, board, event) {
+  const geometry = practiceQuadrilateralGridGeometry(item);
+  const point = tangramSvgPoint(board, event);
+  return {
+    x: clampNumber(Math.round((point.x - geometry.padding) / geometry.cell), 0, geometry.columns),
+    y: clampNumber(Math.round((point.y - geometry.padding) / geometry.cell), 0, geometry.rows),
+  };
+}
+
+function updatePracticeQuadrilateralVertexPreview(pointer) {
+  const item = practiceBank.find((entry) => entry.id === pointer.itemId);
+  if (!item) return;
+  const workspace = getPracticeQuadrilateralWorkspace(item);
+  const drawing = workspace.drawings[pointer.drawingIndex];
+  if (!drawing) return;
+  const geometry = practiceQuadrilateralGridGeometry(item);
+  const previewVertices = drawing.vertices.map((point, index) => (
+    index === pointer.vertexIndex ? pointer.current : point
+  ));
+  const toSvgPoint = (point) => `${geometry.padding + point.x * geometry.cell},${geometry.padding + point.y * geometry.cell}`;
+  pointer.board.querySelector("[data-practice-quadrilateral-shape]")
+    ?.setAttribute("points", previewVertices.map(toSvgPoint).join(" "));
+  const display = pointer.board.querySelector(`[data-practice-quadrilateral-vertex-display="${pointer.vertexIndex}"]`);
+  display?.setAttribute(
+    "transform",
+    `translate(${geometry.padding + pointer.current.x * geometry.cell} ${geometry.padding + pointer.current.y * geometry.cell})`,
+  );
+  pointer.handle.setAttribute("cx", String(geometry.padding + pointer.current.x * geometry.cell));
+  pointer.handle.setAttribute("cy", String(geometry.padding + pointer.current.y * geometry.cell));
+  pointer.handle.setAttribute(
+    "aria-label",
+    `Vertex ${pointer.vertexIndex + 1} at column ${pointer.current.x}, row ${pointer.current.y}. Drag it or use the arrow keys to move it.`,
+  );
+  const cutLine = pointer.board.querySelector(".practice-quadrilateral-cut");
+  if (cutLine && previewVertices.length >= 3) {
+    cutLine.setAttribute("x1", String(geometry.padding + previewVertices[0].x * geometry.cell));
+    cutLine.setAttribute("y1", String(geometry.padding + previewVertices[0].y * geometry.cell));
+    cutLine.setAttribute("x2", String(geometry.padding + previewVertices[2].x * geometry.cell));
+    cutLine.setAttribute("y2", String(geometry.padding + previewVertices[2].y * geometry.cell));
+  }
+  const measure = document.querySelector(`[data-practice-construction-measure="${item.id}"]`);
+  if (measure && item.visualModelData?.showCalculatedArea === true) {
+    measure.textContent = `Area: ${formatPracticeNumber(practicePolygonArea(previewVertices))}`;
+  }
+}
+
+function startPracticeQuadrilateralVertexPointer(event) {
+  const handle = event.target.closest?.("[data-practice-quadrilateral-vertex]");
+  if (!handle || (event.button !== undefined && event.button !== 0)) return false;
+  const item = practiceBank.find((entry) => entry.id === handle.dataset.practiceQuadrilateralVertex);
+  const drawingIndex = Number(handle.dataset.drawingIndex);
+  const vertexIndex = Number(handle.dataset.vertexIndex);
+  const board = handle.closest("[data-practice-quadrilateral-board]");
+  if (!item
+    || item.responseType !== "quadrilateralAreaSet"
+    || item.visualModelData?.allowVertexEditing === false
+    || !board
+    || !Number.isInteger(drawingIndex)
+    || !Number.isInteger(vertexIndex)) return false;
+  const drawing = getPracticeQuadrilateralWorkspace(item).drawings[drawingIndex];
+  if (!drawing || drawing.vertices.length !== practiceQuadrilateralVertexCount(item) || !drawing.vertices[vertexIndex]) return false;
+  practiceQuadrilateralVertexPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    itemId: item.id,
+    drawingIndex,
+    vertexIndex,
+    board,
+    handle,
+    original: { ...drawing.vertices[vertexIndex] },
+    current: { ...drawing.vertices[vertexIndex] },
+    moved: false,
+  };
+  board.classList.add("is-vertex-dragging");
+  handle.classList.add("is-dragging");
+  if (event.pointerId !== undefined) board.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  return true;
+}
+
+function updatePracticeQuadrilateralVertexPointer(event) {
+  const pointer = practiceQuadrilateralVertexPointer;
+  if (!pointer || (event.pointerId ?? "mouse") !== pointer.pointerId) return false;
+  const item = practiceBank.find((entry) => entry.id === pointer.itemId);
+  const drawing = item ? getPracticeQuadrilateralWorkspace(item).drawings[pointer.drawingIndex] : null;
+  if (!item || !drawing) return false;
+  const next = practiceQuadrilateralPointerGridPoint(item, pointer.board, event);
+  if (!practiceQuadrilateralVertexPointIsAvailable(drawing, pointer.vertexIndex, next)) {
+    event.preventDefault();
+    return true;
+  }
+  if (pointer.current.x !== next.x || pointer.current.y !== next.y) {
+    pointer.current = next;
+    pointer.moved = pointer.moved || next.x !== pointer.original.x || next.y !== pointer.original.y;
+    updatePracticeQuadrilateralVertexPreview(pointer);
+  }
+  event.preventDefault();
+  return true;
+}
+
+function endPracticeQuadrilateralVertexPointer(event) {
+  const pointer = practiceQuadrilateralVertexPointer;
+  if (!pointer || (event.pointerId ?? "mouse") !== pointer.pointerId) return false;
+  practiceQuadrilateralVertexPointer = null;
+  pointer.board.classList.remove("is-vertex-dragging");
+  pointer.handle.classList.remove("is-dragging");
+  const item = practiceBank.find((entry) => entry.id === pointer.itemId);
+  const changed = item && pointer.moved
+    ? movePracticeQuadrilateralVertex(item, pointer.drawingIndex, pointer.vertexIndex, pointer.current)
+    : false;
+  if (changed) {
+    renderPractice();
+    focusPracticeQuadrilateralVertex(pointer.itemId, pointer.vertexIndex);
+  }
+  event.preventDefault();
+  return true;
+}
+
+function cancelPracticeQuadrilateralVertexPointer(event) {
+  const pointer = practiceQuadrilateralVertexPointer;
+  if (!pointer || (event.pointerId ?? "mouse") !== pointer.pointerId) return false;
+  practiceQuadrilateralVertexPointer = null;
+  renderPractice();
+  focusPracticeQuadrilateralVertex(pointer.itemId, pointer.vertexIndex);
+  event.preventDefault();
   return true;
 }
 
@@ -10797,37 +11417,53 @@ function practiceAreaStrategyResponse(item) {
   return response && typeof response === "object" && !Array.isArray(response) ? response : {};
 }
 
-function practiceAreaStrategyGroupIds() {
-  return ["method1", "method2"];
+function practiceAreaStrategyGroups(item) {
+  const configured = Array.isArray(item?.strategyGroups) ? item.strategyGroups : [];
+  if (configured.length === 2 && configured.every((group) => group?.id)) return configured;
+  return [
+    { id: "method1", label: "Method 1", prompt: "How does Method 1 find the area?" },
+    { id: "method2", label: "Method 2", prompt: "How does Method 2 find the area?" },
+  ];
+}
+
+function practiceAreaStrategyGroupIds(item) {
+  return practiceAreaStrategyGroups(item).map((group) => group.id);
 }
 
 function practiceAreaStrategyValidation(item, groupId) {
   const response = practiceAreaStrategyResponse(item);
+  const group = practiceAreaStrategyGroups(item).find((entry) => entry.id === groupId);
+  if (!group) return { correct: false, feedback: "Choose a valid method." };
+  const strategyChoices = item.strategyChoices || [];
   const strategy = response[`${groupId}Strategy`] || "";
   const area = parseMathNumber(response[`${groupId}Area`]);
-  if (!strategy) return { correct: false, feedback: "Choose the strategy used for this method." };
+  if (strategyChoices.length && !strategy) return { correct: false, feedback: "Choose the strategy used for this method." };
   if (area === null) return { correct: false, feedback: "Enter the area found by this method." };
-  if (Math.abs(area - 42) > 1e-9) return { correct: false, feedback: "Recheck the labeled lengths. This method should account for the entire shaded region exactly once." };
-  const otherId = groupId === "method1" ? "method2" : "method1";
+  const targetArea = Number(item.strategyTargetArea) || 42;
+  if (Math.abs(area - targetArea) > 1e-9) {
+    return { correct: false, feedback: group.incorrectFeedback || "Recheck the labeled lengths. This method should account for the entire region exactly once." };
+  }
+  const otherId = practiceAreaStrategyGroupIds(item).find((id) => id !== groupId);
   const otherStrategy = response[`${otherId}Strategy`] || "";
-  if (otherStrategy && otherStrategy === strategy) {
+  if (strategyChoices.length && otherStrategy && otherStrategy === strategy) {
     return { correct: false, feedback: "The source asks for two different ways. Choose the other strategy for one method." };
   }
   return {
     correct: true,
-    feedback: strategy === "decompose"
+    feedback: group.correctFeedback || (strategy === "decompose"
       ? "Correct. This method decomposes the figure into non-overlapping parts whose areas total 42 square units."
-      : "Correct. This method encloses the figure and subtracts the missing regions to get 42 square units.",
+      : "Correct. This method encloses the figure and subtracts the missing regions to get 42 square units."),
   };
 }
 
 function practiceAreaStrategyPairIsCorrect(item) {
-  return practiceAreaStrategyGroupIds().every((groupId) => practiceAreaStrategyValidation(item, groupId).correct);
+  return practiceAreaStrategyGroupIds(item).every((groupId) => practiceAreaStrategyValidation(item, groupId).correct);
 }
 
 function activePracticeAreaStrategyGroup(item) {
   const active = state.practiceActiveGroups[item.id];
-  return practiceAreaStrategyGroupIds().includes(active) ? active : "method1";
+  const groupIds = practiceAreaStrategyGroupIds(item);
+  return groupIds.includes(active) ? active : groupIds[0];
 }
 
 function practiceAreaComparisonResponse(item) {
@@ -10858,18 +11494,42 @@ function practiceAreaComparisonFeedback(item) {
 
 function renderPracticeQuadrilateralAnswerControl(item) {
   const workspace = getPracticeQuadrilateralWorkspace(item);
+  const validationMode = item.visualModelData?.validationMode;
+  const cutMode = validationMode === "identicalTriangleCuts";
+  const equalAreaMode = validationMode === "equalAreaParallelograms";
+  const triangleMode = validationMode === "equalAreaTriangles";
+  const polygonTargetMode = validationMode === "targetPolygonArea";
+  const shapeLabel = polygonTargetMode ? item.visualModelData?.shapeLabel || "polygon" : triangleMode ? "triangle" : "quadrilateral";
+  const dimensionMode = equalAreaMode
+    || (triangleMode && item.visualModelData?.requireDimensions !== false);
+  const drawingCount = practiceQuadrilateralDrawingCount(item);
   const activeIndex = workspace.activeDrawing;
   const activeDrawing = workspace.drawings[activeIndex];
+  const requiredVertexCount = practiceQuadrilateralVertexCount(item);
+  const activeDrawingComplete = activeDrawing.vertices.length === requiredVertexCount;
+  const activeDrawingEditable = activeDrawingComplete && item.visualModelData?.allowVertexEditing !== false;
   const activeValidation = practiceQuadrilateralValidation(item, activeIndex);
   const completed = workspace.drawings.filter((drawing, index) => (
     drawing.submitted && practiceQuadrilateralValidation(item, index).correct
   )).length;
   const feedback = activeDrawing.submitted
     ? activeValidation.feedback
-    : "Select four vertices, then check this drawing for area and shape validity.";
+    : cutMode
+      ? "Select four vertices, choose the quadrilateral type, then check this drawing."
+      : equalAreaMode
+        ? "Select four vertices, enter a corresponding base and height, then check this parallelogram."
+        : triangleMode
+          ? `Select three vertices${item.visualModelData?.requiredTriangleType ? ` for ${practiceTriangleTypeWithArticle(item.visualModelData.requiredTriangleType)} triangle` : ""}${dimensionMode ? ", enter a corresponding base and height," : ","} then check this triangle.`
+        : polygonTargetMode
+          ? activeDrawingEditable
+            ? `The ${shapeLabel} is complete. Drag a numbered vertex if needed, then check its area and shape.`
+            : `Select ${requiredVertexCount - activeDrawing.vertices.length} more ${requiredVertexCount - activeDrawing.vertices.length === 1 ? "vertex" : "vertices"}, then check this ${shapeLabel}.`
+          : "Select four vertices, then check this drawing for area and shape validity.";
+  const classifications = cutMode ? practiceQuadrilateralClassifications(item) : {};
+  const classificationChoices = item.visualModelData?.classificationChoices || [];
   return `
-    <section class="practice-multi-target-response" aria-label="Three quadrilateral responses">
-      <div class="practice-target-tabs" role="tablist" aria-label="Choose a quadrilateral drawing">
+    <section class="practice-multi-target-response" aria-label="${drawingCount} ${shapeLabel} ${drawingCount === 1 ? "response" : "responses"}">
+      <div class="practice-target-tabs" role="tablist" aria-label="Choose a ${shapeLabel} drawing">
         ${workspace.drawings.map((drawing, index) => {
           const validation = practiceQuadrilateralValidation(item, index);
           const status = drawing.submitted ? (validation.correct ? "Correct" : "Revise") : "Not submitted";
@@ -10881,15 +11541,50 @@ function renderPracticeQuadrilateralAnswerControl(item) {
               data-practice-quadrilateral-tab="${item.id}"
               data-drawing-index="${index}"
               aria-selected="${activeIndex === index}"
-            ><strong>Drawing ${index + 1}</strong><span>${status}</span></button>
+            ><strong>${polygonTargetMode ? item.visualModelData?.shapeLabelDisplay || "Polygon" : triangleMode ? "Triangle" : "Drawing"} ${drawingCount > 1 ? index + 1 : ""}</strong><span>${status}</span></button>
           `;
         }).join("")}
       </div>
-      <p class="practice-target-progress">Completed ${completed} of 3 different quadrilaterals.</p>
-      <h4>Drawing ${activeIndex + 1}</h4>
-      <p>Choose four corners in order around a quadrilateral with area 12 square units.</p>
+      <p class="practice-target-progress">Completed ${completed} of ${drawingCount} ${equalAreaMode ? "different equal-area parallelograms" : triangleMode ? `different area-${formatPracticeNumber(Number(item.visualModelData?.targetArea) || 0)} triangles` : polygonTargetMode ? `${shapeLabel} drawings` : "different quadrilaterals"}.</p>
+      <h4>${polygonTargetMode ? item.visualModelData?.shapeLabelDisplay || "Polygon" : equalAreaMode ? "Parallelogram" : triangleMode ? "Triangle" : "Drawing"}${drawingCount > 1 ? ` ${activeIndex + 1}` : ""}</h4>
+      <p>${cutMode ? "Choose four corners in order. The displayed diagonal must divide the shape into two identical triangles." : equalAreaMode ? "Choose four corners in order around a parallelogram, then label one usable base length and its corresponding perpendicular height." : triangleMode ? `Choose three vertices for ${item.visualModelData?.requiredTriangleType ? `${practiceTriangleTypeWithArticle(item.visualModelData.requiredTriangleType)} ` : "a "}triangle with area ${formatPracticeNumber(Number(item.visualModelData?.targetArea) || 0)} square units${dimensionMode ? ", then enter one usable base and its corresponding height" : ""}.` : polygonTargetMode ? `Choose ${requiredVertexCount} corners in order around a ${shapeLabel} with area ${formatPracticeNumber(Number(item.visualModelData?.targetArea) || 0)} square units${item.visualModelData?.allowVertexEditing !== false ? ". After the shape closes, drag any numbered vertex to revise it" : ""}.` : "Choose four corners in order around a quadrilateral with area 12 square units."}</p>
+      ${cutMode ? `
+        <fieldset class="practice-quadrilateral-types">
+          <legend>Identify this quadrilateral.</legend>
+          <div class="choice-list">
+            ${classificationChoices.map((choice) => `
+              <button
+                class="choice-button ${classifications[activeIndex] === choice.id ? "is-selected" : ""}"
+                type="button"
+                data-practice-quadrilateral-type="${item.id}"
+                data-drawing-index="${activeIndex}"
+                data-shape-type="${escapeHtml(choice.id)}"
+                aria-pressed="${classifications[activeIndex] === choice.id}"
+              >${escapeHtml(choice.label)}</button>
+            `).join("")}
+          </div>
+        </fieldset>
+      ` : ""}
+      ${dimensionMode ? `
+        <div class="practice-quadrilateral-dimensions">
+          <label>
+            Base length
+            <input type="text" inputmode="decimal" data-practice-quadrilateral-dimension="${item.id}" data-drawing-index="${activeIndex}" data-dimension="base" value="${escapeHtml(activeDrawing.base)}" placeholder="Type base length">
+          </label>
+          <label>
+            Corresponding height
+            <input type="text" inputmode="decimal" data-practice-quadrilateral-dimension="${item.id}" data-drawing-index="${activeIndex}" data-dimension="height" value="${escapeHtml(activeDrawing.height)}" placeholder="Type height">
+          </label>
+        </div>
+        ${equalAreaMode && item.reasoningPrompt ? `
+          <label class="reasoning-field">
+            ${escapeHtml(item.reasoningRequired ? item.reasoningPrompt : `Optional: ${item.reasoningPrompt.replace(/^Optional:\s*/i, "")}`)}
+            <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-practice-reasoning="${item.id}" placeholder="Explain why the two areas are equal.">${escapeHtml(state.practiceReasoning[item.id] || "")}</textarea>
+          </label>
+        ` : ""}
+      ` : ""}
       <div class="practice-target-actions">
-        <button class="practice-submit" type="button" data-practice-quadrilateral-check="${item.id}">Check Drawing ${activeIndex + 1}</button>
+        <button class="practice-submit" type="button" data-practice-quadrilateral-check="${item.id}">Check ${polygonTargetMode ? item.visualModelData?.shapeLabelDisplay || "Polygon" : triangleMode ? "Triangle" : "Drawing"}${drawingCount > 1 ? ` ${activeIndex + 1}` : ""}</button>
         <button class="hint-button" type="button" data-practice-quadrilateral-undo="${item.id}" ${activeDrawing.vertices.length ? "" : "disabled"}>Undo point</button>
         <button class="hint-button" type="button" data-practice-quadrilateral-clear="${item.id}" ${activeDrawing.vertices.length ? "" : "disabled"}>Clear drawing</button>
       </div>
@@ -10927,7 +11622,10 @@ function renderPracticeRectangleTilingAnswerControl(item) {
 function renderPracticeAreaStrategyAnswerControl(item) {
   const response = practiceAreaStrategyResponse(item);
   const activeGroup = activePracticeAreaStrategyGroup(item);
-  const groupIds = practiceAreaStrategyGroupIds();
+  const groups = practiceAreaStrategyGroups(item);
+  const groupIds = practiceAreaStrategyGroupIds(item);
+  const activeDefinition = groups.find((group) => group.id === activeGroup) || groups[0];
+  const strategyChoices = item.strategyChoices || [];
   const activeSubmitted = Boolean(state.practiceGroupSubmitted[practiceGroupStateKey(item.id, activeGroup)]);
   const validation = practiceAreaStrategyValidation(item, activeGroup);
   const completed = groupIds.filter((groupId) => (
@@ -10937,7 +11635,8 @@ function renderPracticeAreaStrategyAnswerControl(item) {
   return `
     <section class="practice-multi-target-response practice-area-strategy-response" aria-label="Two different area methods">
       <div class="practice-target-tabs" role="tablist" aria-label="Choose an area method">
-        ${groupIds.map((groupId, index) => {
+        ${groups.map((group, index) => {
+          const groupId = group.id;
           const submitted = Boolean(state.practiceGroupSubmitted[practiceGroupStateKey(item.id, groupId)]);
           const groupValidation = practiceAreaStrategyValidation(item, groupId);
           const status = submitted ? (groupValidation.correct ? "Correct" : "Revise") : "Not submitted";
@@ -10949,26 +11648,34 @@ function renderPracticeAreaStrategyAnswerControl(item) {
               data-practice-strategy-tab="${item.id}"
               data-group-id="${groupId}"
               aria-selected="${activeGroup === groupId}"
-            ><strong>Method ${index + 1}</strong><span>${status}</span></button>
+            ><strong>${escapeHtml(group.label || `Method ${index + 1}`)}</strong><span>${status}</span></button>
           `;
         }).join("")}
       </div>
       <p class="practice-target-progress">Completed ${completed} of 2 different methods.</p>
-      <fieldset class="practice-strategy-options">
-        <legend>How does Method ${activeGroup === "method1" ? "1" : "2"} find the area?</legend>
-        <div class="option-grid">
-          ${(item.strategyChoices || []).map((choice) => {
+      ${strategyChoices.length ? `
+        <fieldset class="practice-strategy-options">
+          <legend>${escapeHtml(activeDefinition.prompt || "How does this method find the area?")}</legend>
+          <div class="option-grid">
+          ${strategyChoices.map((choice) => {
             const selected = response[`${activeGroup}Strategy`] === choice.id;
             return `<button class="option-button ${selected ? "is-selected" : ""}" type="button" data-practice-strategy-option="${item.id}" data-group-id="${activeGroup}" data-option-id="${choice.id}" aria-pressed="${selected}">${escapeHtml(choice.label)}</button>`;
           }).join("")}
-        </div>
-      </fieldset>
+          </div>
+        </fieldset>
+      ` : `<p>${escapeHtml(activeDefinition.prompt || "Find the area using this method.")}</p>`}
       <label>
-        Area found by Method ${activeGroup === "method1" ? "1" : "2"} (square units)
+        Area found by ${escapeHtml(activeDefinition.label || "this method")} (${escapeHtml(item.strategyAreaUnit || "square units")})
         <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="${activeGroup}Area" value="${escapeHtml(response[`${activeGroup}Area`] || "")}" placeholder="Type the area">
       </label>
-      <button class="practice-submit" type="button" data-practice-strategy-submit="${item.id}" data-group-id="${activeGroup}">Check Method ${activeGroup === "method1" ? "1" : "2"}</button>
-      <p class="practice-target-feedback ${activeSubmitted ? (validation.correct ? "is-correct" : "is-incorrect") : ""}" aria-live="polite">${escapeHtml(activeSubmitted ? validation.feedback : "Choose a strategy, enter its area, and check this method.")}</p>
+      <button class="practice-submit" type="button" data-practice-strategy-submit="${item.id}" data-group-id="${activeGroup}">Check ${escapeHtml(activeDefinition.label || "method")}</button>
+      <p class="practice-target-feedback ${activeSubmitted ? (validation.correct ? "is-correct" : "is-incorrect") : ""}" aria-live="polite">${escapeHtml(activeSubmitted ? validation.feedback : strategyChoices.length ? "Choose a strategy, enter its area, and check this method." : "Enter the area found by this method, then check it.")}</p>
+      ${item.reasoningPrompt ? `
+        <label class="reasoning-field">
+          ${escapeHtml(item.reasoningRequired ? item.reasoningPrompt : `Optional: ${item.reasoningPrompt.replace(/^Optional:\s*/i, "")}`)}
+          <textarea maxlength="${TEXTAREA_MAX_LENGTH}" data-practice-reasoning="${item.id}" placeholder="Explain both methods.">${escapeHtml(state.practiceReasoning[item.id] || "")}</textarea>
+        </label>
+      ` : ""}
     </section>
   `;
 }
@@ -11086,6 +11793,126 @@ function practiceTentPlan(itemId) {
   return tentPlanFromResponse(practiceTentResponse(itemId));
 }
 
+function practiceTentComparisonDesignItem(item) {
+  const designItemId = item?.visualModelData?.designItemId;
+  return practiceBank.find((entry) => entry.id === designItemId && entry.responseType === "tentDesignEstimate") || null;
+}
+
+function practiceTentComparisonIsReady(item) {
+  const designItem = practiceTentComparisonDesignItem(item);
+  return Boolean(designItem && isPracticeSubmitted(designItem) && isPracticeCorrect(designItem));
+}
+
+function practiceTentComparisonDesigns(item) {
+  const designItem = practiceTentComparisonDesignItem(item);
+  if (!designItem || !practiceTentComparisonIsReady(item)) return [];
+  const own = practiceTentPlan(designItem.id);
+  if (!own.valid) return [];
+  const changedHeight = own.height === 3 ? 7 : 3;
+  return [
+    { ...own, id: "own", label: "Your tent", change: "Your completed 19.1 design" },
+    {
+      ...own,
+      id: "height-change",
+      label: "Height-change tent",
+      height: changedHeight,
+      change: `Same floor and style; height changed to ${changedHeight} ft`,
+    },
+    {
+      ...own,
+      id: "floor-change",
+      label: "Floor-change tent",
+      floorLength: own.floorLength + 2,
+      floorWidth: own.floorWidth + 2,
+      change: "Same height and style; floor is 2 ft longer and 2 ft wider",
+    },
+  ].map((design) => ({ ...design, fabric: tentFabricTotal({ ...design, valid: true }) }));
+}
+
+function practiceTentComparisonAnswerIds(item, mode) {
+  const designs = practiceTentComparisonDesigns(item);
+  if (!designs.length) return [];
+  if (mode === "impact") {
+    const own = designs.find((design) => design.id === "own");
+    const heightChange = designs.find((design) => design.id === "height-change");
+    const floorChange = designs.find((design) => design.id === "floor-change");
+    const differences = [heightChange, floorChange].map((design) => ({
+      id: design.id,
+      amount: Math.abs(design.fabric - own.fabric),
+    }));
+    const greatest = Math.max(...differences.map(({ amount }) => amount));
+    return differences.filter(({ amount }) => Math.abs(amount - greatest) < 0.05).map(({ id }) => id);
+  }
+  const target = mode === "least"
+    ? Math.min(...designs.map((design) => design.fabric))
+    : Math.max(...designs.map((design) => design.fabric));
+  return designs.filter((design) => Math.abs(design.fabric - target) < 0.05).map((design) => design.id);
+}
+
+function practiceTentComparisonGroupFeedback(item, group, correct) {
+  if (!group?.dynamicAnswer) return "";
+  const designs = practiceTentComparisonDesigns(item);
+  if (!designs.length) return "Complete and submit the 19.1 tent design and fabric estimate before comparing tents.";
+  const own = designs.find((design) => design.id === "own");
+  if (group.dynamicAnswer === "tentComparisonImpact") {
+    const height = designs.find((design) => design.id === "height-change");
+    const floor = designs.find((design) => design.id === "floor-change");
+    const heightDifference = Math.abs(height.fabric - own.fabric);
+    const floorDifference = Math.abs(floor.fabric - own.fabric);
+    return correct
+      ? `Correct. Changing the height changes the fabric by ${formatTentMeasure(heightDifference)} square feet, while changing the floor changes it by ${formatTentMeasure(floorDifference)} square feet. The larger difference has the greater impact.`
+      : `Compare absolute changes from your tent: ${formatTentMeasure(heightDifference)} square feet for height and ${formatTentMeasure(floorDifference)} square feet for floor dimensions.`;
+  }
+  const mode = group.dynamicAnswer === "tentComparisonLeast" ? "least" : "most";
+  const targetIds = practiceTentComparisonAnswerIds(item, mode);
+  const targetDesigns = designs.filter((design) => targetIds.includes(design.id));
+  const targetLabel = targetDesigns.map((design) => design.label).join(" and ");
+  const targetTotal = formatTentMeasure(targetDesigns[0]?.fabric);
+  return correct
+    ? `Correct. ${targetLabel} uses ${targetTotal} square feet of fabric, the ${mode} of the three displayed totals.`
+    : `Compare all three displayed totals. The ${mode} is ${targetTotal} square feet.`;
+}
+
+function renderPracticeTentComparison(item) {
+  const designs = practiceTentComparisonDesigns(item);
+  if (!designs.length) {
+    return `
+      <section class="tent-comparison-empty" aria-label="Tent comparison not ready">
+        <h4>Finish Tent Design - Part 1</h4>
+        <p>Submit a valid 19.1 design and correct fabric estimate. The app will then keep your tent visible and provide two comparable tents for the same campers.</p>
+      </section>
+    `;
+  }
+  const own = designs.find((design) => design.id === "own");
+  return `
+    <section class="tent-comparison" aria-label="Three tent designs for ${own.capacity} campers">
+      <p class="tent-comparison-intro">All three tents hold ${own.capacity} ${own.capacity === 1 ? "camper" : "campers"} and include a floor. Compare total fabric area, not just one dimension.</p>
+      <div class="tent-comparison-grid">
+        ${designs.map((design) => {
+          const difference = design.id === "own" ? 0 : design.fabric - own.fabric;
+          const differenceText = design.id === "own"
+            ? "Reference design from 19.1"
+            : `${difference >= 0 ? "+" : "−"}${formatTentMeasure(Math.abs(difference))} sq ft compared with your tent`;
+          return `
+            <article class="tent-comparison-card" data-practice-tent-comparison-design="${escapeHtml(design.id)}">
+              <h4>${escapeHtml(design.label)}</h4>
+              <p>${escapeHtml(design.change)}</p>
+              ${renderTentModelSvg(design, true)}
+              <dl>
+                <div><dt>Floor</dt><dd>${design.floorLength} ft x ${design.floorWidth} ft</dd></div>
+                <div><dt>Height</dt><dd>${design.height} ft</dd></div>
+                <div><dt>Style</dt><dd>${design.style === "a-frame" ? "A-frame" : "Wall tent"}</dd></div>
+                <div><dt>Fabric</dt><dd>${formatTentMeasure(design.fabric)} sq ft</dd></div>
+              </dl>
+              <p class="tent-comparison-difference">${escapeHtml(differenceText)}</p>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function clearPracticeTentWorksheet(response) {
   const next = { ...response };
   ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"].forEach((field) => {
@@ -11098,6 +11925,17 @@ function markPracticeTentChanged(itemId, response) {
   state.practiceResponses[itemId] = response;
   state.practiceSubmitted[itemId] = false;
   state.practiceSamples[itemId] = false;
+  practiceBank
+    .filter((item) => item.visualModelData?.designItemId === itemId)
+    .forEach((comparisonItem) => {
+      delete state.practiceResponses[comparisonItem.id];
+      delete state.practiceSubmitted[comparisonItem.id];
+      delete state.practiceSamples[comparisonItem.id];
+      delete state.practiceReasoning[comparisonItem.id];
+      (comparisonItem.choiceGroups || []).forEach((group) => {
+        delete state.practiceGroupSubmitted[practiceGroupStateKey(comparisonItem.id, group.id)];
+      });
+    });
   state.sourceModalItemId = null;
 }
 
@@ -11169,7 +12007,10 @@ function renderPracticeTentDesigner(item) {
 }
 
 const practiceSourceAnnotationToolLabels = Object.freeze({
+  point: "Vertex dot",
   line: "Line",
+  base: "Base",
+  height: "Height",
   rectangle: "Rectangle",
   square: "Square",
   erase: "Erase",
@@ -11240,6 +12081,7 @@ function practiceSourceAnnotationSnap(item, svgNode, event) {
 
 function practiceSourceAnnotationConstrainedEnd(item, type, start, requestedEnd) {
   const definition = practiceSourceAnnotationDefinition(item);
+  if (type === "point") return { ...start };
   const end = {
     column: clampNumber(requestedEnd.column, 0, definition.columns),
     row: clampNumber(requestedEnd.row, 0, definition.rows),
@@ -11260,18 +12102,22 @@ function practiceSourceAnnotationConstrainedEnd(item, type, start, requestedEnd)
 }
 
 function practiceSourceAnnotationMarkIsValid(type, start, end) {
+  if (type === "point") return start.column === end.column && start.row === end.row;
   if (start.column === end.column && start.row === end.row) return false;
   if (["rectangle", "square"].includes(type)) {
     return start.column !== end.column && start.row !== end.row;
   }
-  return type === "line";
+  return ["line", "base", "height"].includes(type);
 }
 
 function practiceSourceAnnotationShapeMarkup(item, mark, className, attributes = "") {
   const definition = practiceSourceAnnotationDefinition(item);
   const start = practiceSourceAnnotationGridPoint(definition, mark.start);
   const end = practiceSourceAnnotationGridPoint(definition, mark.end);
-  if (mark.type === "line") {
+  if (mark.type === "point") {
+    return `<circle class="${className}" cx="${start.x}" cy="${start.y}" r="11" vector-effect="non-scaling-stroke" ${attributes}></circle>`;
+  }
+  if (["line", "base", "height"].includes(mark.type)) {
     return `<line class="${className}" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}" vector-effect="non-scaling-stroke" ${attributes}></line>`;
   }
   const x = Math.min(start.x, end.x);
@@ -11280,7 +12126,7 @@ function practiceSourceAnnotationShapeMarkup(item, mark, className, attributes =
 }
 
 function renderPracticeSourceAnnotationMark(item, mark, workspace) {
-  const label = mark.type === "line" ? "line" : mark.type;
+  const label = practiceSourceAnnotationToolLabels[mark.type]?.toLowerCase() || mark.type;
   const eraseAttributes = workspace.tool === "erase"
     ? `tabindex="0" role="button" aria-label="Erase ${label} ${mark.id}"`
     : `tabindex="-1" aria-hidden="true"`;
@@ -11290,6 +12136,43 @@ function renderPracticeSourceAnnotationMark(item, mark, workspace) {
     `practice-source-annotation-mark practice-source-annotation-mark--${mark.type}`,
     `data-practice-source-annotation-mark="${mark.id}" data-item-id="${item.id}" ${eraseAttributes}`,
   );
+}
+
+function practiceRequiredSourceAnnotationResult(item) {
+  const required = Array.isArray(item?.visualModelData?.requiredAnnotationMarks)
+    ? item.visualModelData.requiredAnnotationMarks
+    : [];
+  if (!required.length) return { correct: true, matched: 0, required: 0 };
+  const definition = practiceSourceAnnotationDefinition(item);
+  const marks = getPracticeSourceAnnotation(item).marks;
+  const tolerance = Math.max(1, Number(item.visualModelData.requiredAnnotationTolerance) || 18);
+  const distance = (first, second) => Math.hypot(first.x - second.x, first.y - second.y);
+  const pointFor = (point) => ({ x: Number(point?.x) || 0, y: Number(point?.y) || 0 });
+  const used = new Set();
+  let matched = 0;
+  required.forEach((expected) => {
+    const expectedStart = pointFor(expected.start || expected);
+    const expectedEnd = pointFor(expected.end || expected);
+    const markIndex = marks.findIndex((mark, index) => {
+      if (used.has(index) || mark.type !== expected.type) return false;
+      const markStart = practiceSourceAnnotationGridPoint(definition, mark.start);
+      const markEnd = practiceSourceAnnotationGridPoint(definition, mark.end);
+      if (expected.type === "point") return distance(markStart, expectedStart) <= tolerance;
+      const forward = distance(markStart, expectedStart) <= tolerance && distance(markEnd, expectedEnd) <= tolerance;
+      const reverse = distance(markStart, expectedEnd) <= tolerance && distance(markEnd, expectedStart) <= tolerance;
+      return forward || reverse;
+    });
+    if (markIndex >= 0) {
+      used.add(markIndex);
+      matched += 1;
+    }
+  });
+  const exactCount = item.visualModelData.requiredAnnotationExactCount !== false;
+  return {
+    correct: matched === required.length && (!exactCount || marks.length === required.length),
+    matched,
+    required: required.length,
+  };
 }
 
 function practiceSourceAnnotationStatus(item) {
@@ -11303,6 +12186,7 @@ function renderPracticeSourceAnnotation(item) {
   const data = item.visualModelData || {};
   const definition = practiceSourceAnnotationDefinition(item);
   const workspace = getPracticeSourceAnnotation(item);
+  const requiredDrawing = item.responseType === "heightDrawing";
   const displayWidth = Math.min(definition.width, Math.round(definition.displayMaxHeight * definition.width / definition.height));
   const cursor = practiceSourceAnnotationGridPoint(definition, workspace.cursor);
   const instructionId = `${item.id}-annotation-instructions`;
@@ -11338,7 +12222,7 @@ function renderPracticeSourceAnnotation(item) {
           preserveAspectRatio="xMidYMid meet"
           tabindex="0"
           role="group"
-          aria-label="Drawing layer aligned to the source square grid"
+          aria-label="${requiredDrawing ? "Required height drawing" : "Drawing layer"} aligned to the source square grid"
           aria-describedby="${instructionId}"
           aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown Enter Space Escape Delete"
           data-practice-source-annotation-board="${item.id}"
@@ -11359,10 +12243,20 @@ function renderPracticeSourceAnnotation(item) {
         </div>
       </div>
       <figcaption class="practice-source-annotation-instructions" id="${instructionId}">
-        Drag between grid intersections to draw. With the drawing layer focused, use arrow keys to move the cursor and Enter or Space to set each endpoint. Press Delete to undo the last mark.
+        ${escapeHtml(data.annotationInstructions || "Drag between grid intersections to draw. With the drawing layer focused, use arrow keys to move the cursor and Enter or Space to set each endpoint. Press Delete to undo the last mark.")}
       </figcaption>
     </figure>
   `;
+}
+
+function markPracticeSourceAnnotationChanged(item) {
+  if (!item) return;
+  const requiredMarks = item.visualModelData?.requiredAnnotationMarks;
+  const submittedAttempt = item.responseType === "annotationAttempt";
+  if (!submittedAttempt && (!Array.isArray(requiredMarks) || requiredMarks.length === 0)) return;
+  state.practiceSubmitted[item.id] = false;
+  state.practiceSamples[item.id] = false;
+  state.sourceModalItemId = null;
 }
 
 function addPracticeSourceAnnotationMark(item, type, start, requestedEnd) {
@@ -11378,6 +12272,7 @@ function addPracticeSourceAnnotationMark(item, type, start, requestedEnd) {
   workspace.nextId += 1;
   workspace.cursor = { ...end };
   workspace.keyboardStart = null;
+  markPracticeSourceAnnotationChanged(item);
   return true;
 }
 
@@ -11387,6 +12282,7 @@ function removePracticeSourceAnnotationMark(item, markId) {
   if (index < 0) return false;
   workspace.marks.splice(index, 1);
   workspace.keyboardStart = null;
+  markPracticeSourceAnnotationChanged(item);
   return true;
 }
 
@@ -12100,8 +12996,202 @@ function renderPracticeCompositionSourceRectangle(item) {
   `;
 }
 
+function practiceParallelogramStage(itemId) {
+  return clampNumber(Number(state.practiceParallelogramStages[itemId]) || 0, 0, 2);
+}
+
+function renderPracticeParallelogramRearrange(item) {
+  const data = item.visualModelData || {};
+  const stage = practiceParallelogramStage(item.id);
+  const modelVisible = isPracticeSubmitted(item) && hasPracticeResponse(item);
+  const grid = gridLines(32, 30, 18, 8, 36);
+  const original = "176,246 500,246 608,66 284,66";
+  const leftPiece = "176,246 284,66 284,246";
+  const body = "284,66 608,66 500,246 284,246";
+  const movedPiece = "500,246 608,66 608,246";
+  const stageVisual = stage === 0
+    ? `<polygon points="${original}" class="practice-rearrange-main"></polygon>`
+    : stage === 1
+      ? `
+        <polygon points="${body}" class="practice-rearrange-main"></polygon>
+        <polygon points="${leftPiece}" class="practice-rearrange-piece"></polygon>
+        <line x1="284" y1="66" x2="284" y2="246" class="practice-rearrange-cut"></line>
+      `
+      : `
+        <polygon points="284,66 608,66 608,246 284,246" class="practice-rearrange-main"></polygon>
+        <polygon points="${movedPiece}" class="practice-rearrange-piece"></polygon>
+        <line x1="500" y1="246" x2="608" y2="66" class="practice-rearrange-cut"></line>
+      `;
+  const stageStatus = stage === 0
+    ? "Start with the source parallelogram."
+    : stage === 1
+      ? "The vertical cut separates one triangular piece without changing its area."
+      : "The triangular piece has moved to the opposite side, forming a 9-by-5 rectangle.";
+  return `
+    <section class="practice-parallelogram-rearrange ${modelVisible ? "has-model" : "is-attempting"}" aria-label="Parallelogram decomposition attempt and model comparison">
+      <div class="practice-parallelogram-source-attempt">
+        <h4>Plan on the exact source figure</h4>
+        ${renderPracticeSourceAnnotation(item)}
+      </div>
+      ${modelVisible ? `
+        <div class="practice-parallelogram-action">
+          <h4>Model solution</h4>
+          <div class="practice-rearrange-toolbar" role="group" aria-label="Model solution steps">
+            <button class="page-chip ${stage === 0 ? "is-active" : ""}" type="button" data-practice-parallelogram-stage="0" data-item-id="${item.id}" aria-pressed="${stage === 0}">Start</button>
+            <button class="page-chip ${stage === 1 ? "is-active" : ""}" type="button" data-practice-parallelogram-stage="1" data-item-id="${item.id}" aria-pressed="${stage === 1}">Decompose</button>
+            <button class="page-chip ${stage === 2 ? "is-active" : ""}" type="button" data-practice-parallelogram-stage="2" data-item-id="${item.id}" aria-pressed="${stage === 2}">Rearrange</button>
+          </div>
+          <svg viewBox="0 0 720 320" role="img" aria-label="${escapeHtml(stageStatus)}">
+            <rect x="1" y="1" width="718" height="318" class="practice-rearrange-board"></rect>
+            <g aria-hidden="true">${grid}</g>
+            ${stageVisual}
+          </svg>
+          <p class="practice-rearrange-status" aria-live="polite">${escapeHtml(stageStatus)}</p>
+        </div>
+      ` : ""}
+    </section>
+  `;
+}
+
+function getPracticeNetEdgeLabelWorkspace(item) {
+  const edges = item.visualModelData?.edges || [];
+  const edgeIds = new Set(edges.map((edge) => edge.id));
+  const current = state.practiceResponses[item.id];
+  const workspace = current && typeof current === "object" && !Array.isArray(current)
+    ? current
+    : {};
+  const labels = workspace.labels && typeof workspace.labels === "object" && !Array.isArray(workspace.labels)
+    ? Object.fromEntries(
+      Object.entries(workspace.labels)
+        .filter(([edgeId, value]) => edgeIds.has(edgeId) && value !== "")
+        .map(([edgeId, value]) => [edgeId, String(value)]),
+    )
+    : {};
+  const selectedEdge = edgeIds.has(workspace.selectedEdge) ? workspace.selectedEdge : edges[0]?.id || "";
+  const normalized = { selectedEdge, labels };
+  state.practiceResponses[item.id] = normalized;
+  return normalized;
+}
+
+function practiceNetEdgeLabelStatus(item) {
+  const workspace = getPracticeNetEdgeLabelWorkspace(item);
+  const edges = item.visualModelData?.edges || [];
+  const labeled = edges.filter((edge) => workspace.labels[edge.id]).length;
+  const selected = edges.find((edge) => edge.id === workspace.selectedEdge);
+  return {
+    labeled,
+    total: edges.length,
+    selectedLabel: selected?.label || `Edge ${Math.max(1, edges.indexOf(selected) + 1)}`,
+    selectedValue: selected ? workspace.labels[selected.id] || "" : "",
+  };
+}
+
+function updatePracticeNetEdgeSelectionDom(item) {
+  const workspace = getPracticeNetEdgeLabelWorkspace(item);
+  const root = document.querySelector(`[data-practice-card="${item.id}"]`);
+  if (!root) return;
+  root.querySelectorAll(`[data-practice-net-edge="${item.id}"]`).forEach((edgeNode) => {
+    const selected = edgeNode.dataset.edgeId === workspace.selectedEdge;
+    edgeNode.setAttribute("aria-pressed", String(selected));
+    edgeNode.closest(".practice-net-edge-target")?.classList.toggle("is-selected", selected);
+  });
+  const selectedValue = workspace.labels[workspace.selectedEdge] || "";
+  root.querySelectorAll(`[data-practice-net-edge-label="${item.id}"]`).forEach((button) => {
+    const active = button.dataset.edgeLabel === selectedValue;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  const clearButton = root.querySelector(`[data-practice-net-edge-clear="${item.id}"]`);
+  if (clearButton) clearButton.disabled = !selectedValue;
+  const status = practiceNetEdgeLabelStatus(item);
+  const statusNode = root.querySelector(".practice-net-edge-status");
+  if (statusNode) {
+    statusNode.textContent = `${status.labeled} of ${status.total} edges labeled. ${status.selectedLabel} is selected.`;
+  }
+}
+
+function renderPracticeNetEdgeLabeling(item) {
+  const data = item.visualModelData || {};
+  const workspace = getPracticeNetEdgeLabelWorkspace(item);
+  const status = practiceNetEdgeLabelStatus(item);
+  const width = Number(data.naturalWidth) || 500;
+  const height = Number(data.naturalHeight) || 420;
+  const allowedLabels = (data.allowedLabels || []).map(String);
+  const masks = (data.maskRects || []).map((rect) => (
+    `<rect class="practice-net-edge-mask" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}"></rect>`
+  )).join("");
+  const edgeOverlays = (data.edges || []).map((edge, index) => {
+    const selected = edge.id === workspace.selectedEdge;
+    const value = workspace.labels[edge.id] || "";
+    const labelX = Number.isFinite(edge.labelX) ? edge.labelX : (edge.x1 + edge.x2) / 2;
+    const labelY = Number.isFinite(edge.labelY) ? edge.labelY : (edge.y1 + edge.y2) / 2;
+    const dx = edge.x2 - edge.x1;
+    const dy = edge.y2 - edge.y1;
+    const segmentLength = Math.max(1, Math.hypot(dx, dy));
+    const hitPadding = 9;
+    const offsetX = (-dy / segmentLength) * hitPadding;
+    const offsetY = (dx / segmentLength) * hitPadding;
+    const hitPoints = [
+      `${edge.x1 + offsetX},${edge.y1 + offsetY}`,
+      `${edge.x2 + offsetX},${edge.y2 + offsetY}`,
+      `${edge.x2 - offsetX},${edge.y2 - offsetY}`,
+      `${edge.x1 - offsetX},${edge.y1 - offsetY}`,
+    ].join(" ");
+    return `
+      <g class="practice-net-edge-target ${selected ? "is-selected" : ""} ${value ? "is-labeled" : ""}">
+        <polygon
+          class="practice-net-edge-hitbox"
+          points="${hitPoints}"
+          data-practice-net-edge="${item.id}"
+          data-edge-id="${escapeHtml(edge.id)}"
+          tabindex="0"
+          role="button"
+          aria-pressed="${selected}"
+          aria-label="${escapeHtml(edge.label || `Edge ${index + 1}`)}${value ? `, labeled ${escapeHtml(value)}` : ", unlabeled"}"
+        ></polygon>
+        <line class="practice-net-edge-highlight" x1="${edge.x1}" y1="${edge.y1}" x2="${edge.x2}" y2="${edge.y2}"></line>
+        ${value ? `<text x="${labelX + (edge.labelDx || 0)}" y="${labelY + (edge.labelDy || 0)}" text-anchor="middle">${escapeHtml(value)}</text>` : ""}
+      </g>
+    `;
+  }).join("");
+  return `
+    <section class="practice-net-edge-labeler" aria-label="Label every edge in the source net">
+      <figure class="practice-net-solid-reference">
+        <figcaption>${escapeHtml(data.referenceLabel || "Folded solid and given lengths")}</figcaption>
+        <img src="${escapeHtml(data.referenceImagePath)}" alt="${escapeHtml(data.referenceAlt || "Source folded solid with its given edge lengths")}" width="${data.referenceNaturalWidth || ""}" height="${data.referenceNaturalHeight || ""}">
+      </figure>
+      <div class="practice-net-edge-workspace">
+        <p><strong>${escapeHtml(data.netLabel || "Source net")}</strong> Select an edge, then assign its length.</p>
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(data.alt || "Exact source net with selectable edges")}">
+          <image href="${escapeHtml(data.imagePath)}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="none"></image>
+          ${masks}
+          ${edgeOverlays}
+        </svg>
+        <div class="practice-net-edge-controls" role="group" aria-label="Lengths for the selected edge">
+          ${allowedLabels.map((label) => `
+            <button
+              class="page-chip ${status.selectedValue === label ? "is-active" : ""}"
+              type="button"
+              data-practice-net-edge-label="${item.id}"
+              data-edge-label="${escapeHtml(label)}"
+              aria-pressed="${status.selectedValue === label}"
+            >${escapeHtml(label)}</button>
+          `).join("")}
+          <button class="hint-button" type="button" data-practice-net-edge-clear="${item.id}" ${status.selectedValue ? "" : "disabled"}>Clear selected label</button>
+        </div>
+        <p class="practice-net-edge-status" aria-live="polite">${status.labeled} of ${status.total} edges labeled. ${escapeHtml(status.selectedLabel)} is selected.</p>
+      </div>
+    </section>
+  `;
+}
+
 function practiceVisual(item) {
   const data = item.visualModelData || {};
+  if (data.type === "netEdgeLabeling") return renderPracticeNetEdgeLabeling(item);
+  if (data.type === "parallelogramRearrange") return renderPracticeParallelogramRearrange(item);
+  if (data.type === "annotatableSourceVisual" && data.postAttemptModel === "parallelogramRearrange") {
+    return renderPracticeParallelogramRearrange(item);
+  }
   if (data.type === "quadrilateralAreaSet") return renderPracticeQuadrilateralWorkspace(item);
   if (data.type === "rectangleTiling") return renderPracticeRectangleTilingWorkspace(item);
   if (data.type === "areaComparisonShapes") {
@@ -12128,9 +13218,26 @@ function practiceVisual(item) {
       </section>
     `;
   }
+  if (data.type === "baseHeightRelationship") {
+    return `
+      <section class="practice-base-height-reminder" aria-label="Area relationship for a parallelogram">
+        <svg viewBox="0 0 720 330" role="img" aria-label="A slanted parallelogram with a horizontal base and perpendicular height">
+          <rect x="1" y="1" width="718" height="328" class="practice-rearrange-board"></rect>
+          ${gridLines(40, 28, 16, 7, 40)}
+          <polygon points="178,248 538,248 614,88 254,88" class="practice-rearrange-main"></polygon>
+          <line x1="538" y1="248" x2="538" y2="88" class="practice-rearrange-cut"></line>
+          <path d="M 518 248 L 518 228 L 538 228" class="practice-right-angle-mark"></path>
+          <text x="358" y="292" text-anchor="middle" class="measure-label">base</text>
+          <text x="555" y="174" class="measure-label">height</text>
+          <text x="360" y="54" text-anchor="middle" class="face-label">area = base x corresponding height</text>
+        </svg>
+      </section>
+    `;
+  }
   if (data.type === "rectPrismNetBuilder") return renderRectangularPrismNetVisual(item);
   if (data.type === "interactiveCubeNet") return renderPracticeCubeNet(item);
   if (data.type === "interactiveTentDesigner") return renderPracticeTentDesigner(item);
+  if (data.type === "interactiveTentComparison") return renderPracticeTentComparison(item);
   if (data.type === "annotatableSourceVisual") return renderPracticeSourceAnnotation(item);
   if (data.type === "triangleComposition") {
     const definition = practiceCompositionDefinition(item.id);
@@ -12261,6 +13368,75 @@ function practiceVisual(item) {
       </figure>
     `;
   }
+  if (data.type === "baseHeightPairs") {
+    const pairs = Array.isArray(data.pairs) ? data.pairs : [];
+    const cards = pairs.map((pair, index) => {
+      const column = index % 2;
+      const row = Math.floor(index / 2);
+      const x = 28 + column * 236;
+      const y = 26 + row * 126;
+      return `
+        <g>
+          <rect x="${x}" y="${y}" width="208" height="98" rx="8" class="practice-pair-board"></rect>
+          <text x="${x + 18}" y="${y + 34}" class="face-label">${escapeHtml(pair.id)}</text>
+          <text x="${x + 104}" y="${y + 58}" text-anchor="middle" class="measure-label">b = ${escapeHtml(pair.base)}, h = ${escapeHtml(pair.height)}</text>
+          <text x="${x + 104}" y="${y + 84}" text-anchor="middle" class="measure-label">b × h = ?</text>
+        </g>
+      `;
+    }).join("");
+    return `
+      <svg viewBox="0 0 500 286" role="img" aria-label="Four source base-height pairs ready to compare">
+        ${cards}
+      </svg>
+    `;
+  }
+  if (data.type === "rectangleDimensions") {
+    const widthLabel = escapeHtml(data.widthLabel || "width");
+    const heightLabel = escapeHtml(data.heightLabel || "height");
+    return svg(`
+      <rect x="92" y="58" width="240" height="150" class="shape-fill blue"></rect>
+      <rect x="92" y="58" width="240" height="150" class="model-outline"></rect>
+      <line x1="92" y1="236" x2="332" y2="236" class="measure-line"></line>
+      <text x="212" y="270" text-anchor="middle" class="measure-label">${widthLabel}</text>
+      <line x1="362" y1="58" x2="362" y2="208" class="measure-line"></line>
+      <text x="378" y="138" class="measure-label">${heightLabel}</text>
+    `, "0 0 450 300");
+  }
+  if (data.type === "parallelogramProperties") {
+    return `
+      <svg viewBox="0 0 520 310" role="img" aria-label="A parallelogram with two pairs of opposite sides">
+        <polygon points="118,222 358,222 422,82 182,82" class="shape-fill mint"></polygon>
+        <polygon points="118,222 358,222 422,82 182,82" class="model-outline"></polygon>
+        <line x1="214" y1="72" x2="390" y2="72" class="measure-line"></line>
+        <line x1="150" y1="238" x2="326" y2="238" class="measure-line"></line>
+        <line x1="154" y1="194" x2="190" y2="116" class="measure-line"></line>
+        <line x1="350" y1="194" x2="386" y2="116" class="measure-line"></line>
+        <text x="270" y="284" text-anchor="middle" class="measure-label">Study its sides and angles.</text>
+      </svg>
+    `;
+  }
+  if (data.type === "triangleSubdivision") {
+    const cell = 82;
+    const originX = 88;
+    const originY = 26;
+    const cells = Array.from({ length: 9 }, (_, index) => {
+      const column = index % 3;
+      const row = Math.floor(index / 3);
+      const x = originX + column * cell;
+      const y = originY + row * cell;
+      return `
+        <rect x="${x}" y="${y}" width="${cell}" height="${cell}" class="shape-fill blue"></rect>
+        <rect x="${x}" y="${y}" width="${cell}" height="${cell}" class="model-outline"></rect>
+        <line x1="${x}" y1="${y}" x2="${x + cell}" y2="${y + cell}" class="measure-line"></line>
+      `;
+    }).join("");
+    return `
+      <svg viewBox="0 0 430 330" role="img" aria-label="One square divided into nine equal squares, with each small square divided diagonally into two equal triangles">
+        ${cells}
+        <text x="211" y="302" text-anchor="middle" class="measure-label">1 square meter</text>
+      </svg>
+    `;
+  }
   if (data.type === "sourcePhoto" || data.type === "sourceVisual") {
     const isPhoto = data.type === "sourcePhoto";
     const naturalWidth = Number.isFinite(data.naturalWidth) ? data.naturalWidth : "";
@@ -12282,6 +13458,30 @@ function practiceVisual(item) {
         ${data.caption ? `<figcaption>${escapeHtml(data.caption)}</figcaption>` : ""}
       </figure>
     `;
+  }
+  if (data.type === "wallTileComparison") {
+    return svg(`
+      <text x="320" y="34" text-anchor="middle" class="measure-label">80-inch by 40-inch wall</text>
+      <rect x="84" y="58" width="472" height="236" class="shape-fill mint"></rect>
+      <rect x="84" y="58" width="472" height="236" class="model-outline"></rect>
+      <line x1="58" y1="58" x2="58" y2="294" class="measure-line"></line>
+      <text x="42" y="184" text-anchor="middle" class="measure-label" transform="rotate(-90 42 184)">40 inches</text>
+      <g transform="translate(132 374)">
+        <rect x="0" y="-68" width="68" height="68" class="shape-fill blue"></rect>
+        <rect x="0" y="-68" width="68" height="68" class="model-outline"></rect>
+        <text x="34" y="24" text-anchor="middle" class="measure-label">8-inch tile</text>
+      </g>
+      <g transform="translate(286 374)">
+        <rect x="17" y="-51" width="34" height="34" class="shape-fill amber"></rect>
+        <rect x="17" y="-51" width="34" height="34" class="model-outline"></rect>
+        <text x="34" y="24" text-anchor="middle" class="measure-label">4-inch tile</text>
+      </g>
+      <g transform="translate(440 374)">
+        <rect x="25.5" y="-42.5" width="17" height="17" class="shape-fill teal"></rect>
+        <rect x="25.5" y="-42.5" width="17" height="17" class="model-outline"></rect>
+        <text x="34" y="24" text-anchor="middle" class="measure-label">2-inch tile</text>
+      </g>
+    `, "0 0 640 420");
   }
   if (data.type === "rectangleMissingDimension") {
     const length = Number(data.length) || 13;
@@ -12543,6 +13743,23 @@ function practiceVisual(item) {
       "0 0 430 320"
     );
   }
+  if (data.type === "rectangularPrismDimensions") {
+    const length = escapeHtml(String(data.length || 6));
+    const width = escapeHtml(String(data.width || 2));
+    const height = escapeHtml(String(data.height || 4));
+    return svg(`
+      <polygon points="96,102 166,60 406,60 336,102" class="shape-fill mint"></polygon>
+      <polygon points="336,102 406,60 406,220 336,262" class="shape-fill rose"></polygon>
+      <rect x="96" y="102" width="240" height="160" class="shape-fill blue"></rect>
+      <path d="M96 102 L166 60 H406 V220 L336 262 H96 Z M336 102 L406 60 M336 102 V262" class="model-line"></path>
+      <line x1="96" y1="292" x2="336" y2="292" class="measure-line"></line>
+      <text x="216" y="324" text-anchor="middle" class="measure-label">length ${length}</text>
+      <line x1="64" y1="102" x2="64" y2="262" class="measure-line"></line>
+      <text x="42" y="186" text-anchor="middle" class="measure-label" transform="rotate(-90 42 186)">height ${height}</text>
+      <line x1="352" y1="88" x2="405" y2="56" class="measure-line"></line>
+      <text x="392" y="42" text-anchor="middle" class="measure-label">width ${width}</text>
+    `, "0 0 470 345");
+  }
   if (data.type === "surfaceAreaMeaning") {
     return svg(`
       <rect x="90" y="104" width="190" height="86" class="shape-fill blue"></rect>
@@ -12623,6 +13840,29 @@ function renderAnswerControl(item) {
   if (item.responseType === "areaComparison") {
     return renderPracticeAreaComparisonAnswerControl(item);
   }
+  if (item.responseType === "netEdgeLabeling") {
+    const status = practiceNetEdgeLabelStatus(item);
+    return `
+      <section class="practice-net-edge-answer-summary" aria-label="Net labeling progress">
+        <h4>Label every source edge</h4>
+        <p>${status.labeled} of ${status.total} edges have a length. Use the folded solid as the reference, then submit the completed net.</p>
+      </section>
+    `;
+  }
+  if (item.responseType === "rectPrismNet") {
+    const analysis = rectangularPrismNetAnalysis(item);
+    return `
+      <section class="practice-construction-checklist" aria-label="Rectangular-prism net requirements">
+        <h4>Net check</h4>
+        <p>Use all six source-sized faces. Join them along complete matching edges so the arrangement folds onto six different prism faces.</p>
+        <dl>
+          <div><dt>Faces placed</dt><dd>${analysis.faces.length} of 6</dd></div>
+          <div><dt>Valid prism net</dt><dd>${analysis.baseValid ? "Yes" : "Not yet"}</dd></div>
+          ${item.visualModelData?.differentFromItemId ? `<div><dt>Different from first net</dt><dd>${analysis.differentFromReference ? "Yes" : "Not yet"}</dd></div>` : ""}
+        </dl>
+      </section>
+    `;
+  }
   if (item.responseType === "number") {
     return `
       <label>
@@ -12649,18 +13889,66 @@ function renderAnswerControl(item) {
       </label>
     `;
   }
+  if (item.responseType === "annotationAttempt") {
+    const marks = getPracticeSourceAnnotation(item).marks.length;
+    const submitted = isPracticeSubmitted(item);
+    return `
+      <p class="practice-action-response ${marks ? "is-complete" : ""}">
+        ${marks
+          ? submitted
+            ? "The model solution is unlocked in the workspace."
+            : `${marks} ${marks === 1 ? "line" : "lines"} drawn. Submit your attempt to compare it with a model solution.`
+          : "Draw at least one possible cut line on the exact source figure, then submit your attempt."}
+      </p>
+    `;
+  }
+  if (item.responseType === "parallelogramRearrange") {
+    const complete = practiceParallelogramStage(item.id) === 2;
+    return `
+      <p class="practice-action-response ${complete ? "is-complete" : ""}">
+        ${complete
+          ? "The decomposition and rearrangement are complete. Submit this construction for feedback."
+          : "Use Decompose and Rearrange in the workspace before submitting."}
+      </p>
+    `;
+  }
+  if (item.responseType === "heightDrawing") {
+    const marks = getPracticeSourceAnnotation(item).marks.length;
+    return `
+      <p class="practice-action-response ${marks ? "is-complete" : ""}">
+        ${marks
+          ? `${marks} ${marks === 1 ? "segment" : "segments"} drawn. Submit the drawing for feedback.`
+          : "Draw the corresponding height in the source-aligned workspace, then submit it."}
+      </p>
+    `;
+  }
+  if (item.responseType === "compositionJoin") {
+    const joined = practiceCompositionJoinedSide(item.id) !== "none";
+    return `
+      <p class="practice-action-response ${joined ? "is-complete" : ""}">
+        ${joined
+          ? "The two copies share one complete edge. Submit this construction for feedback."
+          : "Move and rotate the copies until they share one complete edge and form a parallelogram."}
+      </p>
+    `;
+  }
   if (item.responseType === "cubeNetExpressions") {
     const values = getPracticeValue(item);
+    const unit = item.visualModelData?.expressionUnit || "centimeters";
+    const edgeLength = Number(item.visualModelData?.expressionEdgeLength);
+    const expressionHelp = Number.isFinite(edgeLength) && edgeLength > 0
+      ? `Use ${edgeLength} for the edge length. Use * or the word “times” for multiplication.`
+      : "Use x for the edge length. Use * or the word “times” for multiplication.";
     return `
       <label>
-        Surface area (square centimeters)
+        Surface area (square ${escapeHtml(unit)})
         <input type="text" data-practice-input="${item.id}" data-practice-field="surfaceArea" value="${escapeHtml(values.surfaceArea || "")}" placeholder="Type an expression">
       </label>
       <label>
-        Volume (cubic centimeters)
+        Volume (cubic ${escapeHtml(unit)})
         <input type="text" data-practice-input="${item.id}" data-practice-field="volume" value="${escapeHtml(values.volume || "")}" placeholder="Type an expression">
       </label>
-      <p class="practice-expression-help">Use x for the edge length. Use * or the word “times” for multiplication.</p>
+      <p class="practice-expression-help">${escapeHtml(expressionHelp)}</p>
     `;
   }
   if (item.responseType === "tentDesignEstimate") {
@@ -12727,7 +14015,7 @@ function renderAnswerControl(item) {
                   aria-haspopup="listbox"
                   aria-labelledby="match-label-${target.id}"
                 >
-                  <span>${escapeHtml(selected?.label || "Choose a unit")}</span>
+                  <span>${escapeHtml(selected?.label || item.matchPlaceholder || "Choose a unit")}</span>
                   <span class="teach-dropdown-chevron" aria-hidden="true"></span>
                 </button>
                 ${open ? `
@@ -12759,18 +14047,22 @@ function renderAnswerControl(item) {
     const activeGroup = activePracticeChoiceGroup(item);
     if (!activeGroup) return "";
     const selected = answers[activeGroup.id] || "";
+    const groupAvailable = !activeGroup.dynamicAnswer || practiceTentComparisonDesigns(item).length > 0;
     const submitted = isPracticeGroupSubmitted(item, activeGroup);
     const correct = submitted && practiceGroupIsCorrect(item, activeGroup);
     const completedCount = groups.filter((group) => isPracticeGroupSubmitted(item, group) && practiceGroupIsCorrect(item, group)).length;
-    const feedback = !submitted
+    const dynamicFeedback = submitted ? practiceTentComparisonGroupFeedback(item, activeGroup, correct) : "";
+    const feedback = !groupAvailable
+      ? "Complete and submit the 19.1 tent design and fabric estimate before comparing tents."
+      : !submitted
       ? selected
         ? `Submit ${activeGroup.label} when you are ready for feedback.`
         : `Choose an answer for ${activeGroup.label}.`
       : !selected
         ? `Choose an answer for ${activeGroup.label}, then submit again.`
         : correct
-          ? activeGroup.correctFeedback || "Correct."
-          : activeGroup.incorrectFeedback || "Not quite. Review the visual and try again.";
+          ? dynamicFeedback || activeGroup.correctFeedback || "Correct."
+          : dynamicFeedback || activeGroup.incorrectFeedback || "Not quite. Review the visual and try again.";
     const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
     return `
       <div class="practice-choice-groups">
@@ -12793,14 +14085,15 @@ function renderAnswerControl(item) {
           <h4>${escapeHtml(activeGroup.prompt)}</h4>
           <div class="option-grid" role="group" aria-label="${escapeHtml(activeGroup.prompt)}">
             ${(activeGroup.choices || []).map((choice) => `
-              <button class="option-button ${selected === choice.id ? "is-selected" : ""}" type="button" data-practice-group-option="${item.id}" data-group-id="${activeGroup.id}" data-option-id="${choice.id}" aria-pressed="${selected === choice.id}">
+              <button class="option-button ${selected === choice.id ? "is-selected" : ""}" type="button" data-practice-group-option="${item.id}" data-group-id="${activeGroup.id}" data-option-id="${choice.id}" aria-pressed="${selected === choice.id}" ${groupAvailable ? "" : "disabled"}>
                 ${escapeHtml(choice.label)}
               </button>
             `).join("")}
           </div>
-          <button class="practice-submit practice-group-submit" type="button" data-practice-group-submit="${item.id}" data-group-id="${activeGroup.id}">Submit ${escapeHtml(activeGroup.label)}</button>
+          <button class="practice-submit practice-group-submit" type="button" data-practice-group-submit="${item.id}" data-group-id="${activeGroup.id}" ${groupAvailable ? "" : "disabled"}>Submit ${escapeHtml(activeGroup.label)}</button>
           <p class="practice-group-feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedback)}</p>
         </section>
+        ${reasoning}
       </div>
     `;
   }
@@ -12973,7 +14266,9 @@ function teachCardsForLesson(unitNumber, lessonNumber) {
 
 function practiceItemsForLesson(unitNumber, lessonNumber) {
   if (Number(unitNumber) !== 1) return [];
-  return practiceBank.filter((item) => item.lesson === Number(lessonNumber));
+  return practiceBank
+    .filter((item) => item.lesson === Number(lessonNumber))
+    .sort((first, second) => (Number(first.practicePartOrder) || 0) - (Number(second.practicePartOrder) || 0));
 }
 
 function routePartEntries(mode, unitNumber, lessonNumber) {
@@ -15038,8 +16333,14 @@ function rectangularPrismNetDefinition(card) {
   if (data.type !== "rectPrismNetBuilder") return rectangularPrismTeachNetDefinition;
   const dimensions = [data.length, data.width, data.height].map(Number);
   const [length, width, height] = dimensions;
+  const rawFaceTypes = [`${length}x${width}`, `${length}x${height}`, `${width}x${height}`];
+  const requiredInventory = {};
+  rawFaceTypes.forEach((type) => {
+    requiredInventory[type] = (requiredInventory[type] || 0) + 2;
+  });
   return {
-    faceTypes: [`${length}x${width}`, `${length}x${height}`, `${width}x${height}`],
+    faceTypes: Object.keys(requiredInventory),
+    requiredInventory,
     dimensions,
     board: {
       width: Number(data.boardWidth) || 36,
@@ -15051,6 +16352,7 @@ function rectangularPrismNetDefinition(card) {
     practice: true,
     optional: data.optional !== false,
     freeform: data.freeform === true,
+    differentFromItemId: data.differentFromItemId || "",
   };
 }
 
@@ -15064,6 +16366,9 @@ function updateRectangularPrismNetResponse(card, changes) {
   const nextResponse = { ...rectangularPrismNetResponse(card), ...changes };
   if (rectangularPrismNetDefinition(card).practice) {
     state.practicePrismNets[card.id] = nextResponse;
+    state.practiceSubmitted[card.id] = false;
+    state.practiceSamples[card.id] = false;
+    state.sourceModalItemId = null;
   } else {
     state.teachCustomResponses[card.id] = nextResponse;
   }
@@ -15094,7 +16399,9 @@ function rectangularPrismNetFaceDimensions(card, type, rotated = false) {
 function initialPracticeRectangularPrismNetFaces(card) {
   const definition = rectangularPrismNetDefinition(card);
   if (!definition.practice || !definition.freeform) return [];
-  const faceTypes = definition.faceTypes.flatMap((type) => [type, type]);
+  const faceTypes = definition.faceTypes.flatMap((type) => (
+    Array.from({ length: definition.requiredInventory?.[type] || 2 }, () => type)
+  ));
   const faces = [];
   let cursorX = 1;
   let cursorY = 1;
@@ -15186,6 +16493,45 @@ function rectangularPrismNetAxisKey(vector) {
   return vector.findIndex((value) => Math.abs(value) === 1);
 }
 
+function rectangularPrismNetCanonicalSignature(faces) {
+  if (!faces.length) return "";
+  const transforms = [
+    ([x, y]) => [x, y],
+    ([x, y]) => [-x, y],
+    ([x, y]) => [x, -y],
+    ([x, y]) => [-x, -y],
+    ([x, y]) => [y, x],
+    ([x, y]) => [-y, x],
+    ([x, y]) => [y, -x],
+    ([x, y]) => [-y, -x],
+  ];
+  return transforms.map((transform) => {
+    const transformed = faces.map((face) => {
+      const corners = [
+        [face.x, face.y],
+        [face.x + face.width, face.y],
+        [face.x, face.y + face.height],
+        [face.x + face.width, face.y + face.height],
+      ].map(transform);
+      const xs = corners.map(([x]) => x);
+      const ys = corners.map(([, y]) => y);
+      return {
+        type: face.type,
+        x: Math.min(...xs),
+        y: Math.min(...ys),
+        width: Math.max(...xs) - Math.min(...xs),
+        height: Math.max(...ys) - Math.min(...ys),
+      };
+    });
+    const minX = Math.min(...transformed.map((face) => face.x));
+    const minY = Math.min(...transformed.map((face) => face.y));
+    return transformed
+      .map((face) => `${face.type}:${face.x - minX},${face.y - minY},${face.width},${face.height}`)
+      .sort()
+      .join("|");
+  }).sort()[0];
+}
+
 function rectangularPrismNetAnalysis(card) {
   const definition = rectangularPrismNetDefinition(card);
   const faces = rectangularPrismNetFaces(card);
@@ -15241,20 +16587,37 @@ function rectangularPrismNetAnalysis(card) {
   });
   const uniqueNormals = new Set([...orientations.values()].map(({ n }) => n.join(","))).size;
   const dimensions = [...axisLengths.values()].sort((a, b) => a - b);
-  const inventoryCorrect = definition.faceTypes.every((type) => inventory[type] === 2);
+  const requiredInventory = definition.requiredInventory
+    || Object.fromEntries(definition.faceTypes.map((type) => [type, 2]));
+  const inventoryCorrect = definition.faceTypes.every((type) => inventory[type] === requiredInventory[type]);
   const connected = faces.length > 0 && orientations.size === faces.length;
   const topologyValid = faces.length === 6 && connected && orientationConsistent && uniqueNormals === 6;
   const expectedDimensions = [...definition.dimensions].sort((a, b) => a - b);
   const sourceDimensionsValid = dimensionsConsistent && dimensions.join(",") === expectedDimensions.join(",");
+  const baseValid = faces.length === 6 && !overlap && inventoryCorrect && topologyValid && sourceDimensionsValid;
+  let referenceComplete = true;
+  let differentFromReference = true;
+  if (definition.differentFromItemId) {
+    const referenceCard = practiceBank.find((item) => item.id === definition.differentFromItemId);
+    const referenceAnalysis = referenceCard ? rectangularPrismNetAnalysis(referenceCard) : null;
+    referenceComplete = Boolean(referenceAnalysis?.baseValid);
+    differentFromReference = referenceComplete
+      && rectangularPrismNetCanonicalSignature(faces)
+        !== rectangularPrismNetCanonicalSignature(referenceAnalysis.faces);
+  }
   return {
     faces,
     inventory,
+    requiredInventory,
     overlap,
     connected,
     inventoryCorrect,
     topologyValid,
     sourceDimensionsValid,
-    valid: faces.length === 6 && !overlap && inventoryCorrect && topologyValid && sourceDimensionsValid,
+    baseValid,
+    referenceComplete,
+    differentFromReference,
+    valid: baseValid && referenceComplete && differentFromReference,
   };
 }
 
@@ -15269,6 +16632,8 @@ function rectangularPrismNetFeedbackText(card) {
   if (!analysis.connected) return "All six faces must belong to one connected net. Join every face along a complete edge.";
   if (!analysis.sourceDimensionsValid) return "A shared edge has incompatible dimensions. Rotate or replace a face so every joined edge has one matching length.";
   if (!analysis.topologyValid) return "The six faces are connected, but this arrangement would fold two faces onto the same side. Revise the net topology.";
+  if (!analysis.referenceComplete) return "Complete and submit the first valid net before building a different net for the same prism.";
+  if (!analysis.differentFromReference) return "This is a valid net, but it is the same arrangement as the first net after a move, turn, or flip. Change which faces are connected to make a genuinely different net.";
   return `Valid net. The six faces connect without overlap and fold onto six different sides of the ${definition.subject}.`;
 }
 
@@ -15445,7 +16810,14 @@ function renderRectangularPrismNetVisual(card) {
       ${definition.practice ? `
         <div class="rectangular-prism-net-intro">
           <strong>${definition.optional ? "Optional net scratchpad" : "Net construction"}</strong>
-          <p>Move the six loose faces to sketch a net for the ${escapeHtml(definition.subject)} with edge lengths ${dimensionList} ${escapeHtml(definition.unitLabel)}. The scratchpad is not graded.</p>
+          <p>${definition.freeform
+            ? `Move the six loose faces to sketch a net for the ${escapeHtml(definition.subject)} with edge lengths ${dimensionList} ${escapeHtml(definition.unitLabel)}. The scratchpad is not graded.`
+            : `Build a six-face net for the ${escapeHtml(definition.subject)} with edge lengths ${dimensionList} ${escapeHtml(definition.unitLabel)}, then submit the construction for feedback.`}</p>
+          ${card.visualModelData?.sourceImagePath ? `
+            <figure class="rectangular-prism-net-assigned-solid">
+              <img src="${escapeHtml(card.visualModelData.sourceImagePath)}" alt="${escapeHtml(card.visualModelData.sourceImageAlt || `Source ${definition.subject} with labeled dimensions`)}">
+            </figure>
+          ` : ""}
         </div>
       ` : `
         <figure class="rectangular-prism-net-source">
@@ -19001,6 +20373,7 @@ function renderTeachHint(card) {
 
 function renderPracticeCard(item, index, lessonParts = []) {
   const isLessonGroup = lessonParts.length > 1;
+  const attemptOnly = item.responseType === "annotationAttempt";
   const submitted = isPracticeSubmitted(item);
   const answered = hasPracticeResponse(item);
   const primaryCorrect = submitted && isPracticePrimaryCorrect(item);
@@ -19016,8 +20389,8 @@ function renderPracticeCard(item, index, lessonParts = []) {
         ? "Sample unlocks after response"
         : "Sample unlocks after correct";
   const sampleDisabled = sampleUnlocked ? "" : " disabled";
-  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
-  const statusClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  const feedbackClass = submitted ? (attemptOnly ? "is-recorded" : correct ? "is-correct" : "is-incorrect") : "";
+  const statusClass = submitted ? (attemptOnly ? "is-recorded" : correct ? "is-correct" : "is-incorrect") : "";
   const reasoningCriteria = item.reasoningRequired && !reasoning.correct
     ? freeTextValidationCriteria({
       concepts: item.reasoningConcepts,
@@ -19031,6 +20404,8 @@ function renderPracticeCard(item, index, lessonParts = []) {
     ? item.readyFeedback || "Submit when you are ready for feedback."
     : !answered
       ? item.missingFeedback || "Choose or enter an answer before submitting."
+      : attemptOnly
+        ? item.savedFeedback || "Attempt recorded. Compare your work with the model solution."
       : item.responseType === "open"
         ? item.savedFeedback || "Open response saved. Compare your reasoning with the sample response."
         : primaryCorrect && item.reasoningRequired && !reasoning.answered
@@ -19086,9 +20461,9 @@ function renderPracticeCard(item, index, lessonParts = []) {
         <div class="answer-panel">
           ${renderAnswerControl(item)}
           <div class="practice-actions">
-            ${["groupedChoice", "quadrilateralAreaSet", "areaStrategyPair"].includes(item.responseType) ? "" : `<button class="practice-submit" type="button" data-practice-submit="${item.id}">${item.responseType === "open" ? "Save response" : "Submit"}</button>`}
+            ${["groupedChoice", "quadrilateralAreaSet", "areaStrategyPair"].includes(item.responseType) ? "" : `<button class="practice-submit" type="button" data-practice-submit="${item.id}"${attemptOnly && !answered ? " disabled" : ""}>${item.responseType === "open" ? "Save response" : attemptOnly ? "Submit attempt" : "Submit"}</button>`}
             <button class="hint-button" type="button" data-practice-hint="${item.id}">${state.practiceHints[item.id] ? "Hide hint" : "Show hint"}</button>
-            <button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>
+            ${attemptOnly ? "" : `<button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>`}
           </div>
           <p class="practice-feedback ${feedbackClass}" id="feedback-${item.id}" aria-live="polite">${escapeHtml(feedback)}</p>
           ${state.practiceHints[item.id] ? `<p class="practice-hints"><strong>Hint:</strong> ${escapeHtml(item.hints.join(" "))}</p>` : ""}
@@ -19118,10 +20493,13 @@ function practiceRenderEntries(items) {
   });
   return entries.map((entry) => {
     if (entry.lessonParts.length < 2) return entry;
+    const orderedLessonParts = [...entry.lessonParts]
+      .sort((first, second) => (Number(first.practicePartOrder) || 0) - (Number(second.practicePartOrder) || 0));
     const activeId = state.practiceActiveParts[routeLessonStateKey(1, entry.item.lesson)];
     return {
       ...entry,
-      item: entry.lessonParts.find((item) => item.id === activeId) || entry.item,
+      lessonParts: orderedLessonParts,
+      item: orderedLessonParts.find((item) => item.id === activeId) || orderedLessonParts[0],
     };
   });
 }
@@ -20344,6 +21722,7 @@ function bindEvents() {
     renderVocabulary();
   });
   document.addEventListener("pointerdown", (event) => {
+    if (startPracticeQuadrilateralVertexPointer(event)) return;
     if (startTeachSourceAnnotationPointer(event)) return;
     if (startPracticeHeightAnnotationPointer(event)) return;
     if (startPracticeSourceAnnotationPointer(event)) return;
@@ -20367,6 +21746,7 @@ function bindEvents() {
     }
   });
   document.addEventListener("pointermove", (event) => {
+    if (updatePracticeQuadrilateralVertexPointer(event)) return;
     if (updateTeachSourceAnnotationPointer(event)) return;
     if (updatePracticeHeightAnnotationPointer(event)) return;
     if (updatePracticeSourceAnnotationPointer(event)) return;
@@ -20382,6 +21762,7 @@ function bindEvents() {
     updateSourceModalPointer(event);
   });
   document.addEventListener("pointerup", (event) => {
+    if (endPracticeQuadrilateralVertexPointer(event)) return;
     if (endTeachSourceAnnotationPointer(event)) return;
     if (endPracticeHeightAnnotationPointer(event)) return;
     if (endPracticeSourceAnnotationPointer(event)) return;
@@ -20397,6 +21778,7 @@ function bindEvents() {
     endSourceModalPointer(event);
   });
   document.addEventListener("pointercancel", (event) => {
+    if (cancelPracticeQuadrilateralVertexPointer(event)) return;
     if (cancelTeachSourceAnnotationPointer(event)) return;
     if (cancelPracticeHeightAnnotationPointer(event)) return;
     if (cancelPracticeSourceAnnotationPointer(event)) return;
@@ -20544,6 +21926,7 @@ function bindEvents() {
       const workspace = getPracticeSourceAnnotation(item);
       workspace.marks.pop();
       workspace.keyboardStart = null;
+      markPracticeSourceAnnotationChanged(item);
       renderPractice();
       return;
     }
@@ -20555,6 +21938,19 @@ function bindEvents() {
       workspace.marks = [];
       workspace.nextId = 1;
       workspace.keyboardStart = null;
+      markPracticeSourceAnnotationChanged(item);
+      renderPractice();
+      return;
+    }
+    const practiceParallelogramStageButton = event.target.closest("[data-practice-parallelogram-stage]");
+    if (practiceParallelogramStageButton) {
+      const itemId = practiceParallelogramStageButton.dataset.itemId;
+      const stage = Number(practiceParallelogramStageButton.dataset.practiceParallelogramStage);
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      const hasRearrangeModel = item?.responseType === "parallelogramRearrange"
+        || item?.visualModelData?.postAttemptModel === "parallelogramRearrange";
+      if (!item || !hasRearrangeModel || !isPracticeSubmitted(item) || !Number.isInteger(stage) || stage < 0 || stage > 2) return;
+      state.practiceParallelogramStages[itemId] = stage;
       renderPractice();
       return;
     }
@@ -20714,6 +22110,44 @@ function bindEvents() {
     if (filterButton) {
       state.practiceFilter = filterButton.dataset.practiceFilter;
       state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const practiceNetEdge = event.target.closest("[data-practice-net-edge]");
+    if (practiceNetEdge) {
+      const itemId = practiceNetEdge.dataset.practiceNetEdge;
+      const edgeId = practiceNetEdge.dataset.edgeId;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      if (!item || item.responseType !== "netEdgeLabeling"
+        || !(item.visualModelData?.edges || []).some((edge) => edge.id === edgeId)) return;
+      getPracticeNetEdgeLabelWorkspace(item).selectedEdge = edgeId;
+      updatePracticeNetEdgeSelectionDom(item);
+      return;
+    }
+    const practiceNetEdgeLabel = event.target.closest("[data-practice-net-edge-label]");
+    if (practiceNetEdgeLabel) {
+      const itemId = practiceNetEdgeLabel.dataset.practiceNetEdgeLabel;
+      const label = practiceNetEdgeLabel.dataset.edgeLabel;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      if (!item || item.responseType !== "netEdgeLabeling"
+        || !(item.visualModelData?.allowedLabels || []).map(String).includes(label)) return;
+      const workspace = getPracticeNetEdgeLabelWorkspace(item);
+      if (!workspace.selectedEdge) return;
+      workspace.labels[workspace.selectedEdge] = label;
+      state.practiceSubmitted[itemId] = false;
+      state.practiceSamples[itemId] = false;
+      renderPractice();
+      return;
+    }
+    const practiceNetEdgeClear = event.target.closest("[data-practice-net-edge-clear]");
+    if (practiceNetEdgeClear) {
+      const itemId = practiceNetEdgeClear.dataset.practiceNetEdgeClear;
+      const item = practiceBank.find((entry) => entry.id === itemId);
+      if (!item || item.responseType !== "netEdgeLabeling") return;
+      const workspace = getPracticeNetEdgeLabelWorkspace(item);
+      delete workspace.labels[workspace.selectedEdge];
+      state.practiceSubmitted[itemId] = false;
+      state.practiceSamples[itemId] = false;
       renderPractice();
       return;
     }
@@ -22095,13 +23529,27 @@ function bindEvents() {
     if (quadrilateralTab) {
       const item = practiceBank.find((entry) => entry.id === quadrilateralTab.dataset.practiceQuadrilateralTab);
       const drawingIndex = Number(quadrilateralTab.dataset.drawingIndex);
-      if (!item || item.responseType !== "quadrilateralAreaSet" || !Number.isInteger(drawingIndex) || drawingIndex < 0 || drawingIndex > 2) return;
+      if (!item || item.responseType !== "quadrilateralAreaSet" || !Number.isInteger(drawingIndex) || drawingIndex < 0 || drawingIndex >= practiceQuadrilateralDrawingCount(item)) return;
       getPracticeQuadrilateralWorkspace(item).activeDrawing = drawingIndex;
+      renderPractice();
+      return;
+    }
+    const quadrilateralType = event.target.closest("[data-practice-quadrilateral-type]");
+    if (quadrilateralType) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralType.dataset.practiceQuadrilateralType);
+      const drawingIndex = Number(quadrilateralType.dataset.drawingIndex);
+      const shapeType = quadrilateralType.dataset.shapeType;
+      if (!item || item.responseType !== "quadrilateralAreaSet" || !Number.isInteger(drawingIndex)) return;
+      const validTypes = (item.visualModelData?.classificationChoices || []).map((choice) => choice.id);
+      if (!validTypes.includes(shapeType)) return;
+      practiceQuadrilateralClassifications(item)[drawingIndex] = shapeType;
+      practiceQuadrilateralChanged(item, drawingIndex);
       renderPractice();
       return;
     }
     const quadrilateralPoint = event.target.closest("[data-practice-quadrilateral-point]");
     if (quadrilateralPoint) {
+      if (quadrilateralPoint.hasAttribute("data-practice-quadrilateral-vertex")) return;
       const item = practiceBank.find((entry) => entry.id === quadrilateralPoint.dataset.practiceQuadrilateralPoint);
       if (!item || item.responseType !== "quadrilateralAreaSet") return;
       addPracticeQuadrilateralPoint(item, Number(quadrilateralPoint.dataset.column), Number(quadrilateralPoint.dataset.row));
@@ -22171,7 +23619,7 @@ function bindEvents() {
     if (strategyTab) {
       const item = practiceBank.find((entry) => entry.id === strategyTab.dataset.practiceStrategyTab);
       const groupId = strategyTab.dataset.groupId;
-      if (!item || item.responseType !== "areaStrategyPair" || !practiceAreaStrategyGroupIds().includes(groupId)) return;
+      if (!item || item.responseType !== "areaStrategyPair" || !practiceAreaStrategyGroupIds(item).includes(groupId)) return;
       state.practiceActiveGroups[item.id] = groupId;
       renderPractice();
       return;
@@ -22182,7 +23630,7 @@ function bindEvents() {
       const groupId = strategyOption.dataset.groupId;
       const optionId = strategyOption.dataset.optionId;
       if (!item || item.responseType !== "areaStrategyPair"
-        || !practiceAreaStrategyGroupIds().includes(groupId)
+        || !practiceAreaStrategyGroupIds(item).includes(groupId)
         || !item.strategyChoices?.some((choice) => choice.id === optionId)) return;
       state.practiceResponses[item.id] = {
         ...practiceAreaStrategyResponse(item),
@@ -22198,9 +23646,9 @@ function bindEvents() {
     if (strategySubmit) {
       const item = practiceBank.find((entry) => entry.id === strategySubmit.dataset.practiceStrategySubmit);
       const groupId = strategySubmit.dataset.groupId;
-      if (!item || item.responseType !== "areaStrategyPair" || !practiceAreaStrategyGroupIds().includes(groupId)) return;
+      if (!item || item.responseType !== "areaStrategyPair" || !practiceAreaStrategyGroupIds(item).includes(groupId)) return;
       state.practiceGroupSubmitted[practiceGroupStateKey(item.id, groupId)] = true;
-      state.practiceSubmitted[item.id] = practiceAreaStrategyGroupIds().every((id) => (
+      state.practiceSubmitted[item.id] = practiceAreaStrategyGroupIds(item).every((id) => (
         state.practiceGroupSubmitted[practiceGroupStateKey(item.id, id)]
       ));
       if (!canShowPracticeSample(item)) state.practiceSamples[item.id] = false;
@@ -22391,6 +23839,23 @@ function bindEvents() {
   });
   document.addEventListener("input", (event) => {
     enforceTextareaValueLimit(event.target);
+    const quadrilateralDimension = event.target.closest("[data-practice-quadrilateral-dimension]");
+    if (quadrilateralDimension) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralDimension.dataset.practiceQuadrilateralDimension);
+      const drawingIndex = Number(quadrilateralDimension.dataset.drawingIndex);
+      const dimension = quadrilateralDimension.dataset.dimension;
+      if (!item
+        || item.responseType !== "quadrilateralAreaSet"
+        || !["equalAreaParallelograms", "equalAreaTriangles"].includes(item.visualModelData?.validationMode)
+        || !Number.isInteger(drawingIndex)
+        || drawingIndex < 0
+        || drawingIndex >= practiceQuadrilateralDrawingCount(item)
+        || !["base", "height"].includes(dimension)) return;
+      const workspace = getPracticeQuadrilateralWorkspace(item);
+      workspace.drawings[drawingIndex][dimension] = quadrilateralDimension.value.slice(0, 24);
+      practiceQuadrilateralChanged(item, drawingIndex);
+      return;
+    }
     const quadrilateralExtensionInput = event.target.closest("[data-quadrilateral-extension-input]");
     if (quadrilateralExtensionInput) {
       const card = teachCardById(quadrilateralExtensionInput.dataset.quadrilateralExtensionInput);
@@ -22593,7 +24058,7 @@ function bindEvents() {
         : item.responseType === "tentDesignEstimate"
           ? ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"]
           : item.responseType === "areaStrategyPair"
-            ? ["method1Area", "method2Area"]
+            ? practiceAreaStrategyGroupIds(item).map((groupId) => `${groupId}Area`)
             : ["rectangleArea", "squareArea"];
       if (!permittedFields.includes(field)) return;
       state.practiceResponses[id] = {
@@ -22601,7 +24066,7 @@ function bindEvents() {
         [field]: enforceTextareaValueLimit(input),
       };
       if (item.responseType === "areaStrategyPair") {
-        const groupId = field.startsWith("method2") ? "method2" : "method1";
+        const groupId = field.slice(0, -"Area".length);
         state.practiceGroupSubmitted[practiceGroupStateKey(id, groupId)] = false;
       }
     } else {
@@ -22636,6 +24101,12 @@ function bindEvents() {
     state.sourceModalItemId = null;
   });
   document.addEventListener("keydown", (event) => {
+    const practiceNetEdge = event.target.closest?.("[data-practice-net-edge]");
+    if (practiceNetEdge && ["Enter", " ", "Spacebar"].includes(event.key)) {
+      event.preventDefault();
+      practiceNetEdge.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      return;
+    }
     const practicePartTab = event.target.closest?.("[data-practice-part]");
     if (practicePartTab && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
       const currentItem = practiceBank.find((item) => item.id === practicePartTab.dataset.practicePart);
@@ -22660,6 +24131,37 @@ function bindEvents() {
         document.querySelector(`[data-practice-part="${nextItem.id}"]`)?.focus();
       }
       return;
+    }
+    const quadrilateralVertex = event.target.closest?.("[data-practice-quadrilateral-vertex]");
+    if (quadrilateralVertex) {
+      const item = practiceBank.find((entry) => entry.id === quadrilateralVertex.dataset.practiceQuadrilateralVertex);
+      const drawingIndex = Number(quadrilateralVertex.dataset.drawingIndex);
+      const vertexIndex = Number(quadrilateralVertex.dataset.vertexIndex);
+      if (item?.responseType === "quadrilateralAreaSet"
+        && Number.isInteger(drawingIndex)
+        && Number.isInteger(vertexIndex)
+        && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+        event.preventDefault();
+        const current = getPracticeQuadrilateralWorkspace(item).drawings[drawingIndex]?.vertices[vertexIndex];
+        const offset = {
+          ArrowLeft: { x: -1, y: 0 },
+          ArrowRight: { x: 1, y: 0 },
+          ArrowUp: { x: 0, y: -1 },
+          ArrowDown: { x: 0, y: 1 },
+        }[event.key];
+        if (current && movePracticeQuadrilateralVertex(item, drawingIndex, vertexIndex, {
+          x: current.x + offset.x,
+          y: current.y + offset.y,
+        })) {
+          renderPractice();
+          focusPracticeQuadrilateralVertex(item.id, vertexIndex);
+        }
+        return;
+      }
+      if (["Enter", " ", "Spacebar"].includes(event.key)) {
+        event.preventDefault();
+        return;
+      }
     }
     const quadrilateralPoint = event.target.closest?.("[data-practice-quadrilateral-point]");
     if (quadrilateralPoint && ["Enter", " ", "Spacebar"].includes(event.key)) {
@@ -22713,6 +24215,12 @@ function bindEvents() {
         }
         if (["Enter", " ", "Spacebar"].includes(event.key) && workspace.tool !== "erase") {
           event.preventDefault();
+          if (workspace.tool === "point") {
+            addTeachSourceAnnotationMark(target, "point", workspace.cursor, workspace.cursor);
+            renderTeachMe();
+            focusTeachSourceAnnotationBoard(target.card.id, target.scopeId);
+            return;
+          }
           if (!workspace.keyboardStart) {
             workspace.keyboardStart = { ...workspace.cursor };
             updateTeachSourceAnnotationCursorDom(target);
@@ -22780,6 +24288,12 @@ function bindEvents() {
         }
         if (["Enter", " ", "Spacebar"].includes(event.key) && workspace.tool !== "erase") {
           event.preventDefault();
+          if (workspace.tool === "point") {
+            addPracticeSourceAnnotationMark(item, "point", workspace.cursor, workspace.cursor);
+            renderPractice();
+            focusPracticeSourceAnnotationBoard(item.id);
+            return;
+          }
           if (!workspace.keyboardStart) {
             workspace.keyboardStart = { ...workspace.cursor };
             updatePracticeSourceAnnotationCursorDom(item);
@@ -22802,6 +24316,7 @@ function bindEvents() {
           event.preventDefault();
           workspace.marks.pop();
           workspace.keyboardStart = null;
+          markPracticeSourceAnnotationChanged(item);
           renderPractice();
           focusPracticeSourceAnnotationBoard(item.id);
           return;

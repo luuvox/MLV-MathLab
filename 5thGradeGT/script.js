@@ -1,5 +1,24 @@
 const appUnitRoutes = {
-  1: { view: "unit1", lessonCount: 19 },
+  1: {
+    view: "unit1",
+    lessonCount: 19,
+    builtTeachLessons: Array.from({ length: 19 }, (_, index) => index + 1),
+    builtPracticeLessons: Array.from({ length: 19 }, (_, index) => index + 1),
+    practiceAvailable: true,
+    deckId: "teachLessonDeck",
+    navId: "teachLessonNav",
+    navButtonId: "unit1NavButton",
+  },
+  2: {
+    view: "unit2",
+    lessonCount: 17,
+    builtTeachLessons: Array.from({ length: 17 }, (_, index) => index + 1),
+    builtPracticeLessons: Array.from({ length: 16 }, (_, index) => index + 1),
+    practiceAvailable: true,
+    deckId: "unit2TeachLessonDeck",
+    navId: "unit2LessonNav",
+    navButtonId: "unit2NavButton",
+  },
 };
 
 function lessonRoutePad(lessonNumber) {
@@ -16,16 +35,22 @@ function normalizeAppUnitRoute({ unit = 1, lesson = 1, mode = "teach", part = nu
   const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
   const normalizedUnit = appUnitRoutes[unitNumber] ? unitNumber : 1;
   const lessonNumber = Number(lesson);
-  const normalizedLesson = Number.isInteger(lessonNumber)
+  const inUnitRange = Number.isInteger(lessonNumber)
     && lessonNumber >= 1
-    && lessonNumber <= unitConfig.lessonCount
-    ? lessonNumber
-    : 1;
+    && lessonNumber <= unitConfig.lessonCount;
+  const requestedLesson = inUnitRange ? lessonNumber : 1;
+  const normalizedMode = mode === "practice" && unitConfig.practiceAvailable ? "practice" : "teach";
+  const availableLessons = normalizedMode === "practice"
+    ? unitConfig.builtPracticeLessons
+    : unitConfig.builtTeachLessons;
+  const normalizedLesson = availableLessons.includes(requestedLesson)
+    ? requestedLesson
+    : availableLessons[0];
   return {
     view: unitConfig.view,
     unit: normalizedUnit,
     lesson: normalizedLesson,
-    mode: mode === "practice" ? "practice" : "teach",
+    mode: normalizedMode,
     part: normalizeRoutePart(part),
   };
 }
@@ -122,7 +147,7 @@ const state = {
   cubeEdge: 3,
   tentFocus: "roof",
   vocabularySearch: "",
-  practiceFilter: "all",
+  practiceFilters: { 1: "all", 2: "all" },
   practiceResponses: {},
   practiceReasoning: {},
   practiceSelections: {},
@@ -168,10 +193,28 @@ const sourceModalBounds = {
 
 const viewTitles = {
   unit1: "Unit 1: Area and Surface Area",
+  unit2: "Unit 2: Introducing Ratios",
   vocabulary: "Vocabulary",
 };
 
-const practiceBank = window.unit1PracticeBank || [];
+const practiceBank = [
+  ...(window.unit1PracticeBank || []),
+  ...(window.unit2PracticeBank || []),
+];
+
+function practiceUnitNumber(item) {
+  const unitMatch = String(item?.unit || "").match(/unit\s*(\d+)/i);
+  const unitNumber = Number(unitMatch?.[1] || item?.unitNumber || 1);
+  return appUnitRoutes[unitNumber] ? unitNumber : 1;
+}
+
+function practiceBankForUnit(unitNumber = state.activeUnit) {
+  return practiceBank.filter((item) => practiceUnitNumber(item) === Number(unitNumber));
+}
+
+function practiceFilterForUnit(unitNumber = state.activeUnit) {
+  return state.practiceFilters[Number(unitNumber)] || "all";
+}
 
 const lesson14MatchChoices = [
   { id: "solid-1", label: "1 - cube" },
@@ -5960,6 +6003,3630 @@ unit1TeachCards.sort((a, b) => (
   || a.id.localeCompare(b.id)
 ));
 
+unit1TeachCards.forEach((card) => { card.unitNumber = 1; });
+teachMeSources.forEach((source) => { source.unitNumber = 1; });
+
+const unit2TeachSources = [
+  {
+    id: "teach-u2-idea1-l1",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 1,
+    label: "Lesson 1 source",
+    title: "Lesson 1: Introducing Ratios and Ratio Language",
+    subtitle: "Original public lesson source for sorting collections and describing ratios in the correct order.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-01.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 1.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l2",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 2,
+    label: "Lesson 2 source",
+    title: "Lesson 2: Representing Ratios with Diagrams",
+    subtitle: "Original public lesson source for representing, matching, and creating ratio diagrams.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-02.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 2.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l3",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 3,
+    label: "Lesson 3 source",
+    title: "Lesson 3: Recipes",
+    subtitle: "Original public lesson source for scaling recipes and recognizing equivalent ratios.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-03.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 3.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l4",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 4,
+    label: "Lesson 4 source",
+    title: "Lesson 4: Color Mixtures",
+    subtitle: "Original public lesson source for equivalent color recipes and shade comparisons.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-04.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 4.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l5",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 5,
+    label: "Lesson 5 source",
+    title: "Lesson 5: Defining Equivalent Ratios",
+    subtitle: "Original public lesson source for recognizing, creating, and explaining equivalent ratios.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-05.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 5.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l6",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 6,
+    label: "Lesson 6 source",
+    title: "Lesson 6: Introducing Double Number Line Diagrams",
+    subtitle: "Original public lesson source for constructing and interpreting double number lines that represent equivalent ratios.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-06.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 6.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l7",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 7,
+    label: "Lesson 7 source",
+    title: "Lesson 7: Creating Double Number Line Diagrams",
+    subtitle: "Original public lesson source for locating values and constructing labeled double number lines.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-07.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 7.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l8",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 8,
+    label: "Lesson 8 source",
+    title: "Lesson 8: How Much for One?",
+    subtitle: "Original public lesson source for unit prices and shopping situations.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-08.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 8.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l9",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 9,
+    label: "Lesson 9 source",
+    title: "Lesson 9: Constant Speed",
+    subtitle: "Original public lesson source for collecting movement data and comparing constant speeds.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-09.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 9.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l10",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 10,
+    label: "Lesson 10 source",
+    title: "Lesson 10: Comparing Situations by Examining Ratios",
+    subtitle: "Original public lesson source for comparing speeds, prices, and mixtures by rate.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-10.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 10.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l11",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 11,
+    label: "Lesson 11 source",
+    title: "Lesson 11: Representing Ratios with Tables",
+    subtitle: "Original public lesson source for connecting double number lines and equivalent-ratio tables.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-11.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 11.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l12",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 12,
+    label: "Lesson 12 source",
+    title: "Lesson 12: Navigating a Table of Equivalent Ratios",
+    subtitle: "Original public lesson source for finding unit rows and using tables of equivalent ratios efficiently.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-12.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 12.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l13",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 13,
+    label: "Lesson 13 source",
+    title: "Lesson 13: Tables and Double Number Line Diagrams",
+    subtitle: "Original public lesson source for contrasting tables with double number line diagrams.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-13.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 13.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l14",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 14,
+    label: "Lesson 14 source",
+    title: "Lesson 14: Solving Equivalent Ratio Problems",
+    subtitle: "Original public lesson source for requesting information and solving same-rate problems.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-14.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 14.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l15",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 15,
+    label: "Lesson 15 source",
+    title: "Lesson 15: Part-Part-Whole Ratios",
+    subtitle: "Original public lesson source for tape diagrams and ratio problems involving totals.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-15.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 15.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l16",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 16,
+    label: "Lesson 16 source",
+    title: "Lesson 16: Solving More Ratio Problems",
+    subtitle: "Original public lesson source for comparing tape diagrams, number lines, and tables.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-16.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 16.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u2-idea1-l17",
+    unitNumber: 2,
+    ideaId: "idea1",
+    lessonNumber: 17,
+    label: "Lesson 17 source",
+    title: "Lesson 17: A Fermi Problem",
+    subtitle: "Original public lesson source for estimating, decomposing, and researching Fermi problems.",
+    previewPath: "artifacts/unit 2/_public-reference-renders/lesson-17.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 2 Lesson 17.",
+    isPrimary: true,
+  },
+];
+
+const unit2TeacherCollectionSource = {
+  typeLabel: "Teacher Presentation source",
+  title: "Lesson 1: The Teacher's Collection · Teacher p.2",
+  subtitle: "Rendered Teacher Presentation page containing the exact dinosaur collection used in Activity 1.2.",
+  previewPath: "artifacts/unit 2/_rendered-previews/Teacher Presentation Materials/Grade6-2-1-Lesson-teacher-presentation-materials/page-002.png",
+  alt: "Teacher Presentation page showing six toy dinosaurs in the Lesson 1 collection.",
+  buttonLabel: "Teacher p.2",
+};
+
+const unit2SpaghettiBlacklines = [1, 2].map((page) => ({
+  activityAddress: "Grade6.2.2.4",
+  title: `Card Sort: Spaghetti Sauce · Blackline p.${page}`,
+  page,
+  previewPath: `artifacts/unit 2/_rendered-previews/Blackline Masters/Grade6-2-A2-4-card-sort-spaghetti-sauce-card-sort-spaghetti-sauce/page-${String(page).padStart(3, "0")}.png`,
+  subtitle: "Rendered student-use Blackline card set for matching spaghetti-sauce diagrams and ratio sentences.",
+  alt: `Blackline Master page ${page} showing student-use spaghetti-sauce diagram and sentence cards.`,
+  buttonLabel: `Blackline p.${page}`,
+}));
+
+const unit2IssBlackline = {
+  activityAddress: "Grade6.2.13.3",
+  title: "The International Space Station · Blackline p.1",
+  page: 1,
+  previewPath: "artifacts/unit 2/_rendered-previews/Blackline Masters/Grade6-2-D13-3-the-international-space-station-the-international-space-station/page-001.png",
+  subtitle: "Rendered student-use Blackline with the table and double number line representations for the partner exchange.",
+  alt: "Blackline Master page with International Space Station ratio tables and double number lines.",
+  buttonLabel: "Blackline p.1",
+};
+
+const unit2HotChocolateBlackline = {
+  activityAddress: "Grade6.2.14.2",
+  title: "Info Gap: Hot Chocolate and Potatoes · Blackline p.1",
+  page: 1,
+  previewPath: "artifacts/unit 2/_rendered-previews/Blackline Masters/Grade6-2-D14-2-info-gap-hot-chocolate-and-potatoes-info-gap-hot-chocolate-and-potatoes/page-001.png",
+  subtitle: "Rendered student-use Blackline problem and data cards for the two information-gap rounds.",
+  alt: "Blackline Master page with hot-chocolate and potato problem and data cards.",
+  buttonLabel: "Blackline p.1",
+};
+
+const unit2SaladBoxesBlackline = {
+  activityAddress: "Grade6.2.16.3",
+  title: "Salad Dressing and Moving Boxes · Blackline p.1",
+  page: 1,
+  previewPath: "artifacts/unit 2/_rendered-previews/Blackline Masters/Grade6-2-E16-3-salad-dressing-and-moving-boxes-salad-dressing-and-moving-boxes/page-001.png",
+  subtitle: "Rendered student-use Blackline problem and data cards for the optional information-gap format.",
+  alt: "Blackline Master page with salad-dressing and moving-box problem and data cards.",
+  buttonLabel: "Blackline p.1",
+};
+
+const unit2TeachCards = [
+  {
+    id: "teach-u2-l1-1",
+    unitNumber: 2,
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Ratios and Ratio Language",
+    partLabel: "1.1",
+    activityOrder: 1,
+    activityTitle: "1.1: What Kind and How Many?",
+    pdfPage: 1,
+    customVisual: "unit2FigureSort",
+    visualAlt: "The exact source collection of colored, patterned, and unshaded polyomino figures.",
+    sourceDirections: "Think of different ways to sort the figures. Name categories and determine how many groups each rule makes.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "color-groups",
+        label: "Sort 1",
+        prompt: "If you sort by color or fill pattern, how many groups are there?",
+        responseType: "number",
+        inputLabel: "Number of groups",
+        placeholder: "Type a number",
+        answerKey: ["4"],
+        hint: "Look for green crosshatching, yellow diagonal lines, blue dots, and figures with no fill.",
+        correctFeedback: "Correct. Sorting by color or fill pattern makes four groups: green, yellow, blue, and unshaded.",
+        incorrectFeedback: "Not quite. Count each distinct color or fill pattern, including the unshaded figures.",
+      },
+      {
+        id: "two-groups",
+        label: "Sort 2",
+        prompt: "Which different sorting rule separates every figure into exactly two groups?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "rectangle", label: "Rectangles and non-rectangles" },
+          { id: "color", label: "Green, yellow, blue, and unshaded" },
+          { id: "individual", label: "Each figure in its own group" },
+        ],
+        answerKey: ["rectangle"],
+        hint: "A two-group rule needs one yes-or-no property that applies to every figure.",
+        correctFeedback: "Correct. Every figure is either a rectangle or not a rectangle, so this rule makes exactly two groups.",
+        incorrectFeedback: "That rule does not make exactly two groups. Try a yes-or-no property that applies to every figure.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l1-2",
+    unitNumber: 2,
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Ratios and Ratio Language",
+    partLabel: "1.2",
+    activityOrder: 2,
+    activityTitle: "1.2: The Teacher's Collection",
+    pdfPage: 2,
+    customVisual: "unit2TeacherCollection",
+    visualAlt: "The exact source collection of six toy dinosaurs.",
+    sourceDirections: "Sort the app-provided dinosaur collection by dominant color, record the category amounts, and describe two ratios in the requested order.",
+    responseType: "questionSet",
+    referenceSources: [unit2TeacherCollectionSource],
+    questions: [
+      {
+        id: "category-counts",
+        label: "Counts",
+        prompt: "How many dinosaurs belong in each dominant-color category?",
+        fields: [
+          { id: "purple", label: "Purple dinosaurs", responseType: "number", placeholder: "Count" },
+          { id: "orange", label: "Orange dinosaurs", responseType: "number", placeholder: "Count" },
+          { id: "multicolored", label: "Multicolored dinosaurs", responseType: "number", placeholder: "Count" },
+        ],
+        acceptedFieldSets: [{ purple: "4", orange: "1", multicolored: "1" }],
+        hint: "Classify each dinosaur by its dominant body color, then count each group once.",
+        correctFeedback: "Correct. The collection has 4 purple dinosaurs, 1 orange dinosaur, and 1 multicolored dinosaur.",
+        incorrectFeedback: "Recount the six dinosaurs by dominant color. Every dinosaur belongs in exactly one category.",
+      },
+      {
+        id: "purple-to-orange",
+        label: "Ratio 1",
+        prompt: "Which sentence describes the ratio of purple dinosaurs to orange dinosaurs?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "4-to-1", label: "4 purple dinosaurs to 1 orange dinosaur" },
+          { id: "1-to-4", label: "1 purple dinosaur to 4 orange dinosaurs" },
+          { id: "4-to-2", label: "4 purple dinosaurs to 2 orange dinosaurs" },
+        ],
+        answerKey: ["4-to-1"],
+        hint: "Read the categories in the order named: purple first, orange second.",
+        correctFeedback: "Correct. Purple to orange is 4 to 1. The order of the quantities matters.",
+        incorrectFeedback: "Not quite. Count purple first and orange second because the ratio asks for purple to orange.",
+      },
+      {
+        id: "multicolored-to-purple",
+        label: "Ratio 2",
+        prompt: "Which notation describes the ratio of multicolored dinosaurs to purple dinosaurs?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "1-colon-4", label: "1 : 4" },
+          { id: "4-colon-1", label: "4 : 1" },
+          { id: "1-colon-1", label: "1 : 1" },
+        ],
+        answerKey: ["1-colon-4"],
+        hint: "The first number counts multicolored dinosaurs; the second counts purple dinosaurs.",
+        correctFeedback: "Correct. Multicolored to purple is 1 : 4.",
+        incorrectFeedback: "Check the requested order. Multicolored is the first quantity and purple is the second.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l1-3",
+    unitNumber: 2,
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Ratios and Ratio Language",
+    partLabel: "1.3",
+    activityOrder: 3,
+    activityTitle: "1.3: The Student's Collection",
+    pdfPages: [2, 3],
+    pdfPage: 2,
+    customVisual: "unit2StudentCollection",
+    visualAlt: "An app-provided collection of circles, squares, and triangles that can be sorted into three categories.",
+    sourceContext: "The app provides the collection and acts as the teacher for this independent activity.",
+    sourceDirections: "Sort the collection into three shape categories, write two ratio statements, and use the grouped display to connect a statement to a visual.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "sort-collection",
+        label: "Sort",
+        prompt: "Select every object to place it in its matching shape row.",
+        responseType: "construction",
+        dynamicAnswer: "unit2StudentCollectionSort",
+        hint: "Use the outline of each object: circles, squares, and triangles each have their own row.",
+        correctFeedback: "Correct. All 12 objects are sorted into 5 circles, 4 squares, and 3 triangles.",
+        incorrectFeedback: "Some objects are still unsorted. Select each remaining object so it moves into its matching row.",
+      },
+      {
+        id: "two-statements",
+        label: "Ratios",
+        prompt: "Select both statements that correctly describe the app-provided collection.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "circles-squares", label: "The ratio of circles to squares is 5 : 4." },
+          { id: "triangles-circles", label: "There are 3 triangles for every 5 circles." },
+          { id: "squares-triangles-wrong", label: "The ratio of squares to triangles is 3 : 4." },
+          { id: "circles-triangles-wrong", label: "There are 3 circles for every 5 triangles." },
+        ],
+        answerKey: ["circles-squares", "triangles-circles"],
+        hint: "Keep the category order fixed while matching each number to its count.",
+        correctFeedback: "Correct. The collection has 5 circles, 4 squares, and 3 triangles, and both selected statements preserve that order.",
+        incorrectFeedback: "Recheck both the counts and the order named in each sentence. Select exactly two true statements.",
+      },
+      {
+        id: "visual-statement",
+        label: "Display",
+        prompt: "Which statement is shown most directly by comparing the circle row with the square row?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "5-to-4", label: "5 circles to 4 squares" },
+          { id: "4-to-5", label: "5 squares to 4 circles" },
+          { id: "5-to-3", label: "5 circles to 3 squares" },
+        ],
+        answerKey: ["5-to-4"],
+        hint: "Read the first row named, then the second row named.",
+        correctFeedback: "Correct. The display has 5 circles and 4 squares, so it shows 5 circles to 4 squares.",
+        incorrectFeedback: "Count the circle row first and the square row second.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l1-optional",
+    unitNumber: 2,
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Ratios and Ratio Language",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Two-Color Ratios",
+    pdfPage: 3,
+    customVisual: "unit2RatioShading",
+    visualAlt: "Two interactive square grids for creating two-color figures in a 2-to-1 area ratio.",
+    sourceDirections: "Shade the 6-by-4 rectangle in a 2 : 1 ratio, then create a different connected shape with an area other than 24 that has the same color ratio.",
+    responseType: "ratioShading",
+    prompt: "Complete both two-color designs.",
+    hint: "A 2 : 1 ratio means one color covers twice as many unit squares as the other. The second design must use fewer than 24 connected squares.",
+    correctFeedback: "Correct. Both designs use two colors in a 2 : 1 ratio, and the second connected shape has an area different from 24 square units.",
+    incorrectFeedback: "Revise the grids. The first must fill all 24 squares in a 2 : 1 ratio; the second must be connected, use both colors in a 2 : 1 ratio, and have an area other than 24.",
+  },
+  {
+    id: "teach-u2-l1-summary",
+    unitNumber: 2,
+    lessonNumber: 1,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Ratios and Ratio Language",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 1 Summary",
+    pdfPage: 3,
+    customVisual: "unit2RatioSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l2-1",
+    unitNumber: 2,
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Representing Ratios with Diagrams",
+    partLabel: "2.1",
+    activityOrder: 1,
+    activityTitle: "2.1: Number Talk: Dividing by 4 and Multiplying by 1/4",
+    pdfPage: 1,
+    customVisual: "unit2NumberTalk",
+    sourceDirections: "Find the value of each expression mentally. Submit each expression separately so you can compare the related operations.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "divide-24",
+        label: "24 ÷ 4",
+        prompt: "What is 24 ÷ 4?",
+        responseType: "number",
+        inputLabel: "Value",
+        placeholder: "Type a number",
+        answerKey: ["6"],
+        hint: "Think: how many groups of 4 make 24?",
+        correctFeedback: "Correct. 24 ÷ 4 = 6.",
+        incorrectFeedback: "Not quite. Count how many equal groups of 4 make 24.",
+      },
+      {
+        id: "quarter-times-24",
+        label: "1/4 × 24",
+        prompt: "What is 1/4 × 24?",
+        responseType: "number",
+        inputLabel: "Value",
+        placeholder: "Type a number",
+        answerKey: ["6"],
+        hint: "Multiplying by one fourth finds one of four equal parts.",
+        correctFeedback: "Correct. One fourth of 24 is 6.",
+        incorrectFeedback: "Try dividing 24 into four equal parts.",
+      },
+      {
+        id: "24-times-quarter",
+        label: "24 × 1/4",
+        prompt: "What is 24 × 1/4?",
+        responseType: "number",
+        inputLabel: "Value",
+        placeholder: "Type a number",
+        answerKey: ["6"],
+        hint: "The order of the factors changes, but the product does not.",
+        correctFeedback: "Correct. 24 × 1/4 = 6, just like 1/4 × 24.",
+        incorrectFeedback: "Use the fact that 1/4 × 24 finds one fourth of 24.",
+      },
+      {
+        id: "divide-5",
+        label: "5 ÷ 4",
+        prompt: "What is 5 ÷ 4?",
+        responseType: "number",
+        inputLabel: "Value",
+        placeholder: "Type a number",
+        answerKey: ["1.25", "5/4", "1 1/4"],
+        hint: "Four goes into 5 once, with one fourth of another group remaining.",
+        correctFeedback: "Correct. 5 ÷ 4 = 5/4 = 1.25.",
+        incorrectFeedback: "Write 5 ÷ 4 as the fraction 5/4, then convert if helpful.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l2-2",
+    unitNumber: 2,
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Representing Ratios with Diagrams",
+    partLabel: "2.2",
+    activityOrder: 2,
+    activityTitle: "2.2: A Collection of Snap Cubes",
+    pdfPage: 1,
+    customVisual: "unit2SnapCubePartner",
+    visualAlt: "Exact source photograph of six colored snap-cube stacks.",
+    sourceContext: "The app acts as your partner after you choose two colors and make a faithful count diagram.",
+    sourceDirections: "Choose two colors from the source collection. Build a diagram with the correct number of cubes for each color, then read and evaluate the app-partner ratio sentence.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "snap-diagram",
+        label: "Your diagram",
+        prompt: "Choose exactly two colors and set each diagram row to the number of snap cubes shown in the photograph.",
+        responseType: "construction",
+        dynamicAnswer: "unit2SnapCubePair",
+        hint: "Count the individual cube bodies in each stack. The visible top face belongs to the top cube; it is not an additional cube. Use each selected color once.",
+        correctFeedback: "Correct. Your two diagram rows match the selected source stacks. The app partner has now written a ratio sentence about your diagram.",
+        incorrectFeedback: "Revise the diagram. Select exactly two source colors and match both stack counts.",
+      },
+      {
+        id: "partner-sentence",
+        label: "Partner sentence",
+        prompt: "Does the app partner's sentence describe your diagram correctly?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "agree", label: "I agree with the app partner." },
+          { id: "disagree", label: "I disagree with the app partner." },
+        ],
+        answerKey: ["agree"],
+        unlockedAfterQuestionId: "snap-diagram",
+        hint: "Check the category order and then compare both numbers with your diagram rows.",
+        correctFeedback: "Correct. The app partner used the same color order and counts as your diagram.",
+        incorrectFeedback: "Recheck the order and counts in the displayed sentence. It matches the diagram you submitted.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l2-3",
+    unitNumber: 2,
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Representing Ratios with Diagrams",
+    partLabel: "2.3",
+    activityOrder: 3,
+    activityTitle: "2.3: Blue Paint and Art Paste",
+    pdfPage: 2,
+    customVisual: "unit2PaintPaste",
+    visualAlt: "A source-faithful ratio diagram with two white-paint units and six blue-paint units, plus an art-paste diagram builder.",
+    sourceDirections: "First select every statement that correctly describes 2 cups of white paint and 6 tablespoons of blue paint. Then build and describe Jada's 8-cup flour and 2-pint water ratio.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "paint-statements",
+        label: "Paint statements",
+        prompt: "Select every statement that correctly describes 2 cups of white paint and 6 tablespoons of blue paint.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "a", label: "a. The ratio of cups of white paint to tablespoons of blue paint is 2 : 6." },
+          { id: "b", label: "b. For every cup of white paint, there are 2 tablespoons of blue paint." },
+          { id: "c", label: "c. There is 1 cup of white paint for every 3 tablespoons of blue paint." },
+          { id: "d", label: "d. There are 3 tablespoons of blue paint for every cup of white paint." },
+          { id: "e", label: "e. For each tablespoon of blue paint, there are 3 cups of white paint." },
+          { id: "f", label: "f. For every 6 tablespoons of blue paint, there are 2 cups of white paint." },
+          { id: "g", label: "g. The ratio of tablespoons of blue paint to cups of white paint is 6 to 2." },
+        ],
+        answerKey: ["a", "c", "d", "f", "g"],
+        hint: "Use both the original 2-to-6 counts and the equivalent 1-to-3 relationship. Keep each statement's order.",
+        correctFeedback: "Correct. Statements a, c, d, f, and g all preserve the quantities and their stated order.",
+        incorrectFeedback: "Recheck each statement against 2 white units and 6 blue units, or the equivalent 1 white to 3 blue relationship.",
+      },
+      {
+        id: "paste-diagram",
+        label: "Paste diagram",
+        prompt: "Build a diagram for 8 cups of flour and 2 pints of water.",
+        responseType: "construction",
+        dynamicAnswer: "unit2PasteDiagram",
+        hint: "Set the flour row to 8 units and the water row to 2 units.",
+        correctFeedback: "Correct. The diagram shows 8 flour units and 2 water units.",
+        incorrectFeedback: "Revise the two rows so they show exactly 8 cups of flour and 2 pints of water.",
+      },
+      {
+        id: "paste-ratios",
+        label: "Paste ratios",
+        prompt: "Write the flour-to-water ratio and the water-to-flour ratio shown by your diagram.",
+        fields: [
+          { id: "flourToWater", label: "Flour to water", responseType: "shortAnswer", placeholder: "Use a : b" },
+          { id: "waterToFlour", label: "Water to flour", responseType: "shortAnswer", placeholder: "Use a : b" },
+        ],
+        acceptedFieldSets: [
+          { flourToWater: ["8:2", "8 to 2"], waterToFlour: ["2:8", "2 to 8"] },
+        ],
+        unlockedAfterQuestionId: "paste-diagram",
+        hint: "For each ratio, write the count for the first named quantity before the second.",
+        correctFeedback: "Correct. Flour to water is 8 : 2, and water to flour is 2 : 8.",
+        incorrectFeedback: "Check the order of the named quantities in both ratios.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l2-4",
+    unitNumber: 2,
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Representing Ratios with Diagrams",
+    partLabel: "2.4",
+    activityOrder: 4,
+    activityTitle: "2.4: Card Sort: Spaghetti Sauce",
+    pdfPage: 3,
+    customVisual: "unit2SpaghettiCardSort",
+    visualAlt: "Six source-faithful spaghetti-sauce ratio diagrams and eight unpaired sentence cards.",
+    blacklineMasters: unit2SpaghettiBlacklines,
+    sourceContext: "The app provides the complete student-use Blackline set. Circle means a cup of tomato sauce, square means a tablespoon of oil, and triangle means a teaspoon of oregano.",
+    sourceDirections: "Match all eight sentence cards to diagrams A-F. Some diagrams match more than one sentence. Then identify both double matches and write another true sentence.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "spaghetti-matches",
+        label: "Card sort",
+        prompt: "Assign every sentence card to its matching diagram.",
+        responseType: "construction",
+        dynamicAnswer: "unit2SpaghettiMatches",
+        hint: "Count each symbol and keep the category order in each sentence. Two diagrams receive two sentence cards.",
+        correctFeedback: "Correct. All eight sentence cards are matched to source diagrams with the same quantities and order.",
+        incorrectFeedback: "At least one match needs revision. Count the symbols and compare the sentence order with the diagram key.",
+      },
+      {
+        id: "double-matches",
+        label: "Double matches",
+        prompt: "Which two source diagrams each match two sentences? Select both complete results.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "b-2-8", label: "Diagram B matches Sentences 2 and 8." },
+          { id: "e-3-7", label: "Diagram E matches Sentences 3 and 7." },
+          { id: "a-1-4", label: "Diagram A matches Sentences 1 and 4." },
+          { id: "f-6-8", label: "Diagram F matches Sentences 6 and 8." },
+        ],
+        answerKey: ["b-2-8", "e-3-7"],
+        unlockedAfterQuestionId: "spaghetti-matches",
+        hint: "Look for one pair of sentences that describes a two-ingredient diagram in two forms and one pair that describes a three-ingredient diagram in two forms.",
+        correctFeedback: "Correct. Diagram B matches Sentences 2 and 8, and Diagram E matches Sentences 3 and 7.",
+        incorrectFeedback: "Recheck which diagrams received two cards in your completed sort.",
+      },
+      {
+        id: "invent-sentence",
+        label: "Another sentence",
+        prompt: "Write another true sentence for Diagram A that uses both ingredient quantities.",
+        responseType: "openResponse",
+        inputLabel: "Your ratio sentence for Diagram A",
+        placeholder: "Describe the tomato-sauce and oil quantities.",
+        minLength: 12,
+        answerConceptRequirements: [
+          [["6", "tomato"]],
+          [["2", "oil"]],
+        ],
+        answerValidationGuidance: "write at least 12 characters and include 6 with tomato sauce and 2 with oil",
+        hint: "Diagram A has 6 tomato circles and 2 oil squares. You may describe the ratio in either order if the numbers follow that order.",
+        correctFeedback: "Correct. Your sentence uses both quantities shown in Diagram A.",
+        incorrectFeedback: "Revise the sentence so it names both source quantities for Diagram A.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l2-optional",
+    unitNumber: 2,
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Representing Ratios with Diagrams",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? A Recipe with More Ingredients",
+    pdfPage: 3,
+    customVisual: "unit2RecipeBuilder",
+    visualAlt: "An open ratio-diagram builder with three ingredient rows.",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Create a diagram that represents a recipe ratio of your choice. Use the workspace to show that a ratio can include more than two ingredients.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "recipe-diagram",
+        label: "Recipe diagram",
+        prompt: "Create a recipe diagram with three nonzero ingredient quantities.",
+        responseType: "construction",
+        dynamicAnswer: "unit2RecipeDiagram",
+        hint: "Give each of the three ingredient rows at least one unit. The amounts do not need to be equal.",
+        correctFeedback: "Nice work. Your diagram uses three quantities, so it shows that a ratio can associate more than two ingredients.",
+        incorrectFeedback: "Use all three ingredient rows and give each one at least one unit.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l2-summary",
+    unitNumber: 2,
+    lessonNumber: 2,
+    section: "A",
+    idea: "Idea 1",
+    title: "Representing Ratios with Diagrams",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 2 Summary",
+    pdfPage: 4,
+    customVisual: "unit2DiagramSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l3-1",
+    unitNumber: 2,
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Recipes",
+    partLabel: "3.1",
+    activityOrder: 1,
+    activityTitle: "3.1: Flower Pattern",
+    pdfPage: 1,
+    customVisual: "unit2FlowerPattern",
+    visualAlt: "The exact source flower made from yellow hexagons, red trapezoids, and green triangles.",
+    sourceDirections: "Describe ratios among the three kinds of shapes, then determine how many of each shape would be in two copies of the flower.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "flower-counts",
+        label: "Count shapes",
+        prompt: "How many of each shape make up one flower pattern?",
+        fields: [
+          { id: "yellow", label: "Yellow hexagons", responseType: "number", placeholder: "Count" },
+          { id: "red", label: "Red trapezoids", responseType: "number", placeholder: "Count" },
+          { id: "green", label: "Green triangles", responseType: "number", placeholder: "Count" },
+        ],
+        acceptedFieldSets: [{ yellow: "6", red: "2", green: "9" }],
+        hint: "Count shapes, not the amount of area each color covers.",
+        correctFeedback: "Correct. One pattern has 6 yellow hexagons, 2 red trapezoids, and 9 green triangles.",
+        incorrectFeedback: "Recount each kind of shape in the exact source flower.",
+      },
+      {
+        id: "flower-ratios",
+        label: "Describe ratios",
+        prompt: "Select every sentence that correctly describes the ratios in one flower pattern.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "yellow-red", label: "The ratio of yellow hexagons to red trapezoids is 6 : 2." },
+          { id: "red-yellow", label: "There are 2 red trapezoids for every 6 yellow hexagons." },
+          { id: "green-yellow", label: "The ratio of green triangles to yellow hexagons is 9 : 6." },
+          { id: "yellow-green-wrong", label: "There are 9 yellow hexagons for every 6 green triangles." },
+        ],
+        answerKey: ["yellow-red", "red-yellow", "green-yellow"],
+        hint: "Keep each sentence's category order aligned with its number order.",
+        correctFeedback: "Correct. Each selected sentence preserves both the source counts and the named order.",
+        incorrectFeedback: "Check the three source counts and read each sentence in the order the categories are named.",
+      },
+      {
+        id: "flower-double",
+        label: "Two copies",
+        prompt: "How many of each shape would be in two copies of the flower pattern?",
+        fields: [
+          { id: "yellow", label: "Yellow hexagons", responseType: "number", placeholder: "Count" },
+          { id: "red", label: "Red trapezoids", responseType: "number", placeholder: "Count" },
+          { id: "green", label: "Green triangles", responseType: "number", placeholder: "Count" },
+        ],
+        acceptedFieldSets: [{ yellow: "12", red: "4", green: "18" }],
+        hint: "Two copies means multiplying every one-copy count by 2.",
+        correctFeedback: "Correct. Two copies have 12 yellow hexagons, 4 red trapezoids, and 18 green triangles.",
+        incorrectFeedback: "Double every one-copy count; do not change only one category.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l3-2",
+    unitNumber: 2,
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Recipes",
+    partLabel: "3.2",
+    activityOrder: 2,
+    activityTitle: "3.2: Powdered Drink Mix",
+    pdfPage: 2,
+    customVisual: "unit2DrinkMix",
+    visualAlt: "The exact source diagrams for powdered-drink Mixtures A, B, and C with their symbol key.",
+    sourceDirections: "Use the three source diagrams to compare taste, record the ingredients and ratios in Mixtures B and C, and explain why equivalent batches taste the same.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "mix-a-b",
+        label: "Compare A and B",
+        prompt: "How would the taste of Mixture A compare to the taste of Mixture B?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "same", label: "They would taste the same." },
+          { id: "a-stronger", label: "Mixture A would taste stronger." },
+          { id: "b-stronger", label: "Mixture B would taste stronger." },
+        ],
+        answerKey: ["same"],
+        hint: "Compare both the water and drink-mix amounts in A and B.",
+        correctFeedback: "Correct. A and B each contain 1 cup of water and 4 teaspoons of drink mix, so they taste the same.",
+        incorrectFeedback: "Recount both symbols in A and B. Their ingredient ratios are identical.",
+      },
+      {
+        id: "mix-b",
+        label: "Mixture B",
+        prompt: "Complete the source statement for Mixture B.",
+        fields: [
+          { id: "water", label: "Cups of water", responseType: "number", placeholder: "Count" },
+          { id: "mix", label: "Teaspoons of drink mix", responseType: "number", placeholder: "Count" },
+          { id: "ratio", label: "Water to drink mix", responseType: "shortAnswer", placeholder: "Use a : b" },
+        ],
+        acceptedFieldSets: [{ water: "1", mix: "4", ratio: ["1:4", "1 to 4"] }],
+        hint: "Use the key: blue squares are cups of water and white squares are teaspoons of drink mix.",
+        correctFeedback: "Correct. Mixture B uses 1 cup of water and 4 teaspoons of drink mix, a ratio of 1 : 4.",
+        incorrectFeedback: "Count the blue water symbols and white drink-mix symbols, then keep that order in the ratio.",
+      },
+      {
+        id: "mix-c",
+        label: "Mixture C",
+        prompt: "Complete the source statement for Mixture C.",
+        fields: [
+          { id: "water", label: "Cups of water", responseType: "number", placeholder: "Count" },
+          { id: "mix", label: "Teaspoons of drink mix", responseType: "number", placeholder: "Count" },
+          { id: "ratio", label: "Water to drink mix", responseType: "shortAnswer", placeholder: "Use a : b" },
+        ],
+        acceptedFieldSets: [{ water: "2", mix: "8", ratio: ["2:8", "2 to 8"] }],
+        hint: "Mixture C combines two identical batches. Count every symbol in the larger container.",
+        correctFeedback: "Correct. Mixture C uses 2 cups of water and 8 teaspoons of drink mix, a ratio of 2 : 8.",
+        incorrectFeedback: "Recount both rows in C and write water first, drink mix second.",
+      },
+      {
+        id: "mix-b-c",
+        label: "Compare B and C",
+        prompt: "How would the taste of Mixture B compare to the taste of Mixture C?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "same", label: "They would taste the same." },
+          { id: "b-stronger", label: "Mixture B would taste stronger." },
+          { id: "c-stronger", label: "Mixture C would taste stronger." },
+        ],
+        answerKey: ["same"],
+        hint: "C doubles both ingredients in B, not just one ingredient.",
+        correctFeedback: "Correct. The ratio 2 : 8 is a double batch of 1 : 4, so B and C taste the same.",
+        incorrectFeedback: "Compare how both ingredient amounts change from B to C.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l3-optional",
+    unitNumber: 2,
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Recipes",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Sports Drinks",
+    pdfPage: 3,
+    customVisual: "unit2NutritionLabels",
+    visualAlt: "The exact source nutrition labels for Sports Drinks A and B.",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Use sodium per serving volume to decide which drink is saltier, then design a positive sodium-to-water ratio that is less salty than both source drinks.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "saltier-drink",
+        label: "Compare labels",
+        prompt: "Which drink is saltier?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "a", label: "Drink A" },
+          { id: "b", label: "Drink B" },
+          { id: "same", label: "They are equally salty." },
+        ],
+        answerKey: ["a"],
+        hint: "Compare sodium per milliliter, not sodium alone. Divide 110 by 240 and 150 by 355.",
+        correctFeedback: "Correct. Drink A has about 0.458 mg of sodium per mL, while Drink B has about 0.423 mg per mL, so A is saltier.",
+        incorrectFeedback: "Compare each sodium amount with its own serving volume. The larger sodium number alone is not enough.",
+      },
+      {
+        id: "less-salty-drink",
+        label: "Design a ratio",
+        prompt: "Create a positive ratio of sodium to water that would be less salty than both drinks.",
+        fields: [
+          { id: "sodium", label: "Sodium (mg)", responseType: "number", placeholder: "Choose an amount" },
+          { id: "water", label: "Water (mL)", responseType: "number", placeholder: "Choose an amount" },
+        ],
+        dynamicAnswer: "unit2LessSaltyDrink",
+        hint: "Your sodium divided by water must be less than both 110/240 and 150/355. For example, increase the water for a fixed sodium amount.",
+        correctFeedback: "Correct. Your positive sodium-to-water rate is lower than both source rates, so the drink would be less salty.",
+        incorrectFeedback: "Revise the amounts. Use positive values and make sodium ÷ water less than both source unit rates.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l3-3",
+    unitNumber: 2,
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Recipes",
+    partLabel: "3.3",
+    activityOrder: 3,
+    activityTitle: "3.3: Batches of Cookies",
+    pdfPage: 4,
+    customVisual: "unit2CookieBatches",
+    visualAlt: "A one-batch diagram showing five flour units and two vanilla units.",
+    sourceDirections: "Scale a recipe that uses 5 cups of flour and 2 teaspoons of vanilla. Submit each batch question independently, then create a new equivalent ratio.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "cookie-double",
+        label: "Two batches",
+        prompt: "Draw a diagram in the workspace, then record the flour and vanilla needed for two batches.",
+        fields: [
+          { id: "flour", label: "Cups of flour", responseType: "number", placeholder: "Amount" },
+          { id: "vanilla", label: "Teaspoons of vanilla", responseType: "number", placeholder: "Amount" },
+        ],
+        acceptedFieldSets: [{ flour: "10", vanilla: "4" }],
+        hint: "A double batch multiplies both one-batch amounts by 2.",
+        correctFeedback: "Correct. Two batches use 10 cups of flour and 4 teaspoons of vanilla.",
+        incorrectFeedback: "Double both ingredients in the 5-to-2 one-batch recipe.",
+      },
+      {
+        id: "cookie-three",
+        label: "15 flour, 6 vanilla",
+        prompt: "How many batches can you make with 15 cups of flour and 6 teaspoons of vanilla?",
+        responseType: "number",
+        inputLabel: "Number of batches",
+        placeholder: "Type a number",
+        answerKey: ["3"],
+        hint: "Compare each amount with one batch: 15 ÷ 5 and 6 ÷ 2.",
+        correctFeedback: "Correct. Both ingredients are multiplied by 3, so the amounts make 3 batches.",
+        incorrectFeedback: "Find the common multiplier from 5 to 15 and from 2 to 6.",
+      },
+      {
+        id: "cookie-five",
+        label: "Five batches",
+        prompt: "How much flour and vanilla would you need for 5 batches?",
+        fields: [
+          { id: "flour", label: "Cups of flour", responseType: "number", placeholder: "Amount" },
+          { id: "vanilla", label: "Teaspoons of vanilla", responseType: "number", placeholder: "Amount" },
+        ],
+        acceptedFieldSets: [{ flour: "25", vanilla: "10" }],
+        hint: "Multiply both ingredients in one batch by 5.",
+        correctFeedback: "Correct. Five batches use 25 cups of flour and 10 teaspoons of vanilla.",
+        incorrectFeedback: "Scale both 5 cups of flour and 2 teaspoons of vanilla by 5.",
+      },
+      {
+        id: "cookie-new-ratio",
+        label: "Another ratio",
+        prompt: "Find another whole-number flour-to-vanilla ratio equivalent to 5 : 2, then state its number of batches.",
+        fields: [
+          { id: "flour", label: "Cups of flour", responseType: "number", placeholder: "New amount" },
+          { id: "vanilla", label: "Teaspoons of vanilla", responseType: "number", placeholder: "New amount" },
+          { id: "batches", label: "Number of batches", responseType: "number", placeholder: "Multiplier" },
+        ],
+        dynamicAnswer: "unit2CookieEquivalent",
+        hint: "Choose a new positive whole-number multiplier and multiply both 5 and 2 by it.",
+        correctFeedback: "Correct. Both ingredients use the same whole-number multiplier, so your ratio is equivalent and your batch count matches.",
+        incorrectFeedback: "Use one positive whole-number multiplier for both ingredients and enter that same multiplier as the batch count.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l3-summary",
+    unitNumber: 2,
+    lessonNumber: 3,
+    section: "A",
+    idea: "Idea 1",
+    title: "Recipes",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 3 Summary",
+    pdfPage: 5,
+    customVisual: "unit2RecipeSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l4-1",
+    unitNumber: 2,
+    lessonNumber: 4,
+    section: "A",
+    idea: "Idea 1",
+    title: "Color Mixtures",
+    partLabel: "4.1",
+    activityOrder: 1,
+    activityTitle: "4.1: Number Talk: Adjusting a Factor",
+    pdfPage: 1,
+    customVisual: "unit2FactorNumberTalk",
+    sourceDirections: "Find the value of each product mentally. Submit each product independently and compare how adjusting a factor changes the product.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "six-fifteen",
+        label: "6 × 15",
+        prompt: "What is 6 × 15?",
+        responseType: "number",
+        inputLabel: "Product",
+        placeholder: "Type a number",
+        answerKey: ["90"],
+        hint: "Use 6 × 10 and 6 × 5.",
+        correctFeedback: "Correct. 6 × 15 = 90.",
+        incorrectFeedback: "Break 15 into 10 + 5 and multiply both parts by 6.",
+      },
+      {
+        id: "twelve-fifteen",
+        label: "12 × 15",
+        prompt: "What is 12 × 15?",
+        responseType: "number",
+        inputLabel: "Product",
+        placeholder: "Type a number",
+        answerKey: ["180"],
+        hint: "12 is twice 6, so compare this product with 6 × 15.",
+        correctFeedback: "Correct. Doubling the first factor doubles 90 to 180.",
+        incorrectFeedback: "Use 6 × 15 = 90, then double the product because 12 is twice 6.",
+      },
+      {
+        id: "six-forty-five",
+        label: "6 × 45",
+        prompt: "What is 6 × 45?",
+        responseType: "number",
+        inputLabel: "Product",
+        placeholder: "Type a number",
+        answerKey: ["270"],
+        hint: "45 is three times 15.",
+        correctFeedback: "Correct. Tripling 15 triples 90, so 6 × 45 = 270.",
+        incorrectFeedback: "Compare 45 with 15 and scale the known product 6 × 15.",
+      },
+      {
+        id: "thirteen-forty-five",
+        label: "13 × 45",
+        prompt: "What is 13 × 45?",
+        responseType: "number",
+        inputLabel: "Product",
+        placeholder: "Type a number",
+        answerKey: ["585"],
+        hint: "Use 12 × 45 and add one more group of 45.",
+        correctFeedback: "Correct. 12 × 45 is 540, and 540 + 45 = 585.",
+        incorrectFeedback: "Find 12 × 45 from a related product, then add 45.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l4-2",
+    unitNumber: 2,
+    lessonNumber: 4,
+    section: "A",
+    idea: "Idea 1",
+    title: "Color Mixtures",
+    partLabel: "4.2",
+    activityOrder: 2,
+    activityTitle: "4.2: Turning Green",
+    pdfPages: [1, 2, 3],
+    pdfPage: 1,
+    customVisual: "unit2ColorMixer",
+    visualAlt: "Two graduated cylinders for comparing blue-and-yellow color mixtures.",
+    sourceContext: "The local workspace recreates the captured source applet. The left cylinder stays at the original 5 mL blue to 15 mL yellow recipe; use the right cylinder for experiments.",
+    sourceDirections: "Test which changes preserve the original shade, record one equivalent mixture, rescue a 20-and-20 start, and invent a bluer shade.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "same-green-options",
+        label: "Same shade",
+        prompt: "Starting with a single 5 mL blue and 15 mL yellow batch, which changes produce the same shade of green? Select all that apply.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "add-20-each", label: "Add 20 mL of blue and 20 mL of yellow." },
+          { id: "double-both", label: "Double the amount of blue and the amount of yellow." },
+          { id: "triple-both", label: "Triple the amount of blue and the amount of yellow." },
+          { id: "single-plus-double", label: "Mix a single batch with a double batch." },
+          { id: "double-blue-triple-yellow", label: "Double the amount of blue and triple the amount of yellow." },
+        ],
+        answerKey: ["double-both", "triple-both", "single-plus-double"],
+        hint: "Use the right cylinder to test each option. The same shade keeps blue and yellow multiplied by the same factor.",
+        correctFeedback: "Correct. Doubling both, tripling both, or combining one batch with two batches preserves the 5 : 15 ratio.",
+        incorrectFeedback: "Test each option and compare whether blue and yellow were scaled by the same factor.",
+      },
+      {
+        id: "record-green-mixture",
+        label: "Record a mixture",
+        prompt: "Record one of the source mixtures that makes the same shade as the original and state its number of batches.",
+        fields: [
+          { id: "blue", label: "Blue water (mL)", responseType: "number", placeholder: "Amount" },
+          { id: "yellow", label: "Yellow water (mL)", responseType: "number", placeholder: "Amount" },
+          { id: "batches", label: "Number of batches", responseType: "number", placeholder: "Batches" },
+        ],
+        dynamicAnswer: "unit2EquivalentGreen",
+        hint: "Use either 2 or 3 complete batches of the 5-blue-to-15-yellow recipe.",
+        correctFeedback: "Correct. Both colors use the same batch multiplier, so the mixture makes the same shade.",
+        incorrectFeedback: "Use 2 or 3 batches and multiply both 5 mL blue and 15 mL yellow by that batch count.",
+      },
+      {
+        id: "rescue-green",
+        label: "Rescue 20 and 20",
+        prompt: "A mixture starts with 20 mL blue and 20 mL yellow. How much more of each color can be added to make the original shade?",
+        fields: [
+          { id: "blueAdded", label: "More blue (mL)", responseType: "number", placeholder: "0 or more" },
+          { id: "yellowAdded", label: "More yellow (mL)", responseType: "number", placeholder: "0 or more" },
+        ],
+        dynamicAnswer: "unit2RescueTwentyGreen",
+        hint: "The final yellow amount must be 3 times the final blue amount. You may add 0 mL of one color.",
+        correctFeedback: "Correct. After your additions, the final blue-to-yellow ratio is 1 : 3, matching the original shade.",
+        incorrectFeedback: "Add your proposed amounts to 20 and 20, then check whether final yellow is exactly 3 times final blue.",
+      },
+      {
+        id: "bluer-green",
+        label: "Invent a bluer shade",
+        prompt: "Invent a positive whole-milliliter recipe that would be bluer than the original 5 : 15 mixture.",
+        fields: [
+          { id: "blue", label: "Blue water (mL)", responseType: "number", placeholder: "Choose an amount" },
+          { id: "yellow", label: "Yellow water (mL)", responseType: "number", placeholder: "Choose an amount" },
+        ],
+        dynamicAnswer: "unit2BluerGreen",
+        hint: "The original has 1 part blue for every 3 parts yellow. A bluer recipe has a greater blue-to-yellow rate.",
+        correctFeedback: "Correct. Your blue-to-yellow rate is greater than 1 : 3, so the mixture would be bluer than the original.",
+        incorrectFeedback: "Use positive amounts and make blue ÷ yellow greater than 1 ÷ 3.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l4-optional",
+    unitNumber: 2,
+    lessonNumber: 4,
+    section: "A",
+    idea: "Idea 1",
+    title: "Color Mixtures",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Rescue the Green",
+    pdfPage: 3,
+    customVisual: "unit2GreenExtension",
+    visualAlt: "The original 5-to-15 mixture and the source extension's 17-to-13 mixture in graduated cylinders.",
+    sourceContext: "Optional source extension",
+    sourceDirections: "A mixture starts with 17 mL blue and 13 mL yellow. Add blue and/or yellow so its final ratio is equivalent to the original 5 : 15 shade.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "rescue-seventeen",
+        label: "Rescue the mixture",
+        prompt: "How many milliliters of blue and yellow would you add to 17 mL blue and 13 mL yellow?",
+        fields: [
+          { id: "blueAdded", label: "More blue (mL)", responseType: "number", placeholder: "0 or more" },
+          { id: "yellowAdded", label: "More yellow (mL)", responseType: "number", placeholder: "0 or more" },
+        ],
+        dynamicAnswer: "unit2RescueSeventeenGreen",
+        hint: "After the additions, final yellow must be 3 times final blue. Adding only yellow is allowed.",
+        correctFeedback: "Correct. Your final amounts form a 1 : 3 blue-to-yellow ratio, so the original shade can be recovered.",
+        incorrectFeedback: "Add your proposed amounts to 17 blue and 13 yellow, then test whether final yellow is 3 times final blue.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l4-3",
+    unitNumber: 2,
+    lessonNumber: 4,
+    section: "A",
+    idea: "Idea 1",
+    title: "Color Mixtures",
+    partLabel: "4.3",
+    activityOrder: 3,
+    activityTitle: "4.3: Perfect Purple Water",
+    pdfPage: 3,
+    customVisual: "unit2PurpleWater",
+    visualAlt: "Ratio diagrams for the original Perfect Purple recipe, Jada's mixture, and Andre's mixture.",
+    sourceDirections: "Compare each person's blue-to-red ratio with the 8 : 3 recipe, then create another combination that makes the same shade.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "purple-person",
+        label: "Same shade",
+        prompt: "Which person will get a mixture that is the same shade as Perfect Purple Water?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "jada", label: "Jada: 24 mL blue and 9 mL red" },
+          { id: "andre", label: "Andre: 16 mL blue and 9 mL red" },
+          { id: "both", label: "Both Jada and Andre" },
+        ],
+        answerKey: ["jada"],
+        hint: "Check whether both ingredients are multiplied by the same factor from 8 : 3.",
+        correctFeedback: "Correct. Jada triples both 8 and 3, so 24 : 9 makes the same shade. Andre does not use one common multiplier.",
+        incorrectFeedback: "Compare the multiplier from 8 to each blue amount with the multiplier from 3 to each red amount.",
+      },
+      {
+        id: "purple-new-ratio",
+        label: "Another mixture",
+        prompt: "Find another positive whole-milliliter combination that will make the same shade as 8 : 3.",
+        fields: [
+          { id: "blue", label: "Blue water (mL)", responseType: "number", placeholder: "New amount" },
+          { id: "red", label: "Red water (mL)", responseType: "number", placeholder: "New amount" },
+        ],
+        dynamicAnswer: "unit2PurpleEquivalent",
+        hint: "Multiply both 8 and 3 by the same positive whole number. Use a combination other than 8 : 3 or 24 : 9.",
+        correctFeedback: "Correct. Both amounts use the same whole-number multiplier, so your mixture makes the same shade.",
+        incorrectFeedback: "Use one positive whole-number multiplier for both 8 mL blue and 3 mL red.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l4-summary",
+    unitNumber: 2,
+    lessonNumber: 4,
+    section: "A",
+    idea: "Idea 1",
+    title: "Color Mixtures",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 4 Summary",
+    pdfPage: 4,
+    customVisual: "unit2ColorSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l5-1",
+    unitNumber: 2,
+    lessonNumber: 5,
+    section: "A",
+    idea: "Idea 1",
+    title: "Defining Equivalent Ratios",
+    partLabel: "5.1",
+    activityOrder: 1,
+    activityTitle: "5.1: Dots and Half Dots",
+    pdfPage: 1,
+    customVisual: "unit2TimedDots",
+    visualAlt: "The two exact source dot patterns, each revealed for three seconds at a time.",
+    sourceContext: "The source teacher flashes each pattern for 3 seconds, hides it, and flashes it once more so students use structure instead of counting one dot at a time.",
+    sourceDirections: "Flash the active pattern, decide how many whole dots it represents, and submit. Replay the three-second flash whenever you need another look.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "dot-pattern-1",
+        label: "Dot Pattern 1",
+        prompt: "How many dots are in Dot Pattern 1?",
+        responseType: "number",
+        inputLabel: "Number of dots",
+        placeholder: "Type a number",
+        answerKey: ["54"],
+        reasoningPrompt: "How did you see the dots?",
+        reasoningOptional: true,
+        hint: "Look for equal rectangular groups rather than counting one dot at a time.",
+        correctFeedback: "Correct. There are 54 dots. One way to see them is three equal groups of 18, with each group arranged as 3 columns by 6 rows.",
+        incorrectFeedback: "Try another three-second look. Search for equal groups and use multiplication instead of counting individual dots.",
+      },
+      {
+        id: "dot-pattern-2",
+        label: "Dot Pattern 2",
+        prompt: "How many whole dots are represented by Dot Pattern 2?",
+        responseType: "number",
+        inputLabel: "Number of whole dots",
+        placeholder: "Type a number",
+        answerKey: ["21"],
+        reasoningPrompt: "How did you see the half dots?",
+        reasoningOptional: true,
+        hint: "Pair half dots to make whole dots, then use the rows and columns you noticed.",
+        correctFeedback: "Correct. The pattern has 42 half dots, so it represents 21 whole dots. You can see 6 columns of 7 half dots and then divide by 2.",
+        incorrectFeedback: "Try another three-second look. Count equal groups of half dots, then remember that two halves make one whole dot.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l5-2",
+    unitNumber: 2,
+    lessonNumber: 5,
+    section: "A",
+    idea: "Idea 1",
+    title: "Defining Equivalent Ratios",
+    partLabel: "5.2",
+    activityOrder: 2,
+    activityTitle: "5.2: Tuna Casserole",
+    pdfPage: 2,
+    customVisual: "unit2TunaCasserole",
+    visualAlt: "The source tuna-casserole photograph beside the complete app-rendered recipe.",
+    sourceDirections: "Use the source recipe to write ordered ingredient ratios, scale three ingredients, and determine how many batches several ingredient amounts make.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "casserole-three-ratio",
+        label: "Soup : cheese : pasta",
+        prompt: "What is the ratio of ounces of soup to cups of shredded cheese to cups of pasta in one batch?",
+        fields: [
+          { id: "soup", label: "Soup", responseType: "number", placeholder: "Ounces" },
+          { id: "cheese", label: "Cheese", responseType: "number", placeholder: "Cups" },
+          { id: "pasta", label: "Pasta", responseType: "number", placeholder: "Cups" },
+        ],
+        acceptedFieldSets: [{ soup: "10", cheese: "1", pasta: "3" }],
+        hint: "Keep the ingredient order in the question: soup, cheese, then pasta.",
+        correctFeedback: "Correct. One batch has a soup-to-cheese-to-pasta ratio of 10 : 1 : 3.",
+        incorrectFeedback: "Read one-batch quantities from the recipe and keep the requested soup, cheese, pasta order.",
+      },
+      ...[
+        { id: "twice", label: "Twice", prompt: "How much soup, cheese, and pasta are needed for twice the amount of casserole?", multiplier: 2 },
+        { id: "half", label: "Half", prompt: "How much soup, cheese, and pasta are needed for half the amount of casserole?", multiplier: 0.5 },
+        { id: "five-times", label: "Five times", prompt: "How much soup, cheese, and pasta are needed for five times the amount of casserole?", multiplier: 5 },
+        { id: "one-fifth", label: "One-fifth", prompt: "How much soup, cheese, and pasta are needed for one-fifth the amount of casserole?", multiplier: 0.2 },
+      ].map((entry) => ({
+        id: `casserole-${entry.id}`,
+        label: entry.label,
+        prompt: entry.prompt,
+        fields: [
+          { id: "soup", label: "Soup (ounces)", responseType: "number", placeholder: "Amount" },
+          { id: "cheese", label: "Cheese (cups)", responseType: "number", placeholder: "Amount" },
+          { id: "pasta", label: "Pasta (cups)", responseType: "number", placeholder: "Amount" },
+        ],
+        acceptedFieldSets: [{
+          soup: String(10 * entry.multiplier),
+          cheese: String(entry.multiplier),
+          pasta: String(3 * entry.multiplier),
+        }],
+        hint: `Multiply all three one-batch quantities by ${entry.multiplier === 0.5 ? "1/2" : entry.multiplier === 0.2 ? "1/5" : entry.multiplier}.`,
+        correctFeedback: `Correct. Every ingredient was scaled by the same factor, so the recipe keeps its ratios.`,
+        incorrectFeedback: `Scale 10 ounces of soup, 1 cup of cheese, and 3 cups of pasta by the same factor.`,
+      })),
+      {
+        id: "casserole-pasta-tuna",
+        label: "Pasta : tuna",
+        prompt: "What is the ratio of cups of pasta to ounces of tuna in one batch?",
+        fields: [
+          { id: "pasta", label: "Pasta (cups)", responseType: "number", placeholder: "Amount" },
+          { id: "tuna", label: "Tuna (ounces)", responseType: "number", placeholder: "Amount" },
+        ],
+        acceptedFieldSets: [{ pasta: "3", tuna: "6" }],
+        hint: "Use the amounts in one original batch and keep pasta first.",
+        correctFeedback: "Correct. The pasta-to-tuna ratio in one batch is 3 : 6.",
+        incorrectFeedback: "Read the one-batch pasta and tuna amounts and preserve their requested order.",
+      },
+      ...[
+        { id: "nine-eighteen", label: "9 pasta, 18 tuna", prompt: "How many batches use 9 cups of pasta and 18 ounces of tuna?", answer: "3" },
+        { id: "eighteen-thirty-six", label: "18 pasta, 36 tuna", prompt: "How many batches use 18 cups of pasta and 36 ounces of tuna?", answer: "6" },
+        { id: "one-two", label: "1 pasta, 2 tuna", prompt: "How many batches use 1 cup of pasta and 2 ounces of tuna?", answer: "1/3" },
+      ].map((entry) => ({
+        id: `casserole-batches-${entry.id}`,
+        label: entry.label,
+        prompt: entry.prompt,
+        responseType: "number",
+        inputLabel: "Number of batches",
+        placeholder: "Type a number",
+        answerKey: [entry.answer],
+        hint: "Compare both amounts with the one-batch ratio 3 cups pasta to 6 ounces tuna.",
+        correctFeedback: `Correct. Both ingredient amounts are ${entry.answer} of the one-batch amounts.`,
+        incorrectFeedback: "Use the same scale factor from 3 cups pasta and 6 ounces tuna to both given amounts.",
+      })),
+    ],
+  },
+  {
+    id: "teach-u2-l5-optional",
+    unitNumber: 2,
+    lessonNumber: 5,
+    section: "A",
+    idea: "Idea 1",
+    title: "Defining Equivalent Ratios",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Baking Dishes",
+    pdfPage: 3,
+    customVisual: "unit2BakingDish",
+    visualAlt: "A proportional area workspace based on the source 9-inch by 18-inch baking dish.",
+    sourceContext: "Optional source extension",
+    sourceDirections: "The original 9-inch by 18-inch dish has area 162 square inches. Find positive length-and-width pairs that preserve the height and hold each requested amount of casserole.",
+    responseType: "questionSet",
+    questions: [
+      ...[
+        { id: "twice", label: "Twice", factor: 2 },
+        { id: "half", label: "Half", factor: 0.5 },
+        { id: "five-times", label: "Five times", factor: 5 },
+        { id: "one-fifth", label: "One-fifth", factor: 0.2 },
+      ].map((entry) => ({
+        id: `dish-${entry.id}`,
+        label: entry.label,
+        prompt: `Give a length and width for a baking dish that could hold ${entry.label.toLowerCase()} the amount of casserole.`,
+        fields: [
+          { id: "length", label: "Length (inches)", responseType: "number", placeholder: "Positive length" },
+          { id: "width", label: "Width (inches)", responseType: "number", placeholder: "Positive width" },
+        ],
+        dynamicAnswer: "unit2BakingDishArea",
+        targetArea: 162 * entry.factor,
+        hint: `Find any positive dimensions whose product is ${162 * entry.factor} square inches.`,
+        correctFeedback: `Correct. Your dimensions have area ${162 * entry.factor} square inches, the required scale of the original dish.`,
+        incorrectFeedback: `Use positive dimensions and make length × width equal ${162 * entry.factor} square inches.`,
+      })),
+    ],
+  },
+  {
+    id: "teach-u2-l5-3",
+    unitNumber: 2,
+    lessonNumber: 5,
+    section: "A",
+    idea: "Idea 1",
+    title: "Defining Equivalent Ratios",
+    partLabel: "5.3",
+    activityOrder: 3,
+    activityTitle: "5.3: What Are Equivalent Ratios?",
+    pdfPages: [3, 4],
+    pdfPage: 3,
+    customVisual: "unit2EquivalentRatioLab",
+    visualAlt: "A local ratio display for comparing 5 to 3 and building an app-assigned 7-to-4 visual display.",
+    sourceDirections: "Test the source ratios, create new equivalents, state the same-multiplier definition, and complete the visual display for the ratio assigned by the app.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "ratio-15-12",
+        label: "15 : 12",
+        prompt: "Is 15 : 12 equivalent to 5 : 3?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "yes", label: "Yes" },
+          { id: "no", label: "No" },
+        ],
+        answerKey: ["no"],
+        hint: "Check whether one multiplier changes both 5 to 15 and 3 to 12.",
+        correctFeedback: "Correct. 5 is multiplied by 3 to get 15, but 3 multiplied by 3 is 9, not 12, so the ratios are not equivalent.",
+        incorrectFeedback: "The first quantity uses a factor of 3, but the second does not. Equivalent ratios require the same multiplier for both quantities.",
+      },
+      {
+        id: "ratio-30-18",
+        label: "30 : 18",
+        prompt: "Is 30 : 18 equivalent to 5 : 3?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "yes", label: "Yes" },
+          { id: "no", label: "No" },
+        ],
+        answerKey: ["yes"],
+        hint: "Find the multiplier from 5 to 30 and test it on 3.",
+        correctFeedback: "Correct. Multiplying both 5 and 3 by 6 produces 30 : 18, so the ratios are equivalent.",
+        incorrectFeedback: "Both quantities are multiplied by 6: 5 × 6 = 30 and 3 × 6 = 18.",
+      },
+      {
+        id: "two-equivalent-examples",
+        label: "Two examples",
+        prompt: "Give two different positive whole-number ratios equivalent to 5 : 3.",
+        fields: [
+          { id: "a1", label: "Example 1, first number", responseType: "number", placeholder: "Amount" },
+          { id: "b1", label: "Example 1, second number", responseType: "number", placeholder: "Amount" },
+          { id: "a2", label: "Example 2, first number", responseType: "number", placeholder: "Amount" },
+          { id: "b2", label: "Example 2, second number", responseType: "number", placeholder: "Amount" },
+        ],
+        dynamicAnswer: "unit2TwoEquivalentRatios",
+        hint: "Choose two different positive whole-number multipliers and multiply both 5 and 3 by each multiplier.",
+        correctFeedback: "Correct. Both examples use one common whole-number multiplier for the two quantities, and the examples are different from each other.",
+        incorrectFeedback: "Each pair must use the same positive whole-number multiplier from 5 : 3, and your two examples must be different.",
+      },
+      {
+        id: "equivalent-test",
+        label: "How to know",
+        prompt: "How can you determine whether two ratios are equivalent?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "same-multiplier", label: "Both quantities can be multiplied by the same number to make the other ratio." },
+          { id: "same-total", label: "The two numbers in each ratio have the same total." },
+          { id: "one-multiplier", label: "At least one quantity can be multiplied to match." },
+        ],
+        answerKey: ["same-multiplier"],
+        hint: "Equivalent ratios preserve the association between both quantities.",
+        correctFeedback: "Correct. One common multiplier must transform both quantities, which preserves the ratio relationship.",
+        incorrectFeedback: "A match in only one quantity or in the totals is not enough. Both quantities must use the same multiplier.",
+      },
+      {
+        id: "equivalent-definition",
+        label: "Definition",
+        prompt: "Which statement is the best definition of equivalent ratios?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "same-association", label: "Ratios that describe the same association between quantities, made by scaling both quantities by the same number." },
+          { id: "same-numbers", label: "Ratios that contain exactly the same two written numbers." },
+          { id: "same-first", label: "Ratios whose first quantities are equal." },
+        ],
+        answerKey: ["same-association"],
+        hint: "Equivalent ratios can use different numbers while preserving the same relationship.",
+        correctFeedback: "Correct. Equivalent ratios describe the same relationship because both quantities are scaled together.",
+        incorrectFeedback: "Equivalent ratios do not need identical written numbers; they need the same association between quantities.",
+      },
+      {
+        id: "assigned-display",
+        label: "Visual display",
+        prompt: "The app assigns 7 : 4. Give two equivalent ratios and one ratio that is not equivalent for your display.",
+        fields: [
+          { id: "eqA1", label: "Equivalent 1, first number", responseType: "number", placeholder: "Amount" },
+          { id: "eqB1", label: "Equivalent 1, second number", responseType: "number", placeholder: "Amount" },
+          { id: "eqA2", label: "Equivalent 2, first number", responseType: "number", placeholder: "Amount" },
+          { id: "eqB2", label: "Equivalent 2, second number", responseType: "number", placeholder: "Amount" },
+          { id: "notA", label: "Not equivalent, first number", responseType: "number", placeholder: "Amount" },
+          { id: "notB", label: "Not equivalent, second number", responseType: "number", placeholder: "Amount" },
+        ],
+        dynamicAnswer: "unit2AssignedRatioDisplay",
+        reasoningPrompt: "Explain how the common multiplier proves your equivalent examples and why the other example is not equivalent.",
+        reasoningOptional: true,
+        hint: "For the equivalent examples, scale both 7 and 4 by one positive whole number. For the non-example, choose a positive pair whose cross products do not match 7 : 4.",
+        correctFeedback: "Correct. Your two examples preserve 7 : 4 with common whole-number multipliers, and your non-example does not preserve that relationship.",
+        incorrectFeedback: "Use two different positive whole-number multiples of 7 : 4, then choose one positive ratio for which first × 4 is not equal to second × 7.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l5-summary",
+    unitNumber: 2,
+    lessonNumber: 5,
+    section: "A",
+    idea: "Idea 1",
+    title: "Defining Equivalent Ratios",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 5 Summary",
+    pdfPage: 4,
+    customVisual: "unit2EquivalentRatioSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l6-1",
+    unitNumber: 2,
+    lessonNumber: 6,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Double Number Line Diagrams",
+    partLabel: "6.1",
+    activityOrder: 1,
+    activityTitle: "6.1: Number Talk: Adjusting Another Factor",
+    pdfPage: 1,
+    customVisual: "unit2FractionNumberTalk",
+    sourceDirections: "Find each product mentally. Submit each product independently and compare how doubling one factor changes the product.",
+    responseType: "questionSet",
+    questions: [
+      ...[
+        { id: "four-five-four", label: "4.5 × 4", expression: "4.5 × 4", answer: "18", hint: "Use 4 × 4 plus one-half of 4." },
+        { id: "four-five-eight", label: "4.5 × 8", expression: "4.5 × 8", answer: "36", hint: "Compare with 4.5 × 4 and double the second factor." },
+        { id: "one-tenth-sixty-five", label: "1/10 × 65", expression: "1/10 × 65", answer: "6.5", hint: "One tenth means divide 65 by 10." },
+        { id: "two-tenths-sixty-five", label: "2/10 × 65", expression: "2/10 × 65", answer: "13", hint: "Two tenths is twice one tenth." },
+      ].map((entry) => ({
+        id: `fraction-product-${entry.id}`,
+        label: entry.label,
+        prompt: `What is ${entry.expression}?`,
+        responseType: "number",
+        inputLabel: "Product",
+        placeholder: "Type a number",
+        answerKey: [entry.answer],
+        hint: entry.hint,
+        correctFeedback: `Correct. ${entry.expression} = ${entry.answer}.`,
+        incorrectFeedback: `Not quite. ${entry.hint}`,
+      })),
+    ],
+  },
+  {
+    id: "teach-u2-l6-2",
+    unitNumber: 2,
+    lessonNumber: 6,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Double Number Line Diagrams",
+    partLabel: "6.2",
+    activityOrder: 2,
+    activityTitle: "6.2: Drink Mix on a Double Number Line",
+    pdfPage: 2,
+    customVisual: "unit2DrinkDoubleLine",
+    visualAlt: "The exact source discrete diagram and double number line for 4 teaspoons of drink mix per cup of water.",
+    sourceDirections: "Compare the source's two representations, interpret vertically aligned values, and complete the final equivalent-ratio pair.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "drink-equivalence",
+        label: "4 : 1 and 12 : 3",
+        prompt: "How can we tell that 4 : 1 and 12 : 3 are equivalent ratios?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "triple", label: "Both quantities in 4 : 1 are multiplied by 3 to make 12 : 3." },
+          { id: "same-total", label: "Both ratios have the same total." },
+          { id: "first-only", label: "Only the first quantity needs to use the same multiplier." },
+        ],
+        answerKey: ["triple"],
+        hint: "Compare 4 with 12 and 1 with 3.",
+        correctFeedback: "Correct. Multiplying both 4 and 1 by 3 produces 12 : 3.",
+        incorrectFeedback: "Equivalent ratios require one common multiplier for both quantities, not equal totals or only one matching quantity.",
+      },
+      {
+        id: "compare-representations",
+        label: "Compare representations",
+        prompt: "Which statements correctly compare the discrete diagram and double number line? Select all that apply.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "same-batches", label: "Both represent repeated batches of 4 teaspoons of drink mix for 1 cup of water." },
+          { id: "different-symbols", label: "The discrete diagram uses objects, while the double number line uses numbers and aligned tick marks." },
+          { id: "line-extends", label: "The double number line can be extended efficiently to show more batches." },
+          { id: "different-ratios", label: "They represent different drink-mix ratios." },
+        ],
+        answerKey: ["same-batches", "different-symbols", "line-extends"],
+        hint: "Identify what mathematical relationship stays the same and how each representation displays it.",
+        correctFeedback: "Correct. Both show the same equivalent-ratio relationship, but one uses objects and the other uses aligned numbers that can extend easily.",
+        incorrectFeedback: "Both representations show the same 4-to-1 recipe. Their difference is how they display and extend repeated batches.",
+      },
+      {
+        id: "drink-three-water",
+        label: "3 cups water",
+        prompt: "How many teaspoons of drink mix should be used with 3 cups of water?",
+        responseType: "number",
+        inputLabel: "Teaspoons of drink mix",
+        placeholder: "Type a number",
+        answerKey: ["12"],
+        hint: "Find the value aligned with 3 cups on the top line.",
+        correctFeedback: "Correct. Three batches use 12 teaspoons of drink mix and 3 cups of water.",
+        incorrectFeedback: "Multiply both parts of 4 : 1 by 3.",
+      },
+      {
+        id: "drink-sixteen-mix",
+        label: "16 teaspoons",
+        prompt: "How many cups of water should be used with 16 teaspoons of drink mix?",
+        responseType: "number",
+        inputLabel: "Cups of water",
+        placeholder: "Type a number",
+        answerKey: ["4"],
+        hint: "Locate 16 on the drink-mix line and read the aligned water value.",
+        correctFeedback: "Correct. Sixteen teaspoons is four batches, so it pairs with 4 cups of water.",
+        incorrectFeedback: "Divide 16 teaspoons by 4 teaspoons per batch.",
+      },
+      {
+        id: "drink-empty-boxes",
+        label: "Empty boxes",
+        prompt: "What numbers go in the two empty boxes at the next aligned tick?",
+        fields: [
+          { id: "mix", label: "Drink mix (teaspoons)", responseType: "number", placeholder: "Next value" },
+          { id: "water", label: "Water (cups)", responseType: "number", placeholder: "Next value" },
+        ],
+        acceptedFieldSets: [{ mix: "20", water: "5" }],
+        hint: "Continue skip-counting by 4 on top and by 1 on the bottom.",
+        correctFeedback: "Correct. The next aligned pair is 20 teaspoons of drink mix and 5 cups of water.",
+        incorrectFeedback: "Extend both scales one tick using their constant increments.",
+      },
+      {
+        id: "drink-box-meaning",
+        label: "What they mean",
+        prompt: "What do the aligned numbers 20 and 5 mean?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "five-batches", label: "Five equivalent batches use 20 teaspoons of drink mix and 5 cups of water." },
+          { id: "separate", label: "They are unrelated endpoints of two separate number lines." },
+          { id: "twenty-batches", label: "They represent 20 batches and 5 ingredients." },
+        ],
+        answerKey: ["five-batches"],
+        hint: "Numbers that line up vertically form one associated ratio pair.",
+        correctFeedback: "Correct. Vertical alignment associates 20 teaspoons with 5 cups in the same five-batch mixture.",
+        incorrectFeedback: "Read the vertically aligned numbers as one pair of associated quantities.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l6-optional",
+    unitNumber: 2,
+    lessonNumber: 6,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Double Number Line Diagrams",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Perfect Squares",
+    pdfPage: 3,
+    customVisual: "unit2PerfectSquareIntro",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Use the source definition and examples to count perfect squares in each inclusive whole-number range.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "squares-to-100",
+        label: "1 through 100",
+        prompt: "How many whole numbers from 1 through 100 are perfect squares?",
+        responseType: "number",
+        inputLabel: "Number of perfect squares",
+        placeholder: "Type a number",
+        answerKey: ["10"],
+        hint: "List square numbers beginning with 1² and stop at the largest square no greater than 100.",
+        correctFeedback: "Correct. The perfect squares are 1² through 10², so there are 10.",
+        incorrectFeedback: "Find the greatest whole number whose square is no more than 100.",
+      },
+      {
+        id: "squares-to-1000",
+        label: "1 through 1,000",
+        prompt: "How many whole numbers from 1 through 1,000 are perfect squares?",
+        responseType: "number",
+        inputLabel: "Number of perfect squares",
+        placeholder: "Type a number",
+        answerKey: ["31"],
+        hint: "31² is below 1,000, while 32² is above 1,000.",
+        correctFeedback: "Correct. The perfect squares are 1² through 31², so there are 31.",
+        incorrectFeedback: "Find the largest whole-number square that does not exceed 1,000.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l6-3",
+    unitNumber: 2,
+    lessonNumber: 6,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Double Number Line Diagrams",
+    partLabel: "6.3",
+    activityOrder: 3,
+    activityTitle: "6.3: Blue Paint on a Double Number Line",
+    pdfPage: 4,
+    customVisual: "unit2PaintDoubleLine",
+    visualAlt: "The exact source light-blue-paint recipe plus an editable local double number line.",
+    sourceDirections: "Complete an aligned double number line for 2 cups white paint to 6 tablespoons blue paint, compare it with the app partner's valid scale, and use it to answer the remaining questions.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "paint-line",
+        label: "Complete the line",
+        prompt: "Complete the double number line with six aligned equivalent-ratio pairs.",
+        responseType: "construction",
+        dynamicAnswer: "unit2PaintDoubleLine",
+        constructionNote: "Enter all twelve tick values in the workspace. Any positive whole-number scale that preserves 1 cup white paint to 3 tablespoons blue paint is valid.",
+        hint: "Choose one positive whole-number step for white paint. Use three times that step for blue paint at every aligned tick.",
+        correctFeedback: "Correct. Every aligned pair has the same 1 : 3 white-to-blue relationship, and both number lines use constant scales.",
+        incorrectFeedback: "Check every aligned pair and both scales. Blue paint must be 3 times white paint at each tick, with constant positive whole-number steps.",
+      },
+      {
+        id: "paint-partner-compare",
+        label: "Compare with partner",
+        prompt: "The app partner counts white paint by 1 and blue paint by 3. Which statement is true?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "both-valid", label: "That line and a line counting by 2 and 6 are both valid because every aligned pair preserves 1 : 3." },
+          { id: "only-two-six", label: "Only a line counting by 2 and 6 can represent Elena's recipe." },
+          { id: "different-shade", label: "Counting by 1 and 3 makes a different shade of paint." },
+        ],
+        answerKey: ["both-valid"],
+        hint: "The original 2 : 6 ratio can be simplified to 1 : 3.",
+        correctFeedback: "Correct. Both scales show equivalent ratios; they simply choose different batch-size increments.",
+        incorrectFeedback: "A half batch uses 1 cup white and 3 tablespoons blue, which preserves the same shade.",
+      },
+      {
+        id: "paint-twelve-blue",
+        label: "12 blue",
+        prompt: "How many cups of white paint should Elena mix with 12 tablespoons of blue paint, and how many original batches is that?",
+        fields: [
+          { id: "white", label: "White paint (cups)", responseType: "number", placeholder: "Amount" },
+          { id: "batches", label: "Original batches", responseType: "number", placeholder: "Batches" },
+        ],
+        acceptedFieldSets: [{ white: "4", batches: "2" }],
+        hint: "One original batch is 2 cups white to 6 tablespoons blue.",
+        correctFeedback: "Correct. Twelve tablespoons of blue is two original batches, paired with 4 cups of white.",
+        incorrectFeedback: "Compare 12 with 6, then apply the same batch multiplier to 2 cups white.",
+      },
+      {
+        id: "paint-six-white",
+        label: "6 white",
+        prompt: "How many tablespoons of blue paint should Elena mix with 6 cups of white paint, and how many original batches is that?",
+        fields: [
+          { id: "blue", label: "Blue paint (tablespoons)", responseType: "number", placeholder: "Amount" },
+          { id: "batches", label: "Original batches", responseType: "number", placeholder: "Batches" },
+        ],
+        acceptedFieldSets: [{ blue: "18", batches: "3" }],
+        hint: "Six cups white is three times the 2 cups in one original batch.",
+        correctFeedback: "Correct. Three original batches use 6 cups white and 18 tablespoons blue.",
+        incorrectFeedback: "Use the same multiplier from 2 cups white to 6 cups on the 6 tablespoons blue.",
+      },
+      {
+        id: "paint-another-ratio",
+        label: "Another amount",
+        prompt: "Give another positive whole-number amount of white and blue paint that makes the same shade.",
+        fields: [
+          { id: "white", label: "White paint (cups)", responseType: "number", placeholder: "New amount" },
+          { id: "blue", label: "Blue paint (tablespoons)", responseType: "number", placeholder: "New amount" },
+        ],
+        dynamicAnswer: "unit2LightBlueEquivalent",
+        hint: "Choose positive whole numbers with blue paint equal to 3 times white paint. Use a pair other than 2 : 6, 4 : 12, or 6 : 18.",
+        correctFeedback: "Correct. Your amounts preserve the 1 : 3 white-to-blue relationship, so they make the same shade.",
+        incorrectFeedback: "Use positive whole numbers and make blue paint exactly 3 times white paint. Choose a new pair.",
+      },
+      {
+        id: "paint-same-shade",
+        label: "How you know",
+        prompt: "How do you know the mixtures on the double number line make the same shade?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "same-ratio", label: "Every aligned pair is an equivalent ratio: both paint amounts use the same batch multiplier." },
+          { id: "same-total", label: "Every pair has the same total amount of paint." },
+          { id: "blue-fixed", label: "The amount of blue paint stays fixed." },
+        ],
+        answerKey: ["same-ratio"],
+        hint: "Compare the relationship between white and blue, not their totals.",
+        correctFeedback: "Correct. Scaling both paint amounts together preserves the color ratio and therefore the shade.",
+        incorrectFeedback: "The total changes from batch to batch. The shade stays the same because the white-to-blue ratio stays equivalent.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l6-summary",
+    unitNumber: 2,
+    lessonNumber: 6,
+    section: "A",
+    idea: "Idea 1",
+    title: "Introducing Double Number Line Diagrams",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 6 Summary",
+    pdfPage: 5,
+    customVisual: "unit2DoubleLineSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l7-1",
+    unitNumber: 2,
+    lessonNumber: 7,
+    section: "B",
+    idea: "Idea 2",
+    title: "Creating Double Number Line Diagrams",
+    partLabel: "7.1",
+    activityOrder: 1,
+    activityTitle: "7.1: Ordering on a Number Line",
+    pdfPage: 1,
+    customVisual: "unit2NumberLinePlacement",
+    visualAlt: "An interactive number line from 0 to 2 with source labels that snap to quarter-unit positions.",
+    sourceDirections: "Place every required fraction or decimal on the number line, then add four more distinct values between 0 and 2.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "required-placements",
+        label: "Place source numbers",
+        prompt: "Place 1/2, 1/4, 1 3/4, 1.5, and 1.75 on the number line.",
+        responseType: "construction",
+        dynamicAnswer: "unit2NumberLinePlacement",
+        constructionNote: "Select a number label in the workspace, then select its tick mark. Equivalent labels may share one tick.",
+        hint: "The interval from 0 to 2 is divided into fourths. Remember that 1 3/4 and 1.75 name the same location.",
+        correctFeedback: "Correct. Every source number is at its value, and the equivalent labels 1 3/4 and 1.75 share a location.",
+        incorrectFeedback: "Recheck each location. Count quarter-unit intervals from 0, and place equivalent values at the same tick.",
+      },
+      {
+        id: "additional-labels",
+        label: "Add four numbers",
+        prompt: "Give four different fractions or decimals between 0 and 2 that could also be labeled on the line.",
+        fields: [
+          { id: "n1", label: "Number 1", responseType: "number", placeholder: "Fraction or decimal" },
+          { id: "n2", label: "Number 2", responseType: "number", placeholder: "Fraction or decimal" },
+          { id: "n3", label: "Number 3", responseType: "number", placeholder: "Fraction or decimal" },
+          { id: "n4", label: "Number 4", responseType: "number", placeholder: "Fraction or decimal" },
+        ],
+        dynamicAnswer: "unit2FourNumberLineLabels",
+        hint: "Choose four distinct values greater than 0 and less than 2. Fractions and decimals are both valid.",
+        correctFeedback: "Correct. All four values are distinct and lie between 0 and 2, so each has a location on the source number line.",
+        incorrectFeedback: "Enter four different numerical values strictly between 0 and 2.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l7-2",
+    unitNumber: 2,
+    lessonNumber: 7,
+    section: "B",
+    idea: "Idea 2",
+    title: "Creating Double Number Line Diagrams",
+    partLabel: "7.2",
+    activityOrder: 2,
+    activityTitle: "7.2: Just a Little Green",
+    pdfPage: 1,
+    customVisual: "unit2GreenWaterLine",
+    visualAlt: "The exact source double number line for blue and yellow water with unlabeled intermediate tick marks.",
+    sourceDirections: "Complete the four intermediate tick pairs, then use the 1-to-3 relationship to answer every source question.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "green-line",
+        label: "Complete tick marks",
+        prompt: "Label the four blue-water ticks between 0 and 5 and the aligned yellow-water ticks.",
+        fields: [
+          { id: "b1", label: "Blue tick 1", responseType: "number", placeholder: "Value" },
+          { id: "b2", label: "Blue tick 2", responseType: "number", placeholder: "Value" },
+          { id: "b3", label: "Blue tick 3", responseType: "number", placeholder: "Value" },
+          { id: "b4", label: "Blue tick 4", responseType: "number", placeholder: "Value" },
+          { id: "y1", label: "Yellow tick 1", responseType: "number", placeholder: "Value" },
+          { id: "y2", label: "Yellow tick 2", responseType: "number", placeholder: "Value" },
+          { id: "y3", label: "Yellow tick 3", responseType: "number", placeholder: "Value" },
+          { id: "y4", label: "Yellow tick 4", responseType: "number", placeholder: "Value" },
+        ],
+        acceptedFieldSets: [{ b1: "1", b2: "2", b3: "3", b4: "4", y1: "3", y2: "6", y3: "9", y4: "12" }],
+        hint: "Five equal blue-water intervals lead from 0 to 5. Yellow water is always 3 times the aligned blue amount.",
+        correctFeedback: "Correct. The aligned pairs are 1:3, 2:6, 3:9, and 4:12.",
+        incorrectFeedback: "Use equal intervals. Count blue water by 1 and yellow water by 3.",
+      },
+      {
+        id: "green-one",
+        label: "1 ml blue",
+        prompt: "How much yellow water should be used for 1 ml of blue water?",
+        responseType: "number",
+        inputLabel: "Yellow water (ml)",
+        placeholder: "Type an amount",
+        answerKey: ["3"],
+        hint: "Read the aligned value below 1 ml of blue water.",
+        correctFeedback: "Correct. The mixture uses 3 ml yellow water for every 1 ml blue water.",
+        incorrectFeedback: "Find the yellow-water value aligned with 1 ml on the blue line.",
+      },
+      {
+        id: "green-eleven",
+        label: "11 ml blue",
+        prompt: "How much yellow water should be used for 11 ml of blue water?",
+        responseType: "number",
+        inputLabel: "Yellow water (ml)",
+        placeholder: "Type an amount",
+        answerKey: ["33"],
+        hint: "Multiply the amount of blue water by 3.",
+        correctFeedback: "Correct. 11 × 3 = 33 ml of yellow water.",
+        incorrectFeedback: "Use 3 ml yellow for every 1 ml blue.",
+      },
+      {
+        id: "green-eight",
+        label: "8 ml blue",
+        prompt: "How much yellow water should be used for 8 ml of blue water?",
+        responseType: "number",
+        inputLabel: "Yellow water (ml)",
+        placeholder: "Type an amount",
+        answerKey: ["24"],
+        hint: "Multiply 8 by the 3 ml of yellow per milliliter of blue.",
+        correctFeedback: "Correct. 8 × 3 = 24 ml of yellow water.",
+        incorrectFeedback: "Use the aligned 1:3 pair as a unit ratio.",
+      },
+      {
+        id: "green-why-one",
+        label: "Why 1 is useful",
+        prompt: "Why is it useful to know the yellow-water amount for 1 ml of blue water?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "scale-any", label: "It gives a per-milliliter rate that can be multiplied by any blue-water amount." },
+          { id: "only-small", label: "It works only when making a 1 ml batch." },
+          { id: "changes-shade", label: "It changes the shade so the mixture is easier to see." },
+        ],
+        answerKey: ["scale-any"],
+        hint: "Think about how you found the amounts for 8 ml and 11 ml.",
+        correctFeedback: "Correct. The 1-to-3 pair is a unit ratio, so multiplying both amounts answers many other questions.",
+        incorrectFeedback: "Knowing the amount for 1 ml is useful because it can be scaled to any blue-water amount.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l7-3",
+    unitNumber: 2,
+    lessonNumber: 7,
+    section: "B",
+    idea: "Idea 2",
+    title: "Creating Double Number Line Diagrams",
+    partLabel: "7.3",
+    activityOrder: 3,
+    activityTitle: "7.3: Art Paste on a Double Number Line",
+    pdfPage: 2,
+    customVisual: "unit2ArtPasteLine",
+    visualAlt: "An editable double number line for pints of water and cups of flour.",
+    sourceDirections: "Construct the two labeled lines with six aligned tick pairs, compare with the app partner, and answer all three source questions.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "paste-line",
+        label: "Construct the line",
+        prompt: "Complete the six aligned tick pairs for 0 through 5 batches of art paste.",
+        fields: [
+          { id: "w0", label: "Water tick 0", responseType: "number", placeholder: "Value" },
+          { id: "w1", label: "Water tick 1", responseType: "number", placeholder: "Value" },
+          { id: "w2", label: "Water tick 2", responseType: "number", placeholder: "Value" },
+          { id: "w3", label: "Water tick 3", responseType: "number", placeholder: "Value" },
+          { id: "w4", label: "Water tick 4", responseType: "number", placeholder: "Value" },
+          { id: "w5", label: "Water tick 5", responseType: "number", placeholder: "Value" },
+          { id: "f0", label: "Flour tick 0", responseType: "number", placeholder: "Value" },
+          { id: "f1", label: "Flour tick 1", responseType: "number", placeholder: "Value" },
+          { id: "f2", label: "Flour tick 2", responseType: "number", placeholder: "Value" },
+          { id: "f3", label: "Flour tick 3", responseType: "number", placeholder: "Value" },
+          { id: "f4", label: "Flour tick 4", responseType: "number", placeholder: "Value" },
+          { id: "f5", label: "Flour tick 5", responseType: "number", placeholder: "Value" },
+        ],
+        acceptedFieldSets: [{ w0: "0", w1: "2", w2: "4", w3: "6", w4: "8", w5: "10", f0: "0", f1: "8", f2: "16", f3: "24", f4: "32", f5: "40" }],
+        hint: "One batch uses 2 pints water and 8 cups flour. Multiply both amounts by 0, 1, 2, 3, 4, and 5.",
+        correctFeedback: "Correct. The aligned pairs show 0 through 5 batches while keeping water and flour in a 2:8 ratio.",
+        incorrectFeedback: "Start at 0:0, then add 2 pints water and 8 cups flour at each aligned tick.",
+      },
+      {
+        id: "paste-partner",
+        label: "Compare diagrams",
+        prompt: "The app partner used parallel labeled lines, equal spacing, and vertically aligned equivalent ratios. What should you do?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "agree", label: "Agree; those features make the diagram valid and useful." },
+          { id: "unequal", label: "Revise it so the tick marks use unequal spacing." },
+          { id: "offset", label: "Move the flour ticks so they no longer line up with water." },
+        ],
+        answerKey: ["agree"],
+        hint: "Check the construction directions from the source.",
+        correctFeedback: "Correct. The partner diagram follows every construction guideline.",
+        incorrectFeedback: "A useful double number line needs parallel labeled lines, equal intervals, and aligned equivalent ratios.",
+      },
+      {
+        id: "paste-ten-water",
+        label: "10 pints water",
+        prompt: "How much flour should be used with 10 pints of water?",
+        responseType: "number",
+        inputLabel: "Flour (cups)",
+        placeholder: "Type an amount",
+        answerKey: ["40"],
+        hint: "Ten pints is five 2-pint batches.",
+        correctFeedback: "Correct. Five batches use 40 cups of flour.",
+        incorrectFeedback: "Multiply both parts of 2:8 by 5.",
+      },
+      {
+        id: "paste-twenty-four-flour",
+        label: "24 cups flour",
+        prompt: "How much water should be used with 24 cups of flour?",
+        responseType: "number",
+        inputLabel: "Water (pints)",
+        placeholder: "Type an amount",
+        answerKey: ["6"],
+        hint: "Twenty-four cups is three 8-cup batches.",
+        correctFeedback: "Correct. Three batches use 6 pints of water.",
+        incorrectFeedback: "Find the multiplier from 8 cups to 24 cups and apply it to 2 pints.",
+      },
+      {
+        id: "paste-per-pint",
+        label: "Per pint",
+        prompt: "How much flour per pint of water does this recipe use?",
+        responseType: "number",
+        inputLabel: "Flour per pint (cups)",
+        placeholder: "Type an amount",
+        answerKey: ["4"],
+        hint: "Divide both parts of 2 pints to 8 cups by 2.",
+        correctFeedback: "Correct. The recipe uses 4 cups of flour per pint of water.",
+        incorrectFeedback: "Find the flour amount aligned with 1 pint of water.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l7-optional",
+    unitNumber: 2,
+    lessonNumber: 7,
+    section: "B",
+    idea: "Idea 2",
+    title: "Creating Double Number Line Diagrams",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Overlapping Squares",
+    pdfPage: 3,
+    customVisual: "unit2OverlapSquares",
+    visualAlt: "The exact source diagram of overlapping squares with side lengths 8 and 10 and segment CD labeled 6.",
+    sourceDirections: "Use the exact source diagram to determine the area of overlapping region CDEB.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "overlap-area",
+        label: "Overlapping area",
+        prompt: "What is the area of overlapping region CDEB?",
+        responseType: "number",
+        inputLabel: "Area (square units)",
+        placeholder: "Type an area",
+        answerKey: ["16"],
+        hint: "Use the center placement to find the missing horizontal and vertical distances, then decompose the quadrilateral.",
+        correctFeedback: "Correct. The overlapping quadrilateral has area 16 square units.",
+        incorrectFeedback: "Recheck the center of the 8-by-8 square and the perpendicular sides of the rotated 10-by-10 square.",
+        optional: true,
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l7-4",
+    unitNumber: 2,
+    lessonNumber: 7,
+    section: "B",
+    idea: "Idea 2",
+    title: "Creating Double Number Line Diagrams",
+    partLabel: "7.4",
+    activityOrder: 4,
+    activityTitle: "7.4: Revisiting Tuna Casserole",
+    pdfPage: 4,
+    customVisual: "unit2TunaTripleLine",
+    visualAlt: "A three-line ratio diagram for soup, pasta, and tuna in equivalent casserole batches.",
+    sourceDirections: "Build the soup-pasta line, compare the proposed large batch, add the tuna line, and answer the final source question.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "tuna-soup-pasta-line",
+        label: "Soup and pasta line",
+        prompt: "Complete six aligned pairs for 0 through 5 batches of 10 ounces soup to 3 cups pasta.",
+        fields: [
+          { id: "s0", label: "Soup tick 0", responseType: "number", placeholder: "Value" },
+          { id: "s1", label: "Soup tick 1", responseType: "number", placeholder: "Value" },
+          { id: "s2", label: "Soup tick 2", responseType: "number", placeholder: "Value" },
+          { id: "s3", label: "Soup tick 3", responseType: "number", placeholder: "Value" },
+          { id: "s4", label: "Soup tick 4", responseType: "number", placeholder: "Value" },
+          { id: "s5", label: "Soup tick 5", responseType: "number", placeholder: "Value" },
+          { id: "p0", label: "Pasta tick 0", responseType: "number", placeholder: "Value" },
+          { id: "p1", label: "Pasta tick 1", responseType: "number", placeholder: "Value" },
+          { id: "p2", label: "Pasta tick 2", responseType: "number", placeholder: "Value" },
+          { id: "p3", label: "Pasta tick 3", responseType: "number", placeholder: "Value" },
+          { id: "p4", label: "Pasta tick 4", responseType: "number", placeholder: "Value" },
+          { id: "p5", label: "Pasta tick 5", responseType: "number", placeholder: "Value" },
+        ],
+        acceptedFieldSets: [{ s0: "0", s1: "10", s2: "20", s3: "30", s4: "40", s5: "50", p0: "0", p1: "3", p2: "6", p3: "9", p4: "12", p5: "15" }],
+        hint: "Add 10 ounces of soup and 3 cups of pasta for each batch.",
+        correctFeedback: "Correct. The line shows 0 through 5 equivalent casserole batches.",
+        incorrectFeedback: "Begin at 0:0 and add 10 ounces soup and 3 cups pasta at every aligned tick.",
+        optional: true,
+      },
+      {
+        id: "tuna-forty-fifteen",
+        label: "40 soup and 15 pasta",
+        prompt: "Would 40 ounces of soup with 15 cups of pasta taste the same as the original recipe?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "no", label: "No. Fifteen cups of pasta needs 50 ounces of soup." },
+          { id: "yes", label: "Yes. Both amounts are larger than the original amounts." },
+        ],
+        answerKey: ["no"],
+        hint: "Fifteen cups of pasta is five original batches.",
+        correctFeedback: "Correct. Five batches pair 15 cups pasta with 50 ounces soup, not 40.",
+        incorrectFeedback: "Compare both quantities with the same batch multiplier.",
+        optional: true,
+      },
+      {
+        id: "tuna-line",
+        label: "Add tuna line",
+        prompt: "Label the tuna line for 0 through 5 batches when each batch uses 6 ounces of tuna.",
+        fields: [
+          { id: "t0", label: "Tuna tick 0", responseType: "number", placeholder: "Value" },
+          { id: "t1", label: "Tuna tick 1", responseType: "number", placeholder: "Value" },
+          { id: "t2", label: "Tuna tick 2", responseType: "number", placeholder: "Value" },
+          { id: "t3", label: "Tuna tick 3", responseType: "number", placeholder: "Value" },
+          { id: "t4", label: "Tuna tick 4", responseType: "number", placeholder: "Value" },
+          { id: "t5", label: "Tuna tick 5", responseType: "number", placeholder: "Value" },
+        ],
+        acceptedFieldSets: [{ t0: "0", t1: "6", t2: "12", t3: "18", t4: "24", t5: "30" }],
+        hint: "Count tuna by 6 ounces per batch.",
+        correctFeedback: "Correct. The tuna line is 0, 6, 12, 18, 24, 30.",
+        incorrectFeedback: "Use equal 6-ounce increments, beginning at 0.",
+        optional: true,
+      },
+      {
+        id: "tuna-thirty",
+        label: "30 ounces tuna",
+        prompt: "How many ounces of soup should be mixed with 30 ounces of tuna?",
+        responseType: "number",
+        inputLabel: "Soup (ounces)",
+        placeholder: "Type an amount",
+        answerKey: ["50"],
+        hint: "Thirty ounces of tuna is five 6-ounce batches.",
+        correctFeedback: "Correct. Five batches use 50 ounces of soup with 30 ounces of tuna.",
+        incorrectFeedback: "Use the same five-batch multiplier on the 10 ounces of soup.",
+        optional: true,
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l7-summary",
+    unitNumber: 2,
+    lessonNumber: 7,
+    section: "B",
+    idea: "Idea 2",
+    title: "Creating Double Number Line Diagrams",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 7 Summary",
+    pdfPage: 5,
+    customVisual: "unit2DoubleLineGuidelines",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l8-1",
+    unitNumber: 2,
+    lessonNumber: 8,
+    section: "B",
+    idea: "Idea 2",
+    title: "How Much for One?",
+    partLabel: "8.1",
+    activityOrder: 1,
+    activityTitle: "8.1: Number Talk: Remainders in Division",
+    pdfPage: 1,
+    customVisual: "unit2ExpressionList",
+    expressionList: ["246 ÷ 12"],
+    sourceDirections: "Find the quotient mentally.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "division-246",
+        label: "246 ÷ 12",
+        prompt: "What is 246 ÷ 12?",
+        responseType: "number",
+        inputLabel: "Quotient",
+        placeholder: "Type a quotient",
+        answerKey: ["20.5", "20 1/2", "41/2"],
+        hint: "Twelve goes into 240 twenty times, with 6 left. Express the remaining 6 twelfths as part of the quotient.",
+        correctFeedback: "Correct. 246 ÷ 12 = 20 1/2 = 20.5.",
+        incorrectFeedback: "Use 240 ÷ 12 = 20, then account for the remaining 6 ÷ 12.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l8-2",
+    unitNumber: 2,
+    lessonNumber: 8,
+    section: "B",
+    idea: "Idea 2",
+    title: "How Much for One?",
+    partLabel: "8.2",
+    activityOrder: 2,
+    activityTitle: "8.2: Grocery Shopping",
+    pdfPage: 1,
+    customVisual: "unit2GroceryShopping",
+    visualAlt: "The exact source photographs of avocados and large water bottles, beside app-rendered grocery quantities.",
+    sourceDirections: "Answer every source question. Each response receives its own feedback showing the equivalent-ratio or unit-price reasoning.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "avocado-16",
+        label: "16 avocados",
+        prompt: "Eight avocados cost $4. How much do 16 avocados cost?",
+        responseType: "number",
+        inputLabel: "Cost (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["8"],
+        hint: "Sixteen avocados is twice as many as 8.",
+        correctFeedback: "Correct. Doubling 8 avocados to 16 doubles $4 to $8.",
+        incorrectFeedback: "Use the same multiplier on the number of avocados and the cost.",
+      },
+      {
+        id: "avocado-20",
+        label: "20 avocados",
+        prompt: "Eight avocados cost $4. How much do 20 avocados cost?",
+        responseType: "number",
+        inputLabel: "Cost (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["10"],
+        hint: "First find the cost of 1 avocado, then multiply by 20.",
+        correctFeedback: "Correct. One avocado costs $0.50, so 20 cost $10.",
+        incorrectFeedback: "Divide $4 by 8 to find the unit price, then scale to 20.",
+      },
+      {
+        id: "avocado-9",
+        label: "9 avocados",
+        prompt: "Eight avocados cost $4. How much do 9 avocados cost?",
+        responseType: "number",
+        inputLabel: "Cost (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["4.5", "4 1/2", "9/2"],
+        hint: "Each avocado costs $4 ÷ 8.",
+        correctFeedback: "Correct. At $0.50 each, 9 avocados cost $4.50.",
+        incorrectFeedback: "Find the cost per avocado, then multiply it by 9.",
+      },
+      {
+        id: "water-three-dollars",
+        label: "$3 of water",
+        prompt: "Twelve large bottles of water cost $9. How many bottles can you buy for $3?",
+        responseType: "number",
+        inputLabel: "Number of bottles",
+        placeholder: "Type a quantity",
+        answerKey: ["4"],
+        hint: "$3 is one third of $9.",
+        correctFeedback: "Correct. One third of 12 bottles is 4 bottles.",
+        incorrectFeedback: "Apply the same one-third multiplier to $9 and 12 bottles.",
+      },
+      {
+        id: "water-unit-price",
+        label: "Water unit price",
+        prompt: "Twelve large bottles of water cost $9. What is the cost per bottle?",
+        responseType: "number",
+        inputLabel: "Cost per bottle (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["0.75", "3/4"],
+        hint: "Divide the total cost by the number of bottles.",
+        correctFeedback: "Correct. $9 ÷ 12 = $0.75 per bottle.",
+        incorrectFeedback: "The unit price is $9 divided among 12 bottles.",
+      },
+      {
+        id: "water-seven",
+        label: "7 bottles",
+        prompt: "At the same rate, how much would 7 bottles of water cost?",
+        responseType: "number",
+        inputLabel: "Cost (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["5.25", "5 1/4", "21/4"],
+        hint: "Multiply the $0.75 unit price by 7.",
+        correctFeedback: "Correct. 7 × $0.75 = $5.25.",
+        incorrectFeedback: "Use the cost per bottle from the previous question.",
+      },
+      {
+        id: "flour-forty",
+        label: "40 pounds flour",
+        prompt: "A 10-pound sack of flour costs $8. How much does 40 pounds of flour cost?",
+        responseType: "number",
+        inputLabel: "Cost (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["32"],
+        hint: "Forty pounds is four 10-pound sacks.",
+        correctFeedback: "Correct. Four sacks cost 4 × $8 = $32.",
+        incorrectFeedback: "Scale both 10 pounds and $8 by 4.",
+      },
+      {
+        id: "flour-unit-price",
+        label: "Flour unit price",
+        prompt: "A 10-pound sack of flour costs $8. What is the cost per pound?",
+        responseType: "number",
+        inputLabel: "Cost per pound (dollars)",
+        placeholder: "Type a cost",
+        answerKey: ["0.8", "0.80", "4/5"],
+        hint: "Divide the total cost by 10 pounds.",
+        correctFeedback: "Correct. $8 ÷ 10 = $0.80 per pound.",
+        incorrectFeedback: "Find how much $8 is for each of the 10 pounds.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l8-optional",
+    unitNumber: 2,
+    lessonNumber: 8,
+    section: "B",
+    idea: "Idea 2",
+    title: "How Much for One?",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Buying in Bulk",
+    pdfPage: 2,
+    customVisual: "unit2BulkComparison",
+    sourceDirections: "Find three same-brand cases where the larger package is not a better deal. Record both package sizes and prices; the app compares their unit prices.",
+    responseType: "questionSet",
+    questions: [1, 2, 3].map((exampleNumber) => ({
+      id: `bulk-${exampleNumber}`,
+      label: `Example ${exampleNumber}`,
+      prompt: `Record same-brand package comparison ${exampleNumber}. The larger package must have an equal or higher price per unit.`,
+      fields: [
+        { id: "product", label: "Product and brand", responseType: "shortAnswer", placeholder: "Name the product and brand" },
+        { id: "smallQuantity", label: "Smaller quantity or size", responseType: "number", placeholder: "Type a quantity" },
+        { id: "smallPrice", label: "Smaller price ($)", responseType: "number", placeholder: "Type a price" },
+        { id: "largeQuantity", label: "Larger quantity or size", responseType: "number", placeholder: "Type a quantity" },
+        { id: "largePrice", label: "Larger price ($)", responseType: "number", placeholder: "Type a price" },
+      ],
+      dynamicAnswer: "unit2BulkNotBetter",
+      hint: "Compute price ÷ quantity for each package. The larger package is not a better deal when its price per unit is at least as high.",
+      correctFeedback: "Valid example. The larger package has an equal or higher unit price, so buying more does not save money per unit.",
+      incorrectFeedback: "Use positive quantities and prices, make the second quantity larger, and check that its price per unit is not lower.",
+      optional: true,
+    })),
+  },
+  {
+    id: "teach-u2-l8-3",
+    unitNumber: 2,
+    lessonNumber: 8,
+    section: "B",
+    idea: "Idea 2",
+    title: "How Much for One?",
+    partLabel: "8.3",
+    activityOrder: 3,
+    activityTitle: "8.3: More Shopping",
+    pdfPage: 2,
+    customVisual: "unit2ShoppingDisplay",
+    sourceDirections: "Solve all three shopping situations. The app then assigns the used-book problem for a complete visual display.",
+    responseType: "questionSet",
+    questions: [
+      { id: "chips-unit", label: "Chips per bag", prompt: "Four bags of chips cost $6. What is the cost per bag?", responseType: "number", inputLabel: "Cost per bag ($)", placeholder: "Type a cost", answerKey: ["1.5", "1.50", "3/2"], hint: "Divide $6 by 4 bags.", correctFeedback: "Correct. $6 ÷ 4 = $1.50 per bag.", incorrectFeedback: "Find the price for one bag." },
+      { id: "chips-seven", label: "7 bags chips", prompt: "At this rate, how much will 7 bags of chips cost?", responseType: "number", inputLabel: "Cost ($)", placeholder: "Type a cost", answerKey: ["10.5", "10.50", "21/2"], hint: "Multiply the $1.50 unit price by 7.", correctFeedback: "Correct. 7 × $1.50 = $10.50.", incorrectFeedback: "Use the unit price from the first chips question." },
+      { id: "books-unit", label: "Books per book", prompt: "At a used book sale, 5 books cost $15. What is the cost per book?", responseType: "number", inputLabel: "Cost per book ($)", placeholder: "Type a cost", answerKey: ["3"], hint: "Divide $15 by 5.", correctFeedback: "Correct. Each book costs $3.", incorrectFeedback: "Find the price for one book." },
+      { id: "books-twenty-one", label: "$21 of books", prompt: "At this rate, how many books can you buy for $21?", responseType: "number", inputLabel: "Number of books", placeholder: "Type a quantity", answerKey: ["7"], hint: "Divide $21 by the $3 unit price.", correctFeedback: "Correct. $21 buys 7 books.", incorrectFeedback: "Use the cost per book to determine how many fit into $21." },
+      { id: "bracelets-unit", label: "Bracelet unit price", prompt: "Neon bracelets cost $1 for 4. What is the cost per bracelet?", responseType: "number", inputLabel: "Cost per bracelet ($)", placeholder: "Type a cost", answerKey: ["0.25", "1/4"], hint: "Divide $1 by 4 bracelets.", correctFeedback: "Correct. Each bracelet costs $0.25.", incorrectFeedback: "Find the price for one of the four bracelets." },
+      { id: "bracelets-eleven", label: "11 bracelets", prompt: "At this rate, how much will 11 neon bracelets cost?", responseType: "number", inputLabel: "Cost ($)", placeholder: "Type a cost", answerKey: ["2.75", "2 3/4", "11/4"], hint: "Multiply $0.25 by 11.", correctFeedback: "Correct. 11 × $0.25 = $2.75.", incorrectFeedback: "Use the bracelet unit price." },
+      {
+        id: "assigned-display",
+        label: "Assigned display",
+        prompt: "The app assigns the used-book problem. Complete a visual display showing the original pair, the unit price, and the $21 solution.",
+        fields: [
+          { id: "q1", label: "Original books", responseType: "number", placeholder: "Quantity" },
+          { id: "p1", label: "Original cost ($)", responseType: "number", placeholder: "Cost" },
+          { id: "q2", label: "Unit books", responseType: "number", placeholder: "Quantity" },
+          { id: "p2", label: "Unit cost ($)", responseType: "number", placeholder: "Cost" },
+          { id: "q3", label: "Books for $21", responseType: "number", placeholder: "Quantity" },
+          { id: "p3", label: "Target cost ($)", responseType: "number", placeholder: "Cost" },
+        ],
+        acceptedFieldSets: [{ q1: "5", p1: "15", q2: "1", p2: "3", q3: "7", p3: "21" }],
+        hint: "Show 5 books for $15, then the cost of 1 book, then the number of books for $21.",
+        correctFeedback: "Correct. The display shows 5:$15, 1:$3, and 7:$21 as aligned equivalent ratios.",
+        incorrectFeedback: "Make every pair describe the same $3-per-book rate.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l8-summary",
+    unitNumber: 2,
+    lessonNumber: 8,
+    section: "B",
+    idea: "Idea 2",
+    title: "How Much for One?",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 8 Summary",
+    pdfPage: 3,
+    customVisual: "unit2UnitPriceSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l9-1",
+    unitNumber: 2,
+    lessonNumber: 9,
+    section: "B",
+    idea: "Idea 2",
+    title: "Constant Speed",
+    partLabel: "9.1",
+    activityOrder: 1,
+    activityTitle: "9.1: Number Talk: Dividing by Powers of 10",
+    pdfPage: 1,
+    customVisual: "unit2ExpressionList",
+    expressionList: ["30 ÷ 10", "34 ÷ 10", "3.4 ÷ 10", "34 ÷ 100"],
+    sourceDirections: "Find each quotient mentally.",
+    responseType: "questionSet",
+    questions: [
+      { id: "thirty-ten", label: "30 ÷ 10", prompt: "What is 30 ÷ 10?", responseType: "number", inputLabel: "Quotient", placeholder: "Type a quotient", answerKey: ["3"], hint: "Dividing by 10 moves each digit one place to the right in the place-value chart.", correctFeedback: "Correct. 30 ÷ 10 = 3.", incorrectFeedback: "Think of how many groups of 10 make 30." },
+      { id: "thirty-four-ten", label: "34 ÷ 10", prompt: "What is 34 ÷ 10?", responseType: "number", inputLabel: "Quotient", placeholder: "Type a quotient", answerKey: ["3.4"], hint: "Compare this with 30 ÷ 10.", correctFeedback: "Correct. 34 ÷ 10 = 3.4.", incorrectFeedback: "Dividing by 10 makes each place value one tenth as large." },
+      { id: "three-four-ten", label: "3.4 ÷ 10", prompt: "What is 3.4 ÷ 10?", responseType: "number", inputLabel: "Quotient", placeholder: "Type a quotient", answerKey: ["0.34", ".34"], hint: "Make 3.4 one tenth as large.", correctFeedback: "Correct. 3.4 ÷ 10 = 0.34.", incorrectFeedback: "Shift every digit one place toward the smaller place values." },
+      { id: "thirty-four-hundred", label: "34 ÷ 100", prompt: "What is 34 ÷ 100?", responseType: "number", inputLabel: "Quotient", placeholder: "Type a quotient", answerKey: ["0.34", ".34"], hint: "Dividing by 100 is dividing by 10 twice.", correctFeedback: "Correct. 34 ÷ 100 = 0.34.", incorrectFeedback: "Make 34 one hundredth as large." },
+    ],
+  },
+  {
+    id: "teach-u2-l9-2",
+    unitNumber: 2,
+    lessonNumber: 9,
+    section: "B",
+    idea: "Idea 2",
+    title: "Constant Speed",
+    partLabel: "9.2",
+    activityOrder: 2,
+    activityTitle: "9.2: Moving 10 Meters",
+    pdfPage: 1,
+    extraPdfPages: [2],
+    customVisual: "unit2SpeedExperiment",
+    visualAlt: "The exact source path with a 1-meter warm-up zone and a 10-meter measuring zone, followed by two student-data double number lines.",
+    sourceDirections: "Travel the source path once at a slow steady speed and once at a quick steady speed. Record the measured times, then use those values in both diagrams.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "speed-times",
+        label: "Collect times",
+        prompt: "Record your slow and fast 10-meter moving times, rounded to the nearest second.",
+        fields: [
+          { id: "slow", label: "Slow moving time (seconds)", responseType: "number", placeholder: "Measured time" },
+          { id: "fast", label: "Fast moving time (seconds)", responseType: "number", placeholder: "Measured time" },
+        ],
+        dynamicAnswer: "unit2SpeedTimes",
+        hint: "Both times must be positive measurements. Your quick steady trip should take less time than your slow steady trip over the same 10 meters.",
+        correctFeedback: "Recorded. Your quick trip takes less time over the same 10 meters, so the two measurements can anchor the diagrams.",
+        incorrectFeedback: "Enter two positive measured times with the slow time greater than the fast time.",
+      },
+      {
+        id: "slow-one-second",
+        label: "Slow: 1 second",
+        prompt: "Estimate how many meters you traveled in 1 second when moving slowly.",
+        responseType: "number",
+        inputLabel: "Slow distance in 1 second (meters)",
+        placeholder: "Type an estimate",
+        dynamicAnswer: "unit2SlowOneSecond",
+        hint: "Divide the 10-meter distance by your recorded slow time.",
+        correctFeedback: "Correct. Your slow one-second distance is 10 divided by your recorded slow time.",
+        incorrectFeedback: "Use your recorded slow time: 10 meters ÷ slow seconds.",
+      },
+      {
+        id: "fast-one-second",
+        label: "Fast: 1 second",
+        prompt: "Estimate how many meters you traveled in 1 second when moving quickly.",
+        responseType: "number",
+        inputLabel: "Fast distance in 1 second (meters)",
+        placeholder: "Type an estimate",
+        dynamicAnswer: "unit2FastOneSecond",
+        hint: "Divide the 10-meter distance by your recorded fast time.",
+        correctFeedback: "Correct. Your quick one-second distance is 10 divided by your recorded fast time.",
+        incorrectFeedback: "Use your recorded fast time: 10 meters ÷ fast seconds.",
+      },
+      {
+        id: "compare-speed-lines",
+        label: "Compare diagrams",
+        prompt: "How is a quick-speed diagram different from a slow-speed diagram for the same 10-meter distance?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "less-time", label: "The quick diagram pairs 10 meters with less elapsed time and more distance per second." },
+          { id: "more-time", label: "The quick diagram pairs 10 meters with more elapsed time and less distance per second." },
+          { id: "same-pair", label: "Both diagrams must use the same elapsed time because the distance is the same." },
+        ],
+        answerKey: ["less-time"],
+        hint: "Compare the elapsed time aligned with 10 meters and the distance aligned with 1 second.",
+        correctFeedback: "Correct. Covering the same distance in less time means covering more distance each second.",
+        incorrectFeedback: "A quicker speed uses less time for the same 10 meters and has a larger meters-per-second value.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l9-3",
+    unitNumber: 2,
+    lessonNumber: 9,
+    section: "B",
+    idea: "Idea 2",
+    title: "Constant Speed",
+    partLabel: "9.3",
+    activityOrder: 3,
+    activityTitle: "9.3: Moving for 10 Seconds",
+    pdfPage: 3,
+    customVisual: "unit2RunnerComparison",
+    sourceDirections: "Compare Lin, Diego, Han, and your own quick-speed data. Submit each source question independently.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "lin-diego-faster",
+        label: "Who is faster?",
+        prompt: "Lin ran 40 meters in 10 seconds. Diego ran 55 meters in 10 seconds. Who was moving faster?",
+        responseType: "singleChoice",
+        choices: [{ id: "lin", label: "Lin" }, { id: "diego", label: "Diego" }, { id: "same", label: "They moved at the same speed" }],
+        answerKey: ["diego"],
+        hint: "They ran for the same amount of time, so compare their distances.",
+        correctFeedback: "Correct. Diego covered 55 meters in the same 10 seconds that Lin covered 40 meters.",
+        incorrectFeedback: "For equal times, the greater distance means the greater speed.",
+      },
+      {
+        id: "lin-diego-one-second",
+        label: "One-second distances",
+        prompt: "How far did Lin and Diego each move in 1 second?",
+        fields: [
+          { id: "lin", label: "Lin (meters in 1 second)", responseType: "number", placeholder: "Distance" },
+          { id: "diego", label: "Diego (meters in 1 second)", responseType: "number", placeholder: "Distance" },
+        ],
+        acceptedFieldSets: [{ lin: "4", diego: "5.5" }],
+        hint: "Divide each 10-second distance by 10.",
+        correctFeedback: "Correct. Lin moved 4 meters per second and Diego moved 5.5 meters per second.",
+        incorrectFeedback: "Find each distance for 1 second by dividing the 10-second distance by 10.",
+      },
+      {
+        id: "own-ten-seconds",
+        label: "Your quicker speed",
+        prompt: "Use your quicker 10-meter time from 9.2 to find how far you could travel in 10 seconds.",
+        fields: [
+          { id: "time", label: "Your quicker 10-meter time (seconds)", responseType: "number", placeholder: "Recorded time" },
+          { id: "distance", label: "Distance in 10 seconds (meters)", responseType: "number", placeholder: "Calculated distance" },
+        ],
+        dynamicAnswer: "unit2OwnTenSecondDistance",
+        hint: "Your speed is 10 ÷ your time meters per second. Multiply that speed by 10 seconds.",
+        correctFeedback: "Correct. Your 10-second distance is 100 divided by your quicker 10-meter time.",
+        incorrectFeedback: "Use the same constant rate: (10 meters ÷ your measured time) × 10 seconds.",
+      },
+      {
+        id: "han-vs-lin",
+        label: "Han and Lin",
+        prompt: "Han ran 100 meters in 20 seconds. Is Han's speed faster, slower, or the same as Lin's?",
+        responseType: "singleChoice",
+        choices: [{ id: "faster", label: "Han is faster" }, { id: "slower", label: "Han is slower" }, { id: "same", label: "They have the same speed" }],
+        answerKey: ["faster"],
+        hint: "Han's speed is 100 ÷ 20 meters per second. Compare with Lin's 4 meters per second.",
+        correctFeedback: "Correct. Han moved 5 meters per second, which is faster than Lin's 4 meters per second.",
+        incorrectFeedback: "Compute both one-second distances before comparing.",
+      },
+      {
+        id: "han-vs-diego",
+        label: "Han and Diego",
+        prompt: "Is Han's speed faster, slower, or the same as Diego's?",
+        responseType: "singleChoice",
+        choices: [{ id: "faster", label: "Han is faster" }, { id: "slower", label: "Han is slower" }, { id: "same", label: "They have the same speed" }],
+        answerKey: ["slower"],
+        hint: "Compare Han's 5 meters per second with Diego's 5.5 meters per second.",
+        correctFeedback: "Correct. Han's 5 meters per second is slower than Diego's 5.5 meters per second.",
+        incorrectFeedback: "Compare their distances in 1 second.",
+      },
+      {
+        id: "han-vs-own",
+        label: "Han and you",
+        prompt: "Using the quicker time you entered above, is Han's 5-meter-per-second speed faster, slower, or the same as yours?",
+        responseType: "singleChoice",
+        choices: [{ id: "han-faster", label: "Han is faster than I am" }, { id: "han-slower", label: "Han is slower than I am" }, { id: "same", label: "Han and I have the same speed" }],
+        dynamicAnswer: "unit2HanVsOwn",
+        hint: "Your quick speed is 10 divided by your quick time. Compare that value with 5.",
+        correctFeedback: "Correct. Your comparison agrees with the quick time you recorded.",
+        incorrectFeedback: "Recalculate your speed as 10 ÷ quick time, then compare it with Han's 5 meters per second.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l9-optional",
+    unitNumber: 2,
+    lessonNumber: 9,
+    section: "B",
+    idea: "Idea 2",
+    title: "Constant Speed",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? A 30-Second Finish",
+    pdfPage: 3,
+    customVisual: "unit2RunnerComparison",
+    sourceDirections: "Determine who needs a head start so Lin and Diego can both finish when the timer reads 30 seconds.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "runner-head-start",
+        label: "Head start",
+        prompt: "Who should get a head start, and how long should it be?",
+        fields: [
+          { id: "runner", label: "Runner who starts early", responseType: "shortAnswer", placeholder: "Name the runner" },
+          { id: "seconds", label: "Head start (seconds)", responseType: "number", placeholder: "Type a time" },
+        ],
+        acceptedFieldSets: [{ runner: "Lin", seconds: "11.25" }, { runner: "Lin", seconds: "11 1/4" }, { runner: "Lin", seconds: "45/4" }],
+        hint: "In 30 seconds Diego runs 165 meters. Find how long Lin needs to run 165 meters at 4 meters per second, then compare that time with 30 seconds.",
+        correctFeedback: "Correct. Lin needs 41.25 seconds to run Diego's 30-second distance, so she starts 11.25 seconds early.",
+        incorrectFeedback: "Give the slower runner enough extra time to cover the distance Diego runs in 30 seconds.",
+        optional: true,
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l9-summary",
+    unitNumber: 2,
+    lessonNumber: 9,
+    section: "B",
+    idea: "Idea 2",
+    title: "Constant Speed",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 9 Summary",
+    pdfPage: 4,
+    customVisual: "unit2SpeedSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l10-1",
+    unitNumber: 2,
+    lessonNumber: 10,
+    section: "C",
+    idea: "Idea 3",
+    title: "Comparing Situations by Examining Ratios",
+    partLabel: "10.1",
+    activityOrder: 1,
+    activityTitle: "10.1: Treadmills",
+    pdfPage: 1,
+    customVisual: "unit2Treadmills",
+    visualAlt: "The exact source treadmill displays showing Mai running 3.00 miles in 24 minutes and Jada running 3.00 miles in 30 minutes.",
+    sourceDirections: "Compare what is the same and different, then determine who ran faster at a constant speed.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "treadmill-same-different",
+        label: "Same and different",
+        prompt: "Select every true comparison of Mai's and Jada's workouts.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "same-distance", label: "They ran the same distance: 3.00 miles." },
+          { id: "different-time", label: "Their elapsed times were different: 24 minutes and 30 minutes." },
+          { id: "same-time", label: "They ran for the same amount of time." },
+          { id: "different-distance", label: "They ran different distances." },
+        ],
+        answerKey: ["same-distance", "different-time"],
+        hint: "Read the distance and elapsed-time values on both exact displays.",
+        correctFeedback: "Correct. Both ran 3.00 miles, but Mai took 24 minutes and Jada took 30 minutes.",
+        incorrectFeedback: "Compare the distance row and the elapsed-time row separately.",
+      },
+      {
+        id: "treadmill-faster",
+        label: "Who was faster?",
+        prompt: "If each person ran at a constant speed the entire time, who was running faster?",
+        responseType: "singleChoice",
+        choices: [{ id: "mai", label: "Mai" }, { id: "jada", label: "Jada" }, { id: "same", label: "They ran at the same speed" }],
+        answerKey: ["mai"],
+        hint: "They covered the same distance. The person who used less time had the greater speed.",
+        correctFeedback: "Correct. Mai covered the same 3.00 miles in only 24 minutes, so Mai ran faster.",
+        incorrectFeedback: "For the same distance, compare who took less time.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l10-2",
+    unitNumber: 2,
+    lessonNumber: 10,
+    section: "C",
+    idea: "Idea 3",
+    title: "Comparing Situations by Examining Ratios",
+    partLabel: "10.2",
+    activityOrder: 2,
+    activityTitle: "10.2: Concert Tickets",
+    pdfPage: 2,
+    customVisual: "unit2ConcertTickets",
+    sourceDirections: "Decide whether Diego's and Andre's purchases use the same dollars-per-ticket rate.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "ticket-same-rate",
+        label: "Same rate?",
+        prompt: "Diego paid $47 for 3 tickets. Andre paid $141 for 9 tickets. Did they pay at the same rate?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "yes", label: "Yes, they paid at the same rate." },
+          { id: "no", label: "No, Andre paid at a different rate." },
+        ],
+        answerKey: ["yes"],
+        hint: "Compare 3 tickets for $47 with three times that purchase.",
+        correctFeedback: "Correct. Multiplying 3 tickets and $47 by 3 gives 9 tickets and $141, so the ratios are equivalent.",
+        incorrectFeedback: "Check whether one complete ticket-cost pair is a common multiple of the other.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l10-3",
+    unitNumber: 2,
+    lessonNumber: 10,
+    section: "C",
+    idea: "Idea 3",
+    title: "Comparing Situations by Examining Ratios",
+    partLabel: "10.3",
+    activityOrder: 3,
+    activityTitle: "10.3: Sparkling Orange Juice",
+    pdfPage: 2,
+    customVisual: "unit2OrangeJuiceComparison",
+    sourceDirections: "Compare Lin's 3-to-4 recipe with Noah's 4-to-5 recipe by making one ingredient amount equal.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "orange-taste",
+        label: "Compare taste",
+        prompt: "How do the two mixtures compare in taste?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "noah-orange", label: "Noah's mixture has more orange juice for the same amount of soda water, so it tastes more orange." },
+          { id: "lin-orange", label: "Lin's mixture has more orange juice for the same amount of soda water, so it tastes more orange." },
+          { id: "same", label: "The mixtures taste the same because both recipes use one more liter of soda water than orange juice." },
+        ],
+        answerKey: ["noah-orange"],
+        hint: "Compare equivalent ratios with 20 liters of soda water: Lin uses 15 liters orange and Noah uses 16.",
+        correctFeedback: "Correct. With 20 liters of soda water, Lin uses 15 liters of orange juice and Noah uses 16, so Noah's mixture tastes more orange.",
+        incorrectFeedback: "The difference between the ingredients is not enough; compare the ratios with one ingredient held equal.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l10-optional",
+    unitNumber: 2,
+    lessonNumber: 10,
+    section: "C",
+    idea: "Idea 3",
+    title: "Comparing Situations by Examining Ratios",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Match the Recipes",
+    pdfPage: 2,
+    customVisual: "unit2OrangeJuiceComparison",
+    sourceDirections: "Change each recipe by adding only one ingredient so it tastes like the other recipe.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "lin-add",
+        label: "Adjust Lin's recipe",
+        prompt: "How can Lin make her 3-liter-orange to 4-liter-soda recipe taste like Noah's just by adding more of one ingredient?",
+        fields: [
+          { id: "ingredient", label: "Ingredient to add", responseType: "shortAnswer", placeholder: "Name the ingredient" },
+          { id: "amount", label: "Amount to add (liters)", responseType: "number", placeholder: "Type an amount" },
+        ],
+        acceptedFieldSets: [
+          { ingredient: "orange juice", amount: "0.2" },
+          { ingredient: "orange", amount: "1/5" },
+          { ingredient: "orange juice", amount: "1/5" },
+          { ingredient: "orange", amount: "0.2" },
+        ],
+        hint: "Keep Lin's 4 liters of soda water. Noah's ratio has 4 liters orange for every 5 liters soda, so scale it to 4 liters soda.",
+        correctFeedback: "Correct. Adding 0.2 liter of orange juice makes Lin's ratio 3.2:4, equivalent to Noah's 4:5.",
+        incorrectFeedback: "Add only orange juice. Find the orange amount that pairs with 4 liters soda at Noah's 4:5 rate.",
+        optional: true,
+      },
+      {
+        id: "noah-add",
+        label: "Adjust Noah's recipe",
+        prompt: "How can Noah make his 4-liter-orange to 5-liter-soda recipe taste like Lin's just by adding more of one ingredient?",
+        fields: [
+          { id: "ingredient", label: "Ingredient to add", responseType: "shortAnswer", placeholder: "Name the ingredient" },
+          { id: "amount", label: "Amount to add (liters)", responseType: "number", placeholder: "Type an amount" },
+        ],
+        acceptedFieldSets: [
+          { ingredient: "soda water", amount: "1/3" },
+          { ingredient: "soda", amount: "1/3" },
+          { ingredient: "soda water", amount: "0.3333333333" },
+          { ingredient: "soda", amount: "0.3333333333" },
+        ],
+        hint: "Keep Noah's 4 liters of orange juice. Scale Lin's 3:4 ratio to 4 liters orange.",
+        correctFeedback: "Correct. Adding 1/3 liter of soda water makes Noah's ratio 4:5 1/3, equivalent to Lin's 3:4.",
+        incorrectFeedback: "Add only soda water. Find the soda amount that pairs with 4 liters orange at Lin's 3:4 rate.",
+        optional: true,
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l10-summary",
+    unitNumber: 2,
+    lessonNumber: 10,
+    section: "C",
+    idea: "Idea 3",
+    title: "Comparing Situations by Examining Ratios",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 10 Summary",
+    pdfPage: 3,
+    customVisual: "unit2SameRateSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l11-1",
+    unitNumber: 2,
+    lessonNumber: 11,
+    section: "C",
+    idea: "Idea 3",
+    title: "Representing Ratios with Tables",
+    partLabel: "11.1",
+    activityOrder: 1,
+    activityTitle: "11.1: How Is It Growing?",
+    pdfPage: 1,
+    customVisual: "unit2GrowingTiles",
+    visualAlt: "The exact source first, second, and third tile figures, each adding three green and four blue tiles.",
+    sourceDirections: "Look for a pattern in the exact source figures, predict three later totals, and describe the growth.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fourth-total", label: "4th figure", prompt: "How many total tiles will be in the 4th figure?", responseType: "number", inputLabel: "Total tiles", placeholder: "Type a total", answerKey: ["28"], hint: "Count the total tiles added from one figure to the next.", correctFeedback: "Correct. Each figure number contributes 7 tiles, so the 4th has 4 × 7 = 28.", incorrectFeedback: "The first three totals are 7, 14, and 21. Continue the pattern." },
+      { id: "fifth-total", label: "5th figure", prompt: "How many total tiles will be in the 5th figure?", responseType: "number", inputLabel: "Total tiles", placeholder: "Type a total", answerKey: ["35"], hint: "Continue adding the same number of tiles per figure.", correctFeedback: "Correct. The 5th figure has 5 × 7 = 35 tiles.", incorrectFeedback: "Use 7 tiles for each figure-number unit." },
+      { id: "tenth-total", label: "10th figure", prompt: "How many total tiles will be in the 10th figure?", responseType: "number", inputLabel: "Total tiles", placeholder: "Type a total", answerKey: ["70"], hint: "The pattern has 7 tiles for each count of the figure number.", correctFeedback: "Correct. The 10th figure has 10 × 7 = 70 tiles.", incorrectFeedback: "Multiply the figure number by the 7 tiles added per stage." },
+      {
+        id: "growing-rule",
+        label: "How it grows",
+        prompt: "How do you see the pattern growing?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "three-four", label: "Each stage adds 3 green tiles and 4 blue tiles, for 7 new tiles total." },
+          { id: "three-total", label: "Each stage adds only 3 tiles total." },
+          { id: "double", label: "Each figure always doubles the previous total." },
+        ],
+        answerKey: ["three-four"],
+        hint: "Compare the green and blue rows separately between adjacent figures.",
+        correctFeedback: "Correct. Each new stage adds 3 green and 4 blue tiles, so the total increases by 7.",
+        incorrectFeedback: "Track how many green and blue tiles are added from one source figure to the next.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l11-2",
+    unitNumber: 2,
+    lessonNumber: 11,
+    section: "C",
+    idea: "Idea 3",
+    title: "Representing Ratios with Tables",
+    partLabel: "11.2",
+    activityOrder: 2,
+    activityTitle: "11.2: A Huge Amount of Sparkling Orange Juice",
+    pdfPage: 2,
+    customVisual: "unit2OrangeDoubleLine",
+    sourceDirections: "Complete a double number line for Noah's 4-to-5 recipe, then answer every source large-batch question.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "orange-line",
+        label: "Complete the line",
+        prompt: "Complete six aligned pairs for 0 through 5 batches of 4 liters orange juice to 5 liters soda water.",
+        fields: [
+          { id: "o0", label: "Orange tick 0", responseType: "number", placeholder: "Value" },
+          { id: "o1", label: "Orange tick 1", responseType: "number", placeholder: "Value" },
+          { id: "o2", label: "Orange tick 2", responseType: "number", placeholder: "Value" },
+          { id: "o3", label: "Orange tick 3", responseType: "number", placeholder: "Value" },
+          { id: "o4", label: "Orange tick 4", responseType: "number", placeholder: "Value" },
+          { id: "o5", label: "Orange tick 5", responseType: "number", placeholder: "Value" },
+          { id: "s0", label: "Soda tick 0", responseType: "number", placeholder: "Value" },
+          { id: "s1", label: "Soda tick 1", responseType: "number", placeholder: "Value" },
+          { id: "s2", label: "Soda tick 2", responseType: "number", placeholder: "Value" },
+          { id: "s3", label: "Soda tick 3", responseType: "number", placeholder: "Value" },
+          { id: "s4", label: "Soda tick 4", responseType: "number", placeholder: "Value" },
+          { id: "s5", label: "Soda tick 5", responseType: "number", placeholder: "Value" },
+        ],
+        acceptedFieldSets: [{ o0: "0", o1: "4", o2: "8", o3: "12", o4: "16", o5: "20", s0: "0", s1: "5", s2: "10", s3: "15", s4: "20", s5: "25" }],
+        hint: "Begin at 0:0, then add 4 liters orange and 5 liters soda for each batch.",
+        correctFeedback: "Correct. Every aligned pair preserves Noah's 4:5 recipe.",
+        incorrectFeedback: "Use equal batch intervals and add 4 on the orange line and 5 on the soda line each time.",
+      },
+      { id: "orange-thirty-six", label: "36 and 45 liters", prompt: "If someone mixes 36 liters of orange juice and 45 liters of soda water, how many batches would they make?", responseType: "number", inputLabel: "Number of batches", placeholder: "Type a batch count", answerKey: ["9"], hint: "Divide either ingredient amount by its one-batch amount.", correctFeedback: "Correct. 36 ÷ 4 = 9 and 45 ÷ 5 = 9, so this is 9 batches.", incorrectFeedback: "Check that both ingredients use the same batch multiplier." },
+      { id: "orange-four-hundred", label: "400 liters orange", prompt: "If someone uses 400 liters of orange juice, how much soda water would they need?", responseType: "number", inputLabel: "Soda water (liters)", placeholder: "Type an amount", answerKey: ["500"], hint: "Four hundred liters is 100 groups of 4 liters.", correctFeedback: "Correct. 100 batches need 100 × 5 = 500 liters of soda water.", incorrectFeedback: "Find the multiplier from 4 to 400, then apply it to 5." },
+      { id: "orange-four-fifty-five", label: "455 liters soda", prompt: "If someone uses 455 liters of soda water, how much orange juice would they need?", responseType: "number", inputLabel: "Orange juice (liters)", placeholder: "Type an amount", answerKey: ["364"], hint: "455 ÷ 5 gives the number of batches.", correctFeedback: "Correct. 455 ÷ 5 = 91 batches, and 91 × 4 = 364 liters orange juice.", incorrectFeedback: "Find how many 5-liter soda batches are in 455, then multiply by 4." },
+      {
+        id: "orange-line-trouble",
+        label: "Diagram limitation",
+        prompt: "What is the trouble with using the double number line to answer the 400-liter and 455-liter questions?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "too-many-ticks", label: "A scale using small batch intervals would need many tick marks or an impractically long line." },
+          { id: "ratio-breaks", label: "Equivalent ratios stop working when the quantities exceed 100." },
+          { id: "no-zero", label: "A double number line cannot include zero for large quantities." },
+        ],
+        answerKey: ["too-many-ticks"],
+        hint: "Imagine extending the 0-to-5-batch line all the way to 100 batches.",
+        correctFeedback: "Correct. The relationship still works, but drawing every small interval to those large values is inefficient.",
+        incorrectFeedback: "The mathematics remains valid; the problem is the physical scale and number of tick marks.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l11-3",
+    unitNumber: 2,
+    lessonNumber: 11,
+    section: "C",
+    idea: "Idea 3",
+    title: "Representing Ratios with Tables",
+    partLabel: "11.3",
+    activityOrder: 3,
+    activityTitle: "11.3: Batches of Trail Mix",
+    pdfPage: 3,
+    customVisual: "unit2TrailMixTable",
+    visualAlt: "The exact source two-column trail-mix table with the given entries preserved in their original rows.",
+    sourceDirections: "Complete every missing source table entry, identify valid methods, and explain why all rows are equivalent to 7 ounces almonds for 5 ounces raisins.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "trail-table",
+        label: "Complete the table",
+        prompt: "Fill all five missing values in the source table.",
+        fields: [
+          { id: "raisins28", label: "Raisins when almonds = 28", responseType: "number", placeholder: "Value" },
+          { id: "almonds10", label: "Almonds when raisins = 10", responseType: "number", placeholder: "Value" },
+          { id: "raisins3_5", label: "Raisins when almonds = 3.5", responseType: "number", placeholder: "Value" },
+          { id: "almonds250", label: "Almonds when raisins = 250", responseType: "number", placeholder: "Value" },
+          { id: "raisins56", label: "Raisins when almonds = 56", responseType: "number", placeholder: "Value" },
+        ],
+        acceptedFieldSets: [{ raisins28: "20", almonds10: "14", raisins3_5: "2.5", almonds250: "350", raisins56: "40" }],
+        hint: "For each row, multiply or divide both 7 and 5 by the same factor.",
+        correctFeedback: "Correct. The completed rows are 28:20, 14:10, 3.5:2.5, 350:250, and 56:40.",
+        incorrectFeedback: "Preserve the 7:5 relationship in each original source row.",
+      },
+      {
+        id: "trail-methods",
+        label: "Methods",
+        prompt: "Which methods can correctly fill the table? Select all that apply.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "same-factor", label: "Multiply both entries in a row by the same factor." },
+          { id: "same-divisor", label: "Divide both entries in a row by the same nonzero divisor." },
+          { id: "add-same", label: "Add the same number to both entries." },
+        ],
+        answerKey: ["same-factor", "same-divisor"],
+        hint: "Equivalent ratios preserve a multiplicative relationship.",
+        correctFeedback: "Correct. Multiplying or dividing both quantities by the same factor preserves an equivalent ratio.",
+        incorrectFeedback: "Use multiplicative scaling on both entries; adding the same number does not generally preserve the ratio.",
+      },
+      {
+        id: "trail-why-equivalent",
+        label: "Why equivalent?",
+        prompt: "How do you know each completed row is equivalent to 7:5?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "common-scale", label: "Each row comes from multiplying or dividing both 7 and 5 by the same factor." },
+          { id: "same-difference", label: "The two entries in every row differ by 2." },
+          { id: "larger-first", label: "The almond amount is larger than the raisin amount." },
+        ],
+        answerKey: ["common-scale"],
+        hint: "A property that is true only for some rows cannot prove all the ratios equivalent.",
+        correctFeedback: "Correct. A common scale factor maps 7:5 to every completed row.",
+        incorrectFeedback: "Equivalent ratios require the same multiplicative factor on both quantities.",
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l11-optional",
+    unitNumber: 2,
+    lessonNumber: 11,
+    section: "C",
+    idea: "Idea 3",
+    title: "Representing Ratios with Tables",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Cookie Recipe Table",
+    pdfPage: 3,
+    customVisual: "unit2CookieRatioTable",
+    sourceDirections: "Create three sugar-to-flour entries equivalent to 2:5 while meeting each source size condition.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "cookie-under-25",
+        label: "Flour under 25",
+        prompt: "Create an equivalent 2:5 sugar-to-flour entry using fewer than 25 cups of flour.",
+        fields: [{ id: "sugar", label: "Sugar", responseType: "number", placeholder: "Amount" }, { id: "flour", label: "Flour", responseType: "number", placeholder: "Amount" }],
+        dynamicAnswer: "unit2CookieTableRow",
+        constraint: "flourUnder25",
+        hint: "Choose a positive multiplier smaller than 5 and multiply both 2 and 5 by it.",
+        correctFeedback: "Correct. The pair is equivalent to 2:5 and uses fewer than 25 units of flour.",
+        incorrectFeedback: "Keep sugar:flour equal to 2:5, use positive amounts, and make flour less than 25.",
+        optional: true,
+      },
+      {
+        id: "cookie-sugar-20-30",
+        label: "Sugar 20–30",
+        prompt: "Create an equivalent 2:5 entry using between 20 and 30 cups of sugar.",
+        fields: [{ id: "sugar", label: "Sugar", responseType: "number", placeholder: "Amount" }, { id: "flour", label: "Flour", responseType: "number", placeholder: "Amount" }],
+        dynamicAnswer: "unit2CookieTableRow",
+        constraint: "sugar20To30",
+        hint: "Choose a multiplier that makes 2 times the multiplier fall from 20 through 30.",
+        correctFeedback: "Correct. The pair is equivalent to 2:5 and the sugar amount is between 20 and 30.",
+        incorrectFeedback: "Preserve 2:5 and make the sugar amount at least 20 and at most 30.",
+        optional: true,
+      },
+      {
+        id: "cookie-flour-over-500",
+        label: "Flour over 500",
+        prompt: "Create an equivalent 2:5 entry using more than 500 units of flour.",
+        fields: [{ id: "sugar", label: "Sugar", responseType: "number", placeholder: "Amount" }, { id: "flour", label: "Flour", responseType: "number", placeholder: "Amount" }],
+        dynamicAnswer: "unit2CookieTableRow",
+        constraint: "flourOver500",
+        hint: "Choose a multiplier greater than 100 and multiply both parts of 2:5.",
+        correctFeedback: "Correct. The pair is equivalent to 2:5 and the flour amount is greater than 500.",
+        incorrectFeedback: "Preserve 2:5 and make the flour amount greater than 500.",
+        optional: true,
+      },
+    ],
+  },
+  {
+    id: "teach-u2-l11-summary",
+    unitNumber: 2,
+    lessonNumber: 11,
+    section: "C",
+    idea: "Idea 3",
+    title: "Representing Ratios with Tables",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 11 Summary",
+    pdfPage: 4,
+    customVisual: "unit2RatioTableSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l12-1",
+    unitNumber: 2,
+    lessonNumber: 12,
+    section: "C",
+    idea: "Idea 3",
+    title: "Navigating a Table of Equivalent Ratios",
+    partLabel: "12.1",
+    activityOrder: 1,
+    activityTitle: "12.1: Number Talk: Multiplying by a Unit Fraction",
+    pdfPage: 1,
+    customVisual: "unit2ExpressionList",
+    expressionList: ["1/3 × 21", "1/6 × 21", "5.6 × 1/8", "1/4 × 5.6"],
+    sourceDirections: "Find each product mentally. Submit each answer independently and use the relationships among the expressions.",
+    responseType: "questionSet",
+    questions: [
+      { id: "third-21", label: "1/3 × 21", prompt: "Find 1/3 × 21 mentally.", responseType: "number", inputLabel: "Product", placeholder: "Type a number", answerKey: ["7"], hint: "Divide 21 into 3 equal groups.", correctFeedback: "Correct. One third of 21 is 7.", incorrectFeedback: "Recheck 21 ÷ 3." },
+      { id: "sixth-21", label: "1/6 × 21", prompt: "Find 1/6 × 21 mentally.", responseType: "number", inputLabel: "Product", placeholder: "Type a number", answerKey: ["3.5", "7/2"], hint: "One sixth is half of one third.", correctFeedback: "Correct. One sixth of 21 is half of 7, or 3.5.", incorrectFeedback: "Use the previous product: take half of 7." },
+      { id: "eighth-5.6", label: "5.6 × 1/8", prompt: "Find 5.6 × 1/8 mentally.", responseType: "number", inputLabel: "Product", placeholder: "Type a number", answerKey: ["0.7", "7/10"], hint: "Ask what number multiplied by 8 gives 5.6.", correctFeedback: "Correct. Eight groups of 0.7 make 5.6.", incorrectFeedback: "Divide 5.6 by 8." },
+      { id: "fourth-5.6", label: "1/4 × 5.6", prompt: "Find 1/4 × 5.6 mentally.", responseType: "number", inputLabel: "Product", placeholder: "Type a number", answerKey: ["1.4", "7/5"], hint: "One fourth is twice one eighth.", correctFeedback: "Correct. One fourth of 5.6 is twice 0.7, or 1.4.", incorrectFeedback: "Use the previous product and double it." },
+    ],
+  },
+  {
+    id: "teach-u2-l12-2",
+    unitNumber: 2,
+    lessonNumber: 12,
+    section: "C",
+    idea: "Idea 3",
+    title: "Navigating a Table of Equivalent Ratios",
+    partLabel: "12.2",
+    activityOrder: 2,
+    activityTitle: "12.2: Comparing Taco Prices",
+    pdfPage: 1,
+    customVisual: "unit2TacoTable",
+    sourceDirections: "Use a table of equivalent ratios to answer both taco-price questions. Each answer receives its own feedback.",
+    responseType: "questionSet",
+    questions: [
+      { id: "noah-tacos", label: "Noah", prompt: "Noah paid $6 for 4 tacos. At this rate, how many tacos could he buy for $15?", responseType: "number", inputLabel: "Number of tacos", placeholder: "Type a number", answerKey: ["10"], hint: "Find the price of 2 tacos, then scale to $15, or find the price of 1 taco.", correctFeedback: "Correct. Noah pays $1.50 per taco, and $15 buys 10 tacos.", incorrectFeedback: "Create an equivalent row from 4 tacos for $6 to a price of $15." },
+      { id: "jada-price", label: "Jada", prompt: "Jada's family paid $72 for 50 tacos. Were Jada's tacos the same price as Noah's?", responseType: "singleChoice", choices: [{ id: "no", label: "No. Jada paid $1.44 per taco, while Noah paid $1.50 per taco." }, { id: "yes", label: "Yes. Both purchases are equivalent to 4 tacos for $6." }], answerKey: ["no"], hint: "Compare the price for one taco in each purchase.", correctFeedback: "Correct. Jada's unit price is $72 ÷ 50 = $1.44, which is not Noah's $1.50 per taco.", incorrectFeedback: "Find each price per taco before comparing the purchases." },
+    ],
+  },
+  {
+    id: "teach-u2-l12-3",
+    unitNumber: 2,
+    lessonNumber: 12,
+    section: "C",
+    idea: "Idea 3",
+    title: "Navigating a Table of Equivalent Ratios",
+    partLabel: "12.3",
+    activityOrder: 3,
+    activityTitle: "12.3: Hourly Wages",
+    pdfPage: 2,
+    customVisual: "unit2HourlyWageTable",
+    sourceDirections: "Interpret Lin's table, explain the unit-fraction move, and use the same rate for new work times.",
+    responseType: "questionSet",
+    questions: [
+      { id: "meaning-18", label: "Meaning of 18", prompt: "What is the meaning of the 18 in Lin's table?", responseType: "singleChoice", choices: [{ id: "hourly", label: "Lin earns $18 for 1 hour of work." }, { id: "five-hours", label: "Lin earns $18 for 5 hours of work." }, { id: "hours", label: "Lin worked for 18 hours." }], answerKey: ["hourly"], hint: "Read the two entries in the row containing 18.", correctFeedback: "Correct. The row 18 dollars to 1 hour gives Lin's hourly wage.", incorrectFeedback: "Use both column labels and read across the row containing 18." },
+      { id: "why-fifth", label: "Why 1/5?", prompt: "Why was 1/5 used as a multiplier on the first row?", responseType: "singleChoice", choices: [{ id: "unit-row", label: "Multiplying both 90 and 5 by 1/5 creates the row for 1 hour." }, { id: "add", label: "It adds one more hour to the table." }, { id: "eight", label: "It changes 5 hours directly into 8 hours." }], answerKey: ["unit-row"], hint: "The goal of that move is the row containing 1 hour.", correctFeedback: "Correct. Multiplying both quantities by 1/5 changes 90:5 to 18:1.", incorrectFeedback: "Apply 1/5 to both entries in the 90-dollar, 5-hour row." },
+      { id: "table-method", label: "How Lin used it", prompt: "How did Lin use the table to find her pay for 8 hours?", responseType: "singleChoice", choices: [{ id: "unit-times-eight", label: "She found $18 for 1 hour, then multiplied both quantities by 8 to get $144 for 8 hours." }, { id: "add-eight", label: "She added 8 to both 90 and 5." }, { id: "divide-eight", label: "She divided the original row by 8." }], answerKey: ["unit-times-eight"], hint: "Follow the arrows from the source row to the unit row and then to 8 hours.", correctFeedback: "Correct. The unit row makes scaling to 8 hours direct: 18 × 8 = 144.", incorrectFeedback: "Use the 18-dollar, 1-hour row as the bridge to 8 hours." },
+      { id: "new-hours", label: "New work times", prompt: "At the same rate, how much is Lin paid for 3 hours and for 2.1 hours?", fields: [{ id: "threeHours", label: "Pay for 3 hours ($)", responseType: "number", placeholder: "Amount" }, { id: "twoPointOneHours", label: "Pay for 2.1 hours ($)", responseType: "number", placeholder: "Amount" }], acceptedFieldSets: [{ threeHours: "54", twoPointOneHours: "37.8" }, { threeHours: "54", twoPointOneHours: "37.80" }], hint: "Multiply the hourly wage, 18 dollars per hour, by each time.", correctFeedback: "Correct. Lin earns $54 for 3 hours and $37.80 for 2.1 hours.", incorrectFeedback: "Use $18 per hour for both calculations." },
+    ],
+  },
+  {
+    id: "teach-u2-l12-4",
+    unitNumber: 2,
+    lessonNumber: 12,
+    section: "C",
+    idea: "Idea 3",
+    title: "Navigating a Table of Equivalent Ratios",
+    partLabel: "12.4",
+    activityOrder: 4,
+    activityTitle: "12.4: Zeno's Memory Card",
+    pdfPage: 3,
+    customVisual: "unit2MemoryHalving",
+    sourceDirections: "Repeatedly halve both quantities in 128 GB for $32, then compare the double number line and table approaches.",
+    responseType: "questionSet",
+    questions: [
+      { id: "halving-chain", label: "Halving chain", prompt: "Complete the repeated-halving chain from 128 GB for $32 down to 1 GB.", fields: [{ id: "m64", label: "Cost for 64 GB ($)", responseType: "number", placeholder: "Cost" }, { id: "m32", label: "Cost for 32 GB ($)", responseType: "number", placeholder: "Cost" }, { id: "m16", label: "Cost for 16 GB ($)", responseType: "number", placeholder: "Cost" }, { id: "m8", label: "Cost for 8 GB ($)", responseType: "number", placeholder: "Cost" }, { id: "m4", label: "Cost for 4 GB ($)", responseType: "number", placeholder: "Cost" }, { id: "m2", label: "Cost for 2 GB ($)", responseType: "number", placeholder: "Cost" }, { id: "m1", label: "Cost for 1 GB ($)", responseType: "number", placeholder: "Cost" }], acceptedFieldSets: [{ m64: "16", m32: "8", m16: "4", m8: "2", m4: "1", m2: "0.5", m1: "0.25" }], hint: "Each row is one half of the memory and one half of the cost in the row above it.", correctFeedback: "Correct. Repeated halving creates 64:$16, 32:$8, 16:$4, 8:$2, 4:$1, 2:$0.50, and 1:$0.25.", incorrectFeedback: "Halve both the memory and cost together at every step." },
+      { id: "memory-preference", label: "Compare methods", prompt: "Which representation do you prefer for reaching 1 GB in this problem?", responseType: "singleChoice", choices: [{ id: "table", label: "The table, because repeated rows remain readable even when values get close together." }, { id: "line", label: "The double number line, because the physical spacing shows the ordered scale." }], answerKey: ["table", "line"], dynamicAnswer: "unit2AnySelectedChoice", hint: "Either source representation is defensible; choose the one that helps you explain your work.", correctFeedback: "Recorded. Both representations preserve the equivalent ratios; the table avoids crowded tick labels, while the number line emphasizes order and scale.", incorrectFeedback: "Choose either representation and use its structural advantage." },
+    ],
+  },
+  {
+    id: "teach-u2-l12-optional",
+    unitNumber: 2,
+    lessonNumber: 12,
+    section: "C",
+    idea: "Idea 3",
+    title: "Navigating a Table of Equivalent Ratios",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? What Fits in One Gigabyte?",
+    pdfPage: 4,
+    customVisual: "unit2GigabyteEstimate",
+    sourceDirections: "One gigabyte is 1,000,000,000 bytes. Make a reasonable estimate for each type of content; the app records positive estimates rather than pretending there is one exact answer.",
+    responseType: "questionSet",
+    questions: [
+      { id: "letters", label: "Letters", prompt: "About how many one-byte letters fit in 1 GB?", responseType: "number", inputLabel: "Estimated letters", placeholder: "Type an estimate", estimate: true, hint: "The source says one letter is about one byte.", correctFeedback: "Estimate recorded. Using one byte per letter gives about 1,000,000,000 letters.", incorrectFeedback: "Enter a positive numerical estimate." },
+      { id: "pages", label: "Pages", prompt: "Estimate how many text pages fit in 1 GB.", responseType: "number", inputLabel: "Estimated pages", placeholder: "Type an estimate", estimate: true, hint: "Choose a reasonable number of letters per page, then divide 1,000,000,000 by it.", correctFeedback: "Estimate recorded. The result depends on the assumed number of letters per page.", incorrectFeedback: "Enter a positive numerical estimate." },
+      { id: "books", label: "Books", prompt: "Estimate how many text-only books fit in 1 GB.", responseType: "number", inputLabel: "Estimated books", placeholder: "Type an estimate", estimate: true, hint: "Estimate pages per book and letters per page first.", correctFeedback: "Estimate recorded. State your book-size assumptions when comparing estimates.", incorrectFeedback: "Enter a positive numerical estimate." },
+      { id: "movies", label: "Movies", prompt: "Estimate how many compressed movies fit in 1 GB.", responseType: "number", inputLabel: "Estimated movies", placeholder: "Type an estimate", estimate: true, hint: "A movie uses far more bytes than text, so a fractional answer can be reasonable.", correctFeedback: "Estimate recorded. Movie quality and compression make this estimate vary widely.", incorrectFeedback: "Enter a positive numerical estimate; decimals and fractions are allowed." },
+      { id: "songs", label: "Songs", prompt: "Estimate how many compressed songs fit in 1 GB.", responseType: "number", inputLabel: "Estimated songs", placeholder: "Type an estimate", estimate: true, hint: "Choose a typical file size for one song, then divide 1 GB by it.", correctFeedback: "Estimate recorded. The result depends on song length and compression.", incorrectFeedback: "Enter a positive numerical estimate." },
+    ],
+  },
+  {
+    id: "teach-u2-l12-summary",
+    unitNumber: 2,
+    lessonNumber: 12,
+    section: "C",
+    idea: "Idea 3",
+    title: "Navigating a Table of Equivalent Ratios",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 12 Summary",
+    pdfPage: 5,
+    customVisual: "unit2EfficientTableSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l13-1",
+    unitNumber: 2,
+    lessonNumber: 13,
+    section: "D",
+    idea: "Idea 4",
+    title: "Tables and Double Number Line Diagrams",
+    partLabel: "13.1",
+    activityOrder: 1,
+    activityTitle: "13.1: Number Talk: Constant Dividend",
+    pdfPage: 1,
+    customVisual: "unit2ConstantDividend",
+    sourceDirections: "Find each quotient mentally, then locate all three values on the same 0-to-150 number line.",
+    responseType: "questionSet",
+    questions: [
+      { id: "divide-two", label: "150 ÷ 2", prompt: "Find 150 ÷ 2 mentally.", responseType: "number", inputLabel: "Quotient", placeholder: "Type a number", answerKey: ["75"], hint: "Split 150 into two equal groups.", correctFeedback: "Correct. 150 ÷ 2 = 75.", incorrectFeedback: "Find half of 150." },
+      { id: "divide-four", label: "150 ÷ 4", prompt: "Find 150 ÷ 4 mentally.", responseType: "number", inputLabel: "Quotient", placeholder: "Type a number", answerKey: ["37.5", "75/2"], hint: "This quotient is half of 150 ÷ 2.", correctFeedback: "Correct. 150 ÷ 4 = 37.5.", incorrectFeedback: "Take half of 75." },
+      { id: "divide-eight", label: "150 ÷ 8", prompt: "Find 150 ÷ 8 mentally.", responseType: "number", inputLabel: "Quotient", placeholder: "Type a number", answerKey: ["18.75", "75/4"], hint: "This quotient is half of 150 ÷ 4.", correctFeedback: "Correct. 150 ÷ 8 = 18.75.", incorrectFeedback: "Take half of 37.5." },
+    ],
+  },
+  {
+    id: "teach-u2-l13-2",
+    unitNumber: 2,
+    lessonNumber: 13,
+    section: "D",
+    idea: "Idea 4",
+    title: "Tables and Double Number Line Diagrams",
+    partLabel: "13.2",
+    activityOrder: 2,
+    activityTitle: "13.2: Moving 3,000 Meters",
+    pdfPages: [1, 2],
+    pdfPage: 1,
+    customVisual: "unit2MovingTable",
+    sourceDirections: "Read Han's unlabeled table carefully, complete it, improve its labels, and then use tables for Priya and the dirt bike.",
+    responseType: "questionSet",
+    questions: [
+      { id: "han-agree", label: "Han's table", prompt: "Does Han's table represent 100 meters in 20 seconds at a constant rate?", responseType: "singleChoice", choices: [{ id: "yes", label: "Yes. Every row preserves 5 meters for each second." }, { id: "no", label: "No. The numbers in each row must have the same value." }], answerKey: ["yes"], hint: "Compare 100:20, 50:10, and 5:1.", correctFeedback: "Correct. Each row has the same distance-to-time rate, 5 meters per second.", incorrectFeedback: "Equivalent ratios do not need equal entries; compare the quotient in every row." },
+      { id: "han-3000", label: "Complete the row", prompt: "Complete the missing entry: how many seconds does Han need to run 3,000 meters?", responseType: "number", inputLabel: "Elapsed time (seconds)", placeholder: "Type a number", answerKey: ["600"], hint: "Han travels 5 meters each second.", correctFeedback: "Correct. 3,000 ÷ 5 = 600 seconds.", incorrectFeedback: "Use the 5-meter, 1-second unit row." },
+      { id: "han-question", label: "Interpret 600", prompt: "What question about the situation does 600 answer?", responseType: "singleChoice", choices: [{ id: "time", label: "How many seconds will Han take to run 3,000 meters?" }, { id: "distance", label: "How many meters will Han run in 3,000 seconds?" }, { id: "speed", label: "How many meters per second is 600?" }], answerKey: ["time"], hint: "Use the column containing the missing value.", correctFeedback: "Correct. The 600 belongs in the elapsed-time column and answers how long the 3,000-meter trip takes.", incorrectFeedback: "Match the number with its column and unit." },
+      { id: "han-labels", label: "Improve the table", prompt: "What should Han add to improve his table?", responseType: "singleChoice", choices: [{ id: "headers", label: "Column labels for elapsed time (seconds) and distance traveled (meters)." }, { id: "colors", label: "A different color for every row." }, { id: "order", label: "A rule that rows must be written from least to greatest." }], answerKey: ["headers"], hint: "A reader needs to know what each column's numbers represent.", correctFeedback: "Correct. Column labels and units make every row interpretable.", incorrectFeedback: "The mathematical values are valid; the missing information is what each column represents." },
+      { id: "priya-time", label: "Priya", prompt: "Priya bikes 150 meters in 20 seconds. At this rate, how long will 3,000 meters take?", responseType: "number", inputLabel: "Elapsed time (seconds)", placeholder: "Type a number", answerKey: ["400"], hint: "3,000 is 20 groups of 150.", correctFeedback: "Correct. Twenty equal trips take 20 × 20 = 400 seconds.", incorrectFeedback: "Find the scale factor from 150 meters to 3,000 meters." },
+      { id: "dirt-bike-time", label: "Dirt bike", prompt: "A dirt bike travels 360 meters in 15 seconds. At this rate, how long will 3,000 meters take?", responseType: "number", inputLabel: "Elapsed time (seconds)", placeholder: "Type a number", answerKey: ["125"], hint: "First find the distance traveled in 1 second.", correctFeedback: "Correct. The bike travels 24 meters per second, and 3,000 ÷ 24 = 125 seconds.", incorrectFeedback: "Use the unit row 24 meters to 1 second." },
+    ],
+  },
+  {
+    id: "teach-u2-l13-3",
+    unitNumber: 2,
+    lessonNumber: 13,
+    section: "D",
+    idea: "Idea 4",
+    title: "Tables and Double Number Line Diagrams",
+    partLabel: "13.3",
+    activityOrder: 3,
+    activityTitle: "13.3: The International Space Station",
+    pdfPage: 3,
+    blacklineMaster: unit2IssBlackline,
+    customVisual: "unit2IssExchange",
+    sourceDirections: "The app assigns you the source table and acts as the partner holding the double number line. Complete what you know, exchange information, and compare the representations.",
+    responseType: "questionSet",
+    questions: [
+      { id: "iss-table", label: "Your table", prompt: "Complete the sure entries in your assigned table using 80 kilometers in 10 seconds.", fields: [{ id: "oneSecond", label: "Distance in 1 second (km)", responseType: "number", placeholder: "Distance" }, { id: "fiveSeconds", label: "Distance in 5 seconds (km)", responseType: "number", placeholder: "Distance" }, { id: "eightSeconds", label: "Distance in 8 seconds (km)", responseType: "number", placeholder: "Distance" }], acceptedFieldSets: [{ oneSecond: "8", fiveSeconds: "40", eightSeconds: "64" }], hint: "Find the unit rate, then multiply it by 5 and by 8.", correctFeedback: "Correct. Your table now contains 8:1, 40:5, and 64:8, all equivalent to 80:10.", incorrectFeedback: "Every distance-to-time row must preserve 8 kilometers per second." },
+      { id: "iss-partner", label: "Partner exchange", prompt: "Which specific request gives information that helps complete the partner double number line?", responseType: "singleChoice", unlockedAfterQuestionId: "iss-table", choices: [{ id: "aligned-pairs", label: "Please share the distance values aligned with 1, 5, 7, and 10 seconds." }, { id: "picture", label: "Please describe the photograph of the space station." }, { id: "row-order", label: "Please put the table rows in a different order." }], answerKey: ["aligned-pairs"], hint: "Ask for the missing quantity values, not unrelated details.", correctFeedback: "Correct. Your app partner shares 8, 40, 56, and 80 kilometers at 1, 5, 7, and 10 seconds.", incorrectFeedback: "Ask for the specific aligned values needed to complete the other representation." },
+      { id: "iss-speed", label: "ISS speed", prompt: "What is the speed of the International Space Station in kilometers per second?", responseType: "number", inputLabel: "Speed (km/s)", placeholder: "Type a number", answerKey: ["8"], hint: "Use the row for 1 second.", correctFeedback: "Correct. The represented speed is 8 kilometers per second.", incorrectFeedback: "Find the distance paired with 1 second." },
+      { id: "iss-same", label: "How they are the same", prompt: "How are the completed table and double number line the same?", responseType: "singleChoice", choices: [{ id: "pairs", label: "They show the same aligned distance-time pairs and the same constant speed." }, { id: "layout", label: "They place every number in exactly the same physical location." }, { id: "labels", label: "Neither representation needs quantity labels." }], answerKey: ["pairs"], hint: "Compare the mathematical information, not the page layout.", correctFeedback: "Correct. Both representations show equivalent distance-time ratios at 8 kilometers per second.", incorrectFeedback: "Look for the same quantity pairs represented in two structures." },
+      { id: "iss-different", label: "How they differ", prompt: "What is one important difference between the representations?", responseType: "singleChoice", choices: [{ id: "order", label: "A double number line lists values in order and uses position; table rows can be written in any order." }, { id: "ratios", label: "Only a table can represent equivalent ratios." }, { id: "units", label: "Only a double number line can use units." }], answerKey: ["order"], hint: "Think about whether moving one row or one tick changes the representation.", correctFeedback: "Correct. Position and spacing matter on the number line, while table rows can be rearranged.", incorrectFeedback: "Both can show units and equivalent ratios; compare how order and position work." },
+    ],
+  },
+  {
+    id: "teach-u2-l13-optional",
+    unitNumber: 2,
+    lessonNumber: 13,
+    section: "D",
+    idea: "Idea 4",
+    title: "Tables and Double Number Line Diagrams",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? One Orbit",
+    pdfPage: 3,
+    customVisual: "unit2IssOrbit",
+    sourceDirections: "Earth's circumference is about 40,000 kilometers and the ISS orbit is just a little longer. Estimate the time using the lesson's 8-kilometer-per-second speed.",
+    responseType: "questionSet",
+    questions: [
+      { id: "orbit-seconds", label: "Orbit estimate", prompt: "About how many seconds does one approximately 40,000-kilometer orbit take at 8 kilometers per second?", responseType: "number", inputLabel: "Estimated seconds", placeholder: "Type a number", answerKey: ["5000"], hint: "Divide about 40,000 kilometers by 8 kilometers per second.", correctFeedback: "Correct. 40,000 ÷ 8 is about 5,000 seconds, or about 83 minutes. The actual orbit is a little longer, so this is an estimate.", incorrectFeedback: "Use time = distance ÷ speed with about 40,000 kilometers and 8 kilometers per second." },
+    ],
+  },
+  {
+    id: "teach-u2-l13-summary",
+    unitNumber: 2,
+    lessonNumber: 13,
+    section: "D",
+    idea: "Idea 4",
+    title: "Tables and Double Number Line Diagrams",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 13 Summary",
+    pdfPage: 4,
+    customVisual: "unit2TableLineSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l14-1",
+    unitNumber: 2,
+    lessonNumber: 14,
+    section: "D",
+    idea: "Idea 4",
+    title: "Solving Equivalent Ratio Problems",
+    partLabel: "14.1",
+    activityOrder: 1,
+    activityTitle: "14.1: What Do You Want to Know?",
+    pdfPage: 1,
+    customVisual: "unit2HighwayQuestion",
+    sourceDirections: "A red car and a blue car enter a highway at the same time and travel at constant speeds. Decide what information is needed before trying to calculate how far apart they are after 4 hours.",
+    responseType: "questionSet",
+    questions: [
+      { id: "needed-info", label: "Needed information", prompt: "Which information is needed to determine how far apart the cars are after 4 hours? Select all that apply.", responseType: "multiSelect", choices: [{ id: "red-speed", label: "The red car's speed" }, { id: "blue-speed", label: "The blue car's speed" }, { id: "directions", label: "The direction each car travels" }, { id: "starting-point", label: "Whether the cars start at the same place" }, { id: "paint", label: "The exact shade of each car's paint" }], answerKey: ["red-speed", "blue-speed", "directions", "starting-point"], hint: "Distance apart depends on both distances traveled and how the two paths relate.", correctFeedback: "Correct. You need both speeds, the travel directions, and the starting-location relationship. The color shades do not affect distance.", incorrectFeedback: "Ask what controls each car's distance after 4 hours and how those two distances combine." },
+    ],
+  },
+  {
+    id: "teach-u2-l14-2",
+    unitNumber: 2,
+    lessonNumber: 14,
+    section: "D",
+    idea: "Idea 4",
+    title: "Solving Equivalent Ratio Problems",
+    partLabel: "14.2",
+    activityOrder: 2,
+    activityTitle: "14.2: Info Gap: Hot Chocolate and Potatoes",
+    pdfPage: 2,
+    blacklineMaster: unit2HotChocolateBlackline,
+    customVisual: "unit2HotChocolateInfoGap",
+    sourceDirections: "The app acts as the data-card partner. Request only the specific information you need, explain its role by using it, and solve each problem independently before the complete data card is shared.",
+    responseType: "questionSet",
+    questions: [
+      { id: "cocoa-request", label: "Cocoa: request data", prompt: "Jada wants to use all her cocoa powder. Which specific data do you need to determine the milk amount?", responseType: "multiSelect", choices: [{ id: "recipe-milk", label: "The recipe uses 3 cups of milk." }, { id: "recipe-cocoa", label: "The recipe uses 2 tablespoons of cocoa powder." }, { id: "cocoa-left", label: "Jada has 9 tablespoons of cocoa powder." }, { id: "milk-stock", label: "Jada has 2 gallons of milk." }, { id: "conversion", label: "There are 16 cups in 1 gallon." }], answerKey: ["recipe-milk", "recipe-cocoa", "cocoa-left"], hint: "You need the complete recipe ratio and the amount of cocoa she will use.", correctFeedback: "Correct. The app partner shares the 3-cup-to-2-tablespoon recipe and the 9 tablespoons of cocoa powder.", incorrectFeedback: "Request both quantities in one recipe batch and the quantity Jada will use completely." },
+      { id: "cocoa-solve", label: "Cocoa: solve", prompt: "Using the requested data, how many cups of milk should Jada use?", responseType: "number", inputLabel: "Milk (cups)", placeholder: "Type an amount", answerKey: ["13.5", "27/2"], unlockedAfterQuestionId: "cocoa-request", hint: "The cocoa amount is 9 ÷ 2 = 4.5 recipe batches.", correctFeedback: "Correct. 4.5 batches require 4.5 × 3 = 13.5 cups of milk. The 2 gallons and gallon conversion were not needed.", incorrectFeedback: "Scale both parts of the 3-cup-milk to 2-tablespoon-cocoa recipe until cocoa reaches 9 tablespoons." },
+      { id: "potato-request", label: "Potatoes: request data", prompt: "Noah has already peeled some potatoes at a constant rate. Which data do you need to decide whether he will finish in time?", responseType: "multiSelect", choices: [{ id: "peeled", label: "Noah has already peeled 8 potatoes." }, { id: "elapsed", label: "He has been peeling for 10 minutes." }, { id: "remaining", label: "He needs to peel 60 more potatoes." }, { id: "deadline", label: "He needs to finish in 1 hour 10 minutes." }, { id: "hour", label: "There are 60 minutes in 1 hour." }], answerKey: ["peeled", "elapsed", "remaining", "deadline", "hour"], hint: "You need a rate, a remaining amount, and the remaining time before the deadline.", correctFeedback: "Correct. The app partner shares the rate data, 60 potatoes remaining, the 1-hour-10-minute deadline, and the hour conversion.", incorrectFeedback: "Request enough information to find Noah's rate, the work left, and the time left." },
+      { id: "potato-calculate", label: "Potatoes: calculate", prompt: "How many minutes will Noah need for the 60 remaining potatoes, and how many minutes remain before the deadline?", fields: [{ id: "needed", label: "Minutes needed", responseType: "number", placeholder: "Minutes" }, { id: "available", label: "Minutes available", responseType: "number", placeholder: "Minutes" }], acceptedFieldSets: [{ needed: "75", available: "60" }], unlockedAfterQuestionId: "potato-request", hint: "His rate is 8 potatoes in 10 minutes. The 70-minute deadline began when he started, 10 minutes ago.", correctFeedback: "Correct. Noah needs 75 more minutes but has only 60 minutes left.", incorrectFeedback: "Use 8 potatoes per 10 minutes, then subtract the 10 elapsed minutes from the 70-minute total deadline." },
+      { id: "potato-decision", label: "Potatoes: decide", prompt: "Will Noah finish all the potatoes in time if he keeps the same rate?", responseType: "singleChoice", unlockedAfterQuestionId: "potato-calculate", choices: [{ id: "no", label: "No. He needs 75 minutes but has only 60 minutes left." }, { id: "yes", label: "Yes. He has already peeled 8 potatoes." }], answerKey: ["no"], hint: "Compare the time needed with the time still available.", correctFeedback: "Correct. Noah will be 15 minutes late at the same rate.", incorrectFeedback: "The already-peeled potatoes establish the rate; compare 75 minutes needed with 60 available." },
+    ],
+  },
+  {
+    id: "teach-u2-l14-3",
+    unitNumber: 2,
+    lessonNumber: 14,
+    section: "D",
+    idea: "Idea 4",
+    title: "Solving Equivalent Ratio Problems",
+    partLabel: "14.3",
+    activityOrder: 3,
+    activityTitle: "14.3: Comparing Reading Rates",
+    pdfPage: 3,
+    customVisual: "unit2ReadingRates",
+    sourceDirections: "Use each reader's pages and days to determine when each whole book will be finished, then rank the finish times.",
+    responseType: "questionSet",
+    questions: [
+      { id: "lin-days", label: "Lin", prompt: "At 54 pages every 3 days, how many days does Lin need for a 270-page book?", responseType: "number", inputLabel: "Total days", placeholder: "Type a number", answerKey: ["15"], hint: "Find Lin's pages per day or scale 54 pages to 270 pages.", correctFeedback: "Correct. Lin reads 18 pages per day and needs 15 days.", incorrectFeedback: "Divide 270 pages by Lin's 18 pages per day." },
+      { id: "diego-days", label: "Diego", prompt: "At 100 pages every 4 days, how many days does Diego need for a 325-page book?", responseType: "number", inputLabel: "Total days", placeholder: "Type a number", answerKey: ["13"], hint: "Diego reads 25 pages per day.", correctFeedback: "Correct. 325 ÷ 25 = 13 days.", incorrectFeedback: "Find the daily rate from 100 pages in 4 days, then divide the book length by it." },
+      { id: "elena-days", label: "Elena", prompt: "At 160 pages every 5 days, how many days does Elena need for a 480-page book?", responseType: "number", inputLabel: "Total days", placeholder: "Type a number", answerKey: ["15"], hint: "Elena reads 32 pages per day.", correctFeedback: "Correct. 480 ÷ 32 = 15 days.", incorrectFeedback: "Find the daily rate from 160 pages in 5 days, then divide 480 by it." },
+      { id: "reading-order", label: "Finish order", prompt: "Who finishes first, second, and third?", responseType: "singleChoice", choices: [{ id: "diego-tie", label: "Diego finishes first; Lin and Elena tie for second." }, { id: "lin-diego-elena", label: "Lin first, Diego second, Elena third." }, { id: "elena-lin-diego", label: "Elena first, Lin second, Diego third." }], answerKey: ["diego-tie"], hint: "Compare the three total-day results, including equal values.", correctFeedback: "Correct. Diego finishes in 13 days. Lin and Elena both finish in 15 days, so they tie for second rather than having separate second and third places.", incorrectFeedback: "Use the total days, not only the pages already read." },
+    ],
+  },
+  {
+    id: "teach-u2-l14-optional",
+    unitNumber: 2,
+    lessonNumber: 14,
+    section: "D",
+    idea: "Idea 4",
+    title: "Solving Equivalent Ratio Problems",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Cats and Dogs",
+    pdfPage: 3,
+    customVisual: "unit2CatsDogs",
+    sourceDirections: "The initial ratio of cats to dogs is 2:3. After 5 cats enter, the ratio is 9:11. Determine the original counts.",
+    responseType: "questionSet",
+    questions: [
+      { id: "original-animals", label: "Original room", prompt: "How many cats and dogs were in the room before 5 more cats entered?", fields: [{ id: "cats", label: "Original cats", responseType: "number", placeholder: "Count" }, { id: "dogs", label: "Original dogs", responseType: "number", placeholder: "Count" }], acceptedFieldSets: [{ cats: "22", dogs: "33" }], hint: "Write the original counts as 2 groups and 3 groups. Adding 5 to the cat count must create a 9:11 ratio.", correctFeedback: "Correct. The original counts were 22 cats and 33 dogs. After 5 cats enter, 27:33 simplifies to 9:11.", incorrectFeedback: "Use original counts 2k and 3k, then solve (2k + 5):(3k) = 9:11." },
+    ],
+  },
+  {
+    id: "teach-u2-l14-summary",
+    unitNumber: 2,
+    lessonNumber: 14,
+    section: "D",
+    idea: "Idea 4",
+    title: "Solving Equivalent Ratio Problems",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 14 Summary",
+    pdfPage: 4,
+    customVisual: "unit2EquivalentProblemSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l15-1",
+    unitNumber: 2,
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "Part-Part-Whole Ratios",
+    partLabel: "15.1",
+    activityOrder: 1,
+    activityTitle: "15.1: True or False: Multiplying by a Unit Fraction",
+    pdfPage: 1,
+    customVisual: "unit2UnitFractionStatements",
+    sourceDirections: "Decide whether each equation is true or false. Submit each statement independently, then compare the multiplication and division structures.",
+    responseType: "questionSet",
+    questions: [
+      { id: "statement-one", label: "Statement 1", prompt: "Is 1/5 × 45 = 45 ÷ 5 true or false?", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["true"], hint: "Multiplying by one fifth and dividing by 5 are equivalent operations.", correctFeedback: "Correct. Both sides equal 9.", incorrectFeedback: "Evaluate each side or use the meaning of multiplying by 1/5." },
+      { id: "statement-two", label: "Statement 2", prompt: "Is 1/5 × 20 = 1/4 × 24 true or false?", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["false"], hint: "Find one fifth of 20 and one fourth of 24.", correctFeedback: "Correct. The left side is 4 and the right side is 6, so the equation is false.", incorrectFeedback: "Compute both products before comparing them." },
+      { id: "statement-three", label: "Statement 3", prompt: "Is 42 × 1/6 = 1/6 × 42 true or false?", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["true"], hint: "Changing the order of two factors does not change their product.", correctFeedback: "Correct. Both expressions equal 7 because multiplication is commutative.", incorrectFeedback: "Compare the factors on each side; only their order changes." },
+      { id: "statement-four", label: "Statement 4", prompt: "Is 486 × 1/12 = 480 ÷ 12 + 6 ÷ 12 true or false?", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["true"], hint: "Decompose 486 as 480 + 6 and distribute division by 12.", correctFeedback: "Correct. One twelfth of 486 is one twelfth of 480 plus one twelfth of 6.", incorrectFeedback: "Rewrite 486 as 480 + 6, then take one twelfth of each part." },
+    ],
+  },
+  {
+    id: "teach-u2-l15-2",
+    unitNumber: 2,
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "Part-Part-Whole Ratios",
+    partLabel: "15.2",
+    activityOrder: 2,
+    activityTitle: "15.2: Cubes of Paint",
+    pdfPages: [1, 2],
+    pdfPage: 1,
+    customVisual: "unit2PaintCubes",
+    sourceDirections: "Use a 5-red-cube to 3-blue-cube model. Change the amount represented by each cube and connect the two paint parts to the whole batch.",
+    responseType: "questionSet",
+    questions: [
+      { id: "one-ml", label: "1 ml per cube", prompt: "If each cube represents 1 ml, how many milliliters of maroon paint are in the batch?", responseType: "number", inputLabel: "Maroon paint (ml)", placeholder: "Type an amount", answerKey: ["8"], hint: "Count all 5 red parts and all 3 blue parts.", correctFeedback: "Correct. 5 ml red + 3 ml blue = 8 ml maroon paint.", incorrectFeedback: "The whole batch includes both color parts." },
+      { id: "two-ml", label: "2 ml per cube", prompt: "If each cube represents 2 ml, how much red, blue, and maroon paint is there?", fields: [{ id: "red", label: "Red paint (ml)", responseType: "number", placeholder: "Amount" }, { id: "blue", label: "Blue paint (ml)", responseType: "number", placeholder: "Amount" }, { id: "whole", label: "Maroon paint (ml)", responseType: "number", placeholder: "Amount" }], acceptedFieldSets: [{ red: "10", blue: "6", whole: "16" }], hint: "Multiply each of the 5 red and 3 blue parts by 2, then add.", correctFeedback: "Correct. The two parts are 10 ml red and 6 ml blue, making 16 ml in all.", incorrectFeedback: "Scale both paint parts by 2 and make the whole equal their sum." },
+      { id: "five-ml", label: "5 ml per cube", prompt: "If each cube represents 5 ml, how much red, blue, and maroon paint is there?", fields: [{ id: "red", label: "Red paint (ml)", responseType: "number", placeholder: "Amount" }, { id: "blue", label: "Blue paint (ml)", responseType: "number", placeholder: "Amount" }, { id: "whole", label: "Maroon paint (ml)", responseType: "number", placeholder: "Amount" }], acceptedFieldSets: [{ red: "25", blue: "15", whole: "40" }], hint: "Multiply both ratio parts by 5, then add the scaled parts.", correctFeedback: "Correct. 25 ml red + 15 ml blue = 40 ml maroon paint.", incorrectFeedback: "Use 5 cubes of red, 3 cubes of blue, and 5 ml for every cube." },
+      { id: "eighty-ml", label: "80 ml batch", prompt: "For 80 ml of maroon paint, how much red and blue paint is needed, and how many original 8-ml batches is that?", fields: [{ id: "red", label: "Red paint (ml)", responseType: "number", placeholder: "Amount" }, { id: "blue", label: "Blue paint (ml)", responseType: "number", placeholder: "Amount" }, { id: "batches", label: "Number of original batches", responseType: "number", placeholder: "Batches" }], acceptedFieldSets: [{ red: "50", blue: "30", batches: "10" }], hint: "The original batch is 8 ml. Find how many groups of 8 make 80.", correctFeedback: "Correct. Ten batches require 50 ml red and 30 ml blue, making 80 ml total.", incorrectFeedback: "Find the scale factor from 8 ml to 80 ml, then apply it to 5 ml red and 3 ml blue." },
+    ],
+  },
+  {
+    id: "teach-u2-l15-3",
+    unitNumber: 2,
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "Part-Part-Whole Ratios",
+    partLabel: "15.3",
+    activityOrder: 3,
+    activityTitle: "15.3: Sneakers, Chicken, and Fruit Juice",
+    pdfPages: [2, 3],
+    pdfPage: 2,
+    customVisual: "unit2PartWholeProblems",
+    sourceDirections: "For each source situation, use the ratio parts and the known whole or known part. Submit each solution independently.",
+    responseType: "questionSet",
+    questions: [
+      { id: "sneakers", label: "Sneakers", prompt: "The ratio of students wearing sneakers to boots is 5:6. All 33 students wear one or the other. How many wear sneakers?", responseType: "number", inputLabel: "Students wearing sneakers", placeholder: "Type a count", answerKey: ["15"], hint: "There are 11 equal parts in all. Find the value of one part from 33.", correctFeedback: "Correct. Each part represents 3 students, so 5 parts represent 15 students wearing sneakers.", incorrectFeedback: "Add 5 + 6 parts, divide 33 by that total, then use the 5 sneaker parts." },
+      { id: "marinade", label: "Chicken marinade", prompt: "A marinade uses 3 parts oil, 2 parts soy sauce, and 1 part orange juice. For 42 cups total, how much of each ingredient is needed?", fields: [{ id: "oil", label: "Oil (cups)", responseType: "number", placeholder: "Amount" }, { id: "soy", label: "Soy sauce (cups)", responseType: "number", placeholder: "Amount" }, { id: "orange", label: "Orange juice (cups)", responseType: "number", placeholder: "Amount" }], acceptedFieldSets: [{ oil: "21", soy: "14", orange: "7" }], hint: "The recipe has 6 equal parts in all.", correctFeedback: "Correct. Each part is 7 cups, giving 21 cups oil, 14 cups soy sauce, and 7 cups orange juice.", incorrectFeedback: "Divide 42 by the 6 total parts, then multiply by 3, 2, and 1." },
+      { id: "punch", label: "Fruit punch", prompt: "Fruit punch uses 4 parts cranberry, 3 parts apple, and 2 parts grape juice. If the apple part is 30 cups, how large is the whole batch?", responseType: "number", inputLabel: "Total fruit punch (cups)", placeholder: "Type an amount", answerKey: ["90"], hint: "Three parts equal 30 cups. Find one part, then use all 9 parts.", correctFeedback: "Correct. Each part is 10 cups, so the 9-part batch contains 90 cups.", incorrectFeedback: "Use 30 ÷ 3 to find one part, then multiply by 4 + 3 + 2." },
+    ],
+  },
+  {
+    id: "teach-u2-l15-optional",
+    unitNumber: 2,
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "Part-Part-Whole Ratios",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Limited Fruit Punch",
+    pdfPage: 3,
+    customVisual: "unit2PunchLimit",
+    sourceDirections: "Use the 4:3:2 fruit-punch recipe with 50 cups cranberry, 40 cups apple, and 30 cups grape juice. Determine which supply limits the number of complete batches.",
+    responseType: "questionSet",
+    questions: [
+      { id: "maximum-punch", label: "Maximum batch", prompt: "What is the greatest amount of fruit punch you can make while preserving the recipe?", responseType: "number", inputLabel: "Fruit punch (cups)", placeholder: "Type an amount", answerKey: ["112.5", "225/2"], hint: "Find how many recipe parts each supply can support: 50 ÷ 4, 40 ÷ 3, and 30 ÷ 2. The smallest value controls the batch.", correctFeedback: "Correct. Cranberry juice allows 12.5 recipe groups, the limiting amount. Each group has 9 cups, so 12.5 × 9 = 112.5 cups.", incorrectFeedback: "Compare the number of 4:3:2 recipe groups supported by each available juice." },
+    ],
+  },
+  {
+    id: "teach-u2-l15-4",
+    unitNumber: 2,
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "Part-Part-Whole Ratios",
+    partLabel: "15.4",
+    activityOrder: 4,
+    activityTitle: "15.4: Invent Your Own Ratio Problem",
+    pdfPage: 3,
+    customVisual: "unit2InventRatio",
+    sourceDirections: "Invent a solvable part-part-whole problem and make a visual display without its solution. Then exchange with the app partner, solve its problem with a tape diagram, and check the result.",
+    responseType: "questionSet",
+    questions: [
+      { id: "invent-problem", label: "Invent and display", prompt: "Create a two-category ratio problem whose whole can be split into an integer number of equal ratio groups.", fields: [{ id: "categoryA", label: "First category", responseType: "text", placeholder: "Example: red beads" }, { id: "categoryB", label: "Second category", responseType: "text", placeholder: "Example: blue beads" }, { id: "partA", label: "First ratio part", responseType: "number", placeholder: "Positive whole number" }, { id: "partB", label: "Second ratio part", responseType: "number", placeholder: "Positive whole number" }, { id: "total", label: "Known total", responseType: "number", placeholder: "Positive whole number" }], dynamicAnswer: "unit2InventedRatioProblem", hint: "Choose two different category names, positive whole-number ratio parts, and a total divisible by the sum of the parts.", correctFeedback: "Problem display ready. It names two categories, gives a positive ratio, and uses a whole that can be split evenly among all ratio parts. The solution remains hidden for the exchange.", incorrectFeedback: "Use two different category names, positive whole-number ratio parts, and a positive whole divisible by the sum of those parts." },
+      { id: "partner-problem", label: "App partner", prompt: "The app partner's display says: Red beads and blue beads are in a 3:5 ratio. There are 64 beads in all. How many are red and how many are blue?", fields: [{ id: "red", label: "Red beads", responseType: "number", placeholder: "Count" }, { id: "blue", label: "Blue beads", responseType: "number", placeholder: "Count" }], acceptedFieldSets: [{ red: "24", blue: "40" }], unlockedAfterQuestionId: "invent-problem", hint: "The 8 equal tape parts represent 64 beads in all.", correctFeedback: "Correct. Each part is 8 beads, so 3 parts are 24 red beads and 5 parts are 40 blue beads.", incorrectFeedback: "Divide 64 among 3 + 5 equal parts, then use 3 and 5 parts." },
+    ],
+  },
+  {
+    id: "teach-u2-l15-summary",
+    unitNumber: 2,
+    lessonNumber: 15,
+    section: "E",
+    idea: "Idea 5",
+    title: "Part-Part-Whole Ratios",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 15 Summary",
+    pdfPage: 4,
+    customVisual: "unit2TapeDiagramSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l16-1",
+    unitNumber: 2,
+    lessonNumber: 16,
+    section: "E",
+    idea: "Idea 5",
+    title: "Solving More Ratio Problems",
+    partLabel: "16.1",
+    activityOrder: 1,
+    activityTitle: "16.1: You Tell the Story",
+    pdfPage: 1,
+    customVisual: "unit2TellStoryTape",
+    sourceDirections: "Describe a situation with two quantities that the exact source tape diagram could represent. Name the quantities and match their totals to the diagram.",
+    responseType: "questionSet",
+    questions: [
+      { id: "tape-story", label: "Your situation", prompt: "Name two different quantities for the tapes and give the total represented by each tape.", fields: [{ id: "firstName", label: "Blue-tape quantity", responseType: "text", placeholder: "Name a quantity" }, { id: "firstTotal", label: "Blue-tape total", responseType: "number", placeholder: "Total" }, { id: "secondName", label: "White-tape quantity", responseType: "text", placeholder: "Name a different quantity" }, { id: "secondTotal", label: "White-tape total", responseType: "number", placeholder: "Total" }], dynamicAnswer: "unit2TapeStory", hint: "The blue tape has seven parts labeled 3. The white tape has three parts labeled 3.", correctFeedback: "Your situation fits the diagram. The blue quantity totals 21, the white quantity totals 9, and their ratio is 7:3 (or 21:9).", incorrectFeedback: "Use two different quantity names. Seven groups of 3 must total 21, and three groups of 3 must total 9." },
+    ],
+  },
+  {
+    id: "teach-u2-l16-2",
+    unitNumber: 2,
+    lessonNumber: 16,
+    section: "E",
+    idea: "Idea 5",
+    title: "Solving More Ratio Problems",
+    partLabel: "16.2",
+    activityOrder: 2,
+    activityTitle: "16.2: A Trip to the Aquarium",
+    pdfPage: 2,
+    customVisual: "unit2AquariumStrategies",
+    sourceDirections: "The aquarium requires 2 chaperones for every 15 students, and the teacher orders 85 tickets. Choose one of the three source strategies, solve, then compare your preference.",
+    responseType: "questionSet",
+    questions: [
+      { id: "aquarium-strategy", label: "Choose a strategy", prompt: "Which source representation will you use to organize the 2:15 ratio and the total of 85 tickets?", responseType: "singleChoice", choices: [{ id: "line", label: "Triple number line" }, { id: "table", label: "Table" }, { id: "tape", label: "Tape diagram" }], dynamicAnswer: "unit2AnySelectedChoice", hint: "All three source representations can work. Choose the one you want to use.", correctFeedback: "Strategy selected. The workspace highlights that representation while keeping the other two available for comparison.", incorrectFeedback: "Choose one of the three source strategies." },
+      { id: "aquarium-solve", label: "Solve", prompt: "How many of the 85 tickets are for chaperones, and how many are for students?", fields: [{ id: "chaperones", label: "Chaperone tickets", responseType: "number", placeholder: "Count" }, { id: "students", label: "Student tickets", responseType: "number", placeholder: "Count" }], acceptedFieldSets: [{ chaperones: "10", students: "75" }], unlockedAfterQuestionId: "aquarium-strategy", hint: "One complete ratio group has 17 tickets. Find how many groups make 85.", correctFeedback: "Correct. Five groups of 2 chaperones and 15 students give 10 chaperones and 75 students, 85 tickets in all.", incorrectFeedback: "Divide 85 by the 17 tickets in one group, then scale both 2 and 15." },
+      { id: "aquarium-preference", label: "Compare methods", prompt: "After comparing all three source strategies, which do you prefer for this problem?", responseType: "singleChoice", choices: [{ id: "line", label: "Triple number line: it keeps students, chaperones, and totals aligned." }, { id: "table", label: "Table: it organizes equivalent rows compactly." }, { id: "tape", label: "Tape diagram: it makes all 17 equal parts and the total visible." }], dynamicAnswer: "unit2AnySelectedChoice", unlockedAfterQuestionId: "aquarium-solve", hint: "Any of the three is defensible; choose the representation that makes the relationship clearest to you.", correctFeedback: "Preference recorded. Each representation preserves the same 15:2:17 relationship but emphasizes a different structure.", incorrectFeedback: "Choose the representation you prefer." },
+    ],
+  },
+  {
+    id: "teach-u2-l16-optional",
+    unitNumber: 2,
+    lessonNumber: 16,
+    section: "E",
+    idea: "Idea 5",
+    title: "Solving More Ratio Problems",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Nine Digits",
+    pdfPage: 3,
+    customVisual: "unit2NineDigitRatios",
+    sourceDirections: "Use the digits 1 through 9 exactly once to create a one-digit ratio, a two-digit-to-one-digit ratio, and a two-digit-to-two-digit ratio that are all equivalent.",
+    responseType: "questionSet",
+    questions: [
+      { id: "nine-digits", label: "Three equivalent ratios", prompt: "Fill all six boxes. Across your entries, use every digit 1 through 9 exactly once.", fields: [{ id: "left1", label: "First ratio, left", responseType: "text", placeholder: "1 digit" }, { id: "right1", label: "First ratio, right", responseType: "text", placeholder: "1 digit" }, { id: "left2", label: "Second ratio, left", responseType: "text", placeholder: "2 digits" }, { id: "right2", label: "Second ratio, right", responseType: "text", placeholder: "1 digit" }, { id: "left3", label: "Third ratio, left", responseType: "text", placeholder: "2 digits" }, { id: "right3", label: "Third ratio, right", responseType: "text", placeholder: "2 digits" }], dynamicAnswer: "unit2NineDigitRatios", hint: "One valid structure begins with 6:3. Look for a two-digit ratio and another two-digit ratio with the same quotient while using the remaining digits once.", correctFeedback: "Correct. All three ratios are equivalent and the entries use digits 1 through 9 exactly once.", incorrectFeedback: "Check three conditions: the box lengths are 1:1, 2:1, and 2:2 digits; every digit 1–9 appears exactly once; and all three ratios have the same value." },
+    ],
+  },
+  {
+    id: "teach-u2-l16-3",
+    unitNumber: 2,
+    lessonNumber: 16,
+    section: "E",
+    idea: "Idea 5",
+    title: "Solving More Ratio Problems",
+    partLabel: "16.3",
+    activityOrder: 3,
+    activityTitle: "16.3: Salad Dressing and Moving Boxes",
+    pdfPage: 3,
+    blacklineMaster: unit2SaladBoxesBlackline,
+    customVisual: "unit2SaladBoxes",
+    sourceDirections: "Solve both source problems and organize the quantities so the reasoning can be followed. The Blackline is available as an optional information-gap version of the same problems.",
+    responseType: "questionSet",
+    questions: [
+      { id: "salad", label: "Salad dressing", prompt: "A dressing uses 4 parts oil for every 3 parts vinegar. How much oil is needed for 28 teaspoons of dressing?", responseType: "number", inputLabel: "Oil (teaspoons)", placeholder: "Type an amount", answerKey: ["16"], hint: "The dressing has 7 parts in all. Find the value of one part from 28.", correctFeedback: "Correct. Each part is 4 teaspoons, so 4 oil parts make 16 teaspoons of oil.", incorrectFeedback: "Divide the 28-teaspoon whole among 4 + 3 equal parts, then use the 4 oil parts." },
+      { id: "boxes", label: "Moving boxes", prompt: "Andre moves 4 boxes and Han moves 5 boxes every half hour. How long will they need to move 72 boxes together?", fields: [{ id: "halfHours", label: "Number of half-hours", responseType: "number", placeholder: "Count" }, { id: "hours", label: "Elapsed time (hours)", responseType: "number", placeholder: "Time" }], acceptedFieldSets: [{ halfHours: "8", hours: "4" }], hint: "Together they move 9 boxes every half hour. Find how many groups of 9 make 72.", correctFeedback: "Correct. They need 8 half-hours, which is 4 hours.", incorrectFeedback: "Combine their rates first: 4 + 5 = 9 boxes per half hour." },
+    ],
+  },
+  {
+    id: "teach-u2-l16-summary",
+    unitNumber: 2,
+    lessonNumber: 16,
+    section: "E",
+    idea: "Idea 5",
+    title: "Solving More Ratio Problems",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 16 Summary",
+    pdfPages: [4, 5],
+    pdfPage: 4,
+    customVisual: "unit2StrategySummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u2-l17-1",
+    unitNumber: 2,
+    lessonNumber: 17,
+    section: "E",
+    idea: "Idea 5",
+    title: "A Fermi Problem",
+    partLabel: "17.1",
+    activityOrder: 1,
+    activityTitle: "17.1: Fix It!",
+    pdfPage: 1,
+    customVisual: "unit2CocoaFix",
+    sourceDirections: "Andre's recipe uses 1 cup of milk and 3 tablespoons of cocoa. He used 1 cup of milk and 5 tablespoons of cocoa. Determine an adjustment that preserves the recipe's taste.",
+    responseType: "questionSet",
+    questions: [
+      { id: "cocoa-adjustment", label: "Fix the mixture", prompt: "How many additional cups of milk should Andre add to the mixture?", responseType: "number", inputLabel: "Additional milk (cups)", placeholder: "Type an amount", answerKey: ["2/3", "0.6666666667", "0.6667"], hint: "The cocoa amount was multiplied by 5/3, so the milk amount must be multiplied by the same factor.", correctFeedback: "Correct. The final milk amount should be 5/3 cups, so Andre must add 5/3 − 1 = 2/3 cup of milk.", incorrectFeedback: "Scale 1 cup of milk and 3 tablespoons of cocoa by the same factor that changes 3 tablespoons into 5." },
+      { id: "cocoa-explain", label: "Why it works", prompt: "Which explanation proves the adjusted cocoa will taste like the recipe?", responseType: "singleChoice", unlockedAfterQuestionId: "cocoa-adjustment", choices: [{ id: "same-factor", label: "The final amounts, 5/3 cups milk and 5 tablespoons cocoa, are both 5/3 times the original recipe amounts." }, { id: "same-difference", label: "Milk and cocoa increase by the same numerical amount." }, { id: "more-milk", label: "Any amount of extra milk will restore the recipe." }], answerKey: ["same-factor"], hint: "Equivalent recipes multiply both quantities by the same factor.", correctFeedback: "Correct. Multiplying both original quantities by 5/3 preserves the 1-cup-to-3-tablespoon ratio.", incorrectFeedback: "Compare the scale factor applied to each ingredient, not the amount added." },
+    ],
+  },
+  {
+    id: "teach-u2-l17-2",
+    unitNumber: 2,
+    lessonNumber: 17,
+    section: "E",
+    idea: "Idea 5",
+    title: "A Fermi Problem",
+    partLabel: "17.2",
+    activityOrder: 2,
+    activityTitle: "17.2: Who Was Fermi?",
+    pdfPage: 2,
+    customVisual: "unit2ClassFermi",
+    sourceDirections: "The app assigns the class Fermi question: About how many times does a person's heart beat in one year? Estimate a range, identify and order smaller questions, then calculate using stated assumptions.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fermi-range", label: "Initial estimate", prompt: "Before calculating, give a number that is definitely too low and a number that is definitely too high for heartbeats in one year.", fields: [{ id: "low", label: "Definitely too low", responseType: "number", placeholder: "Positive estimate" }, { id: "high", label: "Definitely too high", responseType: "number", placeholder: "Larger estimate" }], dynamicAnswer: "unit2FermiRange", hint: "The final estimate will be tens of millions. Choose a broad range that contains 39,420,000.", correctFeedback: "Range recorded. It is ordered and contains the later estimate based on 75 beats per minute.", incorrectFeedback: "Use positive numbers with the low estimate below 39,420,000 and the high estimate above it." },
+      { id: "fermi-subquestions", label: "Sub-questions", prompt: "Which smaller questions are needed to answer the class Fermi question? Select all that apply.", responseType: "multiSelect", unlockedAfterQuestionId: "fermi-range", choices: [{ id: "beats-minute", label: "About how many heartbeats occur in one minute?" }, { id: "minutes-hour", label: "How many minutes are in one hour?" }, { id: "hours-day", label: "How many hours are in one day?" }, { id: "days-year", label: "How many days are in one year?" }, { id: "shoe-size", label: "What shoe size does the person wear?" }], answerKey: ["beats-minute", "minutes-hour", "hours-day", "days-year"], hint: "Choose every quantity needed to scale from heartbeats per minute to heartbeats per year.", correctFeedback: "Correct. The calculation needs beats per minute, minutes per hour, hours per day, and days per year.", incorrectFeedback: "Trace the units from beats/minute to beats/year and exclude unrelated personal details." },
+      { id: "fermi-order", label: "Organize", prompt: "Which order correctly organizes the smaller questions?", responseType: "singleChoice", unlockedAfterQuestionId: "fermi-subquestions", choices: [{ id: "minute-hour-day-year", label: "beats/minute → beats/hour → beats/day → beats/year" }, { id: "year-day-hour-minute", label: "beats/year → beats/day → beats/hour → beats/minute" }, { id: "shoe-first", label: "shoe size → beats/minute → beats/year" }], answerKey: ["minute-hour-day-year"], hint: "Start with the given rate and scale one time unit at a time.", correctFeedback: "Correct. Scaling minute to hour to day to year keeps every conversion visible.", incorrectFeedback: "Begin with beats per minute and build toward the larger time unit." },
+      { id: "fermi-calculate", label: "Calculate", prompt: "Use 75 beats per minute, 60 minutes per hour, 24 hours per day, and 365 days per year. About how many heartbeats occur in one year?", responseType: "number", unlockedAfterQuestionId: "fermi-order", inputLabel: "Estimated heartbeats", placeholder: "Type a number", answerKey: ["39420000", "39,420,000"], hint: "Multiply 75 × 60 × 24 × 365.", correctFeedback: "Correct. Under these assumptions, 75 × 60 × 24 × 365 = 39,420,000 heartbeats in one year. It is a Fermi estimate because the heart rate changes.", incorrectFeedback: "Multiply the stated estimate and all three time-conversion factors." },
+    ],
+  },
+  {
+    id: "teach-u2-l17-3",
+    unitNumber: 2,
+    lessonNumber: 17,
+    section: "E",
+    idea: "Idea 5",
+    title: "A Fermi Problem",
+    partLabel: "17.3",
+    activityOrder: 3,
+    activityTitle: "17.3: Researching Your Own Fermi Problem",
+    pdfPages: [3, 4],
+    pdfPage: 3,
+    customVisual: "unit2OwnFermi",
+    sourceDirections: "Brainstorm at least five Fermi questions. The app reviews and approves the first complete question, then provides the four-branch source organizer for research, estimates, calculations, and a final visual display.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fermi-brainstorm", label: "Brainstorm five", prompt: "Write five different researchable Fermi questions. Each should ask for an amount, cost, or elapsed time that can be estimated.", fields: [{ id: "q1", label: "Question 1", responseType: "text", placeholder: "How much, how many, or how long...?" }, { id: "q2", label: "Question 2", responseType: "text", placeholder: "A different Fermi question" }, { id: "q3", label: "Question 3", responseType: "text", placeholder: "A different Fermi question" }, { id: "q4", label: "Question 4", responseType: "text", placeholder: "A different Fermi question" }, { id: "q5", label: "Question 5", responseType: "text", placeholder: "A different Fermi question" }], dynamicAnswer: "unit2FermiBrainstorm", hint: "Start questions with phrases such as “How much would it cost...?”, “How many...?”, or “How long would it take...?”.", correctFeedback: "The five questions are distinct and estimable. The app approves Question 1 for the organizer; you can revise the brainstorm and resubmit to choose a different first question.", incorrectFeedback: "Enter five different questions of at least 8 characters. Each must include “how” or “what” so it asks for an estimable quantity." },
+      { id: "fermi-organizer", label: "Break it down", prompt: "For the approved Fermi problem, enter four smaller sub-questions and the information or estimate you will use for each.", fields: [{ id: "s1", label: "Sub-question 1", responseType: "text", placeholder: "First needed question" }, { id: "a1", label: "Information or estimate 1", responseType: "text", placeholder: "Answer with units" }, { id: "s2", label: "Sub-question 2", responseType: "text", placeholder: "Second needed question" }, { id: "a2", label: "Information or estimate 2", responseType: "text", placeholder: "Answer with units" }, { id: "s3", label: "Sub-question 3", responseType: "text", placeholder: "Third needed question" }, { id: "a3", label: "Information or estimate 3", responseType: "text", placeholder: "Answer with units" }, { id: "s4", label: "Sub-question 4", responseType: "text", placeholder: "Fourth needed question" }, { id: "a4", label: "Information or estimate 4", responseType: "text", placeholder: "Answer with units" }], dynamicAnswer: "unit2FermiOrganizer", unlockedAfterQuestionId: "fermi-brainstorm", hint: "Each branch needs a specific sub-question and a nonempty answer, measurement, or assumption. Arrange them in a useful order.", correctFeedback: "Organizer complete. All four branches include a sub-question and the information or estimate used to answer it.", incorrectFeedback: "Complete all four branches. Use four distinct sub-questions of at least 6 characters and give a nonempty answer or estimate for each." },
+      { id: "fermi-display", label: "Visual display", prompt: "Record your estimated solution and its units for the approved Fermi problem. The organizer remains visible as the work supporting the display.", fields: [{ id: "estimate", label: "Estimated answer", responseType: "number", placeholder: "Positive estimate" }, { id: "units", label: "Units", responseType: "text", placeholder: "Example: dollars, minutes, or items" }], dynamicAnswer: "unit2FermiDisplay", unlockedAfterQuestionId: "fermi-organizer", hint: "Enter a positive numerical estimate and a clear unit. This open research result is checked for completeness, not against one predetermined number.", correctFeedback: "Visual display complete. It includes the approved Fermi problem, four supporting sub-questions with information, and a positive estimate with units. The open estimate is recorded rather than graded against one fixed answer.", incorrectFeedback: "Enter a positive numerical estimate and a unit of at least 2 characters." },
+    ],
+  },
+];
+
+const allTeachCards = [...unit1TeachCards, ...unit2TeachCards];
+const allTeachSources = [...teachMeSources, ...unit2TeachSources];
+
 function teachLessonCrop(lessonNumber) {
   const base = unit1TeachCards.find((card) => card.lessonNumber === lessonNumber && card.cropPath);
   return base?.cropPath || "lesson-01-p001-tilings.png";
@@ -9568,7 +13235,7 @@ function renderPrismBuilderWorkspace(card) {
 }
 
 function sourcePreviewUrl(item) {
-  return encodeURI(`artifacts/unit 1/${item.previewPath}`);
+  return encodeURI(`artifacts/unit ${practiceUnitNumber(item)}/${item.previewPath}`);
 }
 
 function practiceSourcePages(item) {
@@ -9612,11 +13279,11 @@ function modalSourceEntry() {
       eyebrow: "Rendered source",
       title: `Source p.${sourcePage.page}`,
       subtitle: practiceItem.source,
-      imageSrc: encodeURI(`artifacts/unit 1/${sourcePage.previewPath}`),
+      imageSrc: encodeURI(`artifacts/unit ${practiceUnitNumber(practiceItem)}/${sourcePage.previewPath}`),
       imageAlt: `Rendered source page for ${practiceItem.skill}`,
     };
   }
-  const teachPdfMatch = unit1TeachCards
+  const teachPdfMatch = allTeachCards
     .flatMap((card) => teachPdfPages(card).map((page) => ({ card, page, id: teachPdfModalId(card, page) })))
     .find((entry) => entry.id === state.sourceModalItemId);
   if (teachPdfMatch) {
@@ -9626,10 +13293,10 @@ function modalSourceEntry() {
       title: `Lesson ${card.lessonNumber}: ${card.title} · PDF p.${page}`,
       subtitle: "Rendered page from the local Student Task Statements PDF.",
       imageSrc: studentTaskPreviewUrl(card, page),
-      imageAlt: `Rendered Student Task Statement page ${page} for Grade 6 Unit 1 Lesson ${card.lessonNumber}: ${card.title}`,
+      imageAlt: `Rendered Student Task Statement page ${page} for Grade 6 Unit ${card.unitNumber} Lesson ${card.lessonNumber}: ${card.title}`,
     };
   }
-  const teachBlacklineMatch = unit1TeachCards
+  const teachBlacklineMatch = allTeachCards
     .flatMap((card) => teachBlacklineSources(card).map((source, index) => ({
       card,
       source,
@@ -9646,7 +13313,24 @@ function modalSourceEntry() {
       imageAlt: source.alt,
     };
   }
-  const teachSource = teachMeSources.find((source) => source.id === state.sourceModalItemId);
+  const teachReferenceMatch = allTeachCards
+    .flatMap((card) => teachReferenceSources(card).map((source, index) => ({
+      card,
+      source,
+      id: teachReferenceModalId(card, source, index),
+    })))
+    .find((entry) => entry.id === state.sourceModalItemId);
+  if (teachReferenceMatch) {
+    const { source } = teachReferenceMatch;
+    return {
+      eyebrow: source.typeLabel || "Reference source",
+      title: source.title,
+      subtitle: source.subtitle,
+      imageSrc: encodeURI(source.previewPath),
+      imageAlt: source.alt,
+    };
+  }
+  const teachSource = allTeachSources.find((source) => source.id === state.sourceModalItemId);
   if (!teachSource) return null;
   return {
     eyebrow: "Original Teach Me source",
@@ -9725,6 +13409,82 @@ function parseMathNumber(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+function practiceFieldSetFieldIsCorrect(field, value) {
+  const acceptedAnswers = Array.isArray(field.answerKey) ? field.answerKey : [];
+  if (!acceptedAnswers.length) return false;
+  if (["numeric", "decimal"].includes(field.inputMode)) {
+    const givenNumber = parseMathNumber(value);
+    return givenNumber !== null && acceptedAnswers.some((accepted) => {
+      const acceptedNumber = parseMathNumber(accepted);
+      return acceptedNumber !== null && Math.abs(givenNumber - acceptedNumber) < 1e-9;
+    });
+  }
+  const normalized = normalizeAnswer(value);
+  return acceptedAnswers.some((accepted) => normalized === normalizeAnswer(accepted));
+}
+
+function practiceFieldSetIsCorrect(item, answer = getPracticeValue(item)) {
+  const fields = Array.isArray(item.fields) ? item.fields : [];
+  if (item.fieldSetValidator === "equivalentRatioPairs") {
+    const pairIds = Array.isArray(item.ratioPairFieldIds) ? item.ratioPairFieldIds : [];
+    const referenceRatio = Number(item.referenceRatio);
+    const parsedPairs = pairIds.map(([firstId, secondId]) => [
+      parseMathNumber(answer[firstId]),
+      parseMathNumber(answer[secondId]),
+    ]);
+    const allEquivalent = Number.isFinite(referenceRatio)
+      && parsedPairs.length > 0
+      && parsedPairs.every(([first, second]) => {
+        return first !== null && second !== null && first > 0 && second > 0
+          && Math.abs((first / second) - referenceRatio) < 1e-9;
+      });
+    if (!allEquivalent) return false;
+    const disallowedPairs = Array.isArray(item.disallowedRatioPairs)
+      ? item.disallowedRatioPairs.map(([first, second]) => `${Number(first)}:${Number(second)}`)
+      : [];
+    if (parsedPairs.some(([first, second]) => disallowedPairs.includes(`${first}:${second}`))) return false;
+    if (!item.requireDistinctRatioPairs) return true;
+    const uniquePairs = new Set(parsedPairs.map(([first, second]) => `${first}:${second}`));
+    return uniquePairs.size === parsedPairs.length;
+  }
+  if (item.fieldSetValidator === "proportionalFields") {
+    const fieldIds = Array.isArray(item.proportionalFieldIds) ? item.proportionalFieldIds : [];
+    const referenceValues = Array.isArray(item.proportionalReferenceValues) ? item.proportionalReferenceValues.map(Number) : [];
+    if (!fieldIds.length || fieldIds.length !== referenceValues.length || referenceValues.some((value) => !Number.isFinite(value) || value <= 0)) return false;
+    const values = fieldIds.map((fieldId) => parseMathNumber(answer[fieldId]));
+    if (values.some((value) => value === null || value <= 0)) return false;
+    const scale = values[0] / referenceValues[0];
+    return Number.isFinite(scale) && scale > 0 && values.every((value, index) => Math.abs((value / referenceValues[index]) - scale) < 1e-9);
+  }
+  if (["notEquivalentRatio", "ratioComparison"].includes(item.fieldSetValidator)) {
+    const [firstId, secondId] = Array.isArray(item.ratioFieldIds) ? item.ratioFieldIds : [];
+    const first = parseMathNumber(answer[firstId]);
+    const second = parseMathNumber(answer[secondId]);
+    const referenceRatio = Number(item.referenceRatio);
+    if (first === null || second === null || first <= 0 || second <= 0 || !Number.isFinite(referenceRatio)) return false;
+    const difference = (first / second) - referenceRatio;
+    if (item.fieldSetValidator === "notEquivalentRatio") return Math.abs(difference) >= 1e-9;
+    if (item.ratioComparison === "greater") return difference > 1e-9;
+    if (item.ratioComparison === "less") return difference < -1e-9;
+    return false;
+  }
+  const acceptedSets = Array.isArray(item.fieldSetAcceptedAnswers)
+    ? item.fieldSetAcceptedAnswers
+    : [];
+  if (acceptedSets.length) {
+    return acceptedSets.some((acceptedSet) => fields.every((field) => {
+      const expected = acceptedSet[field.id];
+      if (expected === undefined) return false;
+      return practiceFieldSetFieldIsCorrect({ ...field, answerKey: [expected] }, answer[field.id]);
+    }));
+  }
+  return fields.length > 0 && fields.every((field) => practiceFieldSetFieldIsCorrect(field, answer[field.id]));
+}
+
+function practiceFieldSetMissingFields(item, answer = getPracticeValue(item)) {
+  return (item.fields || []).filter((field) => !normalizeAnswer(answer[field.id]).length);
+}
+
 function getPracticeValue(item) {
   if (item.responseType === "annotationAttempt") {
     return getPracticeSourceAnnotation(item).marks;
@@ -9757,7 +13517,7 @@ function getPracticeValue(item) {
   if (item.responseType === "rectangleTiling") {
     return getPracticeRectangleTilingWorkspace(item);
   }
-  if (["matching", "groupedChoice", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item.responseType)) {
+  if (["matching", "groupedChoice", "fieldSet", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item.responseType)) {
     return state.practiceResponses[item.id] || {};
   }
   return state.practiceResponses[item.id] || "";
@@ -9824,6 +13584,9 @@ function isPracticePrimaryCorrect(item) {
   }
   if (item.responseType === "validatedText") {
     return practicePrimaryTextValidatorResult(item, answer);
+  }
+  if (item.responseType === "fieldSet") {
+    return practiceFieldSetIsCorrect(item, answer);
   }
   if (item.responseType === "cubeNetExpressions") {
     const cells = getPracticeCubeNetCells(item.id);
@@ -10201,6 +13964,14 @@ function practiceIncorrectFeedback(item) {
     return item.annotationRequiredFeedback
       || `Complete the required source drawing marks. ${annotationResult.matched} of ${annotationResult.required} are in the expected locations.`;
   }
+  if (item.responseType === "fieldSet") {
+    const missingFields = practiceFieldSetMissingFields(item);
+    if (missingFields.length) {
+      return item.missingFeedback
+        || `Complete ${missingFields.map((field) => field.label).join(" and ")} before submitting again.`;
+    }
+    return item.incorrectFeedback || "Recheck each field and keep the quantities in the requested order.";
+  }
   if (item.responseType === "quadrilateralAreaSet") {
     const workspace = getPracticeQuadrilateralWorkspace(item);
     const unfinished = workspace.drawings.findIndex((drawing, index) => (
@@ -10292,7 +14063,12 @@ function isPracticeSubmitted(item) {
   return Boolean(state.practiceSubmitted[item.id]);
 }
 
+function hasPracticeSample(item) {
+  return typeof item.sampleAnswer === "string" && item.sampleAnswer.trim().length > 0;
+}
+
 function canShowPracticeSample(item) {
+  if (!hasPracticeSample(item)) return false;
   const submitted = isPracticeSubmitted(item);
   if (item.responseType === "open") return submitted;
   return submitted && isPracticeCorrect(item);
@@ -10305,28 +14081,50 @@ function canOpenPracticeSource(item) {
   return submitted && isPracticeCorrect(item);
 }
 
-function practiceSections() {
+function practiceSections(unitNumber = state.activeUnit) {
   const map = new Map();
-  for (const item of practiceBank) {
+  for (const item of practiceBankForUnit(unitNumber)) {
     if (!map.has(item.section)) map.set(item.section, item.sectionName);
   }
   return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
-function filteredPracticeItems() {
-  if (state.practiceFilter === "all") return practiceBank;
-  return practiceBank.filter((item) => item.section === state.practiceFilter);
+function filteredPracticeItems(unitNumber = state.activeUnit) {
+  const unitBank = practiceBankForUnit(unitNumber);
+  const filter = practiceFilterForUnit(unitNumber);
+  if (filter === "all") return unitBank;
+  return unitBank.filter((item) => item.section === filter);
 }
 
-function renderPracticeFilters() {
-  const container = document.getElementById("practiceFilter");
+function practiceDomIds(unitNumber) {
+  return Number(unitNumber) === 1
+    ? {
+      filter: "practiceFilter",
+      list: "practiceList",
+      answered: "practiceAnsweredCount",
+      correct: "practiceCorrectCount",
+      total: "practiceTotalCount",
+    }
+    : {
+      filter: `unit${unitNumber}PracticeFilter`,
+      list: `unit${unitNumber}PracticeList`,
+      answered: `unit${unitNumber}PracticeAnsweredCount`,
+      correct: `unit${unitNumber}PracticeCorrectCount`,
+      total: `unit${unitNumber}PracticeTotalCount`,
+    };
+}
+
+function renderPracticeFilters(unitNumber = state.activeUnit) {
+  const unitBank = practiceBankForUnit(unitNumber);
+  const activeFilter = practiceFilterForUnit(unitNumber);
+  const container = document.getElementById(practiceDomIds(unitNumber).filter);
   if (!container) return;
-  const filters = [["all", `All (${practiceBank.length})`], ...practiceSections().map(([key, name]) => [
+  const filters = [["all", `All (${unitBank.length})`], ...practiceSections(unitNumber).map(([key, name]) => [
     key,
-    `${key}: ${name} (${practiceBank.filter((item) => item.section === key).length})`,
+    `${key}: ${name} (${unitBank.filter((item) => item.section === key).length})`,
   ])];
   container.innerHTML = filters.map(([key, label]) => `
-    <button class="filter-chip ${state.practiceFilter === key ? "is-active" : ""}" type="button" data-practice-filter="${key}" aria-pressed="${state.practiceFilter === key}">
+    <button class="filter-chip ${activeFilter === key ? "is-active" : ""}" type="button" data-practice-filter="${key}" data-practice-filter-unit="${unitNumber}" aria-pressed="${activeFilter === key}">
       ${escapeHtml(label)}
     </button>
   `).join("");
@@ -13185,8 +16983,196 @@ function renderPracticeNetEdgeLabeling(item) {
   `;
 }
 
+function practiceWorkspaceFieldValue(item, fieldId) {
+  return String((state.practiceResponses[item.id] || {})[fieldId] ?? "");
+}
+
+function renderPracticeRatioDiagram(item) {
+  const data = item.visualModelData || {};
+  const rows = Array.isArray(data.rows) ? data.rows : [];
+  return `
+    <section class="practice-ratio-diagram" aria-label="${escapeHtml(data.ariaLabel || data.title || "Ratio diagram workspace")}">
+      <div class="practice-ratio-diagram-heading">
+        <div>
+          <h4>${escapeHtml(data.title || "Build the source ratio diagram")}</h4>
+          ${data.instructions ? `<p>${escapeHtml(data.instructions)}</p>` : ""}
+        </div>
+        ${data.batchLabel ? `<span class="practice-ratio-batch-label">${escapeHtml(data.batchLabel)}</span>` : ""}
+      </div>
+      <div class="practice-ratio-diagram-rows">
+        ${rows.map((row) => {
+          const storedValue = row.fieldId ? parseMathNumber(practiceWorkspaceFieldValue(item, row.fieldId)) : null;
+          const count = Math.max(0, Math.min(Number(row.maximum) || 40, Number.isFinite(storedValue) ? Math.round(storedValue) : Number(row.value) || 0));
+          const editable = Boolean(row.fieldId);
+          const batchSize = Number(row.batchSize) || 0;
+          return `
+            <div class="practice-ratio-diagram-row is-${escapeHtml(row.tone || "blue")}">
+              <div class="practice-ratio-row-label">
+                <strong>${escapeHtml(row.label)}</strong>
+                ${row.unit ? `<span>${escapeHtml(row.unit)}</span>` : ""}
+              </div>
+              ${editable ? `
+                <div class="practice-ratio-stepper" role="group" aria-label="Set ${escapeHtml(row.label)} count">
+                  <button type="button" data-practice-ratio-step="${item.id}" data-field-id="${escapeHtml(row.fieldId)}" data-delta="-1" aria-label="Remove one ${escapeHtml(row.label)}" ${count <= (Number(row.minimum) || 0) ? "disabled" : ""}>−</button>
+                  <span aria-live="polite">${count}</span>
+                  <button type="button" data-practice-ratio-step="${item.id}" data-field-id="${escapeHtml(row.fieldId)}" data-delta="1" aria-label="Add one ${escapeHtml(row.label)}" ${count >= (Number(row.maximum) || 40) ? "disabled" : ""}>+</button>
+                </div>
+              ` : `<span class="practice-ratio-given-count">${count}</span>`}
+              <div class="practice-ratio-units" aria-label="${count} ${escapeHtml(row.label)}">
+                ${Array.from({ length: count }, (_, index) => `<span class="practice-ratio-unit${batchSize && index > 0 && index % batchSize === 0 ? " starts-batch" : ""}" aria-hidden="true"></span>`).join("")}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderPracticeRatioTable(item) {
+  const data = item.visualModelData || {};
+  const columns = (Array.isArray(data.columns) ? data.columns : []).map((column) => {
+    return typeof column === "string" ? { label: column } : column;
+  });
+  const rows = (Array.isArray(data.rows) ? data.rows : []).map((row) => {
+    return Array.isArray(row) ? { cells: row } : row;
+  });
+  return `
+    <section class="practice-ratio-table-workspace" aria-label="${escapeHtml(data.ariaLabel || data.title || "Ratio table workspace")}">
+      <div class="practice-ratio-table-heading">
+        <h4>${escapeHtml(data.title || "Complete the ratio table")}</h4>
+        ${data.instructions ? `<p>${escapeHtml(data.instructions)}</p>` : ""}
+      </div>
+      <div class="practice-ratio-table-scroll">
+        <table class="practice-ratio-table">
+          <thead>
+            <tr>${columns.map((column) => `<th scope="col">${escapeHtml(column.label || "")}${column.unit ? `<span>${escapeHtml(column.unit)}</span>` : ""}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${rows.map((row, rowIndex) => `
+              <tr>
+                ${(Array.isArray(row.cells) ? row.cells : []).map((cell, columnIndex) => {
+                  if (cell.fieldId) {
+                    return `
+                      <td>
+                        <label>
+                          <span class="sr-only">${escapeHtml(cell.inputLabel || `${columns[columnIndex]?.label || "Value"}, row ${rowIndex + 1}`)}</span>
+                          <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="${escapeHtml(cell.fieldId)}" value="${escapeHtml(practiceWorkspaceFieldValue(item, cell.fieldId))}" placeholder="?">
+                        </label>
+                      </td>
+                    `;
+                  }
+                  return `<td class="is-given">${escapeHtml(cell.label ?? cell.value ?? "")}</td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      ${data.note ? `<p class="practice-ratio-table-note">${escapeHtml(data.note)}</p>` : ""}
+    </section>
+  `;
+}
+
+function renderPracticeNumberLine(item) {
+  const data = item.visualModelData || {};
+  const lines = Array.isArray(data.lines) ? data.lines : [];
+  const selectMode = data.mode === "select";
+  return `
+    <section class="practice-number-line-workspace" aria-label="${escapeHtml(data.ariaLabel || data.title || "Number line workspace")}">
+      <div class="practice-number-line-heading">
+        <h4>${escapeHtml(data.title || "Complete the number line")}</h4>
+        ${data.instructions ? `<p>${escapeHtml(data.instructions)}</p>` : ""}
+      </div>
+      <div class="practice-number-line-list">
+        ${lines.map((line) => {
+          const ticks = Array.isArray(line.ticks) ? line.ticks : [];
+          const selectedValue = line.fieldId ? practiceWorkspaceFieldValue(item, line.fieldId) : "";
+          return `
+            <div class="practice-number-line-row" style="--practice-tick-count: ${Math.max(ticks.length, 1)};">
+              <span class="practice-number-line-label">${escapeHtml(line.label || "")}</span>
+              <div class="practice-number-line-track" role="${selectMode ? "group" : "presentation"}" ${selectMode ? `aria-label="Choose ${escapeHtml(line.label || "a value")}"` : ""}>
+                ${ticks.map((tick, index) => {
+                  const value = String(tick.value ?? "");
+                  const selected = selectMode && selectedValue === value;
+                  const label = tick.label ?? value;
+                  return `
+                    <div class="practice-number-line-tick" style="--practice-tick-index: ${index};">
+                      <span class="practice-number-line-mark" aria-hidden="true"></span>
+                      ${selectMode ? `
+                        <button class="practice-number-line-choice ${selected ? "is-selected" : ""}" type="button" data-practice-number-line-choice="${item.id}" data-field-id="${escapeHtml(line.fieldId)}" data-value="${escapeHtml(value)}" aria-pressed="${selected}">${escapeHtml(label)}</button>
+                      ` : tick.fieldId ? `
+                        <label class="practice-number-line-input">
+                          <span class="sr-only">${escapeHtml(tick.inputLabel || tick.fieldId)}</span>
+                          <input type="text" inputmode="decimal" data-practice-input="${item.id}" data-practice-field="${escapeHtml(tick.fieldId)}" value="${escapeHtml(practiceWorkspaceFieldValue(item, tick.fieldId))}" placeholder="?">
+                        </label>
+                      ` : `<span class="practice-number-line-value">${escapeHtml(label)}</span>`}
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+      ${data.note ? `<p class="practice-number-line-note">${escapeHtml(data.note)}</p>` : ""}
+    </section>
+  `;
+}
+
+function renderPracticeGridPolygon(item) {
+  const data = item.visualModelData || {};
+  const columns = Math.max(1, Number(data.columns) || 10);
+  const rows = Math.max(1, Number(data.rows) || 10);
+  const cell = 34;
+  const pad = 20;
+  const width = columns * cell + pad * 2;
+  const height = rows * cell + pad * 2;
+  const points = (data.points || [])
+    .map(([column, row]) => `${pad + Number(column) * cell},${pad + Number(row) * cell}`)
+    .join(" ");
+  const verticalLines = Array.from({ length: columns + 1 }, (_, index) => {
+    const x = pad + index * cell;
+    return `<line x1="${x}" y1="${pad}" x2="${x}" y2="${height - pad}"></line>`;
+  }).join("");
+  const horizontalLines = Array.from({ length: rows + 1 }, (_, index) => {
+    const y = pad + index * cell;
+    return `<line x1="${pad}" y1="${y}" x2="${width - pad}" y2="${y}"></line>`;
+  }).join("");
+  return `
+    <section class="practice-grid-polygon-workspace" aria-label="${escapeHtml(data.ariaLabel || data.title || "Polygon on a square grid")}">
+      ${data.title ? `<h4>${escapeHtml(data.title)}</h4>` : ""}
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(data.alt || "Source-equivalent polygon aligned to a square grid")}">
+        <g class="practice-grid-polygon-grid" aria-hidden="true">${verticalLines}${horizontalLines}</g>
+        <polygon class="practice-grid-polygon-shape" points="${points}"></polygon>
+      </svg>
+      ${data.note ? `<p>${escapeHtml(data.note)}</p>` : ""}
+    </section>
+  `;
+}
+
 function practiceVisual(item) {
   const data = item.visualModelData || {};
+  if (data.type === "ratioDiagram") return renderPracticeRatioDiagram(item);
+  if (data.type === "ratioTable") return renderPracticeRatioTable(item);
+  if (data.type === "numberLine") return renderPracticeNumberLine(item);
+  if (data.type === "gridPolygon") return renderPracticeGridPolygon(item);
+  if (data.type === "quantitySet") {
+    const quantities = Array.isArray(data.quantities) ? data.quantities : [];
+    return `
+      <section class="practice-quantity-set" aria-label="${escapeHtml(data.title || "Given quantities")}">
+        <h4>${escapeHtml(data.title || "Given quantities")}</h4>
+        <div class="practice-quantity-list">
+          ${quantities.map((quantity) => `
+            <article class="practice-quantity-item is-${escapeHtml(quantity.tone || "blue")}">
+              <strong>${escapeHtml(quantity.value)}</strong>
+              <span>${escapeHtml(quantity.label)}</span>
+            </article>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  }
   if (data.type === "netEdgeLabeling") return renderPracticeNetEdgeLabeling(item);
   if (data.type === "parallelogramRearrange") return renderPracticeParallelogramRearrange(item);
   if (data.type === "annotatableSourceVisual" && data.postAttemptModel === "parallelogramRearrange") {
@@ -13819,6 +17805,51 @@ function practiceVisual(item) {
   return svg('<text x="210" y="140" text-anchor="middle" class="measure-label">Use the source modal.</text>');
 }
 
+function renderPracticeFieldSet(item) {
+  const values = getPracticeValue(item);
+  const fields = Array.isArray(item.fields) ? item.fields : [];
+  const fieldsById = new Map(fields.map((field) => [field.id, field]));
+  const configuredGroups = Array.isArray(item.fieldSetGroups) && item.fieldSetGroups.length
+    ? item.fieldSetGroups
+    : [{
+      label: item.fieldSetLabel || "Complete every field",
+      fieldIds: fields.map((field) => field.id),
+      joiner: item.fieldSetJoiner,
+    }];
+  const groups = configuredGroups.map((group) => ({
+    ...group,
+    fields: (group.fieldIds || []).map((fieldId) => fieldsById.get(fieldId)).filter(Boolean),
+  })).filter((group) => group.fields.length);
+  return `
+    <fieldset class="practice-field-set">
+      <legend>${escapeHtml(item.fieldSetLegend || "Complete all requested quantities")}</legend>
+      ${groups.map((group) => `
+        <section class="practice-field-set-group">
+          ${group.label ? `<h4>${escapeHtml(group.label)}</h4>` : ""}
+          <div class="practice-field-set-row" style="--practice-field-count: ${group.fields.length};">
+            ${group.fields.map((field, fieldIndex) => `
+              <label class="practice-field-set-field">
+                ${escapeHtml(field.label)}
+                <input
+                  type="text"
+                  ${["numeric", "decimal"].includes(field.inputMode) ? 'inputmode="decimal"' : ""}
+                  data-practice-input="${item.id}"
+                  data-practice-field="${escapeHtml(field.id)}"
+                  value="${escapeHtml(values[field.id] || "")}"
+                  placeholder="Type a value"
+                >
+              </label>
+              ${fieldIndex < group.fields.length - 1 && group.joiner
+                ? `<span class="practice-field-set-joiner" aria-hidden="true">${escapeHtml(group.joiner)}</span>`
+                : ""}
+            `).join("")}
+          </div>
+        </section>
+      `).join("")}
+    </fieldset>
+  `;
+}
+
 function renderAnswerControl(item) {
   const reasoning = item.reasoningPrompt && item.responseType !== "open"
     ? `
@@ -13871,6 +17902,21 @@ function renderAnswerControl(item) {
       </label>
       ${reasoning}
     `;
+  }
+  if (item.responseType === "fieldSet") {
+    if (item.fieldSetDisplay === "workspaceOnly") {
+      const missing = practiceFieldSetMissingFields(item);
+      return `
+        <section class="practice-workspace-response-summary" aria-label="Workspace response progress">
+          <h4>${escapeHtml(item.fieldSetLegend || "Complete the workspace")}</h4>
+          <p>${missing.length
+            ? `${missing.length} ${missing.length === 1 ? "entry remains" : "entries remain"}. Use the controls in the visual workspace.`
+            : "Every requested workspace entry is complete. Submit when you are ready for feedback."}</p>
+        </section>
+        ${reasoning}
+      `;
+    }
+    return `${renderPracticeFieldSet(item)}${reasoning}`;
   }
   if (item.responseType === "shortAnswer") {
     return `
@@ -14177,11 +18223,13 @@ function pagePad(pageNumber) {
 }
 
 function studentTaskPreviewUrl(lesson, pageNumber) {
-  return encodeURI(`artifacts/unit 1/_rendered-previews/Student Task Statements/Grade6-1-${lesson.lessonNumber}-Lesson-student-task-statements/page-${pagePad(pageNumber)}.png`);
+  const unitNumber = Number(lesson.unitNumber) || 1;
+  return encodeURI(`artifacts/unit ${unitNumber}/_rendered-previews/Student Task Statements/Grade6-${unitNumber}-${lesson.lessonNumber}-Lesson-student-task-statements/page-${pagePad(pageNumber)}.png`);
 }
 
 function teachCropUrl(card) {
-  return encodeURI(`artifacts/unit 1/_teachme-crops/${card.cropPath}`);
+  const unitNumber = Number(card.unitNumber) || 1;
+  return encodeURI(`artifacts/unit ${unitNumber}/_teachme-crops/${card.cropPath}`);
 }
 
 function teachPdfPages(card) {
@@ -14189,7 +18237,8 @@ function teachPdfPages(card) {
 }
 
 function teachPdfModalId(card, pageNumber = card.pdfPage) {
-  return `teach-pdf-l${card.lessonNumber}-p${pageNumber}-${card.id}`;
+  const unitPrefix = Number(card.unitNumber) === 1 ? "" : `u${card.unitNumber}-`;
+  return `teach-pdf-${unitPrefix}l${card.lessonNumber}-p${pageNumber}-${card.id}`;
 }
 
 function teachBlacklineSources(card) {
@@ -14204,12 +18253,20 @@ function teachBlacklineModalId(card, source = teachBlacklineSources(card)[0], in
   return `teach-blackline-${card.id}-${safeAddress}-${index}-p${source?.page || 1}`;
 }
 
-function teachCardById(cardId) {
-  return unit1TeachCards.find((card) => card.id === cardId);
+function teachReferenceSources(card) {
+  return Array.isArray(card.referenceSources) ? card.referenceSources : [];
 }
 
-function teachLessonGroups() {
-  return unit1TeachCards.reduce((groups, card) => {
+function teachReferenceModalId(card, source, index = 0) {
+  return `teach-reference-${card.id}-${index}`;
+}
+
+function teachCardById(cardId) {
+  return allTeachCards.find((card) => card.id === cardId);
+}
+
+function teachLessonGroups(unitNumber = state.activeUnit) {
+  return allTeachCards.filter((card) => card.unitNumber === Number(unitNumber)).reduce((groups, card) => {
     const group = groups.find((entry) => entry.lessonNumber === card.lessonNumber);
     if (group) {
       group.cards.push(card);
@@ -14260,13 +18317,13 @@ function routeLessonStateKey(unitNumber, lessonNumber) {
 }
 
 function teachCardsForLesson(unitNumber, lessonNumber) {
-  if (Number(unitNumber) !== 1) return [];
-  return unit1TeachCards.filter((card) => card.lessonNumber === Number(lessonNumber));
+  return allTeachCards.filter((card) => (
+    card.unitNumber === Number(unitNumber) && card.lessonNumber === Number(lessonNumber)
+  ));
 }
 
 function practiceItemsForLesson(unitNumber, lessonNumber) {
-  if (Number(unitNumber) !== 1) return [];
-  return practiceBank
+  return practiceBankForUnit(unitNumber)
     .filter((item) => item.lesson === Number(lessonNumber))
     .sort((first, second) => (Number(first.practicePartOrder) || 0) - (Number(second.practicePartOrder) || 0));
 }
@@ -14340,7 +18397,7 @@ function applyAppRouteState(route, { scroll = true } = {}) {
     state.mode = normalized.mode;
     setActiveLessonForUnit(normalized.unit, normalized.lesson);
     rememberRoutePart(normalized);
-    if (state.mode === "practice") ensurePracticeLessonIsRendered(normalized.lesson);
+    if (state.mode === "practice") ensurePracticeLessonIsRendered(normalized.lesson, normalized.unit);
   }
   renderView();
   if (scroll && normalized.view !== "vocabulary") scrollToActiveLesson();
@@ -14358,9 +18415,11 @@ function navigateToAppRoute(route, { replace = false, scroll = true } = {}) {
 }
 
 function activatePracticePartFromInteraction(item) {
-  if (!item || state.view !== "unit1" || state.mode !== "practice") return;
+  const unitNumber = practiceUnitNumber(item);
+  const unitConfig = appUnitRoutes[unitNumber];
+  if (!item || !unitConfig || state.view !== unitConfig.view || state.mode !== "practice") return;
   const route = normalizeNavigationRoute({
-    unit: 1,
+    unit: unitNumber,
     lesson: item.lesson,
     mode: "practice",
     part: practiceRoutePartId(item),
@@ -14397,49 +18456,100 @@ function unitNumberForView(view) {
   return appUnitRoutes[unitNumber] ? unitNumber : null;
 }
 
-function teachLessonDomId(lessonNumber) {
-  return `lesson-${lessonPad(lessonNumber)}`;
+function teachLessonDomId(unitNumber, lessonNumber) {
+  return Number(unitNumber) === 1
+    ? `lesson-${lessonPad(lessonNumber)}`
+    : `unit-${unitNumber}-lesson-${lessonPad(lessonNumber)}`;
 }
 
 function teachCardDomId(card) {
-  return teachLessonDomId(card.lessonNumber);
+  return teachLessonDomId(card.unitNumber, card.lessonNumber);
 }
 
-function activeTeachCardForGroup(group) {
-  const activePartId = state.teachActiveParts[routeLessonStateKey(1, group.lessonNumber)];
+function activeTeachCardForGroup(group, unitNumber = state.activeUnit) {
+  const activePartId = state.teachActiveParts[routeLessonStateKey(unitNumber, group.lessonNumber)];
   return group.cards.find((card) => card.id === activePartId) || group.cards[0];
 }
 
 function renderTeachLessonNav() {
-  const nav = document.getElementById("teachLessonNav");
-  if (!nav) return;
-  const unitIsSelected = state.view === "unit1" && state.activeUnit === 1;
-  nav.hidden = !unitIsSelected;
-  document.getElementById("unit1NavButton")?.setAttribute("aria-expanded", String(unitIsSelected));
+  Object.entries(appUnitRoutes).forEach(([unitKey, unitConfig]) => {
+    const unitNumber = Number(unitKey);
+    const nav = document.getElementById(unitConfig.navId);
+    if (!nav) return;
+    const unitIsSelected = state.view === unitConfig.view && state.activeUnit === unitNumber;
+    nav.hidden = !unitIsSelected;
+    document.getElementById(unitConfig.navButtonId)?.setAttribute("aria-expanded", String(unitIsSelected));
 
-  const links = teachLessonGroups().map((group) => {
-    const card = group.cards[0];
-    const link = document.createElement("a");
-    const isActive = group.lessonNumber === activeLessonForUnit(1);
-    link.href = appRouteHash(normalizeNavigationRoute({ unit: 1, lesson: group.lessonNumber, mode: state.mode }));
-    link.dataset.teachLessonLink = String(group.lessonNumber);
-    link.textContent = `Lesson ${group.lessonNumber}`;
-    link.setAttribute("aria-label", `Lesson ${group.lessonNumber}: ${card.title}`);
-    link.title = `Lesson ${group.lessonNumber}: ${card.title}`;
-    link.classList.toggle("is-active", isActive);
-    if (isActive) link.setAttribute("aria-current", "page");
-    return link;
+    const builtGroups = new Map(teachLessonGroups(unitNumber).map((group) => [group.lessonNumber, group]));
+    const availableLessons = state.mode === "practice"
+      ? unitConfig.builtPracticeLessons
+      : unitConfig.builtTeachLessons;
+    const links = Array.from({ length: unitConfig.lessonCount }, (_, index) => index + 1).map((lessonNumber) => {
+      const group = builtGroups.get(lessonNumber);
+      if (!group || !availableLessons.includes(lessonNumber)) {
+        const placeholder = document.createElement("span");
+        placeholder.className = "unit-lesson-placeholder";
+        placeholder.textContent = `Lesson ${lessonNumber}`;
+        const unavailableLabel = state.mode === "practice" ? "Practice coming later" : "Coming later";
+        placeholder.setAttribute("aria-label", `Lesson ${lessonNumber}, ${unavailableLabel.toLowerCase()}`);
+        placeholder.title = `Lesson ${lessonNumber}: ${unavailableLabel}`;
+        return placeholder;
+      }
+      const card = group.cards[0];
+      const link = document.createElement("a");
+      const isActive = lessonNumber === activeLessonForUnit(unitNumber);
+      link.href = appRouteHash(normalizeNavigationRoute({ unit: unitNumber, lesson: lessonNumber, mode: state.mode }));
+      link.dataset.teachLessonLink = String(lessonNumber);
+      link.dataset.teachLessonUnit = String(unitNumber);
+      link.textContent = `Lesson ${lessonNumber}`;
+      link.setAttribute("aria-label", `Lesson ${lessonNumber}: ${card.title}`);
+      link.title = `Lesson ${lessonNumber}: ${card.title}`;
+      link.classList.toggle("is-active", isActive);
+      if (isActive) link.setAttribute("aria-current", "page");
+      return link;
+    });
+    nav.replaceChildren(...links);
   });
-  nav.replaceChildren(...links);
 }
 
-function scrollToTeachLesson(lessonNumber) {
-  const target = document.getElementById(teachLessonDomId(lessonNumber));
-  const deck = document.getElementById("teachLessonDeck");
+function ensureScrollPositionCapacity(desiredScrollTop, deck) {
+  const scrollingElement = document.scrollingElement || document.documentElement;
+  const maximumScrollTop = Math.max(0, scrollingElement.scrollHeight - window.innerHeight);
+  const deficit = desiredScrollTop - maximumScrollTop;
+  if (deficit <= 0.5) return;
+
+  const currentPadding = Number.parseFloat(window.getComputedStyle(deck).paddingBottom) || 0;
+  deck.style.paddingBottom = `${Math.ceil(currentPadding + deficit + 1)}px`;
+}
+
+function ensureLessonScrollCapacity(target, deck) {
+  const scrollMarginTop = Number.parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
+  const targetTop = target.getBoundingClientRect().top + window.scrollY;
+  ensureScrollPositionCapacity(Math.max(0, targetTop - scrollMarginTop), deck);
+}
+
+function restoreTeachLessonViewportPosition(lessonNumber, unitNumber, viewportTop) {
+  if (!Number.isFinite(viewportTop)) return;
+  const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
+  const target = document.getElementById(teachLessonDomId(unitNumber, lessonNumber));
+  const deck = document.getElementById(unitConfig.deckId);
+  if (!target || !deck) return;
+
+  const targetTop = target.getBoundingClientRect().top + window.scrollY;
+  const desiredScrollTop = Math.max(0, targetTop - viewportTop);
+  ensureScrollPositionCapacity(desiredScrollTop, deck);
+  window.scrollTo({ top: desiredScrollTop, behavior: "auto" });
+}
+
+function scrollToTeachLesson(lessonNumber, unitNumber = state.activeUnit) {
+  const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
+  const target = document.getElementById(teachLessonDomId(unitNumber, lessonNumber));
+  const deck = document.getElementById(unitConfig.deckId);
   if (!target || !deck) return;
 
   const scrollIfCurrent = () => {
-    if (state.view !== "unit1" || state.activeUnit !== 1 || state.mode !== "teach" || activeLessonForUnit(1) !== lessonNumber) return;
+    if (state.view !== unitConfig.view || state.activeUnit !== unitNumber || state.mode !== "teach" || activeLessonForUnit(unitNumber) !== lessonNumber) return;
+    ensureLessonScrollCapacity(target, deck);
     target.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start",
@@ -14459,15 +18569,16 @@ function scrollToTeachLesson(lessonNumber) {
   });
 }
 
-function scrollToPracticeLesson(lessonNumber) {
-  const activeItem = activePracticeItemForLesson(1, lessonNumber);
+function scrollToPracticeLesson(lessonNumber, unitNumber = state.activeUnit) {
+  const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
+  const activeItem = activePracticeItemForLesson(unitNumber, lessonNumber);
   const target = activeItem
     ? document.querySelector(`[data-practice-card="${activeItem.id}"]`)
     : document.querySelector(`[data-practice-lesson="${lessonNumber}"]`);
   if (!target) return;
 
   window.requestAnimationFrame(() => {
-    if (state.view !== "unit1" || state.activeUnit !== 1 || state.mode !== "practice" || activeLessonForUnit(1) !== lessonNumber) return;
+    if (state.view !== unitConfig.view || state.activeUnit !== unitNumber || state.mode !== "practice" || activeLessonForUnit(unitNumber) !== lessonNumber) return;
     target.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start",
@@ -14475,10 +18586,10 @@ function scrollToPracticeLesson(lessonNumber) {
   });
 }
 
-function ensurePracticeLessonIsRendered(lessonNumber) {
-  if (!practiceBank.some((item) => item.lesson === lessonNumber)) return false;
-  if (!filteredPracticeItems().some((item) => item.lesson === lessonNumber)) {
-    state.practiceFilter = "all";
+function ensurePracticeLessonIsRendered(lessonNumber, unitNumber = state.activeUnit) {
+  if (!practiceBankForUnit(unitNumber).some((item) => item.lesson === lessonNumber)) return false;
+  if (!filteredPracticeItems(unitNumber).some((item) => item.lesson === lessonNumber)) {
+    state.practiceFilters[unitNumber] = "all";
   }
   return true;
 }
@@ -14486,9 +18597,9 @@ function ensurePracticeLessonIsRendered(lessonNumber) {
 function scrollToActiveLesson() {
   const lessonNumber = activeLessonForUnit(state.activeUnit);
   if (state.mode === "practice") {
-    scrollToPracticeLesson(lessonNumber);
+    scrollToPracticeLesson(lessonNumber, state.activeUnit);
   } else {
-    scrollToTeachLesson(lessonNumber);
+    scrollToTeachLesson(lessonNumber, state.activeUnit);
   }
 }
 
@@ -14846,12 +18957,2507 @@ function renderLessonSummary(card) {
   `;
 }
 
-function renderTeachLessonGroup(group) {
-  const card = activeTeachCardForGroup(group);
+function unit2ArtifactUrl(relativePath) {
+  return encodeURI(`artifacts/unit 2/${relativePath}`);
+}
+
+function renderUnit2SourceClip({ path, viewBox, label, className = "" }) {
+  return `
+    <figure class="teach-visual-frame unit2-source-clip ${className}">
+      <svg viewBox="${viewBox}" role="img" aria-label="${escapeHtml(label)}">
+        <image href="${unit2ArtifactUrl(path)}" x="0" y="0" width="852" height="1092"></image>
+      </svg>
+    </figure>
+  `;
+}
+
+function renderUnit2FigureSortVisual(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-1-Lesson-student-task-statements/page-001.png",
+    viewBox: "220 270 430 332",
+    label: card.visualAlt,
+    className: "unit2-figure-sort-visual",
+  });
+}
+
+function renderUnit2TeacherCollectionVisual(card) {
+  return `
+    ${renderUnit2SourceClip({
+      path: "_rendered-previews/Teacher Presentation Materials/Grade6-2-1-Lesson-teacher-presentation-materials/page-002.png",
+      viewBox: "103 162 622 269",
+      label: card.visualAlt,
+      className: "unit2-teacher-collection-visual",
+    })}
+    <div class="unit2-category-key" aria-label="Dominant-color categories">
+      <span><i class="is-purple"></i>Purple</span>
+      <span><i class="is-orange"></i>Orange</span>
+      <span><i class="is-multicolored"></i>Multicolored</span>
+    </div>
+  `;
+}
+
+const unit2StudentCollectionTokens = [
+  { id: "circle-1", shape: "circle" },
+  { id: "square-1", shape: "square" },
+  { id: "triangle-1", shape: "triangle" },
+  { id: "circle-2", shape: "circle" },
+  { id: "square-2", shape: "square" },
+  { id: "circle-3", shape: "circle" },
+  { id: "triangle-2", shape: "triangle" },
+  { id: "square-3", shape: "square" },
+  { id: "circle-4", shape: "circle" },
+  { id: "triangle-3", shape: "triangle" },
+  { id: "square-4", shape: "square" },
+  { id: "circle-5", shape: "circle" },
+];
+
+function unit2SortedCollectionIds(card) {
+  const permitted = new Set(unit2StudentCollectionTokens.map((token) => token.id));
+  return String(getTeachCustomResponse(card).unit2SortedTokens || "")
+    .split("|")
+    .filter((id) => permitted.has(id));
+}
+
+function unit2StudentCollectionIsSorted(card) {
+  return unit2SortedCollectionIds(card).length === unit2StudentCollectionTokens.length;
+}
+
+function unit2ShapeIcon(shape, extraClass = "") {
+  return `<span class="unit2-shape-icon is-${shape} ${extraClass}" aria-hidden="true"></span>`;
+}
+
+function renderUnit2StudentCollectionVisual(card) {
+  const sortedIds = new Set(unit2SortedCollectionIds(card));
+  const unsorted = unit2StudentCollectionTokens.filter((token) => !sortedIds.has(token.id));
+  const rows = ["circle", "square", "triangle"];
+  return `
+    <section class="unit2-student-collection" aria-label="Sortable app-provided shape collection">
+      <div class="unit2-collection-tray">
+        <div>
+          <h3>Collection tray</h3>
+          <p>Select an object to place it in its matching row.</p>
+        </div>
+        <div class="unit2-token-grid" aria-label="Unsorted objects">
+          ${unsorted.length ? unsorted.map((token) => `
+            <button
+              class="unit2-token-button"
+              type="button"
+              data-unit2-collection-token="${card.id}"
+              data-token-id="${token.id}"
+              aria-label="Sort ${token.shape}"
+            >${unit2ShapeIcon(token.shape)}</button>
+          `).join("") : `<p class="unit2-empty-tray">Every object is sorted.</p>`}
+        </div>
+      </div>
+      <div class="unit2-sorted-display" aria-label="Grouped visual display">
+        <h3>Grouped visual display</h3>
+        ${rows.map((shape) => {
+          const tokens = unit2StudentCollectionTokens.filter((token) => token.shape === shape && sortedIds.has(token.id));
+          return `
+            <div class="unit2-shape-row">
+              <strong>${shape[0].toUpperCase()}${shape.slice(1)}s</strong>
+              <div>
+                ${tokens.map((token) => `
+                  <button
+                    class="unit2-sorted-token"
+                    type="button"
+                    data-unit2-collection-token="${card.id}"
+                    data-token-id="${token.id}"
+                    aria-label="Return ${shape} to the collection tray"
+                  >${unit2ShapeIcon(shape)}</button>
+                `).join("") || `<span class="unit2-row-placeholder">No ${shape}s sorted yet</span>`}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+      <p class="unit2-collection-progress">${sortedIds.size} of ${unit2StudentCollectionTokens.length} objects sorted.</p>
+    </section>
+  `;
+}
+
+const unit2RatioGrid = { columns: 6, rows: 4, size: 24 };
+
+function unit2RatioGridCells(card, field) {
+  const raw = String(getTeachCustomResponse(card)[field] || "");
+  return Array.from({ length: unit2RatioGrid.size }, (_, index) => ["g", "y"].includes(raw[index]) ? raw[index] : "0");
+}
+
+function unit2RatioGridCounts(cells) {
+  return cells.reduce((counts, value) => {
+    if (value === "g") counts.green += 1;
+    if (value === "y") counts.yellow += 1;
+    return counts;
+  }, { green: 0, yellow: 0 });
+}
+
+function unit2RatioGridHasTwoToOne(counts) {
+  const smaller = Math.min(counts.green, counts.yellow);
+  const larger = Math.max(counts.green, counts.yellow);
+  return smaller > 0 && larger === smaller * 2;
+}
+
+function unit2RatioGridIsConnected(cells) {
+  const filled = cells.map((value, index) => value === "0" ? -1 : index).filter((index) => index >= 0);
+  if (!filled.length) return false;
+  const filledSet = new Set(filled);
+  const visited = new Set([filled[0]]);
+  const queue = [filled[0]];
+  while (queue.length) {
+    const current = queue.shift();
+    const row = Math.floor(current / unit2RatioGrid.columns);
+    const column = current % unit2RatioGrid.columns;
+    [[row - 1, column], [row + 1, column], [row, column - 1], [row, column + 1]].forEach(([nextRow, nextColumn]) => {
+      if (nextRow < 0 || nextRow >= unit2RatioGrid.rows || nextColumn < 0 || nextColumn >= unit2RatioGrid.columns) return;
+      const next = nextRow * unit2RatioGrid.columns + nextColumn;
+      if (!filledSet.has(next) || visited.has(next)) return;
+      visited.add(next);
+      queue.push(next);
+    });
+  }
+  return visited.size === filled.length;
+}
+
+function unit2RatioShadingAnalysis(card) {
+  const firstCells = unit2RatioGridCells(card, "firstRatioGrid");
+  const secondCells = unit2RatioGridCells(card, "secondRatioGrid");
+  const firstCounts = unit2RatioGridCounts(firstCells);
+  const secondCounts = unit2RatioGridCounts(secondCells);
+  const firstArea = firstCounts.green + firstCounts.yellow;
+  const secondArea = secondCounts.green + secondCounts.yellow;
+  return {
+    firstCells,
+    secondCells,
+    firstCounts,
+    secondCounts,
+    firstArea,
+    secondArea,
+    firstValid: firstArea === 24 && unit2RatioGridHasTwoToOne(firstCounts),
+    secondValid: secondArea >= 3
+      && secondArea !== 24
+      && unit2RatioGridHasTwoToOne(secondCounts)
+      && unit2RatioGridIsConnected(secondCells),
+  };
+}
+
+function renderUnit2RatioGrid(card, field, title, description, cells) {
+  return `
+    <section class="unit2-ratio-grid-panel">
+      <div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(description)}</p>
+      </div>
+      <div class="unit2-ratio-grid" role="grid" aria-label="${escapeHtml(title)}">
+        ${cells.map((value, index) => `
+          <button
+            class="unit2-ratio-cell ${value === "g" ? "is-green" : value === "y" ? "is-yellow" : ""}"
+            type="button"
+            role="gridcell"
+            data-unit2-ratio-cell="${card.id}"
+            data-grid-field="${field}"
+            data-cell-index="${index}"
+            aria-label="Row ${Math.floor(index / unit2RatioGrid.columns) + 1}, column ${(index % unit2RatioGrid.columns) + 1}${value === "0" ? ", unshaded" : value === "g" ? ", green" : ", yellow"}"
+          ></button>
+        `).join("")}
+      </div>
+      <button class="hint-button unit2-ratio-reset" type="button" data-unit2-ratio-reset="${card.id}" data-grid-field="${field}">Clear this grid</button>
+    </section>
+  `;
+}
+
+function renderUnit2RatioShadingVisual(card) {
+  const response = getTeachCustomResponse(card);
+  const tool = ["g", "y", "0"].includes(response.ratioShadingTool) ? response.ratioShadingTool : "g";
+  const analysis = unit2RatioShadingAnalysis(card);
+  return `
+    <section class="unit2-ratio-shading" aria-label="Two-color ratio shading workspace">
+      <div class="unit2-ratio-tools" role="group" aria-label="Shading tools">
+        <span>Shade with</span>
+        <button class="page-chip ${tool === "g" ? "is-active" : ""}" type="button" data-unit2-ratio-tool="${card.id}" data-ratio-tool="g" aria-pressed="${tool === "g"}"><i class="is-green"></i>Green</button>
+        <button class="page-chip ${tool === "y" ? "is-active" : ""}" type="button" data-unit2-ratio-tool="${card.id}" data-ratio-tool="y" aria-pressed="${tool === "y"}"><i class="is-yellow"></i>Yellow</button>
+        <button class="page-chip ${tool === "0" ? "is-active" : ""}" type="button" data-unit2-ratio-tool="${card.id}" data-ratio-tool="0" aria-pressed="${tool === "0"}">Erase</button>
+      </div>
+      <div class="unit2-ratio-grid-layout">
+        ${renderUnit2RatioGrid(card, "firstRatioGrid", "First design", "Fill the entire 6-by-4 rectangle using the two colors in a 2 : 1 ratio.", analysis.firstCells)}
+        ${renderUnit2RatioGrid(card, "secondRatioGrid", "Second design", "Make one connected shape with area other than 24, using the same 2 : 1 color ratio.", analysis.secondCells)}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2RatioSummary() {
+  const renderRatioGroup = (boxed = false) => `
+    <div class="unit2-summary-ratio-group ${boxed ? "is-boxed" : ""}">
+      ${unit2ShapeIcon("square", "is-green")}
+      ${unit2ShapeIcon("square", "is-green")}
+      ${unit2ShapeIcon("circle")}
+    </div>
+  `;
+
+  return `
+    <section class="lesson-summary unit2-ratio-summary">
+      <div class="lesson-summary-introduction">
+        <p>A ratio is an association between two or more quantities. There are many ways to describe a situation in terms of ratios. For example, look at this collection:</p>
+      </div>
+      <div class="unit2-summary-source-row">
+        <div class="unit2-summary-diagram" role="img" aria-label="Three groups, each with two green squares above one unshaded circle">
+          ${Array.from({ length: 3 }, () => renderRatioGroup()).join("")}
+        </div>
+        <div class="unit2-summary-copy">
+          <p>Here are some correct ways to describe the collection:</p>
+          <ul>
+            <li>The ratio of squares to circles is <strong>6 : 3</strong>.</li>
+            <li>The ratio of circles to squares is <strong>3 to 6</strong>.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="unit2-summary-transition">Notice that the shapes can be arranged in equal groups, which allow us to describe the shapes using other numbers.</p>
+      <div class="unit2-summary-source-row">
+        <div class="unit2-summary-diagram is-boxed" role="img" aria-label="Three separate boxes, each containing two green squares above one unshaded circle">
+          ${Array.from({ length: 3 }, () => renderRatioGroup(true)).join("")}
+        </div>
+        <div class="unit2-summary-copy">
+          <ul>
+            <li>There are <strong>2 squares for every 1 circle</strong>.</li>
+            <li>There is <strong>1 circle for every 2 squares</strong>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+const unit2SnapCubeCounts = Object.freeze({
+  yellow: 5,
+  red: 5,
+  pink: 3,
+  green: 2,
+  blue: 2,
+  black: 1,
+});
+
+function unit2SnapCubeSelectedColors(card) {
+  const allowed = new Set(Object.keys(unit2SnapCubeCounts));
+  return String(getTeachCustomResponse(card).snapCubeSelected || "")
+    .split("|")
+    .filter((color) => allowed.has(color))
+    .slice(0, 2);
+}
+
+function unit2SnapCubeField(color) {
+  return `snapCubeCount_${color}`;
+}
+
+function unit2SnapCubeDiagramIsCorrect(card) {
+  const response = getTeachCustomResponse(card);
+  const colors = unit2SnapCubeSelectedColors(card);
+  return colors.length === 2 && colors.every((color) => (
+    Number(response[unit2SnapCubeField(color)]) === unit2SnapCubeCounts[color]
+  ));
+}
+
+function unit2SnapCubeDiagramFeedback(card) {
+  const response = getTeachCustomResponse(card);
+  const colors = unit2SnapCubeSelectedColors(card);
+  if (colors.length !== 2) {
+    return "Revise the diagram. Select exactly two source colors, then match both stack counts.";
+  }
+  const mismatches = colors.filter((color) => (
+    Number(response[unit2SnapCubeField(color)]) !== unit2SnapCubeCounts[color]
+  ));
+  if (!mismatches.length) {
+    return "Correct. Your two diagram rows match the selected source stacks. The app partner has now written a ratio sentence about your diagram.";
+  }
+  const details = mismatches.map((color) => {
+    const expected = unit2SnapCubeCounts[color];
+    const entered = Number(response[unit2SnapCubeField(color)]) || 0;
+    const label = `${color[0].toUpperCase()}${color.slice(1)}`;
+    return `${label} should show ${expected} ${expected === 1 ? "cube" : "cubes"}; your row shows ${entered}.`;
+  }).join(" ");
+  return `Revise the diagram. ${details} Count each cube body once; the visible top face belongs to the top cube and is not an extra cube.`;
+}
+
+function unit2PasteDiagramIsCorrect(card) {
+  const response = getTeachCustomResponse(card);
+  return Number(response.pasteFlour) === 8 && Number(response.pasteWater) === 2;
+}
+
+const unit2SpaghettiSentences = [
+  { id: "1", text: "The ratio of tablespoons of oil to cups of tomato sauce is 5 to 2." },
+  { id: "2", text: "There are 3 tablespoons of oil for every cup of tomato sauce." },
+  { id: "3", text: "For every tablespoon of oil, there are 2 cups of tomato sauce and 5 teaspoons of oregano." },
+  { id: "4", text: "There are 3 cups of tomato sauce for every tablespoon of oil." },
+  { id: "5", text: "The ratio of cups of tomato sauce to tablespoons of oil is 5 to 2." },
+  { id: "6", text: "Cups of tomato sauce, tablespoons of oil, and teaspoons of oregano are in the ratio 1 : 5 : 2." },
+  { id: "7", text: "Tablespoons of oil, teaspoons of oregano, and cups of tomato sauce are in the ratio 1 : 5 : 2." },
+  { id: "8", text: "The ratio of cups of tomato sauce to tablespoons of oil is 1 : 3." },
+];
+
+const unit2SpaghettiDiagrams = Object.freeze({
+  A: { tomato: 6, oil: 2, oregano: 0 },
+  B: { tomato: 3, oil: 9, oregano: 0 },
+  C: { tomato: 2, oil: 5, oregano: 0 },
+  D: { tomato: 5, oil: 2, oregano: 0 },
+  E: { tomato: 2, oil: 1, oregano: 5 },
+  F: { tomato: 1, oil: 5, oregano: 2 },
+});
+
+const unit2SpaghettiAnswer = Object.freeze({
+  1: "C",
+  2: "B",
+  3: "E",
+  4: "A",
+  5: "D",
+  6: "F",
+  7: "E",
+  8: "B",
+});
+
+function unit2SpaghettiAssignmentField(sentenceId) {
+  return `spaghettiSentence_${sentenceId}`;
+}
+
+function unit2SpaghettiMatchesAreCorrect(card) {
+  const response = getTeachCustomResponse(card);
+  return unit2SpaghettiSentences.every((sentence) => (
+    response[unit2SpaghettiAssignmentField(sentence.id)] === unit2SpaghettiAnswer[sentence.id]
+  ));
+}
+
+function unit2RecipeDiagramIsCorrect(card) {
+  const response = getTeachCustomResponse(card);
+  return ["recipeA", "recipeB", "recipeC"].every((field) => {
+    const value = Number(response[field]);
+    return Number.isInteger(value) && value >= 1 && value <= 12;
+  });
+}
+
+function unit2LessSaltyDrinkIsCorrect(card, question) {
+  const sodium = parseMathNumber(questionSetValue(card, question.id, "sodium"));
+  const water = parseMathNumber(questionSetValue(card, question.id, "water"));
+  if (sodium === null || water === null || sodium <= 0 || water <= 0) return false;
+  const rate = sodium / water;
+  return rate < (110 / 240) && rate < (150 / 355);
+}
+
+function unit2CookieEquivalentIsCorrect(card, question) {
+  const flour = parseMathNumber(questionSetValue(card, question.id, "flour"));
+  const vanilla = parseMathNumber(questionSetValue(card, question.id, "vanilla"));
+  const batches = parseMathNumber(questionSetValue(card, question.id, "batches"));
+  if (![flour, vanilla, batches].every((value) => Number.isInteger(value) && value > 0)) return false;
+  return ![1, 2, 3, 5].includes(batches)
+    && flour === 5 * batches
+    && vanilla === 2 * batches;
+}
+
+function unit2DynamicFieldsHaveValues(card, question, fieldIds) {
+  return fieldIds.some((fieldId) => normalizeAnswer(questionSetValue(card, question.id, fieldId)).length > 0);
+}
+
+function renderUnit2FlowerPattern(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-3-Lesson-student-task-statements/page-001.png",
+    viewBox: "145 280 170 290",
+    label: card.visualAlt,
+    className: "unit2-flower-pattern",
+  });
+}
+
+function renderUnit2DrinkMix(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-3-Lesson-student-task-statements/page-002.png",
+    viewBox: "145 174 555 203",
+    label: card.visualAlt,
+    className: "unit2-drink-mix",
+  });
+}
+
+function renderUnit2NutritionLabels(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-3-Lesson-student-task-statements/page-003.png",
+    viewBox: "140 190 610 325",
+    label: card.visualAlt,
+    className: "unit2-nutrition-labels",
+  });
+}
+
+function renderUnit2CookieBatches(card) {
+  const response = getTeachCustomResponse(card);
+  const batches = Math.max(1, Math.min(6, Number(response.cookieBatchPreview) || 1));
+  const batchGroup = (index) => `
+    <article class="unit2-cookie-batch">
+      <h4>Batch ${index + 1}</h4>
+      <div class="unit2-cookie-ingredient-row">
+        <strong>Flour</strong>
+        ${renderUnit2CountUnits(5, "is-flour", "cups of flour")}
+      </div>
+      <div class="unit2-cookie-ingredient-row">
+        <strong>Vanilla</strong>
+        ${renderUnit2CountUnits(2, "is-vanilla", "teaspoons of vanilla")}
+      </div>
+    </article>
+  `;
+  return `
+    <section class="unit2-cookie-workspace">
+      <div class="unit2-cookie-controls">
+        <div>
+          <h3>Batch diagram</h3>
+          <p>One batch uses 5 flour units and 2 vanilla units. Add whole batches to reason about equivalent ratios.</p>
+        </div>
+        ${renderUnit2Stepper(card, "cookieBatchPreview", "Batches shown", batches, { minimum: 1, maximum: 6 })}
+      </div>
+      <div class="unit2-cookie-batches" aria-label="Diagram showing ${batches} batches of the cookie recipe">
+        ${Array.from({ length: batches }, (_, index) => batchGroup(index)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2RecipeSummary() {
+  return `
+    <section class="lesson-summary unit2-recipe-summary">
+      <p>A recipe for fizzy juice says, “Mix 5 cups of cranberry juice with 2 cups of soda water.”</p>
+      <p>To double this recipe, we would use 10 cups of cranberry juice with 4 cups of soda water. To triple this recipe, we would use 15 cups of cranberry juice with 6 cups of soda water.</p>
+      <p>This diagram shows a single batch of the recipe, a double batch, and a triple batch:</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-3-Lesson-student-task-statements/page-005.png",
+        viewBox: "140 259 596 166",
+        label: "Nested source diagram showing one, two, and three batches of a 5-to-2 fizzy-juice recipe.",
+        className: "unit2-recipe-summary-diagram",
+      })}
+      <p>We say that the ratios <strong>5 : 2</strong>, <strong>10 : 4</strong>, and <strong>15 : 6</strong> are <strong>equivalent</strong>. Even though the amounts of each ingredient within a single, double, or triple batch are not the same, they would make fizzy juice that tastes the same.</p>
+    </section>
+  `;
+}
+
+function unit2ColorMixerDefaults(card) {
+  return card.customVisual === "unit2GreenExtension"
+    ? { blue: 17, yellow: 13 }
+    : { blue: 0, yellow: 0 };
+}
+
+function unit2ColorMixerAmounts(card) {
+  const response = getTeachCustomResponse(card);
+  const defaults = unit2ColorMixerDefaults(card);
+  return {
+    blue: Number.isFinite(Number(response.colorMixerBlue)) ? Number(response.colorMixerBlue) : defaults.blue,
+    yellow: Number.isFinite(Number(response.colorMixerYellow)) ? Number(response.colorMixerYellow) : defaults.yellow,
+  };
+}
+
+function unit2MixedColor(blue, yellow) {
+  const total = blue + yellow;
+  if (total <= 0) return "#f8fbfc";
+  const blueShare = blue / total;
+  const hue = Math.round(55 + (165 * blueShare));
+  const lightness = Math.round(53 - (8 * Math.abs(blueShare - 0.25)));
+  return `hsl(${hue} 68% ${lightness}%)`;
+}
+
+function renderUnit2Cylinder({ title, blue, yellow, interactive, card }) {
+  const total = Math.min(100, Math.max(0, blue + yellow));
+  const fillHeight = total;
+  const controls = interactive ? `
+    <div class="unit2-color-buttons" aria-label="Controls for ${escapeHtml(title)}">
+      <button type="button" data-unit2-color-add="${card.id}" data-color="yellow" data-amount="1">+1 yellow</button>
+      <button type="button" data-unit2-color-add="${card.id}" data-color="yellow" data-amount="5">+5 yellow</button>
+      <button type="button" data-unit2-color-add="${card.id}" data-color="blue" data-amount="1">+1 blue</button>
+      <button type="button" data-unit2-color-add="${card.id}" data-color="blue" data-amount="5">+5 blue</button>
+    </div>
+  ` : `<div class="unit2-color-fixed-controls">Fixed source recipe</div>`;
+  return `
+    <section class="unit2-cylinder-panel">
+      <h3>${escapeHtml(title)}</h3>
+      <div class="unit2-cylinder-row">
+        ${controls}
+        <div class="unit2-cylinder" role="img" aria-label="${blue} milliliters blue and ${yellow} milliliters yellow, ${total} milliliters total">
+          <div class="unit2-cylinder-fill" style="height:${fillHeight}%;background:${unit2MixedColor(blue, yellow)}"></div>
+          ${Array.from({ length: 11 }, (_, index) => `<i style="bottom:${index * 10}%"><span>${index * 10}</span></i>`).join("")}
+        </div>
+      </div>
+      <p><strong>${blue} mL blue</strong> + <strong>${yellow} mL yellow</strong></p>
+    </section>
+  `;
+}
+
+function renderUnit2ColorMixer(card) {
+  const extension = card.customVisual === "unit2GreenExtension";
+  const right = unit2ColorMixerAmounts(card);
+  return `
+    <section class="unit2-color-mixer">
+      <div class="unit2-color-mixer-heading">
+        <div>
+          <h3>${extension ? "Can you rescue this mixture?" : "Color-mixing workspace"}</h3>
+          <p>${extension
+            ? "The right cylinder starts with the source extension's 17 mL blue and 13 mL yellow. Add colors to test a rescue."
+            : "The left cylinder is the source recipe. Build mixtures in the right cylinder and compare their shades."}</p>
+        </div>
+        <div class="unit2-color-presets">
+          ${extension ? `
+            <button class="hint-button" type="button" data-unit2-color-preset="${card.id}" data-preset="extension">Restart 17 + 13</button>
+          ` : `
+            <button class="hint-button" type="button" data-unit2-color-preset="${card.id}" data-preset="single">Load 1 batch</button>
+            <button class="hint-button" type="button" data-unit2-color-preset="${card.id}" data-preset="twenty">Start 20 + 20</button>
+            <button class="hint-button" type="button" data-unit2-color-preset="${card.id}" data-preset="clear">Clear test</button>
+          `}
+        </div>
+      </div>
+      <div class="unit2-color-cylinders">
+        ${renderUnit2Cylinder({ title: "Original recipe", blue: 5, yellow: 15, interactive: false, card })}
+        ${renderUnit2Cylinder({ title: extension ? "17 + 13 mixture" : "Your test mixture", blue: right.blue, yellow: right.yellow, interactive: true, card })}
+      </div>
+    </section>
+  `;
+}
+
+function unit2EquivalentGreenIsCorrect(card, question) {
+  const blue = parseMathNumber(questionSetValue(card, question.id, "blue"));
+  const yellow = parseMathNumber(questionSetValue(card, question.id, "yellow"));
+  const batches = parseMathNumber(questionSetValue(card, question.id, "batches"));
+  return [2, 3].includes(batches) && blue === 5 * batches && yellow === 15 * batches;
+}
+
+function unit2RescuedGreenIsCorrect(card, question, startBlue, startYellow) {
+  const blueAdded = parseMathNumber(questionSetValue(card, question.id, "blueAdded"));
+  const yellowAdded = parseMathNumber(questionSetValue(card, question.id, "yellowAdded"));
+  if ([blueAdded, yellowAdded].some((value) => value === null || value < 0)) return false;
+  const finalBlue = startBlue + blueAdded;
+  const finalYellow = startYellow + yellowAdded;
+  return Math.abs(finalYellow - (3 * finalBlue)) < 1e-8;
+}
+
+function unit2BluerGreenIsCorrect(card, question) {
+  const blue = parseMathNumber(questionSetValue(card, question.id, "blue"));
+  const yellow = parseMathNumber(questionSetValue(card, question.id, "yellow"));
+  return blue !== null && yellow !== null
+    && Number.isInteger(blue) && Number.isInteger(yellow)
+    && blue > 0 && yellow > 0
+    && blue / yellow > 1 / 3;
+}
+
+function unit2PurpleEquivalentIsCorrect(card, question) {
+  const blue = parseMathNumber(questionSetValue(card, question.id, "blue"));
+  const red = parseMathNumber(questionSetValue(card, question.id, "red"));
+  if (![blue, red].every((value) => Number.isInteger(value) && value > 0)) return false;
+  return blue * 3 === red * 8
+    && !(blue === 8 && red === 3)
+    && !(blue === 24 && red === 9);
+}
+
+function renderUnit2FactorNumberTalk() {
+  return `
+    <section class="unit2-number-talk" aria-label="Four related products">
+      <p>Find each value mentally. Notice how the product changes when one factor is doubled, tripled, or increased by one group.</p>
+      <div class="unit2-expression-grid">
+        <span>6 × 15</span>
+        <span>12 × 15</span>
+        <span>6 × 45</span>
+        <span>13 × 45</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2PurpleWater() {
+  const mixtures = [
+    { title: "Perfect Purple", blue: 8, red: 3 },
+    { title: "Jada", blue: 24, red: 9 },
+    { title: "Andre", blue: 16, red: 9 },
+  ];
+  return `
+    <section class="unit2-purple-water">
+      ${mixtures.map((mixture) => `
+        <article>
+          <h3>${mixture.title}</h3>
+          <div class="unit2-purple-ratio-row"><strong>${mixture.blue} mL blue</strong><span class="is-blue" style="--ratio-size:${mixture.blue}"></span></div>
+          <div class="unit2-purple-ratio-row"><strong>${mixture.red} mL red</strong><span class="is-red" style="--ratio-size:${mixture.red}"></span></div>
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderUnit2ColorSummary() {
+  return `
+    <section class="lesson-summary unit2-color-summary">
+      <p>When mixing colors, doubling or tripling the amount of each color will create the same shade of the mixed color. In fact, you can always multiply the amount of each color by the <em>same number</em> to create a different amount of the same mixed color.</p>
+      <p>For example, a batch of dark orange paint uses 4 mL of red paint and 2 mL of yellow paint.</p>
+      <ul>
+        <li>To make two batches of dark orange paint, we can mix 8 mL of red paint with 4 mL of yellow paint.</li>
+        <li>To make three batches of dark orange paint, we can mix 12 mL of red paint with 6 mL of yellow paint.</li>
+      </ul>
+      <p>Here is a diagram that represents 1, 2, and 3 batches of this recipe.</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-4-Lesson-student-task-statements/page-004.png",
+        viewBox: "140 397 548 228",
+        label: "Source diagram showing one, two, and three batches of 4-to-2 dark orange paint.",
+        className: "unit2-color-summary-diagram",
+      })}
+      <p>We say that the ratios <strong>4 : 2</strong>, <strong>8 : 4</strong>, and <strong>12 : 6</strong> are <strong>equivalent</strong> because they describe the same color mixture in different numbers of batches, and they make the same shade of orange.</p>
+    </section>
+  `;
+}
+
+function renderUnit2TimedDots(card) {
+  const activeId = questionSetActiveId(card);
+  const pattern = activeId === "dot-pattern-2"
+    ? {
+      id: "2",
+      label: "Dot Pattern 2",
+      viewBox: "525 306 145 176",
+      alt: "The exact source array of half dots for Dot Pattern 2.",
+    }
+    : {
+      id: "1",
+      label: "Dot Pattern 1",
+      viewBox: "145 300 275 158",
+      alt: "The exact source grouped array of full dots for Dot Pattern 1.",
+    };
+  return `
+    <section class="unit2-timed-dots" data-unit2-dot-workspace="${card.id}">
+      <div class="unit2-timed-dots-heading">
+        <div>
+          <h3>${pattern.label}</h3>
+          <p>The source shows this pattern for 3 seconds, then hides it. Look for structure instead of counting one mark at a time.</p>
+        </div>
+        <button class="practice-submit" type="button" data-unit2-dot-flash="${card.id}" data-dot-pattern="${pattern.id}">Flash for 3 seconds</button>
+      </div>
+      <div class="unit2-dot-stage" data-unit2-dot-stage="${pattern.id}" aria-live="polite">
+        <div class="unit2-dot-placeholder" data-unit2-dot-placeholder>
+          <strong>Pattern hidden</strong>
+          <span>Press the flash button when you are ready.</span>
+        </div>
+        <div class="unit2-dot-source" data-unit2-dot-source hidden aria-hidden="true">
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-5-Lesson-student-task-statements/page-001.png",
+            viewBox: pattern.viewBox,
+            label: pattern.alt,
+            className: `unit2-dot-pattern unit2-dot-pattern-${pattern.id}`,
+          })}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2TunaCasserole() {
+  return `
+    <section class="unit2-casserole-recipe">
+      <div class="unit2-casserole-copy">
+        <h3>Tuna casserole recipe</h3>
+        <h4>Ingredients</h4>
+        <ul>
+          <li>3 cups cooked elbow-shaped pasta</li>
+          <li>6 ounce can tuna, drained</li>
+          <li>10 ounce can cream of chicken soup</li>
+          <li>1 cup shredded cheddar cheese</li>
+          <li>1 1/2 cups French fried onions</li>
+        </ul>
+        <h4>Instructions</h4>
+        <p>Combine the pasta, tuna, soup, and half of the cheese. Transfer into a 9 inch by 18 inch baking dish. Put the remaining cheese on top. Bake 30 minutes at 350 degrees. During the last 5 minutes, add the French fried onions. Let sit for 10 minutes before serving.</p>
+      </div>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-5-Lesson-student-task-statements/page-002.png",
+        viewBox: "540 180 165 165",
+        label: "The source photograph of tuna casserole in a rectangular baking dish.",
+        className: "unit2-casserole-photo",
+      })}
+    </section>
+  `;
+}
+
+function renderUnit2BakingDish() {
+  return `
+    <section class="unit2-baking-dish">
+      <div class="unit2-baking-dish-shape" role="img" aria-label="Original rectangular baking dish measuring 18 inches by 9 inches">
+        <span class="is-length">18 inches</span>
+        <span class="is-width">9 inches</span>
+        <strong>Original dish</strong>
+      </div>
+      <div>
+        <h3>Keep the same casserole height</h3>
+        <p>The original base is <strong>9 inches by 18 inches</strong>, so its area is <strong>162 square inches</strong>.</p>
+        <p>For each question, choose any positive length and width whose product gives the requested fraction or multiple of 162.</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2RatioPair(first, second, label) {
+  const renderUnits = (count, className) => Array.from({ length: count }, () => `<i class="${className}" aria-hidden="true"></i>`).join("");
+  return `
+    <article class="unit2-ratio-pair">
+      <h3>${escapeHtml(label)}</h3>
+      <div><strong>${first}</strong><span>${renderUnits(first, "is-first")}</span></div>
+      <div><strong>${second}</strong><span>${renderUnits(second, "is-second")}</span></div>
+    </article>
+  `;
+}
+
+function renderUnit2EquivalentRatioLab(card) {
+  const activeId = questionSetActiveId(card);
+  const assignedActive = activeId === "assigned-display";
+  return `
+    <section class="unit2-equivalent-ratio-lab">
+      <div>
+        <h3>${assignedActive ? "Your app-assigned ratio" : "Source ratio"}</h3>
+        <p>${assignedActive
+          ? "Complete the display on the right with two equivalent examples and one non-example for 7 : 4."
+          : "Use one common multiplier on both quantities when you test or create an equivalent ratio."}</p>
+      </div>
+      ${assignedActive
+        ? renderUnit2RatioPair(7, 4, "Assigned ratio 7 : 4")
+        : renderUnit2RatioPair(5, 3, "Given ratio 5 : 3")}
+    </section>
+  `;
+}
+
+function unit2BakingDishAreaIsCorrect(card, question) {
+  const length = parseMathNumber(questionSetValue(card, question.id, "length"));
+  const width = parseMathNumber(questionSetValue(card, question.id, "width"));
+  return length !== null && width !== null
+    && length > 0 && width > 0
+    && Math.abs((length * width) - Number(question.targetArea)) < 1e-8;
+}
+
+function unit2PositiveWholeRatio(card, question, firstField, secondField) {
+  const first = parseMathNumber(questionSetValue(card, question.id, firstField));
+  const second = parseMathNumber(questionSetValue(card, question.id, secondField));
+  if (![first, second].every((value) => Number.isInteger(value) && value > 0)) return null;
+  return { first, second };
+}
+
+function unit2TwoEquivalentRatiosAreCorrect(card, question) {
+  const first = unit2PositiveWholeRatio(card, question, "a1", "b1");
+  const second = unit2PositiveWholeRatio(card, question, "a2", "b2");
+  if (!first || !second) return false;
+  const firstEquivalent = first.first * 3 === first.second * 5;
+  const secondEquivalent = second.first * 3 === second.second * 5;
+  const firstIsSource = first.first === 5 && first.second === 3;
+  const secondIsSource = second.first === 5 && second.second === 3;
+  const examplesDiffer = first.first !== second.first || first.second !== second.second;
+  return firstEquivalent && secondEquivalent && !firstIsSource && !secondIsSource && examplesDiffer;
+}
+
+function unit2AssignedRatioDisplayIsCorrect(card, question) {
+  const first = unit2PositiveWholeRatio(card, question, "eqA1", "eqB1");
+  const second = unit2PositiveWholeRatio(card, question, "eqA2", "eqB2");
+  const nonExample = unit2PositiveWholeRatio(card, question, "notA", "notB");
+  if (!first || !second || !nonExample) return false;
+  const firstEquivalent = first.first * 4 === first.second * 7;
+  const secondEquivalent = second.first * 4 === second.second * 7;
+  const nonEquivalent = nonExample.first * 4 !== nonExample.second * 7;
+  const examplesDiffer = first.first !== second.first || first.second !== second.second;
+  const neitherIsAssigned = !(first.first === 7 && first.second === 4)
+    && !(second.first === 7 && second.second === 4);
+  return firstEquivalent && secondEquivalent && nonEquivalent && examplesDiffer && neitherIsAssigned;
+}
+
+function renderUnit2EquivalentRatioSummary() {
+  return `
+    <section class="lesson-summary unit2-equivalent-summary">
+      <p>All ratios that are equivalent to <em>a : b</em> can be made by multiplying both <em>a</em> and <em>b</em> by the same number.</p>
+      <div class="unit2-equivalent-summary-row">
+        <div>
+          <p>For example, the ratio <strong>18 : 12</strong> is equivalent to <strong>9 : 6</strong> because both 9 and 6 are multiplied by the same number: 2.</p>
+          <p><strong>3 : 2</strong> is also equivalent to <strong>9 : 6</strong>, because both 9 and 6 are multiplied by the same number: 1/3.</p>
+          <p>Is <strong>18 : 15</strong> equivalent to <strong>9 : 6</strong>?</p>
+          <p>No, because 18 is 9 · 2, but 15 is <em>not</em> 6 · 2.</p>
+        </div>
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-5-Lesson-student-task-statements/page-004.png",
+          viewBox: "520 540 165 360",
+          label: "The three source multiplier diagrams comparing 9 to 6 with 18 to 12, 3 to 2, and 18 to 15.",
+          className: "unit2-equivalent-summary-diagrams",
+        })}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2FractionNumberTalk() {
+  return `
+    <section class="unit2-number-talk" aria-label="Four related fraction and decimal products">
+      <p>Find each product mentally. Notice how the product changes when one factor is doubled.</p>
+      <div class="unit2-expression-grid">
+        <span>4.5 × 4</span>
+        <span>4.5 × 8</span>
+        <span>1/10 × 65</span>
+        <span>2/10 × 65</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2DrinkDoubleLine(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-6-Lesson-student-task-statements/page-002.png",
+    viewBox: "125 190 610 280",
+    label: card.visualAlt,
+    className: "unit2-drink-double-line",
+  });
+}
+
+function renderUnit2PerfectSquareIntro() {
+  const squareArray = (rows, columns, label) => `
+    <div class="unit2-perfect-square-array" style="--array-rows:${rows};--array-columns:${columns}" role="img" aria-label="${escapeHtml(label)}">
+      ${Array.from({ length: rows * columns }, () => "<i aria-hidden=\"true\"></i>").join("")}
+    </div>
+  `;
+  return `
+    <section class="unit2-perfect-square-intro">
+      <div>
+        <h3>Perfect squares</h3>
+        <p>A <em>perfect square</em> is a number of objects that can be arranged into a square.</p>
+        <p><strong>9</strong> is a perfect square because 9 objects can be arranged into 3 rows of 3. <strong>16</strong> is also a perfect square because 16 objects can be arranged into 4 rows of 4.</p>
+        <p>In contrast, <strong>12</strong> is not a perfect square because 12 objects cannot be arranged into a square.</p>
+      </div>
+      <div class="unit2-perfect-square-examples">
+        <figure>${squareArray(3, 3, "Nine objects arranged in a 3 by 3 square")}<figcaption>9 = 3 × 3</figcaption></figure>
+        <figure>${squareArray(4, 4, "Sixteen objects arranged in a 4 by 4 square")}<figcaption>16 = 4 × 4</figcaption></figure>
+        <figure class="is-not-square">${squareArray(3, 4, "Twelve objects arranged in a 3 by 4 rectangle, not a square")}<figcaption>12 = 3 × 4</figcaption></figure>
+      </div>
+    </section>
+  `;
+}
+
+function unit2PaintLineField(quantity, index) {
+  return `paintLine_${quantity}_${index}`;
+}
+
+function unit2PaintLineValue(card, quantity, index) {
+  return getTeachCustomResponse(card)[unit2PaintLineField(quantity, index)] || "";
+}
+
+function unit2PaintLineValues(card, quantity) {
+  return Array.from({ length: 6 }, (_, index) => (
+    parseMathNumber(unit2PaintLineValue(card, quantity, index + 1))
+  ));
+}
+
+function unit2PaintDoubleLineHasValues(card) {
+  return ["white", "blue"].some((quantity) => (
+    Array.from({ length: 6 }, (_, index) => unit2PaintLineValue(card, quantity, index + 1))
+      .some((value) => normalizeAnswer(value).length > 0)
+  ));
+}
+
+function unit2PaintDoubleLineIsCorrect(card) {
+  const white = unit2PaintLineValues(card, "white");
+  const blue = unit2PaintLineValues(card, "blue");
+  if (![...white, ...blue].every((value) => Number.isInteger(value) && value > 0)) return false;
+  const whiteStep = white[0];
+  const blueStep = blue[0];
+  return blueStep === 3 * whiteStep
+    && white.every((value, index) => value === whiteStep * (index + 1))
+    && blue.every((value, index) => value === blueStep * (index + 1));
+}
+
+function unit2LightBlueEquivalentIsCorrect(card, question) {
+  const white = parseMathNumber(questionSetValue(card, question.id, "white"));
+  const blue = parseMathNumber(questionSetValue(card, question.id, "blue"));
+  if (![white, blue].every((value) => Number.isInteger(value) && value > 0)) return false;
+  const alreadyUsed = [[2, 6], [4, 12], [6, 18]]
+    .some(([knownWhite, knownBlue]) => white === knownWhite && blue === knownBlue);
+  return blue === 3 * white && !alreadyUsed;
+}
+
+function renderUnit2DoubleLineRow(card, quantity, label) {
+  return `
+    <div class="unit2-dnl-row">
+      <strong>${escapeHtml(label)}</strong>
+      <span class="unit2-dnl-tick"><output>0</output></span>
+      ${Array.from({ length: 6 }, (_, index) => {
+        const tick = index + 1;
+        return `
+          <label class="unit2-dnl-tick">
+            <input
+              type="text"
+              inputmode="decimal"
+              maxlength="24"
+              value="${escapeHtml(unit2PaintLineValue(card, quantity, tick))}"
+              data-unit2-dnl-input="${card.id}"
+              data-dnl-field="${unit2PaintLineField(quantity, tick)}"
+              aria-label="${escapeHtml(label)}, tick ${tick}"
+            >
+          </label>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderUnit2PartnerDoubleLine() {
+  const fixedRow = (label, values) => `
+    <div class="unit2-dnl-row is-fixed">
+      <strong>${escapeHtml(label)}</strong>
+      ${values.map((value) => `<span class="unit2-dnl-tick"><output>${value}</output></span>`).join("")}
+    </div>
+  `;
+  return `
+    <section class="unit2-partner-double-line">
+      <h3>App partner's valid line</h3>
+      <p>This partner chose half-batch increments. Compare its aligned pairs and scale with yours.</p>
+      <div class="unit2-dnl-grid is-fixed-grid">
+        ${fixedRow("white paint (cups)", [0, 1, 2, 3, 4, 5, 6])}
+        ${fixedRow("blue paint (tablespoons)", [0, 3, 6, 9, 12, 15, 18])}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2PaintDoubleLine(card) {
+  const lineQuestion = questionSetDefinition(card, "paint-line");
+  const lineComplete = Boolean(lineQuestion
+    && isTeachQuestionSubmitted(card, lineQuestion.id)
+    && questionSetQuestionIsCorrect(card, lineQuestion));
+  return `
+    <section class="unit2-paint-double-line">
+      <div class="unit2-paint-recipe-row">
+        <div>
+          <h3>Elena's light-blue-paint recipe</h3>
+          <p>The source shows 2 cups of white paint with 6 tablespoons of blue paint.</p>
+        </div>
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-6-Lesson-student-task-statements/page-004.png",
+          viewBox: "185 170 485 145",
+          label: "The exact source recipe diagram showing 2 cups of white paint and 6 tablespoons of blue paint.",
+          className: "unit2-paint-recipe-source",
+        })}
+      </div>
+      <section class="unit2-editable-double-line">
+        <h3>Your double number line</h3>
+        <p>Choose a constant positive whole-number step. Values in the same column form one equivalent-ratio pair.</p>
+        <div class="unit2-dnl-grid">
+          ${renderUnit2DoubleLineRow(card, "white", "white paint (cups)")}
+          ${renderUnit2DoubleLineRow(card, "blue", "blue paint (tablespoons)")}
+        </div>
+      </section>
+      ${lineComplete
+        ? renderUnit2PartnerDoubleLine()
+        : `<p class="unit2-partner-locked"><strong>App partner comparison:</strong> Complete and submit a valid double number line to unlock it.</p>`}
+    </section>
+  `;
+}
+
+function renderUnit2DoubleLineSummary() {
+  return `
+    <section class="lesson-summary unit2-double-line-summary">
+      <p>You can use a <strong>double number line diagram</strong> to find many equivalent ratios. For example, a recipe for fizzy juice says, “Mix 5 cups of cranberry juice with 2 cups of soda water.” The ratio of cranberry juice to soda water is <strong>5 : 2</strong>. Multiplying both ingredients by the same number creates equivalent ratios.</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-6-Lesson-student-task-statements/page-005.png",
+        viewBox: "165 228 540 165",
+        label: "The exact source double number line pairing 0, 5, 10, 15, 20, and 25 cups of cranberry juice with 0, 2, 4, 6, 8, and 10 cups of soda water.",
+        className: "unit2-double-line-summary-diagram",
+      })}
+      <p>This double number line shows that the ratio <strong>20 : 8</strong> is equivalent to <strong>5 : 2</strong>. If you mix 20 cups of cranberry juice with 8 cups of soda water, it makes <strong>4 times</strong> as much fizzy juice that tastes the same as the original recipe.</p>
+    </section>
+  `;
+}
+
+const unit2NumberLineLabels = [
+  { id: "one-fourth", label: "1/4", value: 0.25 },
+  { id: "one-half", label: "1/2", value: 0.5 },
+  { id: "one-and-three-fourths", label: "1 3/4", value: 1.75 },
+  { id: "one-point-five", label: "1.5", value: 1.5 },
+  { id: "one-point-seven-five", label: "1.75", value: 1.75 },
+];
+
+function unit2NumberLinePlacementField(labelId) {
+  return `numberLine_${labelId}`;
+}
+
+function unit2NumberLinePlacementIsCorrect(card) {
+  const response = getTeachCustomResponse(card);
+  return unit2NumberLineLabels.every((entry) => (
+    Number(response[unit2NumberLinePlacementField(entry.id)]) === entry.value
+  ));
+}
+
+function unit2NumberLinePlacementHasInteraction(card) {
+  const response = getTeachCustomResponse(card);
+  return unit2NumberLineLabels.some((entry) => (
+    response[unit2NumberLinePlacementField(entry.id)] !== undefined
+  ));
+}
+
+function unit2FourNumberLineLabelsAreCorrect(card, question) {
+  const values = ["n1", "n2", "n3", "n4"].map((field) => (
+    parseMathNumber(questionSetValue(card, question.id, field))
+  ));
+  if (values.some((value) => value === null || value <= 0 || value >= 2)) return false;
+  return new Set(values.map((value) => value.toFixed(8))).size === values.length;
+}
+
+function formatUnit2Number(value) {
+  return formatPracticeNumber(value);
+}
+
+function renderUnit2NumberLinePlacement(card) {
+  const response = getTeachCustomResponse(card);
+  const activeLabelId = String(response.numberLineActiveLabel || unit2NumberLineLabels[0].id);
+  const ticks = Array.from({ length: 9 }, (_, index) => index / 4);
+  return `
+    <section class="unit2-number-line-placement" aria-label="Interactive number line from 0 to 2">
+      <div class="unit2-number-label-bank" role="group" aria-label="Numbers to place">
+        ${unit2NumberLineLabels.map((entry) => {
+          const placedValue = response[unit2NumberLinePlacementField(entry.id)];
+          return `
+            <button
+              class="page-chip ${activeLabelId === entry.id ? "is-active" : ""} ${placedValue !== undefined ? "is-placed" : ""}"
+              type="button"
+              data-unit2-number-label="${card.id}"
+              data-number-label-id="${entry.id}"
+              aria-pressed="${activeLabelId === entry.id}"
+            >${entry.label}${placedValue !== undefined ? ` → ${formatUnit2Number(Number(placedValue))}` : ""}</button>
+          `;
+        }).join("")}
+      </div>
+      <p>Select a number, then choose its location. Equivalent numbers may share a tick.</p>
+      <div class="unit2-number-line-track" role="group" aria-label="Quarter-unit tick marks">
+        ${ticks.map((value, index) => {
+          const placedLabels = unit2NumberLineLabels
+            .filter((entry) => Number(response[unit2NumberLinePlacementField(entry.id)]) === value)
+            .map((entry) => entry.label);
+          return `
+            <button
+              type="button"
+              data-unit2-number-tick="${card.id}"
+              data-number-tick-value="${value}"
+              aria-label="Place the selected number at ${formatUnit2Number(value)}"
+            >
+              <span class="unit2-number-line-mark" aria-hidden="true"></span>
+              <strong>${index === 0 || index === 4 || index === 8 ? formatUnit2Number(value) : ""}</strong>
+              <small>${placedLabels.join(" = ")}</small>
+            </button>
+          `;
+        }).join("")}
+      </div>
+      <button class="hint-button" type="button" data-unit2-number-reset="${card.id}">Reset placements</button>
+    </section>
+  `;
+}
+
+function renderUnit2RatioLineScaffold({ title, rows, tickCount = 6, note = "Enter the values in the response panel." }) {
+  return `
+    <section class="unit2-ratio-line-scaffold" aria-label="${escapeHtml(title)}">
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(note)}</p>
+      <div class="unit2-ratio-line-grid" style="--unit2-line-ticks: ${tickCount};">
+        ${rows.map((row) => `
+          <div class="unit2-ratio-line-row">
+            <strong>${escapeHtml(row.label)}</strong>
+            ${Array.from({ length: tickCount }, (_, index) => `
+              <span class="unit2-ratio-line-tick"><i aria-hidden="true"></i>${index === 0 ? "<small>0</small>" : ""}</span>
+            `).join("")}
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2GreenWaterLine(card) {
+  return `
+    <section class="unit2-source-and-scaffold">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-7-Lesson-student-task-statements/page-001.png",
+        viewBox: "110 365 635 315",
+        label: card.visualAlt,
+        className: "unit2-green-water-source",
+      })}
+      ${renderUnit2RatioLineScaffold({
+        title: "Complete the aligned mixture line",
+        rows: [{ label: "blue water (ml)" }, { label: "yellow water (ml)" }],
+      })}
+    </section>
+  `;
+}
+
+function renderUnit2ArtPasteLine(card) {
+  return `
+    <section class="unit2-source-and-scaffold">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-7-Lesson-student-task-statements/page-002.png",
+        viewBox: "122 125 605 175",
+        label: "The source art-paste recipe: 2 pints of water for every 8 cups of flour.",
+        className: "unit2-art-paste-source",
+      })}
+      ${renderUnit2RatioLineScaffold({
+        title: "Construct six aligned batch pairs",
+        rows: [{ label: "pints of water" }, { label: "cups of flour" }],
+        note: "Use the response panel to label all six ticks, including the shared zero.",
+      })}
+    </section>
+  `;
+}
+
+function renderUnit2OverlapSquares(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-7-Lesson-student-task-statements/page-003.png",
+    viewBox: "170 270 520 430",
+    label: card.visualAlt,
+    className: "unit2-overlap-squares-source",
+  });
+}
+
+function renderUnit2TunaTripleLine(card) {
+  return `
+    <section class="unit2-source-and-scaffold">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-7-Lesson-student-task-statements/page-004.png",
+        viewBox: "115 125 620 185",
+        label: "The exact source tuna-casserole recipe statement.",
+        className: "unit2-tuna-source",
+      })}
+      ${renderUnit2RatioLineScaffold({
+        title: "Soup, pasta, and tuna batches",
+        rows: [{ label: "soup (oz)" }, { label: "pasta (cups)" }, { label: "tuna (oz)" }],
+        note: "First complete the soup and pasta lines. Add the tuna line when its question is active.",
+      })}
+    </section>
+  `;
+}
+
+function renderUnit2DoubleLineGuidelines(card) {
+  return `
+    <section class="lesson-summary unit2-guidelines-summary">
+      <p>Here are some guidelines to keep in mind when drawing a <strong>double number line diagram</strong>:</p>
+      <ul>
+        <li>The two parallel lines should have labels that describe what the numbers represent.</li>
+        <li>The tick marks and numbers should be spaced at equal intervals.</li>
+        <li>Numbers that line up vertically make equivalent ratios.</li>
+      </ul>
+      <p>For example, the ratio of the number of eggs to cups of milk in a recipe is <strong>4 : 1</strong>.</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-7-Lesson-student-task-statements/page-005.png",
+        viewBox: "161 345 554 141",
+        label: card.visualAlt || "The exact source double number line pairing 0, 4, 8, 12, 16, and 20 eggs with 0, 1, 2, 3, 4, and 5 cups of milk.",
+        className: "unit2-guidelines-summary-source",
+      })}
+      <p>We can also say that this recipe uses <strong>4 eggs per cup of milk</strong> because the word <strong>per</strong> means <strong>for each</strong>.</p>
+    </section>
+  `;
+}
+
+function renderUnit2ExpressionList(card) {
+  return `
+    <section class="unit2-expression-list" aria-label="Source mental-math expressions">
+      ${(card.expressionList || []).map((expression) => `<span>${escapeHtml(expression)}</span>`).join("")}
+    </section>
+  `;
+}
+
+function unit2BulkNotBetterIsCorrect(card, question) {
+  const product = normalizeAnswer(questionSetValue(card, question.id, "product"));
+  const smallQuantity = parseMathNumber(questionSetValue(card, question.id, "smallQuantity"));
+  const smallPrice = parseMathNumber(questionSetValue(card, question.id, "smallPrice"));
+  const largeQuantity = parseMathNumber(questionSetValue(card, question.id, "largeQuantity"));
+  const largePrice = parseMathNumber(questionSetValue(card, question.id, "largePrice"));
+  if (product.length < 2 || ![smallQuantity, smallPrice, largeQuantity, largePrice].every((value) => value !== null && value > 0)) return false;
+  if (largeQuantity <= smallQuantity) return false;
+  return (largePrice / largeQuantity) + 1e-9 >= smallPrice / smallQuantity;
+}
+
+function renderUnit2GroceryShopping(card) {
+  return `
+    <section class="unit2-grocery-visual" aria-label="Source grocery items">
+      <figure>
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-8-Lesson-student-task-statements/page-001.png",
+          viewBox: "548 454 196 142",
+          label: "The exact source photograph of avocados.",
+          className: "unit2-grocery-photo",
+        })}
+        <figcaption><strong>8 avocados</strong><span>$4</span></figcaption>
+      </figure>
+      <figure>
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-8-Lesson-student-task-statements/page-001.png",
+          viewBox: "578 648 142 188",
+          label: "The exact source photograph of large water bottles.",
+          className: "unit2-grocery-photo",
+        })}
+        <figcaption><strong>12 bottles</strong><span>$9</span></figcaption>
+      </figure>
+      <figure class="is-flour">
+        <div class="unit2-flour-sack" aria-hidden="true">FLOUR</div>
+        <figcaption><strong>10 pounds</strong><span>$8</span></figcaption>
+      </figure>
+    </section>
+  `;
+}
+
+function renderUnit2BulkComparison() {
+  return `
+    <section class="unit2-bulk-comparison">
+      <h3>Compare equal units</h3>
+      <div class="unit2-unit-price-formula" aria-label="Unit price equals package price divided by package quantity">
+        <span>package price</span><i aria-hidden="true">÷</i><span>package quantity</span><i aria-hidden="true">=</i><strong>price per unit</strong>
+      </div>
+      <p>Use the same unit for both same-brand packages. A larger package is not a better deal when its price per unit is equal to or greater than the smaller package's price per unit.</p>
+    </section>
+  `;
+}
+
+function renderUnit2ShoppingDisplay() {
+  return `
+    <section class="unit2-shopping-display">
+      <h3>App assignment: used books</h3>
+      <p>Build three aligned pairs in the response panel: the source purchase, one book, and the purchase for $21.</p>
+      ${renderUnit2RatioLineScaffold({
+        title: "Visual-display structure",
+        rows: [{ label: "number of books" }, { label: "cost (dollars)" }],
+        tickCount: 3,
+        note: "Each column must represent the same dollars-per-book rate.",
+      })}
+    </section>
+  `;
+}
+
+function renderUnit2UnitPriceSummary(card) {
+  return `
+    <section class="lesson-summary unit2-unit-price-summary">
+      <p>The <strong>unit price</strong> is the price of 1 thing—for example, the price of 1 ticket, 1 slice of pizza, or 1 kilogram of peaches.</p>
+      <p>If 4 movie tickets cost $28, then the unit price would be the cost <em>per</em> ticket. We can create a double number line to find the unit price.</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-8-Lesson-student-task-statements/page-003.png",
+        viewBox: "135 235 610 185",
+        label: card.visualAlt || "The exact source double number line pairing costs 0, 7, 14, 21, 28, and 35 dollars with 0 through 5 tickets.",
+        className: "unit2-unit-price-summary-source",
+      })}
+      <p>This double number line shows that the cost for 1 ticket is $7. We can also find the unit price by dividing, <strong>28 ÷ 4 = 7</strong>, or by multiplying, <strong>28 × 1/4 = 7</strong>.</p>
+    </section>
+  `;
+}
+
+function unit2SpeedTimeValue(card, field) {
+  return parseMathNumber(questionSetValue(card, "speed-times", field));
+}
+
+function unit2NearlyEqual(value, expected, tolerance = 0.01) {
+  return Number.isFinite(value) && Number.isFinite(expected)
+    && Math.abs(value - expected) <= Math.max(tolerance, Math.abs(expected) * 0.005);
+}
+
+function unit2SpeedTimesAreCorrect(card) {
+  const slow = unit2SpeedTimeValue(card, "slow");
+  const fast = unit2SpeedTimeValue(card, "fast");
+  return slow !== null && fast !== null && slow > fast && fast > 0;
+}
+
+function unit2OneSecondDistanceIsCorrect(card, question, timeField) {
+  const time = unit2SpeedTimeValue(card, timeField);
+  const answer = parseMathNumber(questionSetValue(card, question.id));
+  return time !== null && time > 0 && answer !== null && unit2NearlyEqual(answer, 10 / time);
+}
+
+function unit2OwnTenSecondDistanceIsCorrect(card, question) {
+  const time = parseMathNumber(questionSetValue(card, question.id, "time"));
+  const distance = parseMathNumber(questionSetValue(card, question.id, "distance"));
+  return time !== null && time > 0 && distance !== null && unit2NearlyEqual(distance, 100 / time);
+}
+
+function unit2HanVsOwnIsCorrect(card, question) {
+  const time = parseMathNumber(questionSetValue(card, "own-ten-seconds", "time"));
+  const selected = questionSetSelections(card, question)[0];
+  if (time === null || time <= 0 || !selected) return false;
+  const ownSpeed = 10 / time;
+  const expected = Math.abs(ownSpeed - 5) <= 0.01
+    ? "same"
+    : ownSpeed < 5 ? "han-faster" : "han-slower";
+  return selected === expected;
+}
+
+function renderUnit2SpeedLine(label, time) {
+  const timeText = time !== null && time > 0 ? formatUnit2Number(time) : "?";
+  return `
+    <div class="unit2-speed-line-pair">
+      <strong>${escapeHtml(label)}</strong>
+      <div><span>distance traveled (meters)</span><i></i><b>0</b><b>10</b></div>
+      <div><span>elapsed time (seconds)</span><i></i><b>0</b><b>${timeText}</b></div>
+    </div>
+  `;
+}
+
+function renderUnit2SpeedExperiment(card) {
+  const slow = unit2SpeedTimeValue(card, "slow");
+  const fast = unit2SpeedTimeValue(card, "fast");
+  return `
+    <section class="unit2-speed-experiment">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-9-Lesson-student-task-statements/page-001.png",
+        viewBox: "145 525 590 150",
+        label: card.visualAlt,
+        className: "unit2-speed-path-source",
+      })}
+      <ol class="unit2-speed-directions">
+        <li>Begin at the warm-up mark and reach a steady speed before the start line.</li>
+        <li>Time only the 10-meter measuring zone, first slowly and then quickly.</li>
+        <li>Round each measured time to the nearest second and record it in the response panel.</li>
+      </ol>
+      <div class="unit2-speed-lines">
+        ${renderUnit2SpeedLine("Moving slowly", slow)}
+        ${renderUnit2SpeedLine("Moving quickly", fast)}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2RunnerComparison(card) {
+  const ownTime = parseMathNumber(questionSetValue(card, "own-ten-seconds", "time"));
+  const ownSpeed = ownTime !== null && ownTime > 0 ? 10 / ownTime : null;
+  const runners = [
+    { name: "Lin", distance: 40, time: 10 },
+    { name: "Diego", distance: 55, time: 10 },
+    { name: "Han", distance: 100, time: 20 },
+  ];
+  return `
+    <section class="unit2-runner-comparison">
+      <div class="unit2-runner-source-facts">
+        ${runners.map((runner) => `
+          <div><strong>${runner.name}</strong><span>${runner.distance} meters</span><span>${runner.time} seconds</span></div>
+        `).join("")}
+        <div><strong>Your quick trip</strong><span>10 meters</span><span>${ownTime !== null && ownTime > 0 ? `${formatUnit2Number(ownTime)} seconds` : "enter your time"}</span></div>
+      </div>
+      <p>Compare constant speeds using equal time intervals or meters per second.${ownSpeed !== null ? ` Your recorded quick speed is ${formatUnit2Number(ownSpeed)} meters per second.` : ""}</p>
+    </section>
+  `;
+}
+
+function renderUnit2SpeedSummary(card) {
+  return `
+    <section class="lesson-summary unit2-speed-summary">
+      <p>Suppose a train traveled 100 meters in 5 seconds at a constant speed. To find its speed in <strong>meters per second</strong>, we can create a double number line:</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-9-Lesson-student-task-statements/page-004.png",
+        viewBox: "110 184 608 165",
+        label: card.visualAlt || "The exact source double number line pairing distances 0, 20, 40, 60, 80, and 100 meters with elapsed times 0 through 5 seconds.",
+        className: "unit2-speed-summary-source",
+      })}
+      <p>The double number line shows that the train's speed was 20 meters per second. We can also find the speed by dividing: <strong>100 ÷ 5 = 20</strong>.</p>
+      <p>Once we know the speed in meters per second, many questions become simpler because we can multiply the amount of time an object travels by the speed to get the distance. Since <strong>20 × 30 = 600</strong>, the train would go 600 meters in 30 seconds.</p>
+    </section>
+  `;
+}
+
+function renderUnit2Treadmills(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-10-Lesson-student-task-statements/page-001.png",
+    viewBox: "132 368 612 174",
+    label: card.visualAlt,
+    className: "unit2-treadmill-source",
+  });
+}
+
+function renderUnit2ConcertTickets() {
+  return `
+    <section class="unit2-ticket-comparison" aria-label="Diego and Andre concert-ticket purchases">
+      <div><strong>Diego</strong><span>3 tickets</span><span>$47</span></div>
+      <div><strong>Andre</strong><span>9 tickets</span><span>$141</span></div>
+    </section>
+  `;
+}
+
+function renderUnit2OrangeJuiceComparison() {
+  const recipe = (name, orange, soda) => `
+    <section>
+      <h3>${name}'s recipe</h3>
+      <div><strong>${orange}</strong><span>liters orange juice</span></div>
+      <div><strong>${soda}</strong><span>liters soda water</span></div>
+    </section>
+  `;
+  return `
+    <div class="unit2-orange-juice-comparison" aria-label="Lin and Noah sparkling orange juice recipes">
+      ${recipe("Lin", 3, 4)}
+      ${recipe("Noah", 4, 5)}
+    </div>
+  `;
+}
+
+function renderUnit2SameRateSummary(card) {
+  return `
+    <section class="lesson-summary unit2-same-rate-summary">
+      <p>Sometimes we want to know whether two situations are described by the <strong>same rate</strong>. We can write an equivalent ratio for one or both situations so one part has the same value, then compare the other part.</p>
+      <p>Kiran mixes 9 teaspoons of red paint with 15 teaspoons of yellow paint. Tyler mixes 7 teaspoons of red paint with 10 teaspoons of yellow paint.</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-10-Lesson-student-task-statements/page-003.png",
+        viewBox: "167 376 542 144",
+        label: card.visualAlt || "The exact source double number line for Kiran's paint mixture, pairing red paint 0, 3, 6, 9, and 12 teaspoons with yellow paint 0, 5, 10, 15, and 20 teaspoons.",
+        className: "unit2-same-rate-summary-source",
+      })}
+      <p>Kiran's ratio <strong>9 : 15</strong> is equivalent to <strong>3 : 5</strong> and <strong>6 : 10</strong>. For 10 teaspoons of yellow paint, Kiran uses 6 teaspoons of red paint, less than Tyler's 7. The ratios <strong>6 : 10</strong> and <strong>7 : 10</strong> are not equivalent, so the mixtures are not the same shade.</p>
+      <p>When two things happen at the same rate, their quantity ratios are equivalent and something specific to the situation is the same:</p>
+      <ul>
+        <li>Two ladybugs moving at the same rate travel at the same constant speed.</li>
+        <li>Two bags of apples selling at the same rate have the same unit price.</li>
+        <li>Two kinds of juice mixed at the same rate have the same taste.</li>
+        <li>Two colors of paint mixed at the same rate have the same shade.</li>
+      </ul>
+    </section>
+  `;
+}
+
+function unit2CookieTableRowIsCorrect(card, question) {
+  const sugar = parseMathNumber(questionSetValue(card, question.id, "sugar"));
+  const flour = parseMathNumber(questionSetValue(card, question.id, "flour"));
+  if (sugar === null || flour === null || sugar <= 0 || flour <= 0 || !unit2NearlyEqual(sugar / flour, 2 / 5, 1e-7)) return false;
+  if (question.constraint === "flourUnder25") return flour < 25;
+  if (question.constraint === "sugar20To30") return sugar >= 20 && sugar <= 30;
+  if (question.constraint === "flourOver500") return flour > 500;
+  return false;
+}
+
+function renderUnit2GrowingTiles(card) {
+  return renderUnit2SourceClip({
+    path: "_rendered-previews/Student Task Statements/Grade6-2-11-Lesson-student-task-statements/page-001.png",
+    viewBox: "370 278 340 175",
+    label: card.visualAlt,
+    className: "unit2-growing-tiles-source",
+  });
+}
+
+function renderUnit2OrangeDoubleLine(card) {
+  return `
+    <section class="unit2-source-and-scaffold">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-11-Lesson-student-task-statements/page-002.png",
+        viewBox: "145 235 585 180",
+        label: "The exact source blank double number line for orange juice and soda water.",
+        className: "unit2-orange-line-source",
+      })}
+      ${renderUnit2RatioLineScaffold({
+        title: "Complete six batch pairs",
+        rows: [{ label: "orange juice (L)" }, { label: "soda water (L)" }],
+        note: "Use the response panel to label 0 through 5 batches of the 4:5 recipe.",
+      })}
+    </section>
+  `;
+}
+
+function renderUnit2TrailMixTable(card) {
+  return `
+    <section class="unit2-trail-mix-visual">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-11-Lesson-student-task-statements/page-003.png",
+        viewBox: "120 220 225 300",
+        label: card.visualAlt,
+        className: "unit2-trail-mix-source",
+      })}
+      <p>Keep each given number in its source row. Complete the missing partner amount by scaling both parts of <strong>7 : 5</strong> together.</p>
+    </section>
+  `;
+}
+
+function renderUnit2CookieRatioTable() {
+  return `
+    <section class="unit2-cookie-ratio-table">
+      <h3>Chocolate-chip-cookie ratio</h3>
+      <div class="unit2-cookie-ratio-header"><span>sugar</span><span>flour</span></div>
+      <div><strong>2</strong><strong>5</strong></div>
+      <div><span>your first entry</span><span>flour &lt; 25</span></div>
+      <div><span>your second entry</span><span>sugar 20–30</span></div>
+      <div><span>your third entry</span><span>flour &gt; 500</span></div>
+    </section>
+  `;
+}
+
+function renderUnit2RatioTableSummary(card) {
+  return `
+    <section class="lesson-summary unit2-ratio-table-summary">
+      <p>A <strong>table</strong> is a way to organize information. Each horizontal set of entries is called a <strong>row</strong>, and each vertical set of entries is called a <strong>column</strong>. The source table has 2 columns and 5 rows. A table can represent a collection of equivalent ratios.</p>
+      <p>Here is a double number line diagram and a table that both represent the situation: “The price is $2 for every 3 mangos.”</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-11-Lesson-student-task-statements/page-004.png",
+        viewBox: "113 289 606 459",
+        label: card.visualAlt || "The exact source double number line and five-row table pairing prices 2, 4, 6, 8, and 10 dollars with 3, 6, 9, 12, and 15 mangos, including row and column labels.",
+        className: "unit2-ratio-table-summary-source",
+      })}
+    </section>
+  `;
+}
+
+function unit2QuestionCorrect(card, questionId) {
+  const question = questionSetDefinition(card, questionId);
+  return Boolean(question
+    && isTeachQuestionSubmitted(card, questionId)
+    && questionSetQuestionIsCorrect(card, question));
+}
+
+function renderUnit2Table(headers, rows, { caption = "", className = "" } = {}) {
+  return `
+    <table class="unit2-data-table ${escapeHtml(className)}">
+      ${caption ? `<caption>${escapeHtml(caption)}</caption>` : ""}
+      <thead><tr>${headers.map((header) => `<th scope="col">${escapeHtml(header)}</th>`).join("")}</tr></thead>
+      <tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${cell === null ? "" : escapeHtml(String(cell))}</td>`).join("")}</tr>`).join("")}</tbody>
+    </table>
+  `;
+}
+
+function renderUnit2TacoTable(card) {
+  const firstComplete = unit2QuestionCorrect(card, "noah-tacos");
+  const secondComplete = unit2QuestionCorrect(card, "jada-price");
+  const rows = [[4, "$6"], [2, "$3"], [1, "$1.50"]];
+  if (firstComplete) rows.push([10, "$15"]);
+  if (secondComplete) rows.push([50, "$72"]);
+  while (rows.length < 6) rows.push([null, null]);
+  return `
+    <section class="unit2-table-workspace">
+      ${renderUnit2Table(["number of tacos", "price in dollars"], rows, { caption: "Taco-price table" })}
+      <p>Rows appear as you verify them. Every completed row must preserve the same tacos-to-price relationship.</p>
+    </section>
+  `;
+}
+
+function renderUnit2HourlyWageTable() {
+  return `
+    <section class="unit2-table-workspace">
+      ${renderUnit2Table(["amount earned ($)", "time worked (hours)"], [[90, 5], [18, 1], [144, 8], [null, null], [null, null]], { caption: "Lin's source table" })}
+      <div class="unit2-operation-chain" aria-label="Source table operations">
+        <span>90 : 5</span><strong>× 1/5</strong><span>18 : 1</span><strong>× 8</strong><span>144 : 8</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2MemoryHalving(card) {
+  const chainComplete = unit2QuestionCorrect(card, "halving-chain");
+  const rows = chainComplete
+    ? [[128, "$32"], [64, "$16"], [32, "$8"], [16, "$4"], [8, "$2"], [4, "$1"], [2, "$0.50"], [1, "$0.25"]]
+    : [[128, "$32"], [64, "?"], [32, "?"], [16, "?"], [8, "?"], [4, "?"], [2, "?"], [1, "?"]];
+  return `
+    <section class="unit2-memory-workspace">
+      <div class="unit2-memory-number-line" role="img" aria-label="Double number line from 0 to 128 gigabytes and 0 to 32 dollars, with a midpoint tick">
+        <strong>memory (GB)</strong><span><i></i><b>0</b><b>128</b></span>
+        <strong>cost ($)</strong><span><i></i><b>0</b><b>32</b></span>
+      </div>
+      ${renderUnit2Table(["memory (gigabytes)", "cost (dollars)"], rows, { caption: "Repeated-halving table" })}
+      <p>${chainComplete ? "The completed table reaches the unit row without crowding the labels." : "Halve both quantities together. The complete chain appears after a correct submission."}</p>
+    </section>
+  `;
+}
+
+function renderUnit2GigabyteEstimate() {
+  return `
+    <section class="unit2-gigabyte-estimate">
+      <div><strong>kilo</strong><span>1,000</span></div>
+      <div><strong>mega</strong><span>1,000,000</span></div>
+      <div><strong>giga</strong><span>1,000,000,000</span></div>
+      <p><strong>1 byte</strong> is about the amount of memory needed to store one letter of the alphabet. For pages, books, movies, and songs, state a reasonable item-size assumption before comparing estimates.</p>
+    </section>
+  `;
+}
+
+function renderUnit2EfficientTableSummary() {
+  return `
+    <section class="lesson-summary unit2-efficient-table-summary">
+      <p>Finding a row containing a <strong>1</strong> is often a good way to work with tables of equivalent ratios. For example, the price for 4 lbs of granola is $5. At that rate, what would be the price for 62 lbs of granola?</p>
+      <p>Here are tables showing two different approaches to solving this problem. Both of these approaches are correct. However, one approach is more efficient.</p>
+      <div class="unit2-summary-table-pair is-source-visual-stack">
+        <section>
+          <h3>Less efficient</h3>
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-12-Lesson-student-task-statements/page-005.png",
+            viewBox: "207 302 507 184",
+            label: "Exact source less-efficient granola table. It scales 4 pounds for 5 dollars to 64 pounds for 80 dollars, then subtracts 2 pounds and 2 dollars 50 cents to obtain 62 pounds for 77 dollars 50 cents.",
+            className: "unit2-efficient-summary-source is-less-efficient",
+          })}
+        </section>
+        <section>
+          <h3>More efficient</h3>
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-12-Lesson-student-task-statements/page-005.png",
+            viewBox: "165 530 582 138",
+            label: "Exact source more-efficient granola table. It multiplies 4 pounds for 5 dollars by one fourth to obtain 1 pound for 1 dollar 25 cents, then multiplies by 62 to obtain 62 pounds for 77 dollars 50 cents.",
+            className: "unit2-efficient-summary-source is-more-efficient",
+          })}
+        </section>
+      </div>
+      <p>Notice how the more efficient approach starts by finding the price for 1 pound of granola.</p>
+      <p>Remember that dividing by a whole number is the same as multiplying by a unit fraction. In this example, we can divide by 4 or multiply by <strong>1/4</strong> to find the unit price.</p>
+    </section>
+  `;
+}
+
+function renderUnit2ConstantDividend(card) {
+  const values = [
+    { id: "divide-eight", value: 18.75, label: "18.75" },
+    { id: "divide-four", value: 37.5, label: "37.5" },
+    { id: "divide-two", value: 75, label: "75" },
+  ];
+  return `
+    <section class="unit2-constant-dividend">
+      <div class="unit2-expression-list"><span>150 ÷ 2</span><span>150 ÷ 4</span><span>150 ÷ 8</span></div>
+      <div class="unit2-scaled-number-line" role="img" aria-label="Number line from 0 to 150 with submitted quotients">
+        <i aria-hidden="true"></i><b class="is-start">0</b><b class="is-end">150</b>
+        ${values.filter((entry) => unit2QuestionCorrect(card, entry.id)).map((entry) => `<span style="--line-position:${entry.value / 150}">${entry.label}</span>`).join("")}
+      </div>
+      <p>Correct quotients appear at their proportional positions on the source interval.</p>
+    </section>
+  `;
+}
+
+function renderUnit2MovingTable(card) {
+  const hanComplete = unit2QuestionCorrect(card, "han-3000");
+  return `
+    <section class="unit2-moving-tables">
+      <section>
+        <h3>Han</h3>
+        ${renderUnit2Table(["elapsed time (seconds)", "distance traveled (meters)"], [[20, 100], [10, 50], [1, 5], [hanComplete ? 600 : "?", 3000]])}
+      </section>
+      <section>
+        <h3>Priya and the dirt bike</h3>
+        <div class="unit2-rate-fact"><strong>Priya</strong><span>150 meters</span><span>20 seconds</span></div>
+        <div class="unit2-rate-fact"><strong>Dirt bike</strong><span>360 meters</span><span>15 seconds</span></div>
+        <p>Build a separate equivalent-ratio table for each traveler; do not mix their rates.</p>
+      </section>
+    </section>
+  `;
+}
+
+function renderUnit2SimpleDoubleLine(rows, pairs, { className = "" } = {}) {
+  return `
+    <div class="unit2-simple-double-line ${escapeHtml(className)}">
+      ${rows.map((row, rowIndex) => `
+        <div>
+          <strong>${escapeHtml(row)}</strong>
+          <span class="unit2-simple-line-track"><i aria-hidden="true"></i>${pairs.map((pair) => `<b>${escapeHtml(String(pair[rowIndex]))}</b>`).join("")}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderUnit2IssExchange(card) {
+  const tableComplete = unit2QuestionCorrect(card, "iss-table");
+  const partnerShared = unit2QuestionCorrect(card, "iss-partner");
+  return `
+    <section class="unit2-iss-workspace">
+      <div class="unit2-iss-heading">
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-13-Lesson-student-task-statements/page-003.png",
+          viewBox: "463 145 270 185",
+          label: "The exact source photograph of the International Space Station orbiting above Earth.",
+          className: "unit2-iss-photo",
+        })}
+        <div><h3>App assignment: table</h3><p>You receive the source table. The app partner holds the double number line until you ask for specific aligned values.</p></div>
+      </div>
+      <div class="unit2-iss-representations">
+        <section>
+          <h3>Your table</h3>
+          ${renderUnit2Table(["distance traveled (km)", "elapsed time (seconds)"], tableComplete ? [[0, 0], [80, 10], [8, 1], [40, 5], [64, 8]] : [[0, 0], [80, 10], ["?", 1], [null, null], [null, null]])}
+        </section>
+        <section class="${partnerShared ? "" : "is-locked"}">
+          <h3>App partner's double number line</h3>
+          ${partnerShared
+            ? renderUnit2SimpleDoubleLine(["distance traveled (km)", "elapsed time (seconds)"], [[0, 0], [8, 1], [40, 5], [56, 7], [80, 10]])
+            : `<p class="unit2-partner-locked">Complete your table and make a specific information request to unlock the partner representation.</p>`}
+        </section>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2IssOrbit() {
+  return `
+    <section class="unit2-orbit-estimate" aria-label="International Space Station orbit estimate">
+      <div><strong>about 40,000 km</strong><span>Earth's circumference</span></div>
+      <div><strong>8 km/s</strong><span>represented ISS speed</span></div>
+      <p>The source says the orbit is just a bit longer than Earth's circumference, so the result is an estimate rather than an exact orbit time.</p>
+    </section>
+  `;
+}
+
+function renderUnit2TableLineSummary() {
+  return `
+    <section class="lesson-summary unit2-table-line-summary">
+      <p>On a double number line diagram, we put labels in front of each line to tell what the numbers represent. On a table, we put labels at the top of each column to tell what the numbers represent.</p>
+      <p>Here are two different ways to represent the situation: “A snail is moving at a constant speed down a sidewalk, traveling 6 centimeters per minute.”</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-13-Lesson-student-task-statements/page-004.png",
+        viewBox: "100 272 632 342",
+        label: "Exact source representations of the snail situation: an ordered double number line above an equivalent-ratio table whose rows may appear out of order.",
+        className: "unit2-table-line-summary-source",
+      })}
+      <p>Both double number lines and tables can help us use multiplication to make equivalent ratios, but there is an important difference between the two representations.</p>
+      <p>On a double number line, the numbers on each line are listed in order. With a table, you can write the ratios in any order. For this reason, sometimes a table is easier to use to solve a problem.</p>
+      <p>For example, if we wanted to know how far the snail travels in 10 minutes, 60 centimeters in 10 minutes is shown on the table, but there is not enough room for this information on the double number line.</p>
+    </section>
+  `;
+}
+
+function renderUnit2HighwayQuestion() {
+  return `
+    <section class="unit2-highway-question" aria-label="Two cars entering a highway">
+      <div class="unit2-highway-lanes" aria-hidden="true">
+        <span class="unit2-car unit2-car-red">red car</span>
+        <i></i>
+        <span class="unit2-car unit2-car-blue">blue car</span>
+      </div>
+      <div class="unit2-highway-facts">
+        <strong>Known:</strong>
+        <span>Both cars enter the highway at the same time and travel at constant speeds.</span>
+        <strong>Question:</strong>
+        <span>How far apart are they after 4 hours?</span>
+      </div>
+      <p>The picture deliberately does not choose speeds, directions, or starting locations. First decide which missing facts the question requires.</p>
+    </section>
+  `;
+}
+
+function renderUnit2HotChocolateInfoGap(card) {
+  const activeId = questionSetActiveId(card);
+  const cocoaRequested = unit2QuestionCorrect(card, "cocoa-request");
+  const cocoaSolved = unit2QuestionCorrect(card, "cocoa-solve");
+  const potatoRequested = unit2QuestionCorrect(card, "potato-request");
+  const potatoCalculated = unit2QuestionCorrect(card, "potato-calculate");
+  const potatoRound = activeId.startsWith("potato-");
+  if (potatoRound) {
+    return `
+      <section class="unit2-info-gap-card">
+        <header><span>Problem card</span><h3>Will Noah finish peeling the potatoes in time?</h3></header>
+        <p>Noah has begun peeling potatoes at a constant rate. Decide what information you need before solving.</p>
+        <div class="unit2-data-card ${potatoRequested ? "is-revealed" : "is-hidden"}">
+          <strong>App partner's data card</strong>
+          ${potatoRequested ? `
+            <ul>
+              <li>Noah peeled 8 potatoes in the first 10 minutes.</li>
+              <li>He has 60 more potatoes to peel.</li>
+              <li>The deadline is 1 hour 10 minutes after he started.</li>
+              <li>1 hour is 60 minutes.</li>
+            </ul>
+          ` : `<p>Request the rate, remaining work, and deadline information to open this card.</p>`}
+        </div>
+        ${potatoCalculated ? `<p class="unit2-info-gap-result">Your calculation shows 75 minutes are needed and 60 minutes remain. Use that comparison to make the final decision.</p>` : ""}
+      </section>
+    `;
+  }
+  return `
+    <section class="unit2-info-gap-card">
+      <header><span>Problem card</span><h3>How much milk should Jada use with all her cocoa powder?</h3></header>
+      <p>Ask the app partner for the specific recipe and supply information you need.</p>
+      <div class="unit2-data-card ${cocoaRequested ? "is-revealed" : "is-hidden"}">
+        <strong>App partner's data card</strong>
+        ${cocoaRequested ? `
+          <ul>
+            <li>The recipe uses 3 cups of milk for every 2 tablespoons of cocoa powder.</li>
+            <li>Jada has 9 tablespoons of cocoa powder.</li>
+            ${cocoaSolved ? `<li class="is-secondary">She also has 2 gallons of milk, and 1 gallon is 16 cups. These facts were not needed.</li>` : ""}
+          </ul>
+        ` : `<p>Request the complete recipe ratio and the cocoa amount to open this card.</p>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2ReadingRates() {
+  return `
+    <section class="unit2-reading-rates">
+      <article><h3>Lin</h3><strong>54 pages</strong><span>in 3 days</span><p>Book: 270 pages</p></article>
+      <article><h3>Diego</h3><strong>100 pages</strong><span>in 4 days</span><p>Book: 325 pages</p></article>
+      <article><h3>Elena</h3><strong>160 pages</strong><span>in 5 days</span><p>Book: 480 pages</p></article>
+      <p>Find each reader's constant rate and total reading time before ranking the finish order.</p>
+    </section>
+  `;
+}
+
+function renderUnit2CatsDogs() {
+  return `
+    <section class="unit2-cats-dogs">
+      <div class="unit2-ratio-change"><span><strong>2</strong> cat parts</span><i>:</i><span><strong>3</strong> dog parts</span></div>
+      <div class="unit2-five-enter">+ 5 cats enter</div>
+      <div class="unit2-ratio-change"><span><strong>9</strong> cat parts</span><i>:</i><span><strong>11</strong> dog parts</span></div>
+      <p>The dog count does not change. Use that invariant to connect the two ratios.</p>
+    </section>
+  `;
+}
+
+function renderUnit2EquivalentProblemSummary() {
+  return `
+    <section class="lesson-summary unit2-equivalent-problem-summary">
+      <p>To solve problems about something happening at the same rate, we often need:</p>
+      <ul>
+        <li>Two pieces of information that allow us to write a ratio that describes the situation.</li>
+        <li>A third piece of information that gives us one number of an equivalent ratio. Solving the problem often involves finding the other number in the equivalent ratio.</li>
+      </ul>
+      <p>Suppose we are making a large batch of fizzy juice and the recipe says, “Mix 5 cups of cranberry juice with 2 cups of soda water.” We know that the ratio of cranberry juice to soda water is <strong>5 : 2</strong>, and that we need 2.5 cups of cranberry juice per cup of soda water.</p>
+      <div class="unit2-summary-copy-visual-row">
+        <div>
+          <p>We still need to know something about the size of the large batch. If we use 16 cups of soda water, what number goes with 16 to make a ratio that is equivalent to <strong>5 : 2</strong>?</p>
+          <p>To make this large batch taste the same as the original recipe, we would need to use 40 cups of cranberry juice.</p>
+        </div>
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-14-Lesson-student-task-statements/page-004.png",
+          viewBox: "512 355 220 188",
+          label: "Exact source cranberry-juice and soda-water table with rows 5 to 2, 2.5 to 1, and 40 to 16.",
+          className: "unit2-equivalent-problem-summary-source",
+        })}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2UnitFractionStatements(card) {
+  const statements = [
+    ["statement-one", "1/5 × 45", "45 ÷ 5"],
+    ["statement-two", "1/5 × 20", "1/4 × 24"],
+    ["statement-three", "42 × 1/6", "1/6 × 42"],
+    ["statement-four", "486 × 1/12", "480 ÷ 12 + 6 ÷ 12"],
+  ];
+  return `
+    <section class="unit2-equation-statements">
+      ${statements.map(([id, left, right], index) => `
+        <div class="${isTeachQuestionSubmitted(card, id) ? (unit2QuestionCorrect(card, id) ? "is-correct" : "is-revise") : ""}">
+          <span>${index + 1}</span><strong>${left}</strong><i>=</i><strong>${right}</strong>
+        </div>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderUnit2PaintCubes(card) {
+  const activeId = questionSetActiveId(card);
+  const cubeValue = activeId === "two-ml" ? 2 : activeId === "five-ml" ? 5 : activeId === "eighty-ml" ? 10 : 1;
+  return `
+    <section class="unit2-paint-cubes">
+      <div class="unit2-paint-cube-row is-red" aria-label="5 red-paint cubes">
+        <strong>red paint</strong>
+        <span>${Array.from({ length: 5 }, () => `<i>${cubeValue}</i>`).join("")}</span>
+      </div>
+      <div class="unit2-paint-cube-row is-blue" aria-label="3 blue-paint cubes">
+        <strong>blue paint</strong>
+        <span>${Array.from({ length: 3 }, () => `<i>${cubeValue}</i>`).join("")}</span>
+      </div>
+      <div class="unit2-paint-whole">
+        <strong>Each cube represents ${cubeValue} ml.</strong>
+        <span>The whole maroon batch contains all 5 red parts and all 3 blue parts.</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2RatioTape(parts, className, label) {
+  return `<div class="unit2-mini-ratio-tape ${className}" aria-label="${escapeHtml(label)}">${Array.from({ length: parts }, () => "<i></i>").join("")}</div>`;
+}
+
+function renderUnit2PartWholeProblems(card) {
+  const activeId = questionSetActiveId(card);
+  const situations = {
+    sneakers: { title: "Sneakers and boots", rows: [[5, "is-sneakers", "sneakers"], [6, "is-boots", "boots"]], whole: "33 students in all" },
+    marinade: { title: "Chicken marinade", rows: [[3, "is-oil", "oil"], [2, "is-soy", "soy sauce"], [1, "is-orange", "orange juice"]], whole: "42 cups in all" },
+    punch: { title: "Fruit punch", rows: [[4, "is-cranberry", "cranberry"], [3, "is-apple", "apple"], [2, "is-grape", "grape"]], whole: "3 apple parts = 30 cups" },
+  };
+  const situation = situations[activeId] || situations.sneakers;
+  return `
+    <section class="unit2-part-whole-workspace">
+      <h3>${situation.title}</h3>
+      <div class="unit2-part-whole-tapes">
+        ${situation.rows.map(([parts, className, label]) => `<div><strong>${label}</strong>${renderUnit2RatioTape(parts, className, `${parts} equal ${label} parts`)}</div>`).join("")}
+      </div>
+      <p><strong>Known:</strong> ${situation.whole}. Equal-size boxes have the same value.</p>
+    </section>
+  `;
+}
+
+function renderUnit2PunchLimit() {
+  return `
+    <section class="unit2-punch-limit">
+      <h3>Recipe: 4 cranberry : 3 apple : 2 grape</h3>
+      <div><strong>Cranberry</strong><span style="--supply:83.333%">50 cups</span></div>
+      <div><strong>Apple</strong><span style="--supply:66.667%">40 cups</span></div>
+      <div><strong>Grape</strong><span style="--supply:50%">30 cups</span></div>
+      <p>Find how many complete 4:3:2 recipe groups each supply can support. The smallest number of groups limits the punch batch.</p>
+    </section>
+  `;
+}
+
+function renderUnit2InventRatio(card) {
+  const categoryA = questionSetValue(card, "invent-problem", "categoryA").trim() || "first category";
+  const categoryB = questionSetValue(card, "invent-problem", "categoryB").trim() || "second category";
+  const partA = Math.min(12, Math.max(1, Number.parseInt(questionSetValue(card, "invent-problem", "partA"), 10) || 1));
+  const partB = Math.min(12, Math.max(1, Number.parseInt(questionSetValue(card, "invent-problem", "partB"), 10) || 1));
+  const total = questionSetValue(card, "invent-problem", "total").trim() || "?";
+  const invented = unit2QuestionCorrect(card, "invent-problem");
+  const partnerActive = questionSetActiveId(card) === "partner-problem";
+  return `
+    <section class="unit2-invent-ratio">
+      <article>
+        <span>Student display</span>
+        <h3>${escapeHtml(categoryA)} to ${escapeHtml(categoryB)} is ${partA}:${partB}</h3>
+        <div><strong>${escapeHtml(categoryA)}</strong>${renderUnit2RatioTape(partA, "is-invent-a", `${partA} first-category parts`)}</div>
+        <div><strong>${escapeHtml(categoryB)}</strong>${renderUnit2RatioTape(partB, "is-invent-b", `${partB} second-category parts`)}</div>
+        <p><strong>Total:</strong> ${escapeHtml(total)}. ${invented ? "The display is ready to trade; its solution remains hidden." : "Complete the structured problem fields to prepare this display."}</p>
+      </article>
+      <article class="${partnerActive ? "is-active" : ""}">
+        <span>App partner display</span>
+        <h3>Red beads to blue beads is 3:5</h3>
+        <div><strong>red beads</strong>${renderUnit2RatioTape(3, "is-partner-a", "3 red-bead parts")}</div>
+        <div><strong>blue beads</strong>${renderUnit2RatioTape(5, "is-partner-b", "5 blue-bead parts")}</div>
+        <p><strong>Total:</strong> 64 beads. Solve this display after your own is ready.</p>
+      </article>
+    </section>
+  `;
+}
+
+function renderUnit2TapeDiagramSummary() {
+  return `
+    <section class="lesson-summary unit2-tape-summary">
+      <p>A tape diagram is another way to represent a ratio. All the parts of the diagram that are the same size have the same value.</p>
+      <p>For example, this tape diagram represents the ratio of ducks to swans in a pond, which is <strong>4 : 5</strong>.</p>
+      <div class="unit2-summary-copy-visual-row">
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-15-Lesson-student-task-statements/page-004.png",
+          viewBox: "98 247 317 82",
+          label: "Exact source tape diagram with 4 equal duck parts and 5 equal swan parts.",
+          className: "unit2-tape-summary-source is-part-count",
+        })}
+        <div>
+          <p>The first tape represents the number of ducks. It has 4 parts.</p>
+          <p>The second tape represents the number of swans. It has 5 parts.</p>
+          <p>There are 9 parts in all, because <strong>4 + 5 = 9</strong>.</p>
+        </div>
+      </div>
+      <p>Suppose we know there are 18 of these birds in the pond, and we want to know how many are ducks. The 9 equal parts on the diagram need to represent 18 birds in all. This means that each part represents 2 birds, because <strong>18 ÷ 9 = 2</strong>.</p>
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-15-Lesson-student-task-statements/page-004.png",
+        viewBox: "98 458 314 78",
+        label: "Exact source tape diagram showing 2 birds in each of 9 equal parts, bracketed as 18 birds in all.",
+        className: "unit2-tape-summary-source is-part-value",
+      })}
+      <p>There are 4 parts of the tape representing ducks, and <strong>4 × 2 = 8</strong>, so there are <strong>8 ducks</strong> in the pond.</p>
+    </section>
+  `;
+}
+
+function renderUnit2TellStoryTape(card) {
+  const firstName = questionSetValue(card, "tape-story", "firstName").trim() || "blue quantity";
+  const secondName = questionSetValue(card, "tape-story", "secondName").trim() || "white quantity";
+  return `
+    <section class="unit2-story-tape">
+      <div><strong>${escapeHtml(firstName)}</strong><span class="is-blue">${Array.from({ length: 7 }, () => "<i>3</i>").join("")}</span></div>
+      <div><strong>${escapeHtml(secondName)}</strong><span class="is-white">${Array.from({ length: 3 }, () => "<i>3</i>").join("")}</span></div>
+      <p>The source diagram fixes the group sizes and number of parts. Your job is to choose a reasonable context for the two quantities.</p>
+    </section>
+  `;
+}
+
+function renderUnit2AquariumStrategies(card) {
+  const strategyQuestion = questionSetDefinition(card, "aquarium-strategy");
+  const selected = strategyQuestion ? questionSetSelections(card, strategyQuestion)[0] : "";
+  const solved = unit2QuestionCorrect(card, "aquarium-solve");
+  const fullPairs = solved ? [[0, 0, 0], [15, 2, 17], [30, 4, 34], [45, 6, 51], [60, 8, 68], [75, 10, 85]] : [[0, 0, 0], [15, 2, 17], ["?", "?", 85]];
+  return `
+    <section class="unit2-aquarium-strategies">
+      <article class="${selected === "line" ? "is-selected" : ""}">
+        <h3>Triple number line</h3>
+        ${renderUnit2SimpleDoubleLine(["students", "chaperones", "total"], fullPairs)}
+      </article>
+      <article class="${selected === "table" ? "is-selected" : ""}">
+        <h3>Table</h3>
+        ${renderUnit2Table(["students", "chaperones", "total"], solved ? fullPairs.slice(1) : [[15, 2, 17], [null, null, null], [null, null, 85]])}
+      </article>
+      <article class="${selected === "tape" ? "is-selected" : ""}">
+        <h3>Tape diagram</h3>
+        <div class="unit2-aquarium-tapes">
+          <div><strong>students</strong>${renderUnit2RatioTape(15, "is-students", "15 equal student parts")}</div>
+          <div><strong>chaperones</strong>${renderUnit2RatioTape(2, "is-chaperones", "2 equal chaperone parts")}</div>
+        </div>
+        <p><strong>Total:</strong> 85 tickets. ${solved ? "Each part represents 5 tickets." : "Find the value of one of the 17 equal parts."}</p>
+      </article>
+    </section>
+  `;
+}
+
+function renderUnit2NineDigitRatios(card) {
+  const fields = ["left1", "right1", "left2", "right2", "left3", "right3"];
+  const values = Object.fromEntries(fields.map((field) => [field, questionSetValue(card, "nine-digits", field).trim()]));
+  const box = (value, size) => `<span class="is-${size}">${escapeHtml(value || " ")}</span>`;
+  return `
+    <section class="unit2-nine-digit-ratios" aria-label="Three equivalent-ratio box patterns">
+      <div>${box(values.left1, "one")}<i>:</i>${box(values.right1, "one")}</div>
+      <strong>is equivalent to</strong>
+      <div>${box(values.left2, "two")}<i>:</i>${box(values.right2, "one")}</div>
+      <strong>and</strong>
+      <div>${box(values.left3, "two")}<i>:</i>${box(values.right3, "two")}</div>
+      <p>Use every digit 1 through 9 one time across the six boxes.</p>
+    </section>
+  `;
+}
+
+function renderUnit2SaladBoxes(card) {
+  const activeId = questionSetActiveId(card);
+  if (activeId === "boxes") {
+    return `
+      <section class="unit2-salad-boxes">
+        <h3>Boxes moved every half hour</h3>
+        <div class="unit2-worker-rate"><strong>Andre</strong>${renderUnit2RatioTape(4, "is-andre", "4 boxes")}</div>
+        <div class="unit2-worker-rate"><strong>Han</strong>${renderUnit2RatioTape(5, "is-han", "5 boxes")}</div>
+        <div class="unit2-worker-total"><strong>Together</strong><span>9 boxes per half hour</span><span>72 boxes total</span></div>
+      </section>
+    `;
+  }
+  return `
+    <section class="unit2-salad-boxes">
+      <h3>Salad dressing: 4 parts oil to 3 parts vinegar</h3>
+      <div class="unit2-worker-rate"><strong>oil</strong>${renderUnit2RatioTape(4, "is-oil", "4 oil parts")}</div>
+      <div class="unit2-worker-rate"><strong>vinegar</strong>${renderUnit2RatioTape(3, "is-vinegar", "3 vinegar parts")}</div>
+      <div class="unit2-worker-total"><strong>Whole batch</strong><span>7 equal parts</span><span>28 teaspoons total</span></div>
+    </section>
+  `;
+}
+
+function renderUnit2StrategySummary() {
+  return `
+    <section class="lesson-summary unit2-strategy-summary">
+      <p>When solving a problem involving equivalent ratios, it is often helpful to use a diagram. Any diagram is fine as long as it correctly shows the mathematics and you can explain it.</p>
+      <p>Let's compare three different ways to solve the same problem: The ratio of adults to kids in a school is <strong>2:7</strong>. If there is a total of 180 people, how many of them are adults?</p>
+      <div class="unit2-strategy-summary-sections">
+        <section>
+          <p><strong>Tape diagrams</strong> are especially useful for this type of problem because both parts of the ratio have the same units (“number of people”) and we can see the total number of parts.</p>
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-16-Lesson-student-task-statements/page-004.png",
+            viewBox: "228 324 375 55",
+            label: "Exact source tape diagram with 2 adult parts and 7 kid parts.",
+            className: "unit2-strategy-summary-source is-tape-parts",
+          })}
+          <p>This tape diagram has 9 equal parts, and they need to represent 180 people total. That means each part represents <strong>180 ÷ 9</strong>, or 20 people.</p>
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-16-Lesson-student-task-statements/page-004.png",
+            viewBox: "228 434 390 55",
+            label: "Exact source tape diagram with 20 in every part and a brace showing 180 people total.",
+            className: "unit2-strategy-summary-source is-tape-values",
+          })}
+          <p>Two parts of the tape diagram represent adults. There are 40 adults in the school because <strong>2 × 20 = 40</strong>.</p>
+        </section>
+        <section>
+          <p><strong>Double or triple number lines</strong> are useful when we want to see how far apart the numbers are from one another. They are harder to use with very big or very small numbers, but they could support our reasoning.</p>
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-16-Lesson-student-task-statements/page-004.png",
+            viewBox: "225 625 420 220",
+            label: "Exact source triple number line for adults, kids, and total, scaled from 2 to 40 adults and 9 to 180 people.",
+            className: "unit2-strategy-summary-source is-number-line",
+          })}
+        </section>
+        <section>
+          <p><strong>Tables</strong> are especially useful when the problem has very large or very small numbers.</p>
+          ${renderUnit2SourceClip({
+            path: "_rendered-previews/Student Task Statements/Grade6-2-16-Lesson-student-task-statements/page-005.png",
+            viewBox: "260 139 400 78",
+            label: "Exact source adults-kids-total table, including the times-20 scaling arrows.",
+            className: "unit2-strategy-summary-source is-table",
+          })}
+          <p>We ask ourselves, “9 times what is 180?” The answer is 20. Next, we multiply 2 by 20 to get the total number of adults in the school.</p>
+        </section>
+      </div>
+      <p>Another reason to make diagrams is to communicate our thinking to others. Here are some good habits when making diagrams:</p>
+      <ul>
+        <li>Label each part of the diagram with what it represents.</li>
+        <li>Label important amounts.</li>
+        <li>Make sure you read what the question is asking and answer it.</li>
+        <li>Make sure you make the answer easy to find.</li>
+        <li>Include units in your answer. For example, write “4 cups” instead of just “4.”</li>
+        <li>Double check that your ratio language is correct and matches your diagram.</li>
+      </ul>
+    </section>
+  `;
+}
+
+function renderUnit2CocoaFix(card) {
+  const fixed = unit2QuestionCorrect(card, "cocoa-adjustment");
+  return `
+    <section class="unit2-cocoa-fix">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-17-Lesson-student-task-statements/page-001.png",
+        viewBox: "190 292 490 170",
+        label: "Exact source diagrams showing the 1-cup-to-3-tablespoon recipe and Andre's 1-cup-to-5-tablespoon mixture.",
+        className: "unit2-cocoa-source-visual",
+      })}
+      <div class="unit2-cocoa-ratio-row">
+        <span><strong>Recipe</strong>1 cup milk : 3 tbsp cocoa</span>
+        <i>→</i>
+        <span><strong>Andre used</strong>1 cup milk : 5 tbsp cocoa</span>
+        ${fixed ? `<i>→</i><span class="is-fixed"><strong>Adjusted</strong>5/3 cups milk : 5 tbsp cocoa</span>` : ""}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2ClassFermi(card) {
+  const rangeComplete = unit2QuestionCorrect(card, "fermi-range");
+  const subquestionsComplete = unit2QuestionCorrect(card, "fermi-subquestions");
+  const orderComplete = unit2QuestionCorrect(card, "fermi-order");
+  const answerComplete = unit2QuestionCorrect(card, "fermi-calculate");
+  const low = questionSetValue(card, "fermi-range", "low").trim() || "low estimate";
+  const high = questionSetValue(card, "fermi-range", "high").trim() || "high estimate";
+  return `
+    <section class="unit2-class-fermi">
+      <header><span>App-assigned class question</span><h3>About how many times does a person's heart beat in one year?</h3></header>
+      <div class="unit2-fermi-range ${rangeComplete ? "is-complete" : ""}"><span>${escapeHtml(low)}</span><i></i><strong>possible answer</strong><i></i><span>${escapeHtml(high)}</span></div>
+      <ol class="unit2-fermi-steps">
+        <li class="${rangeComplete ? "is-complete" : ""}"><strong>Estimate a range</strong><span>Choose a definitely-low and definitely-high value.</span></li>
+        <li class="${subquestionsComplete ? "is-complete" : ""}"><strong>Identify smaller questions</strong><span>beats/minute, minutes/hour, hours/day, days/year</span></li>
+        <li class="${orderComplete ? "is-complete" : ""}"><strong>Organize</strong><span>Scale from minute to hour to day to year.</span></li>
+        <li class="${answerComplete ? "is-complete" : ""}"><strong>Estimate the answer</strong><span>${answerComplete ? "39,420,000 heartbeats under the stated assumptions" : "Use the app's stated assumptions."}</span></li>
+      </ol>
+    </section>
+  `;
+}
+
+function unit2ApprovedFermiQuestion(card) {
+  return questionSetValue(card, "fermi-brainstorm", "q1").trim() || "Your approved Fermi problem";
+}
+
+function renderUnit2OwnFermi(card) {
+  const activeId = questionSetActiveId(card);
+  const brainstormComplete = unit2QuestionCorrect(card, "fermi-brainstorm");
+  const organizerComplete = unit2QuestionCorrect(card, "fermi-organizer");
+  const displayComplete = unit2QuestionCorrect(card, "fermi-display");
+  const approved = unit2ApprovedFermiQuestion(card);
+  if (activeId === "fermi-brainstorm") {
+    return `
+      <section class="unit2-fermi-brainstorm">
+        <h3>Five possible Fermi problems</h3>
+        ${Array.from({ length: 5 }, (_, index) => {
+          const value = questionSetValue(card, "fermi-brainstorm", `q${index + 1}`).trim();
+          return `<article class="${index === 0 && brainstormComplete ? "is-approved" : ""}"><strong>${index + 1}</strong><span>${escapeHtml(value || "Enter a question in the response panel.")}</span>${index === 0 && brainstormComplete ? "<em>App approved</em>" : ""}</article>`;
+        }).join("")}
+      </section>
+    `;
+  }
+  const branches = Array.from({ length: 4 }, (_, index) => ({
+    question: questionSetValue(card, "fermi-organizer", `s${index + 1}`).trim(),
+    answer: questionSetValue(card, "fermi-organizer", `a${index + 1}`).trim(),
+  }));
+  return `
+    <section class="unit2-own-fermi-display ${displayComplete ? "is-complete" : ""}">
+      <div class="unit2-fermi-organizer">
+        <div class="unit2-fermi-center"><span>Fermi problem</span><strong>${escapeHtml(approved)}</strong></div>
+        ${branches.map((branch, index) => `<article class="is-branch-${index + 1}"><strong>Sub-question ${index + 1}</strong><span>${escapeHtml(branch.question || "Enter a smaller question.")}</span><em>${escapeHtml(branch.answer || "Add information or an estimate.")}</em></article>`).join("")}
+      </div>
+      <div class="unit2-fermi-final">
+        <strong>${organizerComplete ? "Research organizer complete" : "Complete all four source-organizer branches"}</strong>
+        <p>${displayComplete ? `${escapeHtml(questionSetValue(card, "fermi-display", "estimate"))} ${escapeHtml(questionSetValue(card, "fermi-display", "units"))}` : "The final estimate and units will complete the visual display."}</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2NumberTalk() {
+  return `
+    <section class="unit2-number-talk" aria-label="Four related mental-math expressions">
+      <p>Find each value mentally. Notice what stays the same when division by 4 is rewritten as multiplication by one fourth.</p>
+      <div class="unit2-expression-grid">
+        <span>24 ÷ 4</span>
+        <span>1/4 × 24</span>
+        <span>24 × 1/4</span>
+        <span>5 ÷ 4</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2Stepper(card, field, label, value, { minimum = 0, maximum = 12 } = {}) {
+  const number = Number.isInteger(Number(value)) ? Number(value) : 0;
+  return `
+    <div class="unit2-stepper" data-unit2-stepper-row="${escapeHtml(field)}">
+      <span>${escapeHtml(label)}</span>
+      <div>
+        <button type="button" data-unit2-stepper="${card.id}" data-stepper-field="${escapeHtml(field)}" data-step="-1" data-minimum="${minimum}" data-maximum="${maximum}" aria-label="Decrease ${escapeHtml(label)}">−</button>
+        <output>${number}</output>
+        <button type="button" data-unit2-stepper="${card.id}" data-stepper-field="${escapeHtml(field)}" data-step="1" data-minimum="${minimum}" data-maximum="${maximum}" aria-label="Increase ${escapeHtml(label)}">+</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderUnit2CountUnits(count, className, label) {
+  return `
+    <div class="unit2-count-units ${className}" role="img" aria-label="${count} ${escapeHtml(label)}">
+      ${Array.from({ length: count }, () => `<span aria-hidden="true"></span>`).join("")}
+    </div>
+  `;
+}
+
+function renderUnit2SnapCubePartner(card) {
+  const response = getTeachCustomResponse(card);
+  const selected = unit2SnapCubeSelectedColors(card);
+  const diagramSubmitted = isTeachQuestionSubmitted(card, "snap-diagram");
+  const diagramCorrect = diagramSubmitted && unit2SnapCubeDiagramIsCorrect(card);
+  const partnerSentence = selected.length === 2
+    ? `The ratio of ${selected[0]} snap cubes to ${selected[1]} snap cubes is ${unit2SnapCubeCounts[selected[0]]} : ${unit2SnapCubeCounts[selected[1]]}.`
+    : "";
+  return `
+    <section class="unit2-snap-cube-workspace">
+      ${renderUnit2SourceClip({
+        path: "_rendered-previews/Student Task Statements/Grade6-2-2-Lesson-student-task-statements/page-001.png",
+        viewBox: "446 496 294 202",
+        label: "Source photograph showing yellow, red, pink, green, blue, and black snap-cube stacks.",
+        className: "unit2-snap-cube-photo",
+      })}
+      <div class="unit2-snap-builder">
+        <h3>Choose two colors</h3>
+        <div class="unit2-color-choices" role="group" aria-label="Snap-cube colors">
+          ${Object.keys(unit2SnapCubeCounts).map((color) => `
+            <button
+              class="page-chip unit2-color-choice is-${color} ${selected.includes(color) ? "is-active" : ""}"
+              type="button"
+              data-unit2-snap-color="${card.id}"
+              data-color="${color}"
+              aria-pressed="${selected.includes(color)}"
+            >${color[0].toUpperCase()}${color.slice(1)}</button>
+          `).join("")}
+        </div>
+        <div class="unit2-snap-diagram" aria-label="Your selected-color diagram">
+          ${selected.length ? selected.map((color) => {
+            const count = Math.max(0, Math.min(12, Number(response[unit2SnapCubeField(color)]) || 0));
+            return `
+              <div class="unit2-snap-row">
+                ${renderUnit2Stepper(card, unit2SnapCubeField(color), `${color[0].toUpperCase()}${color.slice(1)} cubes`, count)}
+                ${renderUnit2CountUnits(count, `is-${color}`, `${color} snap cubes`)}
+              </div>
+            `;
+          }).join("") : `<p class="unit2-empty-workspace">Choose two colors to begin your diagram.</p>`}
+        </div>
+        ${diagramCorrect ? `
+          <aside class="unit2-partner-note">
+            <strong>App partner's sentence</strong>
+            <p>${escapeHtml(partnerSentence)}</p>
+          </aside>
+        ` : `<p class="unit2-partner-locked">Submit a correct two-color diagram to receive your partner's sentence.</p>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2PaintDiagram() {
+  return `
+    <figure class="unit2-paint-diagram" aria-label="Two cups of white paint and six tablespoons of blue paint">
+      <figcaption>Elena's paint mixture</figcaption>
+      <div class="unit2-quantity-row"><strong>white paint (cups)</strong>${renderUnit2CountUnits(2, "is-white-paint", "cups of white paint")}</div>
+      <div class="unit2-quantity-row"><strong>blue paint (tablespoons)</strong>${renderUnit2CountUnits(6, "is-blue-paint", "tablespoons of blue paint")}</div>
+    </figure>
+  `;
+}
+
+function renderUnit2PaintPaste(card) {
+  const response = getTeachCustomResponse(card);
+  const flour = Math.max(0, Math.min(12, Number(response.pasteFlour) || 0));
+  const water = Math.max(0, Math.min(12, Number(response.pasteWater) || 0));
+  return `
+    <section class="unit2-paint-paste-workspace">
+      ${renderUnit2PaintDiagram()}
+      <section class="unit2-paste-builder">
+        <h3>Jada's art-paste diagram</h3>
+        <p>Set one unit for each cup of flour and each pint of water.</p>
+        <div class="unit2-paste-row">
+          ${renderUnit2Stepper(card, "pasteFlour", "Flour (cups)", flour)}
+          ${renderUnit2CountUnits(flour, "is-flour", "cups of flour")}
+        </div>
+        <div class="unit2-paste-row">
+          ${renderUnit2Stepper(card, "pasteWater", "Water (pints)", water)}
+          ${renderUnit2CountUnits(water, "is-water", "pints of water")}
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderUnit2SpaghettiSymbols(counts) {
+  return `
+    <div class="unit2-spaghetti-symbols" aria-label="${counts.tomato} cups tomato sauce, ${counts.oil} tablespoons oil${counts.oregano ? `, ${counts.oregano} teaspoons oregano` : ""}">
+      ${counts.oil ? `<div>${Array.from({ length: counts.oil }, () => `<i class="is-oil" aria-hidden="true"></i>`).join("")}</div>` : ""}
+      ${counts.tomato ? `<div>${Array.from({ length: counts.tomato }, () => `<i class="is-tomato" aria-hidden="true"></i>`).join("")}</div>` : ""}
+      ${counts.oregano ? `<div>${Array.from({ length: counts.oregano }, () => `<i class="is-oregano" aria-hidden="true"></i>`).join("")}</div>` : ""}
+    </div>
+  `;
+}
+
+function renderUnit2SpaghettiCardSort(card) {
+  const response = getTeachCustomResponse(card);
+  const diagramIds = Object.keys(unit2SpaghettiDiagrams);
+  return `
+    <section class="unit2-spaghetti-sort">
+      <div class="unit2-spaghetti-key" aria-label="Diagram symbol key">
+        <span><i class="is-tomato"></i>circle = 1 cup tomato sauce</span>
+        <span><i class="is-oil"></i>square = 1 tablespoon oil</span>
+        <span><i class="is-oregano"></i>triangle = 1 teaspoon oregano</span>
+      </div>
+      <div class="unit2-spaghetti-diagrams" aria-label="Diagram cards A through F">
+        ${diagramIds.map((diagramId) => `
+          <article class="unit2-spaghetti-diagram">
+            <h3>Diagram ${diagramId}</h3>
+            ${renderUnit2SpaghettiSymbols(unit2SpaghettiDiagrams[diagramId])}
+          </article>
+        `).join("")}
+      </div>
+      <div class="unit2-spaghetti-sentences" aria-label="Sentence cards 1 through 8">
+        ${unit2SpaghettiSentences.map((sentence) => {
+          const selected = String(response[unit2SpaghettiAssignmentField(sentence.id)] || "");
+          return `
+            <article class="unit2-spaghetti-sentence">
+              <div><strong>Sentence ${sentence.id}</strong><p>${escapeHtml(sentence.text)}</p></div>
+              <div class="unit2-diagram-choice-row" role="group" aria-label="Match Sentence ${sentence.id} to a diagram">
+                ${diagramIds.map((diagramId) => `
+                  <button
+                    class="page-chip ${selected === diagramId ? "is-active" : ""}"
+                    type="button"
+                    data-unit2-spaghetti-match="${card.id}"
+                    data-sentence-id="${sentence.id}"
+                    data-diagram-id="${diagramId}"
+                    aria-pressed="${selected === diagramId}"
+                  >${diagramId}</button>
+                `).join("")}
+              </div>
+            </article>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit2RecipeBuilder(card) {
+  const response = getTeachCustomResponse(card);
+  const rows = [
+    { field: "recipeA", label: "Ingredient A", className: "is-recipe-a" },
+    { field: "recipeB", label: "Ingredient B", className: "is-recipe-b" },
+    { field: "recipeC", label: "Ingredient C", className: "is-recipe-c" },
+  ];
+  return `
+    <section class="unit2-recipe-builder">
+      <h3>Your recipe ratio diagram</h3>
+      <p>Choose any positive whole-number amount for each ingredient.</p>
+      ${rows.map((row) => {
+        const count = Math.max(0, Math.min(12, Number(response[row.field]) || 0));
+        return `
+          <div class="unit2-recipe-row">
+            ${renderUnit2Stepper(card, row.field, row.label, count, { minimum: 0, maximum: 12 })}
+            ${renderUnit2CountUnits(count, row.className, row.label)}
+          </div>
+        `;
+      }).join("")}
+    </section>
+  `;
+}
+
+function renderUnit2DiagramSummary() {
+  const simpleGroup = () => `
+    <div class="unit2-lemonade-group">
+      <span class="is-scoop" aria-hidden="true"></span>
+      <div>${Array.from({ length: 3 }, () => `<span class="is-water" aria-hidden="true"></span>`).join("")}</div>
+    </div>
+  `;
+  return `
+    <section class="lesson-summary unit2-diagram-summary">
+      <p>Ratios can be represented using diagrams. The diagrams do not need to include realistic details. For example, a recipe for lemonade says, “Mix 2 scoops of lemonade powder with 6 cups of water.”</p>
+      <section>
+        <h3>Instead of this:</h3>
+        ${renderUnit2SourceClip({
+          path: "_rendered-previews/Student Task Statements/Grade6-2-2-Lesson-student-task-statements/page-004.png",
+          viewBox: "226 238 420 190",
+          label: "Realistic source illustration of two scoops of lemonade powder and six cups of water.",
+          className: "unit2-lemonade-realistic",
+        })}
+      </section>
+      <section>
+        <h3>We can draw something like this:</h3>
+        <div class="unit2-lemonade-simple" role="img" aria-label="Two groups, each with one yellow scoop above three blue cups of water">
+          ${simpleGroup()}${simpleGroup()}
+        </div>
+      </section>
+      <p>This diagram shows that the ratio of cups of water to scoops of lemonade powder is 6 to 2. We can also see that for every scoop of lemonade powder, there are 3 cups of water.</p>
+    </section>
+  `;
+}
+
+function renderTeachLessonGroup(group, unitNumber = state.activeUnit) {
+  const card = activeTeachCardForGroup(group, unitNumber);
   return renderTeachCard(card, group);
 }
 
 function renderTeachVisualContent(card) {
+  if (card.customVisual === "unit2FigureSort") return renderUnit2FigureSortVisual(card);
+  if (card.customVisual === "unit2TeacherCollection") return renderUnit2TeacherCollectionVisual(card);
+  if (card.customVisual === "unit2StudentCollection") return renderUnit2StudentCollectionVisual(card);
+  if (card.customVisual === "unit2RatioShading") return renderUnit2RatioShadingVisual(card);
+  if (card.customVisual === "unit2RatioSummary") return renderUnit2RatioSummary(card);
+  if (card.customVisual === "unit2NumberTalk") return renderUnit2NumberTalk(card);
+  if (card.customVisual === "unit2SnapCubePartner") return renderUnit2SnapCubePartner(card);
+  if (card.customVisual === "unit2PaintPaste") return renderUnit2PaintPaste(card);
+  if (card.customVisual === "unit2SpaghettiCardSort") return renderUnit2SpaghettiCardSort(card);
+  if (card.customVisual === "unit2RecipeBuilder") return renderUnit2RecipeBuilder(card);
+  if (card.customVisual === "unit2DiagramSummary") return renderUnit2DiagramSummary(card);
+  if (card.customVisual === "unit2FlowerPattern") return renderUnit2FlowerPattern(card);
+  if (card.customVisual === "unit2DrinkMix") return renderUnit2DrinkMix(card);
+  if (card.customVisual === "unit2NutritionLabels") return renderUnit2NutritionLabels(card);
+  if (card.customVisual === "unit2CookieBatches") return renderUnit2CookieBatches(card);
+  if (card.customVisual === "unit2RecipeSummary") return renderUnit2RecipeSummary(card);
+  if (card.customVisual === "unit2FactorNumberTalk") return renderUnit2FactorNumberTalk(card);
+  if (card.customVisual === "unit2ColorMixer" || card.customVisual === "unit2GreenExtension") return renderUnit2ColorMixer(card);
+  if (card.customVisual === "unit2PurpleWater") return renderUnit2PurpleWater(card);
+  if (card.customVisual === "unit2ColorSummary") return renderUnit2ColorSummary(card);
+  if (card.customVisual === "unit2TimedDots") return renderUnit2TimedDots(card);
+  if (card.customVisual === "unit2TunaCasserole") return renderUnit2TunaCasserole(card);
+  if (card.customVisual === "unit2BakingDish") return renderUnit2BakingDish(card);
+  if (card.customVisual === "unit2EquivalentRatioLab") return renderUnit2EquivalentRatioLab(card);
+  if (card.customVisual === "unit2EquivalentRatioSummary") return renderUnit2EquivalentRatioSummary(card);
+  if (card.customVisual === "unit2FractionNumberTalk") return renderUnit2FractionNumberTalk(card);
+  if (card.customVisual === "unit2DrinkDoubleLine") return renderUnit2DrinkDoubleLine(card);
+  if (card.customVisual === "unit2PerfectSquareIntro") return renderUnit2PerfectSquareIntro(card);
+  if (card.customVisual === "unit2PaintDoubleLine") return renderUnit2PaintDoubleLine(card);
+  if (card.customVisual === "unit2DoubleLineSummary") return renderUnit2DoubleLineSummary(card);
+  if (card.customVisual === "unit2NumberLinePlacement") return renderUnit2NumberLinePlacement(card);
+  if (card.customVisual === "unit2GreenWaterLine") return renderUnit2GreenWaterLine(card);
+  if (card.customVisual === "unit2ArtPasteLine") return renderUnit2ArtPasteLine(card);
+  if (card.customVisual === "unit2OverlapSquares") return renderUnit2OverlapSquares(card);
+  if (card.customVisual === "unit2TunaTripleLine") return renderUnit2TunaTripleLine(card);
+  if (card.customVisual === "unit2DoubleLineGuidelines") return renderUnit2DoubleLineGuidelines(card);
+  if (card.customVisual === "unit2ExpressionList") return renderUnit2ExpressionList(card);
+  if (card.customVisual === "unit2GroceryShopping") return renderUnit2GroceryShopping(card);
+  if (card.customVisual === "unit2BulkComparison") return renderUnit2BulkComparison(card);
+  if (card.customVisual === "unit2ShoppingDisplay") return renderUnit2ShoppingDisplay(card);
+  if (card.customVisual === "unit2UnitPriceSummary") return renderUnit2UnitPriceSummary(card);
+  if (card.customVisual === "unit2SpeedExperiment") return renderUnit2SpeedExperiment(card);
+  if (card.customVisual === "unit2RunnerComparison") return renderUnit2RunnerComparison(card);
+  if (card.customVisual === "unit2SpeedSummary") return renderUnit2SpeedSummary(card);
+  if (card.customVisual === "unit2Treadmills") return renderUnit2Treadmills(card);
+  if (card.customVisual === "unit2ConcertTickets") return renderUnit2ConcertTickets(card);
+  if (card.customVisual === "unit2OrangeJuiceComparison") return renderUnit2OrangeJuiceComparison(card);
+  if (card.customVisual === "unit2SameRateSummary") return renderUnit2SameRateSummary(card);
+  if (card.customVisual === "unit2GrowingTiles") return renderUnit2GrowingTiles(card);
+  if (card.customVisual === "unit2OrangeDoubleLine") return renderUnit2OrangeDoubleLine(card);
+  if (card.customVisual === "unit2TrailMixTable") return renderUnit2TrailMixTable(card);
+  if (card.customVisual === "unit2CookieRatioTable") return renderUnit2CookieRatioTable(card);
+  if (card.customVisual === "unit2RatioTableSummary") return renderUnit2RatioTableSummary(card);
+  if (card.customVisual === "unit2TacoTable") return renderUnit2TacoTable(card);
+  if (card.customVisual === "unit2HourlyWageTable") return renderUnit2HourlyWageTable(card);
+  if (card.customVisual === "unit2MemoryHalving") return renderUnit2MemoryHalving(card);
+  if (card.customVisual === "unit2GigabyteEstimate") return renderUnit2GigabyteEstimate(card);
+  if (card.customVisual === "unit2EfficientTableSummary") return renderUnit2EfficientTableSummary(card);
+  if (card.customVisual === "unit2ConstantDividend") return renderUnit2ConstantDividend(card);
+  if (card.customVisual === "unit2MovingTable") return renderUnit2MovingTable(card);
+  if (card.customVisual === "unit2IssExchange") return renderUnit2IssExchange(card);
+  if (card.customVisual === "unit2IssOrbit") return renderUnit2IssOrbit(card);
+  if (card.customVisual === "unit2TableLineSummary") return renderUnit2TableLineSummary(card);
+  if (card.customVisual === "unit2HighwayQuestion") return renderUnit2HighwayQuestion(card);
+  if (card.customVisual === "unit2HotChocolateInfoGap") return renderUnit2HotChocolateInfoGap(card);
+  if (card.customVisual === "unit2ReadingRates") return renderUnit2ReadingRates(card);
+  if (card.customVisual === "unit2CatsDogs") return renderUnit2CatsDogs(card);
+  if (card.customVisual === "unit2EquivalentProblemSummary") return renderUnit2EquivalentProblemSummary(card);
+  if (card.customVisual === "unit2UnitFractionStatements") return renderUnit2UnitFractionStatements(card);
+  if (card.customVisual === "unit2PaintCubes") return renderUnit2PaintCubes(card);
+  if (card.customVisual === "unit2PartWholeProblems") return renderUnit2PartWholeProblems(card);
+  if (card.customVisual === "unit2PunchLimit") return renderUnit2PunchLimit(card);
+  if (card.customVisual === "unit2InventRatio") return renderUnit2InventRatio(card);
+  if (card.customVisual === "unit2TapeDiagramSummary") return renderUnit2TapeDiagramSummary(card);
+  if (card.customVisual === "unit2TellStoryTape") return renderUnit2TellStoryTape(card);
+  if (card.customVisual === "unit2AquariumStrategies") return renderUnit2AquariumStrategies(card);
+  if (card.customVisual === "unit2NineDigitRatios") return renderUnit2NineDigitRatios(card);
+  if (card.customVisual === "unit2SaladBoxes") return renderUnit2SaladBoxes(card);
+  if (card.customVisual === "unit2StrategySummary") return renderUnit2StrategySummary(card);
+  if (card.customVisual === "unit2CocoaFix") return renderUnit2CocoaFix(card);
+  if (card.customVisual === "unit2ClassFermi") return renderUnit2ClassFermi(card);
+  if (card.customVisual === "unit2OwnFermi") return renderUnit2OwnFermi(card);
   if (card.customVisual === "lessonSummary") return renderLessonSummary(card);
   if (card.customVisual === "tilingCompare") return renderTilingCompareWorkspace(card);
   if (card.customVisual === "equalAreaTiling") return renderEqualAreaTilingWorkspace(card);
@@ -17780,7 +24386,7 @@ function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lesso
   return `
     <article class="teach-lesson-card teach-card ${isLessonSummary ? "is-lesson-summary" : ""}" id="${teachCardDomId(card)}" data-teach-card="${card.id}" data-teach-lesson="${card.lessonNumber}">
       <div class="teach-lesson-copy">
-        <p class="eyebrow">${escapeHtml(card.idea)} · Section ${escapeHtml(card.section)} · Lesson ${card.lessonNumber}</p>
+        <p class="eyebrow">Section ${escapeHtml(card.section)} · Lesson ${card.lessonNumber}</p>
         <div class="teach-card-heading">
           <div class="teach-title-group">
             <h2>${escapeHtml(card.title)}</h2>
@@ -17819,14 +24425,21 @@ function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lesso
 function renderTeachMe() {
   window.Unit1Polyhedra?.disposeAll();
   renderTeachLessonNav();
-  const deck = document.getElementById("teachLessonDeck");
+  const unitConfig = appUnitRoutes[state.activeUnit] || appUnitRoutes[1];
+  const deck = document.getElementById(unitConfig.deckId);
   if (!deck) return;
-  deck.innerHTML = teachLessonGroups().map(renderTeachLessonGroup).join("");
-  window.requestAnimationFrame(() => window.Unit1Polyhedra?.mountAll(deck));
+  deck.innerHTML = teachLessonGroups(state.activeUnit)
+    .map((group) => renderTeachLessonGroup(group, state.activeUnit))
+    .join("");
+  if (state.activeUnit === 1) {
+    window.requestAnimationFrame(() => window.Unit1Polyhedra?.mountAll(deck));
+  }
 }
 
 function renderTeachCardSourceLinks(card) {
-  const source = teachMeSources.find((entry) => entry.lessonNumber === card.lessonNumber);
+  const source = allTeachSources.find((entry) => (
+    entry.unitNumber === card.unitNumber && entry.lessonNumber === card.lessonNumber
+  ));
   if (!source) return "";
   const pdfButtons = teachPdfPages(card).map((page) => (
     `<button class="source-link" type="button" data-teach-pdf-source="${card.id}" data-pdf-page="${page}" aria-haspopup="dialog">PDF p.${page}</button>`
@@ -17834,12 +24447,16 @@ function renderTeachCardSourceLinks(card) {
   const blacklineButtons = teachBlacklineSources(card).map((blacklineSource, index) => (
     `<button class="source-link" type="button" data-teach-blackline-source="${card.id}" data-blackline-index="${index}" aria-haspopup="dialog">${escapeHtml(blacklineSource.buttonLabel || `Blackline p.${blacklineSource.page}`)}</button>`
   )).join("");
+  const referenceButtons = teachReferenceSources(card).map((referenceSource, index) => (
+    `<button class="source-link" type="button" data-teach-reference-source="${card.id}" data-reference-index="${index}" aria-haspopup="dialog">${escapeHtml(referenceSource.buttonLabel || "Reference")}</button>`
+  )).join("");
   return `
     <div class="teach-source-row" aria-label="Source material for Lesson ${card.lessonNumber}">
       <span class="teach-source-label">Sources</span>
       <button class="source-link is-current" type="button" data-teach-source="${source.id}" aria-haspopup="dialog">${escapeHtml(source.label)}</button>
       ${pdfButtons}
       ${blacklineButtons}
+      ${referenceButtons}
     </div>
   `;
 }
@@ -18233,9 +24850,181 @@ function unit1RequiredFreeTextCriteriaAudit() {
   return issues;
 }
 
+function unit2InventedRatioProblemIsCorrect(card, question) {
+  const categoryA = normalizeAnswer(questionSetValue(card, question.id, "categoryA"));
+  const categoryB = normalizeAnswer(questionSetValue(card, question.id, "categoryB"));
+  const partA = parseMathNumber(questionSetValue(card, question.id, "partA"));
+  const partB = parseMathNumber(questionSetValue(card, question.id, "partB"));
+  const total = parseMathNumber(questionSetValue(card, question.id, "total"));
+  return categoryA.length >= 2
+    && categoryB.length >= 2
+    && categoryA !== categoryB
+    && Number.isInteger(partA)
+    && Number.isInteger(partB)
+    && Number.isInteger(total)
+    && partA > 0
+    && partB > 0
+    && total > 0
+    && total % (partA + partB) === 0;
+}
+
+function unit2TapeStoryIsCorrect(card, question) {
+  const firstName = normalizeAnswer(questionSetValue(card, question.id, "firstName"));
+  const secondName = normalizeAnswer(questionSetValue(card, question.id, "secondName"));
+  return firstName.length >= 2
+    && secondName.length >= 2
+    && firstName !== secondName
+    && answerMatches(questionSetValue(card, question.id, "firstTotal"), "21")
+    && answerMatches(questionSetValue(card, question.id, "secondTotal"), "9");
+}
+
+function unit2NineDigitRatiosAreCorrect(card, question) {
+  const fieldIds = ["left1", "right1", "left2", "right2", "left3", "right3"];
+  const values = fieldIds.map((fieldId) => questionSetValue(card, question.id, fieldId).trim());
+  const lengths = [1, 1, 2, 1, 2, 2];
+  if (!values.every((value, index) => new RegExp(`^[1-9]{${lengths[index]}}$`).test(value))) return false;
+  const digits = values.join("").split("").sort().join("");
+  if (digits !== "123456789") return false;
+  const numbers = values.map(Number);
+  return numbers[0] * numbers[3] === numbers[2] * numbers[1]
+    && numbers[0] * numbers[5] === numbers[4] * numbers[1];
+}
+
+function unit2FermiRangeIsCorrect(card, question) {
+  const low = parseMathNumber(questionSetValue(card, question.id, "low"));
+  const high = parseMathNumber(questionSetValue(card, question.id, "high"));
+  const benchmark = 39420000;
+  return Number.isFinite(low) && Number.isFinite(high) && low > 0 && low < benchmark && high > benchmark;
+}
+
+function unit2FermiBrainstormIsCorrect(card, question) {
+  const values = ["q1", "q2", "q3", "q4", "q5"]
+    .map((fieldId) => normalizeAnswer(questionSetValue(card, question.id, fieldId)));
+  return values.every((value) => value.length >= 8 && /\b(how|what)\b/.test(value))
+    && new Set(values).size === values.length;
+}
+
+function unit2FermiOrganizerIsCorrect(card, question) {
+  const questions = ["s1", "s2", "s3", "s4"]
+    .map((fieldId) => normalizeAnswer(questionSetValue(card, question.id, fieldId)));
+  const answers = ["a1", "a2", "a3", "a4"]
+    .map((fieldId) => normalizeAnswer(questionSetValue(card, question.id, fieldId)));
+  return questions.every((value) => value.length >= 6)
+    && new Set(questions).size === questions.length
+    && answers.every((value) => value.length >= 1);
+}
+
+function unit2FermiDisplayIsCorrect(card, question) {
+  const estimate = parseMathNumber(questionSetValue(card, question.id, "estimate"));
+  const units = normalizeAnswer(questionSetValue(card, question.id, "units"));
+  return Number.isFinite(estimate) && estimate > 0 && units.length >= 2;
+}
+
 function questionSetAnswerIsCorrect(card, question) {
   const answerKey = Array.isArray(question.answerKey) ? question.answerKey : [];
   if (question.answerOptional) return true;
+  if (question.dynamicAnswer === "unit2AnySelectedChoice") {
+    return questionSetSelections(card, question).length > 0;
+  }
+  if (question.dynamicAnswer === "unit2InventedRatioProblem") {
+    return unit2InventedRatioProblemIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2TapeStory") {
+    return unit2TapeStoryIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2NineDigitRatios") {
+    return unit2NineDigitRatiosAreCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2FermiRange") {
+    return unit2FermiRangeIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2FermiBrainstorm") {
+    return unit2FermiBrainstormIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2FermiOrganizer") {
+    return unit2FermiOrganizerIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2FermiDisplay") {
+    return unit2FermiDisplayIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2StudentCollectionSort") {
+    return unit2StudentCollectionIsSorted(card);
+  }
+  if (question.dynamicAnswer === "unit2SnapCubePair") {
+    return unit2SnapCubeDiagramIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2PasteDiagram") {
+    return unit2PasteDiagramIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2SpaghettiMatches") {
+    return unit2SpaghettiMatchesAreCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2RecipeDiagram") {
+    return unit2RecipeDiagramIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2LessSaltyDrink") {
+    return unit2LessSaltyDrinkIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2CookieEquivalent") {
+    return unit2CookieEquivalentIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2EquivalentGreen") {
+    return unit2EquivalentGreenIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2RescueTwentyGreen") {
+    return unit2RescuedGreenIsCorrect(card, question, 20, 20);
+  }
+  if (question.dynamicAnswer === "unit2BluerGreen") {
+    return unit2BluerGreenIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2RescueSeventeenGreen") {
+    return unit2RescuedGreenIsCorrect(card, question, 17, 13);
+  }
+  if (question.dynamicAnswer === "unit2PurpleEquivalent") {
+    return unit2PurpleEquivalentIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2BakingDishArea") {
+    return unit2BakingDishAreaIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2TwoEquivalentRatios") {
+    return unit2TwoEquivalentRatiosAreCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2AssignedRatioDisplay") {
+    return unit2AssignedRatioDisplayIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2PaintDoubleLine") {
+    return unit2PaintDoubleLineIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2LightBlueEquivalent") {
+    return unit2LightBlueEquivalentIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2NumberLinePlacement") {
+    return unit2NumberLinePlacementIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2FourNumberLineLabels") {
+    return unit2FourNumberLineLabelsAreCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2BulkNotBetter") {
+    return unit2BulkNotBetterIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2SpeedTimes") {
+    return unit2SpeedTimesAreCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit2SlowOneSecond") {
+    return unit2OneSecondDistanceIsCorrect(card, question, "slow");
+  }
+  if (question.dynamicAnswer === "unit2FastOneSecond") {
+    return unit2OneSecondDistanceIsCorrect(card, question, "fast");
+  }
+  if (question.dynamicAnswer === "unit2OwnTenSecondDistance") {
+    return unit2OwnTenSecondDistanceIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2HanVsOwn") {
+    return unit2HanVsOwnIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit2CookieTableRow") {
+    return unit2CookieTableRowIsCorrect(card, question);
+  }
   if (question.dynamicAnswer === "baseHeightChallenge") {
     return baseHeightChallengeIsCorrect(card, question);
   }
@@ -18367,6 +25156,62 @@ function questionSetQuestionUnlocked(card, question) {
 
 function questionSetHasAnswer(card, question) {
   if (question.answerOptional) return true;
+  if (question.dynamicAnswer === "unit2StudentCollectionSort") {
+    return unit2SortedCollectionIds(card).length > 0;
+  }
+  if (question.dynamicAnswer === "unit2SnapCubePair") {
+    const response = getTeachCustomResponse(card);
+    const colors = unit2SnapCubeSelectedColors(card);
+    return colors.length > 0 || Object.keys(unit2SnapCubeCounts).some((color) => Number(response[unit2SnapCubeField(color)]) > 0);
+  }
+  if (question.dynamicAnswer === "unit2PasteDiagram") {
+    const response = getTeachCustomResponse(card);
+    return Number(response.pasteFlour) > 0 || Number(response.pasteWater) > 0;
+  }
+  if (question.dynamicAnswer === "unit2SpaghettiMatches") {
+    const response = getTeachCustomResponse(card);
+    return unit2SpaghettiSentences.some((sentence) => response[unit2SpaghettiAssignmentField(sentence.id)]);
+  }
+  if (question.dynamicAnswer === "unit2RecipeDiagram") {
+    const response = getTeachCustomResponse(card);
+    return ["recipeA", "recipeB", "recipeC"].some((field) => Number(response[field]) > 0);
+  }
+  if (question.dynamicAnswer === "unit2LessSaltyDrink") {
+    return unit2DynamicFieldsHaveValues(card, question, ["sodium", "water"]);
+  }
+  if (question.dynamicAnswer === "unit2CookieEquivalent") {
+    return unit2DynamicFieldsHaveValues(card, question, ["flour", "vanilla", "batches"]);
+  }
+  if (question.dynamicAnswer === "unit2EquivalentGreen") {
+    return unit2DynamicFieldsHaveValues(card, question, ["blue", "yellow", "batches"]);
+  }
+  if (question.dynamicAnswer === "unit2RescueTwentyGreen" || question.dynamicAnswer === "unit2RescueSeventeenGreen") {
+    return unit2DynamicFieldsHaveValues(card, question, ["blueAdded", "yellowAdded"]);
+  }
+  if (question.dynamicAnswer === "unit2BluerGreen") {
+    return unit2DynamicFieldsHaveValues(card, question, ["blue", "yellow"]);
+  }
+  if (question.dynamicAnswer === "unit2PurpleEquivalent") {
+    return unit2DynamicFieldsHaveValues(card, question, ["blue", "red"]);
+  }
+  if (question.dynamicAnswer === "unit2BakingDishArea") {
+    return unit2DynamicFieldsHaveValues(card, question, ["length", "width"]);
+  }
+  if (question.dynamicAnswer === "unit2TwoEquivalentRatios") {
+    return unit2DynamicFieldsHaveValues(card, question, ["a1", "b1", "a2", "b2"]);
+  }
+  if (question.dynamicAnswer === "unit2AssignedRatioDisplay") {
+    return unit2DynamicFieldsHaveValues(card, question, ["eqA1", "eqB1", "eqA2", "eqB2", "notA", "notB"]);
+  }
+  if (question.dynamicAnswer === "unit2PaintDoubleLine") {
+    return unit2PaintDoubleLineHasValues(card);
+  }
+  if (question.dynamicAnswer === "unit2LightBlueEquivalent") {
+    return unit2DynamicFieldsHaveValues(card, question, ["white", "blue"]);
+  }
+  if (question.dynamicAnswer === "unit2NumberLinePlacement") {
+    return unit2NumberLinePlacementHasInteraction(card);
+  }
   if (question.dynamicAnswer === "baseHeightChallenge") {
     return baseHeightChallengeHasInteraction(card, question);
   }
@@ -18579,6 +25424,9 @@ function questionSetResolvedFeedback(card, question, correct) {
   if (question.dynamicAnswer === "baseHeightChallenge") {
     return correct ? question.correctFeedback : question.incorrectFeedback;
   }
+  if (question.dynamicAnswer === "unit2SnapCubePair") {
+    return correct ? question.correctFeedback : unit2SnapCubeDiagramFeedback(card);
+  }
   if (question.dynamicAnswer === "tangramConstruction") {
     return correct ? tangramConstructionSuccessFeedback(card, question) : tangramConstructionFeedback(card, question);
   }
@@ -18748,6 +25596,10 @@ function renderParallelogramAreaCheck(card, question) {
 }
 
 function renderQuestionSetAnswer(card, question) {
+  if (question.dynamicAnswer === "unit2StudentCollectionSort") {
+    const sortedCount = unit2SortedCollectionIds(card).length;
+    return `<p class="teach-question-note">${sortedCount} of ${unit2StudentCollectionTokens.length} objects are in the grouped display. Use the workspace to sort the rest.</p>`;
+  }
   if (question.responseType === "construction") {
     return `
       <p class="teach-question-note">${escapeHtml(question.constructionNote || "Use the construction controls in the workspace, then submit this question.")}</p>
@@ -20033,6 +26885,10 @@ function standardTeachAnswerIsCorrect(card) {
 }
 
 function hasTeachResponse(card) {
+  if (card.responseType === "ratioShading") {
+    const analysis = unit2RatioShadingAnalysis(card);
+    return analysis.firstArea > 0 && analysis.secondArea > 0;
+  }
   if (card.responseType === "tilingDesign") {
     return getEqualAreaTiling().pieces.length > 0;
   }
@@ -20098,6 +26954,10 @@ function isTeachSubmitted(card) {
 
 function isTeachCorrect(card) {
   if (!hasTeachResponse(card) || !hasRequiredTeachVariant(card)) return false;
+  if (card.responseType === "ratioShading") {
+    const analysis = unit2RatioShadingAnalysis(card);
+    return analysis.firstValid && analysis.secondValid;
+  }
   if (card.responseType === "tilingDesign") return equalAreaTilingIsCorrect();
   if (card.responseType === "triangleFit") return gridTriangleFitAnalysis().valid;
   if (card.responseType === "tangramCompose") {
@@ -20202,6 +27062,17 @@ function renderTeachResponseControl(card) {
   }
   if (card.responseType === "guidedFields") {
     return renderGuidedFieldsControl(card);
+  }
+  if (card.responseType === "ratioShading") {
+    const analysis = unit2RatioShadingAnalysis(card);
+    return `
+      ${renderTeachResponsePrompt(card)}
+      <div class="unit2-ratio-response-summary">
+        <p><strong>First design:</strong> ${analysis.firstArea} of 24 squares shaded.</p>
+        <p><strong>Second design:</strong> ${analysis.secondArea} squares shaded.</p>
+      </div>
+      <p class="teach-question-note">The app checks the two-color ratio and whether the second shape is connected. It does not show the target color counts before you submit.</p>
+    `;
   }
   if (card.responseType === "tilingDesign") {
     const counts = equalAreaTilingCounts();
@@ -20373,12 +27244,14 @@ function renderTeachHint(card) {
 
 function renderPracticeCard(item, index, lessonParts = []) {
   const isLessonGroup = lessonParts.length > 1;
+  const hasVisualWorkspace = Boolean(item.visualModelData?.type);
   const attemptOnly = item.responseType === "annotationAttempt";
   const submitted = isPracticeSubmitted(item);
   const answered = hasPracticeResponse(item);
   const primaryCorrect = submitted && isPracticePrimaryCorrect(item);
   const reasoning = practiceReasoningEvaluation(item);
   const correct = submitted && isPracticeCorrect(item);
+  const hasSample = hasPracticeSample(item);
   const sampleUnlocked = canShowPracticeSample(item);
   const sampleVisible = sampleUnlocked && Boolean(state.practiceSamples[item.id]);
   const sampleLabel = sampleVisible
@@ -20434,7 +27307,6 @@ function renderPracticeCard(item, index, lessonParts = []) {
         </div>
         <p class="practice-activity-title"><strong>${escapeHtml(item.sourceItem)}:</strong> ${escapeHtml(item.skill)}</p>
         <p>${escapeHtml(item.prompt)}</p>
-        <p class="practice-source-path"><strong>Source:</strong> ${escapeHtml(item.source)}</p>
       </div>
     `
     : `
@@ -20448,22 +27320,23 @@ function renderPracticeCard(item, index, lessonParts = []) {
         </div>
         <h3>${escapeHtml(item.skill)}</h3>
         <p>${escapeHtml(item.prompt)}</p>
-        <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
       </div>
     `;
   return `
     <article class="practice-card ${isLessonGroup ? "practice-lesson-group" : ""} ${statusClass}" data-practice-card="${item.id}" data-practice-lesson="${item.lesson}" ${isLessonGroup ? `data-practice-lesson-group="${escapeHtml(item.practiceLessonGroup)}"` : ""}>
       ${copy}
-      <div class="practice-work" ${isLessonGroup ? `id="practice-part-panel-${escapeHtml(item.practiceLessonGroup)}" role="tabpanel" aria-labelledby="practice-part-tab-${item.id}"` : ""}>
-        <div class="practice-visual">
-          <div class="practice-model">${practiceVisual(item)}</div>
-        </div>
+      <div class="practice-work ${hasVisualWorkspace ? "" : "is-text-only"}" ${isLessonGroup ? `id="practice-part-panel-${escapeHtml(item.practiceLessonGroup)}" role="tabpanel" aria-labelledby="practice-part-tab-${item.id}"` : ""}>
+        ${hasVisualWorkspace ? `
+          <div class="practice-visual">
+            <div class="practice-model">${practiceVisual(item)}</div>
+          </div>
+        ` : ""}
         <div class="answer-panel">
           ${renderAnswerControl(item)}
           <div class="practice-actions">
             ${["groupedChoice", "quadrilateralAreaSet", "areaStrategyPair"].includes(item.responseType) ? "" : `<button class="practice-submit" type="button" data-practice-submit="${item.id}"${attemptOnly && !answered ? " disabled" : ""}>${item.responseType === "open" ? "Save response" : attemptOnly ? "Submit attempt" : "Submit"}</button>`}
             <button class="hint-button" type="button" data-practice-hint="${item.id}">${state.practiceHints[item.id] ? "Hide hint" : "Show hint"}</button>
-            ${attemptOnly ? "" : `<button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>`}
+            ${attemptOnly || !hasSample ? "" : `<button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>`}
           </div>
           <p class="practice-feedback ${feedbackClass}" id="feedback-${item.id}" aria-live="polite">${escapeHtml(feedback)}</p>
           ${state.practiceHints[item.id] ? `<p class="practice-hints"><strong>Hint:</strong> ${escapeHtml(item.hints.join(" "))}</p>` : ""}
@@ -20474,7 +27347,7 @@ function renderPracticeCard(item, index, lessonParts = []) {
   `;
 }
 
-function practiceRenderEntries(items) {
+function practiceRenderEntries(items, unitNumber = state.activeUnit) {
   const entries = [];
   const groupedEntries = new Map();
   items.forEach((item, index) => {
@@ -20495,7 +27368,7 @@ function practiceRenderEntries(items) {
     if (entry.lessonParts.length < 2) return entry;
     const orderedLessonParts = [...entry.lessonParts]
       .sort((first, second) => (Number(first.practicePartOrder) || 0) - (Number(second.practicePartOrder) || 0));
-    const activeId = state.practiceActiveParts[routeLessonStateKey(1, entry.item.lesson)];
+    const activeId = state.practiceActiveParts[routeLessonStateKey(unitNumber, entry.item.lesson)];
     return {
       ...entry,
       lessonParts: orderedLessonParts,
@@ -20504,23 +27377,39 @@ function practiceRenderEntries(items) {
   });
 }
 
-function renderPracticeStats() {
-  const attempted = practiceBank.filter((item) => state.practiceSubmitted[item.id]).length;
-  const correct = practiceBank.filter((item) => state.practiceSubmitted[item.id] && isPracticeCorrect(item)).length;
-  setText("practiceAnsweredCount", String(attempted));
-  setText("practiceCorrectCount", String(correct));
-  setText("practiceTotalCount", String(practiceBank.length));
+function renderPracticeStats(unitNumber = state.activeUnit) {
+  const unitBank = practiceBankForUnit(unitNumber);
+  const ids = practiceDomIds(unitNumber);
+  const attempted = unitBank.filter((item) => state.practiceSubmitted[item.id]).length;
+  const correct = unitBank.filter((item) => state.practiceSubmitted[item.id] && isPracticeCorrect(item)).length;
+  setText(ids.answered, String(attempted));
+  setText(ids.correct, String(correct));
+  setText(ids.total, String(unitBank.length));
+}
+
+function renderPracticeUnit(unitNumber) {
+  renderPracticeFilters(unitNumber);
+  renderPracticeStats(unitNumber);
+  const list = document.getElementById(practiceDomIds(unitNumber).list);
+  if (!list) return;
+  const items = filteredPracticeItems(unitNumber);
+  list.innerHTML = practiceRenderEntries(items, unitNumber)
+    .map(({ item, index, lessonParts }) => renderPracticeCard(item, index, lessonParts))
+    .join("");
 }
 
 function renderPractice() {
-  renderPracticeFilters();
-  renderPracticeStats();
-  const list = document.getElementById("practiceList");
-  if (!list) return;
-  const items = filteredPracticeItems();
-  list.innerHTML = practiceRenderEntries(items)
-    .map(({ item, index, lessonParts }) => renderPracticeCard(item, index, lessonParts))
-    .join("");
+  Object.keys(appUnitRoutes).map(Number).forEach((unitNumber) => {
+    if (unitNumber === state.activeUnit) {
+      renderPracticeUnit(unitNumber);
+      return;
+    }
+    const ids = practiceDomIds(unitNumber);
+    const list = document.getElementById(ids.list);
+    const filter = document.getElementById(ids.filter);
+    if (list) list.replaceChildren();
+    if (filter) filter.replaceChildren();
+  });
   renderSourceModalHost();
 }
 
@@ -21630,6 +28519,7 @@ function renderVocabulary() {
 }
 
 function renderView() {
+  const unitConfig = appUnitRoutes[state.activeUnit] || appUnitRoutes[1];
   document.body.dataset.mode = state.mode;
   document.body.dataset.view = state.view;
   document.body.dataset.unit = String(state.activeUnit);
@@ -21638,6 +28528,9 @@ function renderView() {
   });
   document.querySelectorAll(".mode-tab[data-mode]").forEach((button) => {
     const active = button.dataset.mode === state.mode;
+    const unavailable = button.dataset.mode === "practice" && !unitConfig.practiceAvailable;
+    button.disabled = unavailable;
+    button.title = unavailable ? "Practice for this unit is coming later." : "";
     button.classList.toggle("is-active", active);
     button.setAttribute("aria-pressed", String(active));
   });
@@ -21825,10 +28718,11 @@ function bindEvents() {
     if (practicePartButton) {
       const item = practiceBank.find((entry) => entry.id === practicePartButton.dataset.practicePart);
       if (!item) return;
+      const unitNumber = practiceUnitNumber(item);
       state.practiceOpenDropdown = null;
       state.sourceModalItemId = null;
       navigateToAppRoute({
-        unit: 1,
+        unit: unitNumber,
         lesson: item.lesson,
         mode: "practice",
         part: practiceRoutePartId(item),
@@ -22051,13 +28945,14 @@ function bindEvents() {
     if (teachLessonLink) {
       event.preventDefault();
       const lessonNumber = Number(teachLessonLink.dataset.teachLessonLink);
-      if (!teachLessonGroups().some((group) => group.lessonNumber === lessonNumber)) return;
-      navigateToAppRoute({ unit: 1, lesson: lessonNumber, mode: state.mode });
+      const unitNumber = Number(teachLessonLink.dataset.teachLessonUnit) || state.activeUnit;
+      if (!teachLessonGroups(unitNumber).some((group) => group.lessonNumber === lessonNumber)) return;
+      navigateToAppRoute({ unit: unitNumber, lesson: lessonNumber, mode: state.mode });
       return;
     }
     const teachSourceButton = event.target.closest("[data-teach-source]");
     if (teachSourceButton) {
-      const source = teachMeSources.find((entry) => entry.id === teachSourceButton.dataset.teachSource);
+      const source = allTeachSources.find((entry) => entry.id === teachSourceButton.dataset.teachSource);
       if (!source) return;
       state.sourceModalItemId = source.id;
       renderSourceModalHost();
@@ -22086,6 +28981,18 @@ function bindEvents() {
       document.querySelector("[data-source-close-button]")?.focus();
       return;
     }
+    const teachReferenceSourceButton = event.target.closest("[data-teach-reference-source]");
+    if (teachReferenceSourceButton) {
+      const card = teachCardById(teachReferenceSourceButton.dataset.teachReferenceSource);
+      const referenceSources = card ? teachReferenceSources(card) : [];
+      const referenceIndex = Number(teachReferenceSourceButton.dataset.referenceIndex) || 0;
+      const referenceSource = referenceSources[referenceIndex];
+      if (!card || !referenceSource) return;
+      state.sourceModalItemId = teachReferenceModalId(card, referenceSource, referenceIndex);
+      renderSourceModalHost();
+      document.querySelector("[data-source-close-button]")?.focus();
+      return;
+    }
     const sourceButton = event.target.closest("[data-source-modal]");
     if (sourceButton) {
       const modalId = sourceButton.dataset.sourceModal;
@@ -22108,7 +29015,8 @@ function bindEvents() {
     }
     const filterButton = event.target.closest("[data-practice-filter]");
     if (filterButton) {
-      state.practiceFilter = filterButton.dataset.practiceFilter;
+      const unitNumber = Number(filterButton.dataset.practiceFilterUnit) || state.activeUnit;
+      state.practiceFilters[unitNumber] = filterButton.dataset.practiceFilter;
       state.sourceModalItemId = null;
       renderPractice();
       return;
@@ -22891,6 +29799,47 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const unit2NumberLabelButton = event.target.closest("[data-unit2-number-label]");
+    if (unit2NumberLabelButton) {
+      const card = teachCardById(unit2NumberLabelButton.dataset.unit2NumberLabel);
+      const labelId = unit2NumberLabelButton.dataset.numberLabelId;
+      if (!card || card.customVisual !== "unit2NumberLinePlacement" || !unit2NumberLineLabels.some((entry) => entry.id === labelId)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        numberLineActiveLabel: labelId,
+      };
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2NumberTickButton = event.target.closest("[data-unit2-number-tick]");
+    if (unit2NumberTickButton) {
+      const card = teachCardById(unit2NumberTickButton.dataset.unit2NumberTick);
+      const value = Number(unit2NumberTickButton.dataset.numberTickValue);
+      const response = card ? getTeachCustomResponse(card) : {};
+      const labelId = String(response.numberLineActiveLabel || unit2NumberLineLabels[0].id);
+      if (!card || card.customVisual !== "unit2NumberLinePlacement" || !unit2NumberLineLabels.some((entry) => entry.id === labelId) || !Number.isFinite(value)) return;
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        [unit2NumberLinePlacementField(labelId)]: value,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "required-placements")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2NumberResetButton = event.target.closest("[data-unit2-number-reset]");
+    if (unit2NumberResetButton) {
+      const card = teachCardById(unit2NumberResetButton.dataset.unit2NumberReset);
+      if (!card || card.customVisual !== "unit2NumberLinePlacement") return;
+      const next = { ...getTeachCustomResponse(card), numberLineActiveLabel: unit2NumberLineLabels[0].id };
+      unit2NumberLineLabels.forEach((entry) => delete next[unit2NumberLinePlacementField(entry.id)]);
+      state.teachCustomResponses[card.id] = next;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "required-placements")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
     const questionSetSelectButton = event.target.closest("[data-question-set-select]");
     if (questionSetSelectButton) {
       const id = questionSetSelectButton.dataset.questionSetSelect;
@@ -23214,6 +30163,203 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const unit2DotFlashButton = event.target.closest("[data-unit2-dot-flash]");
+    if (unit2DotFlashButton) {
+      const card = teachCardById(unit2DotFlashButton.dataset.unit2DotFlash);
+      const workspace = unit2DotFlashButton.closest("[data-unit2-dot-workspace]");
+      const source = workspace?.querySelector("[data-unit2-dot-source]");
+      const placeholder = workspace?.querySelector("[data-unit2-dot-placeholder]");
+      if (!card || card.customVisual !== "unit2TimedDots" || !source || !placeholder) return;
+      source.hidden = false;
+      source.setAttribute("aria-hidden", "false");
+      placeholder.hidden = true;
+      unit2DotFlashButton.disabled = true;
+      unit2DotFlashButton.textContent = "Look now...";
+      window.setTimeout(() => {
+        source.hidden = true;
+        source.setAttribute("aria-hidden", "true");
+        placeholder.hidden = false;
+        unit2DotFlashButton.disabled = false;
+        unit2DotFlashButton.textContent = "Flash again for 3 seconds";
+      }, 3000);
+      return;
+    }
+    const unit2SnapColorButton = event.target.closest("[data-unit2-snap-color]");
+    if (unit2SnapColorButton) {
+      const card = teachCardById(unit2SnapColorButton.dataset.unit2SnapColor);
+      const color = unit2SnapColorButton.dataset.color;
+      if (!card || card.customVisual !== "unit2SnapCubePartner" || !Object.prototype.hasOwnProperty.call(unit2SnapCubeCounts, color)) return;
+      const response = getTeachCustomResponse(card);
+      const current = unit2SnapCubeSelectedColors(card);
+      const next = current.includes(color)
+        ? current.filter((entry) => entry !== color)
+        : current.length < 2 ? [...current, color] : current;
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        snapCubeSelected: next.join("|"),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "snap-diagram")] = false;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "partner-sentence")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2ColorAddButton = event.target.closest("[data-unit2-color-add]");
+    if (unit2ColorAddButton) {
+      const card = teachCardById(unit2ColorAddButton.dataset.unit2ColorAdd);
+      const color = unit2ColorAddButton.dataset.color;
+      const amount = Number(unit2ColorAddButton.dataset.amount);
+      if (!card || !["unit2ColorMixer", "unit2GreenExtension"].includes(card.customVisual)
+        || !["blue", "yellow"].includes(color) || ![1, 5].includes(amount)) return;
+      const current = unit2ColorMixerAmounts(card);
+      if (current.blue + current.yellow + amount > 100) return;
+      const next = { ...current, [color]: current[color] + amount };
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        colorMixerBlue: String(next.blue),
+        colorMixerYellow: String(next.yellow),
+      };
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2ColorPresetButton = event.target.closest("[data-unit2-color-preset]");
+    if (unit2ColorPresetButton) {
+      const card = teachCardById(unit2ColorPresetButton.dataset.unit2ColorPreset);
+      const preset = unit2ColorPresetButton.dataset.preset;
+      const presets = {
+        single: { blue: 5, yellow: 15 },
+        twenty: { blue: 20, yellow: 20 },
+        clear: { blue: 0, yellow: 0 },
+        extension: { blue: 17, yellow: 13 },
+      };
+      if (!card || !["unit2ColorMixer", "unit2GreenExtension"].includes(card.customVisual) || !presets[preset]) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        colorMixerBlue: String(presets[preset].blue),
+        colorMixerYellow: String(presets[preset].yellow),
+      };
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2StepperButton = event.target.closest("[data-unit2-stepper]");
+    if (unit2StepperButton) {
+      const card = teachCardById(unit2StepperButton.dataset.unit2Stepper);
+      const field = unit2StepperButton.dataset.stepperField;
+      const step = Number(unit2StepperButton.dataset.step);
+      const minimum = Number(unit2StepperButton.dataset.minimum);
+      const maximum = Number(unit2StepperButton.dataset.maximum);
+      const allowedFields = card?.customVisual === "unit2SnapCubePartner"
+        ? Object.keys(unit2SnapCubeCounts).map(unit2SnapCubeField)
+        : card?.customVisual === "unit2PaintPaste"
+          ? ["pasteFlour", "pasteWater"]
+          : card?.customVisual === "unit2RecipeBuilder"
+            ? ["recipeA", "recipeB", "recipeC"]
+            : card?.customVisual === "unit2CookieBatches"
+              ? ["cookieBatchPreview"]
+            : [];
+      if (!card || !allowedFields.includes(field) || ![-1, 1].includes(step) || !Number.isFinite(minimum) || !Number.isFinite(maximum)) return;
+      const response = getTeachCustomResponse(card);
+      const current = Number.isInteger(Number(response[field])) ? Number(response[field]) : minimum;
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        [field]: String(Math.max(minimum, Math.min(maximum, current + step))),
+      };
+      const affectedQuestions = card.customVisual === "unit2SnapCubePartner"
+        ? ["snap-diagram", "partner-sentence"]
+        : card.customVisual === "unit2PaintPaste"
+          ? ["paste-diagram", "paste-ratios"]
+          : card.customVisual === "unit2RecipeBuilder"
+            ? ["recipe-diagram"]
+            : [];
+      affectedQuestions.forEach((questionId) => {
+        state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      });
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2SpaghettiMatchButton = event.target.closest("[data-unit2-spaghetti-match]");
+    if (unit2SpaghettiMatchButton) {
+      const card = teachCardById(unit2SpaghettiMatchButton.dataset.unit2SpaghettiMatch);
+      const sentenceId = unit2SpaghettiMatchButton.dataset.sentenceId;
+      const diagramId = unit2SpaghettiMatchButton.dataset.diagramId;
+      if (!card || card.customVisual !== "unit2SpaghettiCardSort"
+        || !unit2SpaghettiSentences.some((sentence) => sentence.id === sentenceId)
+        || !Object.prototype.hasOwnProperty.call(unit2SpaghettiDiagrams, diagramId)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [unit2SpaghettiAssignmentField(sentenceId)]: diagramId,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "spaghetti-matches")] = false;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "double-matches")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2CollectionToken = event.target.closest("[data-unit2-collection-token]");
+    if (unit2CollectionToken) {
+      const card = teachCardById(unit2CollectionToken.dataset.unit2CollectionToken);
+      const tokenId = unit2CollectionToken.dataset.tokenId;
+      if (!card || card.customVisual !== "unit2StudentCollection" || !unit2StudentCollectionTokens.some((token) => token.id === tokenId)) return;
+      const current = unit2SortedCollectionIds(card);
+      const next = current.includes(tokenId)
+        ? current.filter((id) => id !== tokenId)
+        : [...current, tokenId];
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        unit2SortedTokens: next.join("|"),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "sort-collection")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2RatioToolButton = event.target.closest("[data-unit2-ratio-tool]");
+    if (unit2RatioToolButton) {
+      const card = teachCardById(unit2RatioToolButton.dataset.unit2RatioTool);
+      const tool = unit2RatioToolButton.dataset.ratioTool;
+      if (!card || card.responseType !== "ratioShading" || !["g", "y", "0"].includes(tool)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        ratioShadingTool: tool,
+      };
+      renderTeachMe();
+      return;
+    }
+    const unit2RatioCell = event.target.closest("[data-unit2-ratio-cell]");
+    if (unit2RatioCell) {
+      const card = teachCardById(unit2RatioCell.dataset.unit2RatioCell);
+      const field = unit2RatioCell.dataset.gridField;
+      const index = Number(unit2RatioCell.dataset.cellIndex);
+      if (!card || card.responseType !== "ratioShading" || !["firstRatioGrid", "secondRatioGrid"].includes(field) || !Number.isInteger(index) || index < 0 || index >= unit2RatioGrid.size) return;
+      const response = getTeachCustomResponse(card);
+      const tool = ["g", "y", "0"].includes(response.ratioShadingTool) ? response.ratioShadingTool : "g";
+      const cells = unit2RatioGridCells(card, field);
+      cells[index] = tool;
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        [field]: cells.join(""),
+      };
+      state.teachSubmitted[card.id] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit2RatioReset = event.target.closest("[data-unit2-ratio-reset]");
+    if (unit2RatioReset) {
+      const card = teachCardById(unit2RatioReset.dataset.unit2RatioReset);
+      const field = unit2RatioReset.dataset.gridField;
+      if (!card || card.responseType !== "ratioShading" || !["firstRatioGrid", "secondRatioGrid"].includes(field)) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [field]: "",
+      };
+      state.teachSubmitted[card.id] = false;
+      renderTeachMe();
+      return;
+    }
     const guidedOptionalSubmitButton = event.target.closest("[data-guided-optional-submit]");
     if (guidedOptionalSubmitButton) {
       const card = teachCardById(guidedOptionalSubmitButton.dataset.guidedOptionalSubmit);
@@ -23342,14 +30488,22 @@ function bindEvents() {
     if (teachPartButton) {
       const card = teachCardById(teachPartButton.dataset.teachPart);
       if (!card) return;
+      const previousCardTop = document.getElementById(teachLessonDomId(card.unitNumber, card.lessonNumber))
+        ?.getBoundingClientRect().top;
       state.teachOpenDropdown = null;
       state.sourceModalItemId = null;
       navigateToAppRoute({
-        unit: 1,
+        unit: card.unitNumber,
         lesson: card.lessonNumber,
         mode: "teach",
         part: teachRoutePartId(card),
       }, { scroll: false });
+      restoreTeachLessonViewportPosition(card.lessonNumber, card.unitNumber, previousCardTop);
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+        const lessonKey = routeLessonStateKey(card.unitNumber, card.lessonNumber);
+        if (state.mode !== "teach" || state.teachActiveParts[lessonKey] !== card.id) return;
+        restoreTeachLessonViewportPosition(card.lessonNumber, card.unitNumber, previousCardTop);
+      }));
       return;
     }
     const lessonSummaryStageButton = event.target.closest("[data-lesson-summary-stage]");
@@ -23669,6 +30823,48 @@ function bindEvents() {
       renderPractice();
       return;
     }
+    const ratioStepButton = event.target.closest("[data-practice-ratio-step]");
+    if (ratioStepButton) {
+      const item = practiceBank.find((entry) => entry.id === ratioStepButton.dataset.practiceRatioStep);
+      const fieldId = ratioStepButton.dataset.fieldId;
+      const row = item?.visualModelData?.rows?.find((entry) => entry.fieldId === fieldId);
+      const field = item?.fields?.find((entry) => entry.id === fieldId);
+      if (!item || item.responseType !== "fieldSet" || item.visualModelData?.type !== "ratioDiagram" || !row || !field) return;
+      const current = parseMathNumber(practiceWorkspaceFieldValue(item, fieldId));
+      const minimum = Number(row.minimum) || 0;
+      const maximum = Number(row.maximum) || 40;
+      const startingValue = Number(row.value);
+      const next = clampNumber(
+        (Number.isFinite(current) ? current : Number.isFinite(startingValue) ? startingValue : minimum)
+          + Number(ratioStepButton.dataset.delta || 0),
+        minimum,
+        maximum,
+      );
+      state.practiceResponses[item.id] = {
+        ...(state.practiceResponses[item.id] || {}),
+        [fieldId]: String(next),
+      };
+      state.practiceSubmitted[item.id] = false;
+      state.practiceSamples[item.id] = false;
+      state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
+    const numberLineChoice = event.target.closest("[data-practice-number-line-choice]");
+    if (numberLineChoice) {
+      const item = practiceBank.find((entry) => entry.id === numberLineChoice.dataset.practiceNumberLineChoice);
+      const fieldId = numberLineChoice.dataset.fieldId;
+      if (!item || item.responseType !== "fieldSet" || item.visualModelData?.type !== "numberLine" || !item.fields?.some((field) => field.id === fieldId)) return;
+      state.practiceResponses[item.id] = {
+        ...(state.practiceResponses[item.id] || {}),
+        [fieldId]: numberLineChoice.dataset.value,
+      };
+      state.practiceSubmitted[item.id] = false;
+      state.practiceSamples[item.id] = false;
+      state.sourceModalItemId = null;
+      renderPractice();
+      return;
+    }
     const groupTabButton = event.target.closest("[data-practice-group-tab]");
     if (groupTabButton) {
       const id = groupTabButton.dataset.practiceGroupTab;
@@ -23919,6 +31115,29 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const doubleNumberLineInput = event.target.closest("[data-unit2-dnl-input]");
+    if (doubleNumberLineInput) {
+      const id = doubleNumberLineInput.dataset.unit2DnlInput;
+      const field = doubleNumberLineInput.dataset.dnlField;
+      const card = teachCardById(id);
+      if (!card || card.customVisual !== "unit2PaintDoubleLine" || !/^paintLine_(white|blue)_[1-6]$/.test(field)) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [field]: doubleNumberLineInput.value.slice(0, 24),
+      };
+      const questionId = "paint-line";
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
+      state.sourceModalItemId = null;
+      const cardNode = doubleNumberLineInput.closest("[data-teach-card]");
+      const feedback = cardNode?.querySelector(`[data-question-set-feedback="${questionId}"]`);
+      if (feedback) {
+        feedback.textContent = "Submit your completed double number line when you are ready for feedback.";
+        feedback.classList.remove("is-correct", "is-incorrect");
+      }
+      const progress = cardNode?.querySelector(`[data-question-set-select="${id}"][data-question-id="${questionId}"]`);
+      progress?.classList.remove("is-correct", "is-incorrect");
+      return;
+    }
     const questionSetInput = event.target.closest("[data-question-set-input]");
     if (questionSetInput) {
       const id = questionSetInput.dataset.questionSetInput;
@@ -24051,9 +31270,11 @@ function bindEvents() {
     if (!input) return;
     const id = input.dataset.practiceInput;
     const item = practiceBank.find((entry) => entry.id === id);
-    if (["cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item?.responseType)) {
+    if (["fieldSet", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item?.responseType)) {
       const field = input.dataset.practiceField;
-      const permittedFields = item.responseType === "cubeNetExpressions"
+      const permittedFields = item.responseType === "fieldSet"
+        ? (item.fields || []).map((entry) => entry.id)
+        : item.responseType === "cubeNetExpressions"
         ? ["surfaceArea", "volume"]
         : item.responseType === "tentDesignEstimate"
           ? ["fabricFloor", "fabricRoof", "fabricSides", "fabricEnds", "fabricTotal"]
@@ -24110,8 +31331,9 @@ function bindEvents() {
     const practicePartTab = event.target.closest?.("[data-practice-part]");
     if (practicePartTab && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
       const currentItem = practiceBank.find((item) => item.id === practicePartTab.dataset.practicePart);
+      const unitNumber = practiceUnitNumber(currentItem);
       const lessonParts = currentItem
-        ? practiceItemsForLesson(1, currentItem.lesson).filter((item) => item.practiceLessonGroup === currentItem.practiceLessonGroup)
+        ? practiceItemsForLesson(unitNumber, currentItem.lesson).filter((item) => item.practiceLessonGroup === currentItem.practiceLessonGroup)
         : [];
       const currentIndex = lessonParts.findIndex((item) => item.id === currentItem?.id);
       if (currentIndex >= 0 && lessonParts.length > 1) {
@@ -24123,7 +31345,7 @@ function bindEvents() {
             : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + lessonParts.length) % lessonParts.length;
         const nextItem = lessonParts[nextIndex];
         navigateToAppRoute({
-          unit: 1,
+          unit: unitNumber,
           lesson: nextItem.lesson,
           mode: "practice",
           part: practiceRoutePartId(nextItem),

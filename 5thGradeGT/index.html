@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>5th Grade GT Math Lab - Unit 1</title>
+    <title>5th Grade GT Math Lab</title>
     <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=20260827-4">
+  <link rel="stylesheet" href="styles.css?v=20260828-6">
   </head>
   <body data-mode="teach">
     <div class="app-shell">
@@ -40,10 +40,20 @@
             </button>
             <nav class="unit-lesson-nav" id="teachLessonNav" aria-label="Unit 1 lessons"></nav>
           </div>
-          <button class="nav-link" type="button" data-view="unit2" disabled>
-            <span class="nav-number">2</span>
-            <span><strong>Introducing Ratios</strong><small>Coming later</small></span>
-          </button>
+          <div class="unit-nav-group" data-unit-nav-group="unit2">
+            <button
+              class="nav-link"
+              id="unit2NavButton"
+              type="button"
+              data-view="unit2"
+              aria-controls="unit2View unit2LessonNav"
+              aria-expanded="false"
+            >
+              <span class="nav-number">2</span>
+              <span><strong>Introducing Ratios</strong><small>Lessons 1-17 ready</small></span>
+            </button>
+            <nav class="unit-lesson-nav" id="unit2LessonNav" aria-label="Unit 2 lessons" hidden></nav>
+          </div>
           <button class="nav-link" type="button" data-view="unit3" disabled>
             <span class="nav-number">3</span>
             <span><strong>Unit Rates and Percentages</strong><small>Coming later</small></span>
@@ -124,7 +134,58 @@
             <div class="practice-filter" id="practiceFilter" aria-label="Practice section filter"></div>
             <div class="practice-list" id="practiceList" aria-live="polite"></div>
           </section>
-          <div id="sourceModalHost"></div>
+        </section>
+
+        <section class="content-pane" id="unit2View" data-view-pane="unit2" hidden aria-label="Unit 2 Teach Me">
+          <section class="unit-hero unit2-hero">
+            <div>
+              <p class="eyebrow">Grade 6 Unit 2</p>
+              <h2>Ratios describe two quantities together, in a meaningful order.</h2>
+              <p>
+                Unit 2 begins with sorting collections and using words, tables, diagrams,
+                and notation to describe how quantities are related.
+              </p>
+            </div>
+            <div class="hero-model unit2-hero-model" aria-hidden="true">
+              <svg viewBox="0 0 420 210" role="img">
+                <g class="unit2-hero-squares">
+                  <rect x="36" y="45" width="48" height="48"></rect>
+                  <rect x="94" y="45" width="48" height="48"></rect>
+                  <rect x="152" y="45" width="48" height="48"></rect>
+                  <rect x="210" y="45" width="48" height="48"></rect>
+                  <rect x="268" y="45" width="48" height="48"></rect>
+                  <rect x="326" y="45" width="48" height="48"></rect>
+                </g>
+                <g class="unit2-hero-circles">
+                  <circle cx="113" cy="154" r="25"></circle>
+                  <circle cx="210" cy="154" r="25"></circle>
+                  <circle cx="307" cy="154" r="25"></circle>
+                </g>
+              </svg>
+            </div>
+          </section>
+
+          <section class="teach-deck" id="unit2TeachLessonDeck" aria-label="Unit 2 student-facing lesson cards"></section>
+
+          <section class="practice-pane" id="unit2Practice" aria-label="Unit 2 Practice">
+            <section class="practice-header">
+              <div>
+                <p class="eyebrow">Unit 2 Practice</p>
+                <h2>Source-aligned practice cards for ratios.</h2>
+                <p>
+                  Each lesson card preserves every source problem and its original order. Submit each part independently
+                  for feedback, and open the rendered source page in the app whenever you need it.
+                </p>
+              </div>
+              <div class="practice-stats" aria-label="Unit 2 Practice progress">
+                <span><strong id="unit2PracticeAnsweredCount">0</strong> tried</span>
+                <span><strong id="unit2PracticeCorrectCount">0</strong> correct</span>
+                <span><strong id="unit2PracticeTotalCount">194</strong> total</span>
+              </div>
+            </section>
+            <div class="practice-filter" id="unit2PracticeFilter" aria-label="Unit 2 Practice section filter"></div>
+            <div class="practice-list" id="unit2PracticeList" aria-live="polite"></div>
+          </section>
         </section>
 
         <section class="content-pane" id="vocabularyView" data-view-pane="vocabulary" hidden aria-label="Vocabulary">
@@ -140,12 +201,15 @@
           </section>
           <div class="vocabulary-list" id="vocabularyList" aria-live="polite"></div>
         </section>
+
       </main>
+      <div id="sourceModalHost"></div>
     </div>
 
     <script src="vendor/three.min.js?v=20260823-4"></script>
     <script src="unit1-polyhedra-models.js?v=20260823-4"></script>
-  <script src="unit1-practice-bank.js?v=20260827-6"></script>
-  <script src="script.js?v=20260827-6"></script>
+    <script src="unit1-practice-bank.js?v=20260827-6"></script>
+    <script src="unit2-practice-bank.js?v=20260828-6"></script>
+    <script src="script.js?v=20260828-8"></script>
   </body>
 </html>

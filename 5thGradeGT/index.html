@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>5th Grade GT Math Lab</title>
     <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="styles.css?v=20260828-6">
+    <link rel="stylesheet" href="styles.css?v=20260831-1">
   </head>
   <body data-mode="teach">
     <div class="app-shell">
@@ -54,10 +54,20 @@
             </button>
             <nav class="unit-lesson-nav" id="unit2LessonNav" aria-label="Unit 2 lessons" hidden></nav>
           </div>
-          <button class="nav-link" type="button" data-view="unit3" disabled>
-            <span class="nav-number">3</span>
-            <span><strong>Unit Rates and Percentages</strong><small>Coming later</small></span>
-          </button>
+          <div class="unit-nav-group" data-unit-nav-group="unit3">
+            <button
+              class="nav-link"
+              id="unit3NavButton"
+              type="button"
+              data-view="unit3"
+              aria-controls="unit3View unit3LessonNav"
+              aria-expanded="false"
+            >
+              <span class="nav-number">3</span>
+              <span><strong>Unit Rates and Percentages</strong><small>Lessons 1-17 ready</small></span>
+            </button>
+            <nav class="unit-lesson-nav" id="unit3LessonNav" aria-label="Unit 3 lessons" hidden></nav>
+          </div>
           <button class="nav-link" type="button" data-view="unit4" disabled>
             <span class="nav-number">4</span>
             <span><strong>Dividing Fractions</strong><small>Coming later</small></span>
@@ -188,6 +198,53 @@
           </section>
         </section>
 
+        <section class="content-pane" id="unit3View" data-view-pane="unit3" hidden aria-label="Unit 3 Teach Me">
+          <section class="unit-hero unit3-hero">
+            <div>
+              <p class="eyebrow">Grade 6 Unit 3</p>
+              <h2>Rates connect two quantities and make comparisons useful.</h2>
+              <p>
+                Unit 3 begins with measurement and constant-rate situations, then develops unit rates,
+                percentages, and efficient ways to solve real-world problems.
+              </p>
+            </div>
+            <div class="hero-model unit3-hero-model" aria-hidden="true">
+              <svg viewBox="0 0 420 210" role="img">
+                <path d="M66 174 L116 174 L116 72 L142 72 L142 48 L168 48 L168 24 L194 24 L194 174 L246 174" class="unit3-building"></path>
+                <line x1="278" y1="50" x2="278" y2="166" class="unit3-rate-axis"></line>
+                <line x1="278" y1="166" x2="384" y2="166" class="unit3-rate-axis"></line>
+                <path d="M292 148 L322 118 L350 86 L378 54" class="unit3-rate-path"></path>
+                <circle cx="292" cy="148" r="7" class="unit3-rate-point"></circle>
+                <circle cx="322" cy="118" r="7" class="unit3-rate-point"></circle>
+                <circle cx="350" cy="86" r="7" class="unit3-rate-point"></circle>
+                <circle cx="378" cy="54" r="7" class="unit3-rate-point"></circle>
+              </svg>
+            </div>
+          </section>
+
+          <section class="teach-deck" id="unit3TeachLessonDeck" aria-label="Unit 3 student-facing lesson cards"></section>
+
+          <section class="practice-pane" id="unit3Practice" aria-label="Unit 3 Practice">
+            <section class="practice-header">
+              <div>
+                <p class="eyebrow">Unit 3 Practice</p>
+                <h2>Source-aligned practice cards for unit rates and percentages.</h2>
+                <p>
+                  Each available lesson card preserves every source problem and its original order. Submit each part
+                  independently for feedback, and open the rendered source page in the app whenever you need it.
+                </p>
+              </div>
+              <div class="practice-stats" aria-label="Unit 3 Practice progress">
+                <span><strong id="unit3PracticeAnsweredCount">0</strong> tried</span>
+                <span><strong id="unit3PracticeCorrectCount">0</strong> correct</span>
+                <span><strong id="unit3PracticeTotalCount">11</strong> total</span>
+              </div>
+            </section>
+            <div class="practice-filter" id="unit3PracticeFilter" aria-label="Unit 3 Practice section filter"></div>
+            <div class="practice-list" id="unit3PracticeList" aria-live="polite"></div>
+          </section>
+        </section>
+
         <section class="content-pane" id="vocabularyView" data-view-pane="vocabulary" hidden aria-label="Vocabulary">
           <section class="vocabulary-header">
             <div>
@@ -208,8 +265,9 @@
 
     <script src="vendor/three.min.js?v=20260823-4"></script>
     <script src="unit1-polyhedra-models.js?v=20260823-4"></script>
-    <script src="unit1-practice-bank.js?v=20260827-6"></script>
+    <script src="unit1-practice-bank.js?v=20260830-12"></script>
     <script src="unit2-practice-bank.js?v=20260828-6"></script>
-    <script src="script.js?v=20260828-8"></script>
+    <script src="unit3-practice-bank.js?v=20260901-1"></script>
+  <script src="script.js?v=20260901-1"></script>
   </body>
 </html>

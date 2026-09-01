@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 330" role="img" aria-labelledby="title desc">
+  <title id="title">One square meter divided into 18 equal triangles</title>
+  <desc id="desc">A three-by-three square grid. Each of the nine squares is divided diagonally into two equal triangles.</desc>
+  <rect width="430" height="330" fill="#ffffff"/>
+  <defs>
+    <g id="cell">
+      <rect width="82" height="82" fill="#86cfe7" stroke="#24313a" stroke-width="2"/>
+      <line x1="0" y1="0" x2="82" y2="82" stroke="#24313a" stroke-width="2"/>
+    </g>
+  </defs>
+  <use href="#cell" x="88" y="26"/>
+  <use href="#cell" x="170" y="26"/>
+  <use href="#cell" x="252" y="26"/>
+  <use href="#cell" x="88" y="108"/>
+  <use href="#cell" x="170" y="108"/>
+  <use href="#cell" x="252" y="108"/>
+  <use href="#cell" x="88" y="190"/>
+  <use href="#cell" x="170" y="190"/>
+  <use href="#cell" x="252" y="190"/>
+  <text x="211" y="306" text-anchor="middle" fill="#24313a" font-family="Arial, sans-serif" font-size="24" font-weight="700">1 square meter</text>
+</svg>

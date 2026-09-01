@@ -19,6 +19,16 @@ const appUnitRoutes = {
     navId: "unit2LessonNav",
     navButtonId: "unit2NavButton",
   },
+  3: {
+    view: "unit3",
+    lessonCount: 17,
+    builtTeachLessons: Array.from({ length: 17 }, (_, index) => index + 1),
+    builtPracticeLessons: [1],
+    practiceAvailable: true,
+    deckId: "unit3TeachLessonDeck",
+    navId: "unit3LessonNav",
+    navButtonId: "unit3NavButton",
+  },
 };
 
 function lessonRoutePad(lessonNumber) {
@@ -93,7 +103,12 @@ function appRouteHash(route) {
 const initialLocationHash = window.location.hash;
 const initialAppRoute = parseAppRoute(initialLocationHash);
 
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
 const TEXTAREA_MAX_LENGTH = 500;
+const CHOICE_SCRATCH_MAX_LENGTH = 100;
 
 const state = {
   view: initialAppRoute.view,
@@ -147,10 +162,11 @@ const state = {
   cubeEdge: 3,
   tentFocus: "roof",
   vocabularySearch: "",
-  practiceFilters: { 1: "all", 2: "all" },
+  practiceFilters: { 1: "all", 2: "all", 3: "all" },
   practiceResponses: {},
   practiceReasoning: {},
   practiceSelections: {},
+  practiceChoiceScratch: {},
   practiceActiveParts: {},
   practiceActiveGroups: {},
   practiceOpenDropdown: null,
@@ -194,12 +210,14 @@ const sourceModalBounds = {
 const viewTitles = {
   unit1: "Unit 1: Area and Surface Area",
   unit2: "Unit 2: Introducing Ratios",
+  unit3: "Unit 3: Unit Rates and Percentages",
   vocabulary: "Vocabulary",
 };
 
 const practiceBank = [
   ...(window.unit1PracticeBank || []),
   ...(window.unit2PracticeBank || []),
+  ...(window.unit3PracticeBank || []),
 ];
 
 function practiceUnitNumber(item) {
@@ -9624,8 +9642,2606 @@ const unit2TeachCards = [
   },
 ];
 
-const allTeachCards = [...unit1TeachCards, ...unit2TeachCards];
-const allTeachSources = [...teachMeSources, ...unit2TeachSources];
+const unit3TeachSources = [
+  {
+    id: "teach-u3-section-a-l1",
+    unitNumber: 3,
+    lessonNumber: 1,
+    label: "Lesson 1 source",
+    title: "Lesson 1: The Burj Khalifa",
+    subtitle: "Original public lesson source for estimating measurements and reasoning with constant rates.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-01.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 1.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-a-l2",
+    unitNumber: 3,
+    lessonNumber: 2,
+    label: "Lesson 2 source",
+    title: "Lesson 2: Anchoring Units of Measurement",
+    subtitle: "Original public lesson source for estimating measurements and matching benchmark objects with standard units.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-02.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 2.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-a-l3",
+    unitNumber: 3,
+    lessonNumber: 3,
+    label: "Lesson 3 source",
+    title: "Lesson 3: Measuring with Different-Sized Units",
+    subtitle: "Original public lesson source for measuring the same quantity with differently sized units.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-03.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 3.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-a-l4",
+    unitNumber: 3,
+    lessonNumber: 4,
+    label: "Lesson 4 source",
+    title: "Lesson 4: Converting Units",
+    subtitle: "Original public lesson source for converting measurements through equivalent ratios.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-04.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 4.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-a-l5",
+    unitNumber: 3,
+    lessonNumber: 5,
+    label: "Lesson 5 source",
+    title: "Lesson 5: Comparing Speeds and Prices",
+    subtitle: "Original public lesson source for comparing rates per one in speed and price contexts.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-05.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 5.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-a-l6",
+    unitNumber: 3,
+    lessonNumber: 6,
+    label: "Lesson 6 source",
+    title: "Lesson 6: Interpreting Rates",
+    subtitle: "Original public lesson source for interpreting both unit rates associated with a ratio.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-06.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 6.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-b-l7",
+    unitNumber: 3,
+    lessonNumber: 7,
+    label: "Lesson 7 source",
+    title: "Lesson 7: Equivalent Ratios Have the Same Unit Rates",
+    subtitle: "Original public lesson source for using unit rates to recognize and extend equivalent ratios.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-07.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 7.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-b-l8",
+    unitNumber: 3,
+    lessonNumber: 8,
+    label: "Lesson 8 source",
+    title: "Lesson 8: More about Constant Speed",
+    subtitle: "Original public lesson source for solving constant-speed problems with speed, pace, tables, and combined rates.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-08.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 8.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-b-l9",
+    unitNumber: 3,
+    lessonNumber: 9,
+    label: "Lesson 9 source",
+    title: "Lesson 9: Solving Rate Problems",
+    subtitle: "Original public lesson source for comparing unit rates, evaluating deals, and converting measurements.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-09.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 9.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-b-l10",
+    unitNumber: 3,
+    lessonNumber: 10,
+    label: "Lesson 10 source",
+    title: "Lesson 10: What Are Percentages?",
+    subtitle: "Original public lesson source for interpreting percentages as rates per 100 in money contexts.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-10.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 10.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-b-l11",
+    unitNumber: 3,
+    lessonNumber: 11,
+    label: "Lesson 11 source",
+    title: "Lesson 11: Percentages and Double Number Lines",
+    subtitle: "Original public lesson source for finding percentages and whole amounts with aligned double number lines.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-11.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 11.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-c-l12",
+    unitNumber: 3,
+    lessonNumber: 12,
+    label: "Lesson 12 source",
+    title: "Lesson 12: Percentages and Tape Diagrams",
+    subtitle: "Original public lesson source for connecting percentages, fractions, and tape-diagram comparisons.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-12.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 12.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-c-l13",
+    unitNumber: 3,
+    lessonNumber: 13,
+    label: "Lesson 13 source",
+    title: "Lesson 13: Benchmark Percentages",
+    subtitle: "Original public lesson source for connecting benchmark percentages with fractions and mental calculations.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-13.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 13.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-c-l14",
+    unitNumber: 3,
+    lessonNumber: 14,
+    label: "Lesson 14 source",
+    title: "Lesson 14: Solving Percentage Problems",
+    subtitle: "Original public lesson source for solving percentage problems and requesting the specific information needed in an information gap.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-14.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 14.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-c-l15",
+    unitNumber: 3,
+    lessonNumber: 15,
+    label: "Lesson 15 source",
+    title: "Lesson 15: Finding This Percent of That",
+    subtitle: "Original public lesson source for finding a percentage of a quantity by multiplying.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-15.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 15.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-c-l16",
+    unitNumber: 3,
+    lessonNumber: 16,
+    label: "Lesson 16 source",
+    title: "Lesson 16: Finding the Percentage",
+    subtitle: "Original public lesson source for finding what percentage one quantity is of another.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-16.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 16.",
+    isPrimary: true,
+  },
+  {
+    id: "teach-u3-section-c-l17",
+    unitNumber: 3,
+    lessonNumber: 17,
+    label: "Lesson 17 source",
+    title: "Lesson 17: Painting a Room",
+    subtitle: "Original public lesson source for applying area, unit rates, purchasing decisions, and percentages to a room-painting project.",
+    previewPath: "artifacts/unit 3/_public-reference-renders/lesson-17.png",
+    alt: "Rendered public-reference material for Grade 6 Unit 3 Lesson 17.",
+    isPrimary: true,
+  },
+];
+
+const unit3MusicDeviceProblemBlacklines = {
+  round1: {
+    activityAddress: "Grade6.3.14.3",
+    title: "Info Gap: Music Devices · Problem Card 1",
+    page: 1,
+    previewPath: "artifacts/unit 3/_teachme-crops/lesson-14-info-gap-problem-card-1.png",
+    subtitle: "Exact student-safe crop of Problem Card 1. Its matching data card remains hidden until the student requests specific information in the app.",
+    alt: "Problem Card 1 asking which music devices Jada can afford and what percentage of Device B's price she has.",
+    buttonLabel: "Problem Card 1",
+  },
+  round2: {
+    activityAddress: "Grade6.3.14.3",
+    title: "Info Gap: Music Devices · Problem Card 2",
+    page: 1,
+    previewPath: "artifacts/unit 3/_teachme-crops/lesson-14-info-gap-problem-card-2.png",
+    subtitle: "Exact student-safe crop of Problem Card 2. Its matching data card remains hidden until the student requests specific information in the app.",
+    alt: "Problem Card 2 asking how much Device D costs.",
+    buttonLabel: "Problem Card 2",
+  },
+};
+
+const unit3DealBlackline = [{
+  activityAddress: "Grade6.3.9.2",
+  title: "Card Sort: Is It a Deal? · Blackline p.1",
+  page: 1,
+  previewPath: "artifacts/unit 3/_rendered-previews/Blackline Masters/Grade6-3-C9-2-card-sort-is-it-a-deal-card-sort-is-it-a-deal/page-001.png",
+  subtitle: "Rendered student-use Blackline page containing the complete source offer-card set A–F.",
+  alt: "Complete Blackline Master card set for Grade 6 Unit 3 Lesson 9 activity 9.2.",
+  buttonLabel: "Blackline p.1",
+}];
+
+const unit3MeasurementBlacklines = [1, 2, 3, 4].map((page) => ({
+  activityAddress: "Grade6.3.2.3",
+  title: `Card Sort: Measurements · Blackline p.${page}`,
+  page,
+  previewPath: `artifacts/unit 3/_rendered-previews/Blackline Masters/Grade6-3-B2-3-card-sort-measurements-card-sort-measurements/page-${String(page).padStart(3, "0")}.png`,
+  subtitle: page === 1
+    ? "Rendered student-use Blackline page containing the complete standard-unit card set."
+    : "Rendered student-use Blackline page containing source picture cards for the measurement card sort.",
+  alt: `Blackline Master page ${page} for the complete Grade 6 Unit 3 measurement card sort.`,
+  buttonLabel: `Blackline p.${page}`,
+}));
+
+const unit3MeasurementUnits = [
+  { id: "centimeter", label: "1 centimeter", group: "length" },
+  { id: "cup", label: "1 cup", group: "volume" },
+  { id: "foot", label: "1 foot", group: "length" },
+  { id: "gallon", label: "1 gallon", group: "volume" },
+  { id: "gram", label: "1 gram", group: "weight" },
+  { id: "inch", label: "1 inch", group: "length" },
+  { id: "kilogram", label: "1 kilogram", group: "weight" },
+  { id: "kilometer", label: "1 kilometer", group: "length" },
+  { id: "liter", label: "1 liter", group: "volume" },
+  { id: "meter", label: "1 meter", group: "length" },
+  { id: "mile", label: "1 mile", group: "length" },
+  { id: "milliliter", label: "1 milliliter", group: "volume" },
+  { id: "millimeter", label: "1 millimeter", group: "length" },
+  { id: "ounce", label: "1 ounce", group: "weight" },
+  { id: "pound", label: "1 pound", group: "weight" },
+  { id: "quart", label: "1 quart", group: "volume" },
+  { id: "ton", label: "1 ton", group: "weight" },
+  { id: "yard", label: "1 yard", group: "length" },
+];
+
+const unit3MeasurementObjectGroups = {
+  length: {
+    label: "Length picture cards",
+    page: 2,
+    rows: 4,
+    units: ["millimeter", "centimeter", "inch", "foot", "yard", "meter", "kilometer", "mile"],
+    objects: [
+      { id: "thumb-length", label: "length of a thumb", row: 0, column: 0, answer: "inch" },
+      { id: "chest-to-fingers", label: "length from chest to fingers", row: 0, column: 1, answer: "yard" },
+      { id: "fingers-to-armpit", label: "length from fingers to opposite armpit", row: 0, column: 2, answer: "meter" },
+      { id: "pinky-width", label: "width of a pinky finger", row: 0, column: 3, answer: "centimeter" },
+      { id: "walk-ten-minutes", label: "distance walked in 10 minutes", row: 1, column: 0, answer: "kilometer" },
+      { id: "run-ten-minutes", label: "distance run in 10 minutes", row: 1, column: 1, answer: "mile" },
+      { id: "shoe-length", label: "length of a shoe", row: 1, column: 2, answer: "foot" },
+      { id: "ruler-length", label: "length of a ruler", row: 1, column: 3, answer: "foot" },
+      { id: "quarter-width", label: "width of a quarter", row: 2, column: 0, answer: "inch" },
+      { id: "license-plate-length", label: "length of a license plate", row: 2, column: 1, answer: "foot" },
+      { id: "bat-and-ball-length", label: "length of a baseball bat and ball", row: 2, column: 2, answer: "meter" },
+      { id: "dime-thickness", label: "thickness of a dime", row: 2, column: 3, answer: "millimeter" },
+      { id: "football-length", label: "length of a football", row: 3, column: 0, answer: "foot" },
+      { id: "hockey-puck-thickness", label: "thickness of a hockey puck", row: 3, column: 1, answer: "inch" },
+      { id: "baseball-bat-length", label: "length of a baseball bat", row: 3, column: 2, answer: "yard" },
+      { id: "golf-tee-head-width", label: "width of the head of a golf tee", row: 3, column: 3, answer: "centimeter" },
+    ],
+  },
+  volume: {
+    label: "Volume picture cards",
+    page: 4,
+    rows: 4,
+    units: ["milliliter", "cup", "quart", "liter", "gallon"],
+    objects: [
+      { id: "school-milk-carton", label: "school milk carton", row: 0, column: 0, answer: "cup" },
+      { id: "sweetener-packet", label: "packet of artificial sweetener", row: 0, column: 1, answer: "milliliter" },
+      { id: "large-paint-can", label: "large paint can", row: 0, column: 2, answer: "gallon" },
+      { id: "small-paint-can", label: "small paint can", row: 0, column: 3, answer: "quart" },
+      { id: "large-milk-jug", label: "large milk jug", row: 1, column: 0, answer: "gallon" },
+      { id: "reusable-water-bottle", label: "reusable water bottle", row: 1, column: 1, answer: "liter" },
+      { id: "sports-drink-bottle", label: "large sports drink bottle", row: 1, column: 2, answer: "quart" },
+      { id: "measuring-cup", label: "measuring cup", row: 1, column: 3, answer: "cup" },
+      { id: "half-soda-bottle", label: "half of a large soda bottle", row: 2, column: 0, answer: "liter" },
+      { id: "thousands-cube", label: "1000s cube", row: 2, column: 1, answer: "liter" },
+      { id: "ones-cube", label: "1s cube", row: 2, column: 2, answer: "milliliter" },
+      { id: "raindrop", label: "raindrop", row: 2, column: 3, answer: "milliliter" },
+    ],
+  },
+  weight: {
+    label: "Weight or mass picture cards",
+    page: 3,
+    rows: 4,
+    units: ["gram", "ounce", "pound", "kilogram", "ton"],
+    objects: [
+      { id: "textbook", label: "textbook", row: 0, column: 0, answer: "kilogram" },
+      { id: "small-car", label: "small car", row: 0, column: 1, answer: "ton" },
+      { id: "birthday-card", label: "birthday card", row: 0, column: 2, answer: "ounce" },
+      { id: "paperclip", label: "paperclip", row: 0, column: 3, answer: "gram" },
+      { id: "hooded-sweatshirt", label: "hooded sweatshirt", row: 1, column: 0, answer: "pound" },
+      { id: "dollar-bill", label: "dollar bill", row: 1, column: 1, answer: "gram" },
+      { id: "crayon-box", label: "box of 96 crayons", row: 1, column: 2, answer: "pound" },
+      { id: "bananas", label: "bunch of bananas", row: 1, column: 3, answer: "pound" },
+      { id: "two-raisins", label: "2 raisins", row: 2, column: 0, answer: "gram" },
+      { id: "bread-slice", label: "slice of bread", row: 2, column: 1, answer: "ounce" },
+      { id: "bread-loaf", label: "loaf of bread", row: 2, column: 2, answer: "pound" },
+      { id: "peanut-butter", label: "jar of peanut butter", row: 2, column: 3, answer: "pound" },
+      { id: "draft-horse", label: "draft horse", row: 3, column: 0, answer: "ton" },
+      { id: "crow", label: "crow", row: 3, column: 1, answer: "pound" },
+      { id: "guinea-pig", label: "guinea pig", row: 3, column: 2, answer: "kilogram" },
+      { id: "mouse", label: "mouse", row: 3, column: 3, answer: "ounce" },
+    ],
+  },
+};
+
+const unit3StringAssignments = [
+  { id: "centimeter", label: "1 centimeter", centimeters: 1, workspaceMaxCentimeters: 25, rulerStepCentimeters: 5, referenceSet: "short" },
+  { id: "foot", label: "1 foot", centimeters: 30.48, workspaceMaxCentimeters: 40, rulerStepCentimeters: 5, referenceSet: "medium" },
+  { id: "inch", label: "1 inch", centimeters: 2.54, workspaceMaxCentimeters: 25, rulerStepCentimeters: 5, referenceSet: "short" },
+  { id: "meter", label: "1 meter", centimeters: 100, workspaceMaxCentimeters: 120, rulerStepCentimeters: 20, referenceSet: "long" },
+  { id: "yard", label: "1 yard", centimeters: 91.44, workspaceMaxCentimeters: 120, rulerStepCentimeters: 20, referenceSet: "long" },
+];
+
+// Representative lengths keep the classroom silhouettes proportional to one another.
+// They are intentionally presented as approximate benchmarks, never as measurements.
+const unit3ClassroomReferenceSets = {
+  short: [
+    { id: "crayon", label: "New crayon", kind: "crayon", centimeters: 9 },
+    { id: "marker", label: "Marker", kind: "marker", centimeters: 14 },
+    { id: "pencil", label: "New pencil", kind: "pencil", centimeters: 19 },
+    { id: "book", label: "Small book, long edge", kind: "book", centimeters: 22 },
+  ],
+  medium: [
+    { id: "crayon", label: "New crayon", kind: "crayon", centimeters: 9 },
+    { id: "marker", label: "Marker", kind: "marker", centimeters: 14 },
+    { id: "pencil", label: "New pencil", kind: "pencil", centimeters: 19 },
+    { id: "laptop", label: "Small laptop, across", kind: "laptop", centimeters: 31 },
+  ],
+  long: [
+    { id: "crayon", label: "New crayon", kind: "crayon", centimeters: 9 },
+    { id: "marker", label: "Marker", kind: "marker", centimeters: 14 },
+    { id: "pencil", label: "New pencil", kind: "pencil", centimeters: 19 },
+    { id: "laptop", label: "Small laptop, across", kind: "laptop", centimeters: 31 },
+  ],
+};
+
+const unit3StationBlacklines = Array.from({ length: 13 }, (_, index) => {
+  const page = index + 1;
+  return {
+    activityAddress: "Grade6.3.3.2",
+    title: `Measurement Stations · Blackline p.${page}`,
+    page,
+    previewPath: `artifacts/unit 3/_rendered-previews/Blackline Masters/Grade6-3-B3-2-measurement-stations-measurement-stations/page-${String(page).padStart(3, "0")}.png`,
+    subtitle: page === 1
+      ? "Rendered student-use box net for Measurement Station 1."
+      : "Rendered student-use paper scale component for Measurement Station 4.",
+    alt: `Blackline Master page ${page} for Grade 6 Unit 3 Measurement Stations.`,
+    buttonLabel: page === 1 ? "Box net p.1" : `Scale p.${page}`,
+  };
+});
+
+const unit3StationScaleObjects = [
+  { id: "potatoes", label: "Bag of potatoes", page: 2, tons: "0.005", pounds: "10", ounces: "160", kilograms: "4.536", grams: "4536" },
+  { id: "pencil", label: "Pencil", page: 4, tons: "0.00001", pounds: "0.02", ounces: "0.3175", kilograms: "0.009", grams: "9" },
+  { id: "socks", label: "Pair of socks", page: 5, tons: "0.00007", pounds: "0.1438", ounces: "2.3", kilograms: "0.0652", grams: "65.204" },
+  { id: "milk", label: "Gallon of milk", page: 7, tons: "0.0043", pounds: "8.6", ounces: "137.6", kilograms: "3.901", grams: "3901" },
+  { id: "microwave", label: "Microwave", page: 8, tons: "0.02", pounds: "40", ounces: "640", kilograms: "18.144", grams: "18143.7" },
+  { id: "pillow", label: "Pillow", page: 10, tons: "0.0015", pounds: "3", ounces: "48", kilograms: "1.361", grams: "1360.78" },
+  { id: "phone", label: "Cell phone", page: 11, tons: "0.0002", pounds: "0.3417", ounces: "5.467", kilograms: "0.155", grams: "155" },
+];
+
+const unit3StationScaleUnits = [
+  { id: "ounces", label: "ounces" },
+  { id: "pounds", label: "pounds" },
+  { id: "grams", label: "grams" },
+  { id: "kilograms", label: "kilograms" },
+];
+
+const unit3TeachCards = [
+  {
+    id: "teach-u3-l1-1",
+    unitNumber: 3,
+    lessonNumber: 1,
+    section: "A",
+    title: "The Burj Khalifa",
+    partLabel: "1.1",
+    activityOrder: 1,
+    activityTitle: "1.1: Estimating Height",
+    pdfPage: 1,
+    cropPath: "lesson-01-hyperion-and-liberty.png",
+    visualWidth: 500,
+    visualHeight: 540,
+    visualDisplayMaxWidth: 500,
+    visualAlt: "The source photograph of Hyperion beside a scale image of the Statue of Liberty.",
+    sourceDirections: "Use the picture to estimate the height of Hyperion, the tallest known tree.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "hyperion-estimate",
+        label: "Your estimate",
+        prompt: "About how tall is Hyperion? Enter a positive estimate and use the optional explanation to name your unit and describe what you compared.",
+        responseType: "number",
+        estimate: true,
+        inputLabel: "Estimated height",
+        placeholder: "Type a positive estimate",
+        reasoningPrompt: "Optional: State feet or meters and explain how the picture informed your estimate.",
+        reasoningOptional: true,
+        hint: "Compare the tree with the Statue of Liberty reference. Choose feet or meters and make a reasonable estimate rather than searching for an exact value.",
+        correctFeedback: "Estimate recorded. This source task has no single exact answer. A useful estimate names a unit and explains how Hyperion compares with the Statue of Liberty reference.",
+        incorrectFeedback: "Enter a positive numerical estimate. You can name the unit and explain the visual comparison in the optional reasoning box.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l1-2",
+    unitNumber: 3,
+    lessonNumber: 1,
+    section: "A",
+    title: "The Burj Khalifa",
+    partLabel: "1.2",
+    activityOrder: 2,
+    activityTitle: "1.2: Window Washing",
+    pdfPage: 2,
+    cropPath: "lesson-01-window-washing.png",
+    visualWidth: 240,
+    visualHeight: 350,
+    visualDisplayMaxWidth: 240,
+    visualAlt: "The source photograph of window washers working on the glass exterior of the Burj Khalifa.",
+    sourceContext: "The source intentionally leaves out information needed to answer the question. The app acts as the teacher and supplies it only after you identify what is missing.",
+    sourceDirections: "A window-washing crew can finish 15 windows in 18 minutes. If this crew washes every outside window at this rate, how long will the work take?",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "missing-information",
+        label: "Missing information",
+        prompt: "What information must you request before this problem can be solved?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "window-total", label: "The total number of windows on the outside of the Burj Khalifa" },
+          { id: "crew-size", label: "The number of people on the window-washing crew" },
+          { id: "building-height", label: "The exact height of the Burj Khalifa" },
+        ],
+        answerKey: ["window-total"],
+        hint: "The given rate tells how time changes with a number of windows. Which total quantity is still unknown?",
+        correctFeedback: "Correct. You need the total number of exterior windows. The app teacher supplies the source value: the Burj Khalifa has 24,348 windows.",
+        incorrectFeedback: "Not quite. The crew's rate is already known. Request the total quantity that must be washed.",
+      },
+      {
+        id: "washing-time",
+        label: "Solve",
+        prompt: "The Burj Khalifa has 24,348 windows. At 15 windows in 18 minutes, how many minutes will the crew be washing?",
+        unlockedAfterQuestionId: "missing-information",
+        responseType: "number",
+        inputLabel: "Time (minutes)",
+        placeholder: "Type the number of minutes",
+        answerKey: ["29217.6"],
+        reasoningPrompt: "Optional: Show how you found a rate per 1 window or per 1 minute.",
+        reasoningOptional: true,
+        hint: "One window takes 18 ÷ 15 = 1.2 minutes. Multiply that rate by 24,348 windows.",
+        correctFeedback: "Correct. Each window takes 1.2 minutes, so 24,348 × 1.2 = 29,217.6 minutes, which is 486.96 hours or about 20.3 continuous days.",
+        incorrectFeedback: "Start with 18 ÷ 15 = 1.2 minutes per window, then multiply by 24,348.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l1-3",
+    unitNumber: 3,
+    lessonNumber: 1,
+    section: "A",
+    title: "The Burj Khalifa",
+    partLabel: "1.3",
+    activityOrder: 3,
+    activityTitle: "1.3: Climbing the Burj Khalifa",
+    pdfPage: 2,
+    customVisual: "unit3ClimbRate",
+    visualAlt: "A double number line relating a 6-hour climb to 828 meters, with intermediate values left for the student to calculate.",
+    sourceDirections: "A professional climber scaled 828 meters of the Burj Khalifa in 6 hours. Assume the climber moved at the same rate the whole way.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "two-hours",
+        label: "First 2 hours",
+        prompt: "How far did the climber climb in the first 2 hours?",
+        responseType: "number",
+        inputLabel: "Distance (meters)",
+        placeholder: "Type a distance",
+        answerKey: ["276"],
+        hint: "Two hours is one third of 6 hours, so find one third of 828 meters.",
+        correctFeedback: "Correct. Two hours is one third of the total time, and one third of 828 meters is 276 meters.",
+        incorrectFeedback: "Scale both quantities by the same factor. Divide 6 hours and 828 meters by 3.",
+      },
+      {
+        id: "five-hours",
+        label: "First 5 hours",
+        prompt: "How far did the climber climb in 5 hours?",
+        responseType: "number",
+        inputLabel: "Distance (meters)",
+        placeholder: "Type a distance",
+        answerKey: ["690"],
+        hint: "First find the distance in 1 hour, then multiply by 5.",
+        correctFeedback: "Correct. The rate is 828 ÷ 6 = 138 meters per hour, and 5 × 138 = 690 meters.",
+        incorrectFeedback: "Find the constant rate in meters per hour, then use it for 5 hours.",
+      },
+      {
+        id: "final-fifteen",
+        label: "Final 15 minutes",
+        prompt: "How far did the climber climb in the final 15 minutes?",
+        responseType: "number",
+        inputLabel: "Distance (meters)",
+        placeholder: "Type a distance",
+        answerKey: ["34.5", "69/2"],
+        hint: "Fifteen minutes is one fourth of an hour. Find one fourth of the 138-meter hourly distance.",
+        correctFeedback: "Correct. Fifteen minutes is one fourth of an hour, so the climber covered 138 ÷ 4 = 34.5 meters.",
+        incorrectFeedback: "Convert 15 minutes to one fourth of an hour, then take one fourth of 138 meters.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l1-optional",
+    unitNumber: 3,
+    lessonNumber: 1,
+    section: "A",
+    title: "The Burj Khalifa",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Weight on the Moon and Mars",
+    pdfPage: 3,
+    customVisual: "unit3PlanetWeights",
+    visualAlt: "Given equivalent-weight relationships for Earth, the Moon, and Mars, with a 60-pound Earth weight to scale.",
+    sourceDirections: "A boy weighs 60 pounds on Earth. Use the given equivalent weights to determine what he would weigh on the Moon and on Mars.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "moon-weight",
+        label: "Moon",
+        prompt: "A person who weighs 100 pounds on Earth weighs 16.5 pounds on the Moon. What would a 60-pound boy weigh on the Moon?",
+        responseType: "number",
+        inputLabel: "Moon weight (pounds)",
+        placeholder: "Type a weight",
+        answerKey: ["9.9"],
+        hint: "Sixty is 0.6 of 100, so find 0.6 of 16.5.",
+        correctFeedback: "Correct. 60 is 0.6 × 100, so the Moon weight is 0.6 × 16.5 = 9.9 pounds.",
+        incorrectFeedback: "Scale 100 pounds and 16.5 pounds by the same factor, 0.6.",
+      },
+      {
+        id: "mars-weight",
+        label: "Mars",
+        prompt: "Every 100 pounds on Earth is equivalent to 38 pounds on Mars. What would the same 60-pound boy weigh on Mars?",
+        responseType: "number",
+        inputLabel: "Mars weight (pounds)",
+        placeholder: "Type a weight",
+        answerKey: ["22.8"],
+        hint: "Use the same 0.6 scale factor on the Mars weight.",
+        correctFeedback: "Correct. 0.6 × 38 = 22.8, so the boy would weigh 22.8 pounds on Mars.",
+        incorrectFeedback: "Scale both sides of 100 Earth pounds to 38 Mars pounds by 0.6.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l1-summary",
+    unitNumber: 3,
+    lessonNumber: 1,
+    section: "A",
+    title: "The Burj Khalifa",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 1 Summary",
+    pdfPage: 3,
+    customVisual: "unit3RateSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l2-1",
+    unitNumber: 3,
+    lessonNumber: 2,
+    section: "A",
+    title: "Anchoring Units of Measurement",
+    partLabel: "2.1",
+    activityOrder: 1,
+    activityTitle: "2.1: Estimating Volume",
+    pdfPage: 1,
+    cropPath: "lesson-02-tiny-salt-shaker.png",
+    visualWidth: 225,
+    visualHeight: 225,
+    visualDisplayMaxWidth: 300,
+    visualAlt: "The exact source photograph of a tiny salt shaker held in a person's hand for scale.",
+    sourceDirections: "Estimate the volume of the tiny salt shaker.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "salt-volume",
+        label: "Your estimate",
+        prompt: "Estimate the volume of the tiny salt shaker. Use the hand in the source photograph as a size reference.",
+        fields: [
+          { id: "amount", label: "Estimated volume", responseType: "number", placeholder: "Type a positive estimate" },
+          { id: "unit", label: "Unit", responseType: "text", placeholder: "Example: milliliters" },
+        ],
+        dynamicAnswer: "unit3PositiveMeasurementEstimate",
+        estimate: true,
+        recordResponse: true,
+        hint: "Choose a volume unit that makes sense for a small container, then use the person's fingers to judge the shaker's approximate dimensions.",
+        correctFeedback: "Estimate recorded. This source task has no single exact answer because the photograph does not show interior dimensions or how full the shaker is. A useful estimate includes a reasonable volume unit and states any assumptions.",
+        incorrectFeedback: "Enter a positive numerical estimate. Add a volume unit so another person can interpret your measurement.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l2-2",
+    unitNumber: 3,
+    lessonNumber: 2,
+    section: "A",
+    title: "Anchoring Units of Measurement",
+    partLabel: "2.2",
+    activityOrder: 2,
+    activityTitle: "2.2: Cutting String",
+    pdfPage: 1,
+    customVisual: "unit3StringEstimate",
+    sourceDirections: "The app assigns one of the source lengths. Compare the unmarked string with familiar classroom objects shown at the same relative scale, then move the cut marker to estimate the assigned length. Submit before the hidden measurement is revealed.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "string-cut",
+        label: "Estimated cut",
+        prompt: "Estimate and cut a piece of virtual string as close to the app-assigned length as you can without a measurement tool.",
+        responseType: "construction",
+        dynamicAnswer: "unit3StringEstimate",
+        recordResponse: true,
+        constructionNote: "Use the unmarked string and approximate classroom references. The ruler, target mark, and measured result stay hidden until you submit.",
+        hint: "Compare the string with the familiar classroom objects. Their sizes vary in real life, so use them as approximate benchmarks rather than measurement tools.",
+        correctFeedback: "Estimate recorded. The workspace now reveals the actual target and your measured cut so you can compare them.",
+        incorrectFeedback: "Move the cut marker away from zero before submitting your estimate.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l2-3",
+    unitNumber: 3,
+    lessonNumber: 2,
+    section: "A",
+    title: "Anchoring Units of Measurement",
+    partLabel: "2.3",
+    activityOrder: 3,
+    activityTitle: "2.3: Card Sort: Measurements",
+    pdfPage: 2,
+    pdfPages: [2],
+    blacklineMasters: unit3MeasurementBlacklines,
+    customVisual: "unit3MeasurementCardSort",
+    sourceDirections: "Sort the complete source unit-card set by the attribute it measures. Then match every L, V, and WM picture card with the closest source unit. The app replaces the source partner review while keeping every card available.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "sort-units",
+        label: "Sort unit cards",
+        prompt: "Sort all 18 unit cards into length, volume, or weight/mass.",
+        responseType: "construction",
+        dynamicAnswer: "unit3MeasurementUnitSort",
+        constructionNote: "Select a unit card in the workspace, then assign its attribute. Submit after all 18 cards are sorted.",
+        hint: "Ask what each unit measures: distance, space inside a container, or heaviness/mass.",
+        correctFeedback: "Correct. The 18 source units are sorted into 8 length units, 5 volume units, and 5 weight or mass units.",
+        incorrectFeedback: "Review the highlighted unit cards. Every unit must be placed in the attribute group it actually measures.",
+      },
+      {
+        id: "match-length",
+        label: "Match L cards",
+        prompt: "Match every picture card marked L with the closest length unit.",
+        responseType: "construction",
+        dynamicAnswer: "unit3MeasurementLengthMatches",
+        unlockedAfterQuestionId: "sort-units",
+        constructionNote: "Select a source picture card, then choose one of the sorted length units. Every one of the 16 L cards is required.",
+        hint: "Use benchmark objects: a dime is about a millimeter thick, a pinky is about a centimeter wide, and familiar sports objects anchor feet, yards, and meters.",
+        correctFeedback: "Correct. All 16 length picture cards are matched to their closest source unit.",
+        incorrectFeedback: "At least one L card needs revision. Compare the object with familiar millimeter, centimeter, inch, foot, yard, meter, kilometer, and mile benchmarks.",
+      },
+      {
+        id: "match-volume",
+        label: "Match V cards",
+        prompt: "Match every picture card marked V with the closest volume unit.",
+        responseType: "construction",
+        dynamicAnswer: "unit3MeasurementVolumeMatches",
+        unlockedAfterQuestionId: "sort-units",
+        constructionNote: "Select a source picture card, then choose one of the sorted volume units. Every one of the 12 V cards is required.",
+        hint: "Compare very small amounts with milliliters, drink containers with cups, quarts, or liters, and large containers with gallons.",
+        correctFeedback: "Correct. All 12 volume picture cards are matched to their closest source unit.",
+        incorrectFeedback: "At least one V card needs revision. Compare the container with milliliter, cup, quart, liter, and gallon benchmarks.",
+      },
+      {
+        id: "match-weight",
+        label: "Match WM cards",
+        prompt: "Match every picture card marked WM with the closest weight or mass unit.",
+        responseType: "construction",
+        dynamicAnswer: "unit3MeasurementWeightMatches",
+        unlockedAfterQuestionId: "sort-units",
+        constructionNote: "Select a source picture card, then choose one of the sorted weight or mass units. Every one of the 16 WM cards is required.",
+        hint: "Use grams for very light objects, ounces and pounds for familiar everyday weights, kilograms for heavier handheld objects, and tons for very large animals or vehicles.",
+        correctFeedback: "Correct. All 16 weight or mass picture cards are matched to their closest source unit.",
+        incorrectFeedback: "At least one WM card needs revision. Compare each object with gram, ounce, pound, kilogram, and ton benchmarks.",
+      },
+      {
+        id: "card-sort-reflection",
+        label: "Discuss matches",
+        prompt: "Which object or unit was hardest to match, and what comparison helped you decide?",
+        responseType: "openResponse",
+        acceptAnyResponse: true,
+        minLength: 1,
+        placeholder: "Record your discussion or reflection.",
+        hint: "Name one source object and the benchmark unit you compared it with.",
+        savedFeedback: "Response recorded. Comparing difficult matches is part of checking whether a benchmark unit is reasonable.",
+        correctFeedback: "Response recorded.",
+        incorrectFeedback: "Record one observation from the matching discussion.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l2-summary",
+    unitNumber: 3,
+    lessonNumber: 2,
+    section: "A",
+    title: "Anchoring Units of Measurement",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 2 Summary",
+    pdfPage: 3,
+    customVisual: "unit3MeasurementSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l3-1",
+    unitNumber: 3,
+    lessonNumber: 3,
+    section: "A",
+    title: "Measuring with Different-Sized Units",
+    partLabel: "3.1",
+    activityOrder: 1,
+    activityTitle: "3.1: Width of a Paper",
+    pdfPage: 1,
+    customVisual: "unit3PaperRods",
+    sourceContext: "The source uses a 6-centimeter green rod and a 9-centimeter blue rod. The app supplies those rods and a letter-size paper width.",
+    sourceDirections: "Does it take more green rods or blue rods lined up end to end to measure the width of a piece of printer paper?",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "paper-rods",
+        label: "Compare rods",
+        prompt: "Which color needs more rods to reach across the same paper width?",
+        responseType: "singleChoice",
+        choices: [
+          { id: "green", label: "Green rods" },
+          { id: "blue", label: "Blue rods" },
+          { id: "same", label: "The same number of each" },
+        ],
+        answerKey: ["green"],
+        hint: "Compare the rod lengths. A smaller unit must be repeated more times to measure the same width.",
+        correctFeedback: "Correct. The green rod is 6 centimeters long and the blue rod is 9 centimeters long, so it takes more of the shorter green rods to span the same paper width.",
+        incorrectFeedback: "Compare the size of one green rod with one blue rod. The smaller measuring unit must be used more times.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l3-2",
+    unitNumber: 3,
+    lessonNumber: 3,
+    section: "A",
+    title: "Measuring with Different-Sized Units",
+    partLabel: "3.2",
+    activityOrder: 2,
+    activityTitle: "3.2: Measurement Stations",
+    pdfPages: [1, 2, 3],
+    pdfPage: 1,
+    customVisual: "unit3MeasurementStations",
+    sourceContext: "The app supplies local versions of all five source stations. Station 4 uses the complete student-use paper-scale object set from the Blackline Master.",
+    sourceDirections: "Complete all five measurement stations, then answer every source follow-up question using the measurements you recorded.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "station-1",
+        label: "Station 1",
+        prompt: "Measure the volume of the same virtual box with cubic-inch cubes and cubic-centimeter cubes.",
+        responseType: "construction",
+        dynamicAnswer: "unit3StationBox",
+        pdfPage: 1,
+        blacklineMasters: [unit3StationBlacklines[0]],
+        constructionNote: "Use both Pack box buttons in the workspace. The app records the two counts in the source table.",
+        hint: "Pack the box once with each cube size. Compare how many smaller cubes and larger cubes occupy the same space.",
+        correctFeedback: "Station 1 complete. The same box requires many more cubic-centimeter cubes than cubic-inch cubes because a cubic centimeter is the smaller unit.",
+        incorrectFeedback: "Use both cube sizes to pack the virtual box before submitting this station.",
+      },
+      {
+        id: "station-2",
+        label: "Station 2",
+        prompt: "Measure the app-assigned length to the nearest meter and the nearest foot.",
+        responseType: "construction",
+        dynamicAnswer: "unit3StationLength",
+        pdfPage: 1,
+        constructionNote: "Use both measuring-unit buttons in the workspace. Keep the same length fixed while the units change.",
+        hint: "Measure from zero and keep the measuring units lined up straight along the same segment.",
+        correctFeedback: "Station 2 complete. The same length measures 6 meters or about 20 feet, so the smaller foot unit produces the larger count.",
+        incorrectFeedback: "Measure the fixed segment in both meters and feet before submitting.",
+      },
+      {
+        id: "station-3",
+        label: "Station 3",
+        prompt: "Use one gallon of virtual water to test how many full quart bottles and liter bottles it can fill.",
+        responseType: "construction",
+        dynamicAnswer: "unit3StationWater",
+        pdfPage: 2,
+        constructionNote: "Run both independent pouring trials. Keep pouring until the gallon cannot fill another complete bottle.",
+        hint: "A gallon fills four quart bottles. It fills three complete liter bottles and leaves some water, because one liter is slightly larger than one quart.",
+        correctFeedback: "Station 3 complete. One gallon fills 4 quart bottles, but only 3 complete liter bottles with about 0.8 liter remaining.",
+        incorrectFeedback: "Finish both the quart trial and the liter trial before submitting.",
+      },
+      {
+        id: "station-4",
+        label: "Station 4",
+        prompt: "Select at least three source objects and use the paper scale to record each weight in ounces, pounds, grams, and kilograms.",
+        responseType: "construction",
+        dynamicAnswer: "unit3StationScale",
+        pdfPage: 2,
+        blacklineMasters: unit3StationBlacklines.slice(1),
+        constructionNote: "Choose an object, then select all four units. The app records each displayed scale reading in the table.",
+        hint: "For each object, read all four units. Finish any three objects; the complete seven-object source set remains available.",
+        correctFeedback: "Station 4 complete. At least three source objects have a recorded reading in ounces, pounds, grams, and kilograms.",
+        incorrectFeedback: "Record all four unit readings for at least three different source objects.",
+      },
+      {
+        id: "station-5",
+        label: "Station 5",
+        prompt: "Count level teaspoons of virtual salt to reach 20, 40, and 50 milliliters.",
+        responseType: "construction",
+        dynamicAnswer: "unit3StationSalt",
+        pdfPage: 2,
+        constructionNote: "Choose a target, add level teaspoons, and record the result when the cylinder reaches that target. Pour the salt back before measuring another amount.",
+        hint: "In this virtual station, each level teaspoon raises the cylinder by 5 milliliters.",
+        correctFeedback: "Station 5 complete. The records are 4 teaspoons for 20 milliliters, 8 for 40, and 10 for 50.",
+        incorrectFeedback: "Record a teaspoon count for all three source targets: 20, 40, and 50 milliliters.",
+      },
+      {
+        id: "follow-cube-size",
+        label: "Question 1a",
+        prompt: "Which is larger, a cubic inch or a cubic centimeter?",
+        responseType: "singleChoice",
+        choices: [{ id: "inch", label: "A cubic inch" }, { id: "centimeter", label: "A cubic centimeter" }],
+        answerKey: ["inch"],
+        pdfPage: 3,
+        blacklineMasters: [unit3StationBlacklines[0]],
+        unlockedAfterQuestionId: "station-1",
+        hint: "Compare the edge lengths or the two packing counts from Station 1.",
+        correctFeedback: "Correct. A cubic inch is larger than a cubic centimeter.",
+        incorrectFeedback: "The larger cube requires fewer repeats to fill the same box.",
+      },
+      {
+        id: "follow-cube-count",
+        label: "Question 1b",
+        prompt: "Did more cubic inches or cubic centimeters fit in the cardboard box?",
+        responseType: "singleChoice",
+        choices: [{ id: "inch", label: "More cubic inches" }, { id: "centimeter", label: "More cubic centimeters" }],
+        answerKey: ["centimeter"],
+        pdfPage: 3,
+        blacklineMasters: [unit3StationBlacklines[0]],
+        unlockedAfterQuestionId: "station-1",
+        hint: "The smaller unit must be repeated more times to fill the same volume.",
+        correctFeedback: "Correct. More cubic centimeters fit because a cubic centimeter is the smaller unit.",
+        incorrectFeedback: "Use your Station 1 counts and choose the unit with the larger count.",
+      },
+      {
+        id: "follow-length",
+        label: "Question 2",
+        prompt: "Did it take more feet or meters to measure the indicated length?",
+        responseType: "singleChoice",
+        choices: [{ id: "feet", label: "More feet" }, { id: "meters", label: "More meters" }, { id: "same", label: "The same number" }],
+        answerKey: ["feet"],
+        pdfPage: 3,
+        unlockedAfterQuestionId: "station-2",
+        hint: "A foot is smaller than a meter.",
+        correctFeedback: "Correct. It takes more feet because a foot is the smaller unit.",
+        incorrectFeedback: "Compare the size of one foot with one meter. The smaller unit gives the larger count.",
+      },
+      {
+        id: "follow-volume",
+        label: "Question 3",
+        prompt: "Which is larger, a quart or a liter?",
+        responseType: "singleChoice",
+        choices: [{ id: "quart", label: "A quart" }, { id: "liter", label: "A liter" }, { id: "same", label: "They are the same size" }],
+        answerKey: ["liter"],
+        pdfPage: 3,
+        unlockedAfterQuestionId: "station-3",
+        hint: "The gallon filled more quart bottles than complete liter bottles.",
+        correctFeedback: "Correct. A liter is slightly larger than a quart, so fewer complete liters fit in one gallon.",
+        incorrectFeedback: "Use the Station 3 bottle counts. The unit requiring fewer repeats is the larger unit.",
+      },
+      {
+        id: "follow-weight",
+        label: "Question 4",
+        prompt: "Put the Station 4 units in order from smallest to largest.",
+        responseType: "singleChoice",
+        choices: [
+          { id: "g-o-lb-kg", label: "gram → ounce → pound → kilogram" },
+          { id: "o-g-kg-lb", label: "ounce → gram → kilogram → pound" },
+          { id: "kg-lb-o-g", label: "kilogram → pound → ounce → gram" },
+        ],
+        answerKey: ["g-o-lb-kg"],
+        pdfPage: 3,
+        blacklineMasters: unit3StationBlacklines.slice(1),
+        unlockedAfterQuestionId: "station-4",
+        hint: "Compare the readings for one source object. A smaller unit produces a larger numerical reading.",
+        correctFeedback: "Correct. From smallest to largest, the units are gram, ounce, pound, and kilogram.",
+        incorrectFeedback: "Use one completed Station 4 row to compare the four unit sizes.",
+      },
+      {
+        id: "follow-salt-100",
+        label: "Question 5a",
+        prompt: "About how many teaspoons of salt would fill the graduated cylinder to 100 milliliters?",
+        responseType: "number",
+        inputLabel: "Teaspoons",
+        placeholder: "Type an amount",
+        answerKey: ["20"],
+        pdfPage: 3,
+        unlockedAfterQuestionId: "station-5",
+        hint: "Use the Station 5 rate of 5 milliliters per teaspoon.",
+        correctFeedback: "Correct. 100 ÷ 5 = 20 level teaspoons.",
+        incorrectFeedback: "Scale the 5-milliliters-per-teaspoon relationship to 100 milliliters.",
+      },
+      {
+        id: "follow-salt-15",
+        label: "Question 5b",
+        prompt: "If you poured 15 teaspoons of salt into an empty graduated cylinder, about how many milliliters would it fill?",
+        responseType: "number",
+        inputLabel: "Milliliters",
+        placeholder: "Type an amount",
+        answerKey: ["75"],
+        pdfPage: 3,
+        unlockedAfterQuestionId: "station-5",
+        hint: "Multiply 15 teaspoons by 5 milliliters per teaspoon.",
+        correctFeedback: "Correct. 15 × 5 = 75 milliliters.",
+        incorrectFeedback: "Each teaspoon contributes 5 milliliters. Multiply rather than divide.",
+      },
+      {
+        id: "follow-salt-ml-per-tsp",
+        label: "Question 5c",
+        prompt: "How many milliliters per teaspoon are there?",
+        responseType: "number",
+        inputLabel: "Milliliters per teaspoon",
+        placeholder: "Type a rate",
+        answerKey: ["5"],
+        pdfPage: 3,
+        unlockedAfterQuestionId: "station-5",
+        hint: "Divide any recorded milliliter amount by its teaspoon count.",
+        correctFeedback: "Correct. The station data show 5 milliliters per teaspoon.",
+        incorrectFeedback: "Use 20 ÷ 4, 40 ÷ 8, or 50 ÷ 10.",
+      },
+      {
+        id: "follow-salt-tsp-per-ml",
+        label: "Question 5d",
+        prompt: "How many teaspoons per milliliter are there?",
+        responseType: "number",
+        inputLabel: "Teaspoons per milliliter",
+        placeholder: "Type a rate",
+        answerKey: ["1/5", "0.2"],
+        pdfPage: 3,
+        unlockedAfterQuestionId: "station-5",
+        hint: "This is the reciprocal of 5 milliliters per teaspoon.",
+        correctFeedback: "Correct. There is 1/5 teaspoon per milliliter.",
+        incorrectFeedback: "Divide one teaspoon by its 5 milliliters.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l3-optional",
+    unitNumber: 3,
+    lessonNumber: 3,
+    section: "A",
+    title: "Measuring with Different-Sized Units",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Metric Medicine",
+    pdfPage: 4,
+    customVisual: "unit3MetricMedicine",
+    sourceDirections: "People in the medical field use metric measurements when working with medicine. For example, a doctor might prescribe medication in 10 mg tablets.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "metric-medicine",
+        label: "Organize reasons",
+        prompt: "Brainstorm reasons healthcare workers use metric measurements. Organize your thinking so another person can follow it.",
+        responseType: "openResponse",
+        acceptAnyResponse: true,
+        minLength: 1,
+        placeholder: "Record and organize your reasons.",
+        hint: "Consider consistency across countries, small precise doses, and avoiding confusion between different unit systems.",
+        savedFeedback: "Thinking recorded. A strong explanation connects metric units with precision, consistency, and clear communication in healthcare.",
+        correctFeedback: "Thinking recorded.",
+        incorrectFeedback: "Record at least one reason healthcare workers use metric measurements.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l3-summary",
+    unitNumber: 3,
+    lessonNumber: 3,
+    section: "A",
+    title: "Measuring with Different-Sized Units",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 3 Summary",
+    pdfPage: 4,
+    customVisual: "unit3DifferentUnitsSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l4-1",
+    unitNumber: 3,
+    lessonNumber: 4,
+    section: "A",
+    title: "Converting Units",
+    partLabel: "4.1",
+    activityOrder: 1,
+    activityTitle: "4.1: Number Talk: Fractions of a Number",
+    pdfPage: 1,
+    customVisual: "unit3FractionNumberTalk",
+    sourceDirections: "Find the values mentally.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fraction-1", label: "1/4 of 32", prompt: "What is 1/4 of 32?", responseType: "number", inputLabel: "Value", answerKey: ["8"], hint: "Split 32 into 4 equal groups.", correctFeedback: "Correct. 32 ÷ 4 = 8.", incorrectFeedback: "Divide 32 into 4 equal groups." },
+      { id: "fraction-2", label: "3/4 of 32", prompt: "What is 3/4 of 32?", responseType: "number", inputLabel: "Value", answerKey: ["24"], hint: "First find 1/4 of 32, then take 3 of those groups.", correctFeedback: "Correct. 1/4 of 32 is 8, and 3 × 8 = 24.", incorrectFeedback: "Find one fourth first, then multiply that amount by 3." },
+      { id: "fraction-3", label: "3/8 of 32", prompt: "What is 3/8 of 32?", responseType: "number", inputLabel: "Value", answerKey: ["12"], hint: "Find 1/8 of 32, then take 3 groups.", correctFeedback: "Correct. 32 ÷ 8 = 4, and 3 × 4 = 12.", incorrectFeedback: "Find one eighth first, then multiply that amount by 3." },
+      { id: "fraction-4", label: "3/8 of 64", prompt: "What is 3/8 of 64?", responseType: "number", inputLabel: "Value", answerKey: ["24"], hint: "Find 1/8 of 64, then take 3 groups.", correctFeedback: "Correct. 64 ÷ 8 = 8, and 3 × 8 = 24.", incorrectFeedback: "Find one eighth first, then multiply that amount by 3." },
+    ],
+  },
+  {
+    id: "teach-u3-l4-2",
+    unitNumber: 3,
+    lessonNumber: 4,
+    section: "A",
+    title: "Converting Units",
+    partLabel: "4.2",
+    activityOrder: 2,
+    activityTitle: "4.2: Road Trip",
+    pdfPage: 1,
+    customVisual: "unit3RoadTrip",
+    sourceDirections: "Elena sees a maximum-speed sign showing 80. The police officer explains that 8 kilometers is approximately 5 miles.",
+    responseType: "questionSet",
+    questions: [
+      { id: "road-km-per-mile", label: "Question 1a", prompt: "How many kilometers are in 1 mile?", responseType: "number", inputLabel: "Kilometers", answerKey: ["1.6", "8/5"], hint: "Divide 8 kilometers by 5 miles.", correctFeedback: "Correct. 8 ÷ 5 = 1.6 kilometers per mile.", incorrectFeedback: "Use the relationship 8 kilometers for 5 miles and divide 8 by 5." },
+      { id: "road-miles-per-km", label: "Question 1b", prompt: "How many miles are in 1 kilometer?", responseType: "number", inputLabel: "Miles", answerKey: ["0.625", "5/8"], hint: "Divide 5 miles by 8 kilometers.", correctFeedback: "Correct. 5 ÷ 8 = 0.625 mile per kilometer.", incorrectFeedback: "Reverse the rate: divide 5 miles by 8 kilometers." },
+      { id: "road-speeding", label: "Question 2a", prompt: "The speed limit is 80 kilometers per hour, and Elena's mom was driving 75 miles per hour. Was she speeding?", responseType: "singleChoice", choices: [{ id: "yes", label: "Yes" }, { id: "no", label: "No" }], answerKey: ["yes"], hint: "Convert either 75 mph to kilometers per hour or 80 km/h to miles per hour.", correctFeedback: "Correct. She was speeding. Now compare the two speeds in one unit.", incorrectFeedback: "Convert both speeds to the same unit before comparing them." },
+      { id: "road-speeding-amount", label: "Question 2b", prompt: "By how much was she speeding? Choose either correct unit comparison.", responseType: "singleChoice", choices: [{ id: "40-kmh", label: "40 kilometers per hour" }, { id: "25-mph", label: "25 miles per hour" }, { id: "5-kmh", label: "5 kilometers per hour" }, { id: "45-mph", label: "45 miles per hour" }], dynamicAnswer: "unit3EitherSpeedingDifference", unlockedAfterQuestionId: "road-speeding", hint: "75 mph is about 120 km/h, while 80 km/h is about 50 mph.", correctFeedback: "Correct. 75 mph is about 120 km/h, which is 40 km/h over the limit. Equivalently, 80 km/h is about 50 mph, so she was 25 mph over.", incorrectFeedback: "Convert both speeds to the same unit, then subtract the speed limit from the driving speed." },
+    ],
+  },
+  {
+    id: "teach-u3-l4-3",
+    unitNumber: 3,
+    lessonNumber: 4,
+    section: "A",
+    title: "Converting Units",
+    partLabel: "4.3",
+    activityOrder: 3,
+    activityTitle: "4.3: Veterinary Weights",
+    pdfPage: 2,
+    customVisual: "unit3VeterinaryWeights",
+    sourceDirections: "For every 10 kilograms, there are 22 pounds. Calculate each animal's weight in kilograms, then convert the medication limit to pounds.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fido-weight", label: "Fido", prompt: "Fido the Labrador weighs 88 pounds. What is Fido's weight in kilograms?", responseType: "number", inputLabel: "Kilograms", answerKey: ["40"], hint: "88 pounds is 4 groups of 22 pounds.", correctFeedback: "Correct. Four groups of 22 pounds correspond to four groups of 10 kilograms: 40 kg.", incorrectFeedback: "Find how many groups of 22 are in 88, then multiply that number by 10 kilograms." },
+      { id: "spot-weight", label: "Spot", prompt: "Spot the Beagle weighs 33 pounds. What is Spot's weight in kilograms?", responseType: "number", inputLabel: "Kilograms", answerKey: ["15"], hint: "33 is 1.5 groups of 22.", correctFeedback: "Correct. 1.5 × 10 = 15 kilograms.", incorrectFeedback: "Use an equivalent ratio: 33 ÷ 22 = 1.5 groups, then multiply by 10 kilograms." },
+      { id: "bella-weight", label: "Bella", prompt: "Bella the Chihuahua weighs 5 1/2 pounds. What is Bella's weight in kilograms?", responseType: "number", inputLabel: "Kilograms", answerKey: ["2.5", "5/2", "2 1/2"], hint: "5.5 pounds is one fourth of 22 pounds.", correctFeedback: "Correct. 5.5 pounds is one fourth of 22 pounds, so the matching weight is one fourth of 10 kilograms: 2.5 kg.", incorrectFeedback: "Compare 5.5 with 22, then apply the same fraction to 10 kilograms." },
+      { id: "medicine-limit", label: "Medicine limit", prompt: "A medication can only be given to animals over 25 kilograms. How many pounds is 25 kilograms?", responseType: "number", inputLabel: "Pounds", answerKey: ["55"], hint: "25 kilograms is 2.5 groups of 10 kilograms.", correctFeedback: "Correct. 2.5 × 22 = 55 pounds.", incorrectFeedback: "Scale 10 kg : 22 lb by a factor of 2.5." },
+    ],
+  },
+  {
+    id: "teach-u3-l4-optional",
+    unitNumber: 3,
+    lessonNumber: 4,
+    section: "A",
+    title: "Converting Units",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "4.4: Cooking with a Tablespoon",
+    pdfPages: [2, 3],
+    customVisual: "unit3TablespoonConversion",
+    sourceContext: "Optional source activity",
+    sourceDirections: "Diego cannot find any measuring cups. He only has a tablespoon, and 1 cup equals 16 tablespoons.",
+    responseType: "questionSet",
+    questions: [
+      { id: "almonds", label: "Almonds", prompt: "How many tablespoons should Diego use to measure 1/2 cup of almonds?", responseType: "number", inputLabel: "Tablespoons", answerKey: ["8"], pdfPage: 2, hint: "Find one half of 16 tablespoons.", correctFeedback: "Correct. One half of 16 is 8 tablespoons.", incorrectFeedback: "A half cup uses half of the 16 tablespoons in one cup." },
+      { id: "oatmeal", label: "Oatmeal", prompt: "How many tablespoons should Diego use to measure 1 1/4 cups of oatmeal?", responseType: "number", inputLabel: "Tablespoons", answerKey: ["20"], pdfPage: 2, hint: "Combine 16 tablespoons for 1 cup and 4 tablespoons for 1/4 cup.", correctFeedback: "Correct. 16 + 4 = 20 tablespoons.", incorrectFeedback: "Convert the whole cup and the quarter cup separately, then add." },
+      { id: "flour", label: "Flour", prompt: "How many tablespoons should Diego use to measure 2 3/4 cups of flour?", responseType: "number", inputLabel: "Tablespoons", answerKey: ["44"], pdfPage: 2, hint: "Two cups use 32 tablespoons, and 3/4 cup uses 12 tablespoons.", correctFeedback: "Correct. 32 + 12 = 44 tablespoons.", incorrectFeedback: "Convert 2 cups and 3/4 cup separately, then add." },
+      { id: "sugar", label: "Sugar", prompt: "Diego uses 28 tablespoons of sugar. How many cups is that?", responseType: "number", inputLabel: "Cups", answerKey: ["1.75", "7/4", "1 3/4"], pdfPage: 3, hint: "Separate 28 tablespoons into 16 tablespoons and 12 tablespoons.", correctFeedback: "Correct. 28 tablespoons is 1 cup plus 3/4 cup, or 1 3/4 cups.", incorrectFeedback: "Divide 28 by 16, or separate it into one full group of 16 and a remainder." },
+      { id: "cocoa", label: "Cocoa powder", prompt: "Diego uses 6 tablespoons of cocoa powder. How many cups is that?", responseType: "number", inputLabel: "Cups", answerKey: ["0.375", "3/8"], pdfPage: 3, hint: "Write 6 tablespoons as 6/16 of a cup, then simplify.", correctFeedback: "Correct. 6/16 simplifies to 3/8 cup.", incorrectFeedback: "Use 16 tablespoons per cup: write 6/16 and simplify." },
+    ],
+  },
+  {
+    id: "teach-u3-l4-summary",
+    unitNumber: 3,
+    lessonNumber: 4,
+    section: "A",
+    title: "Converting Units",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 4 Summary",
+    pdfPage: 3,
+    customVisual: "unit3ConversionSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l5-1",
+    unitNumber: 3,
+    lessonNumber: 5,
+    section: "A",
+    title: "Comparing Speeds and Prices",
+    partLabel: "5.1",
+    activityOrder: 1,
+    activityTitle: "5.1: Closest Quotient",
+    pdfPage: 1,
+    customVisual: "unit3ClosestQuotient",
+    sourceDirections: "Is the value of each expression closer to 1/2, 1, or 1 1/2?",
+    responseType: "questionSet",
+    questions: [
+      { id: "quotient-20-18", label: "20 ÷ 18", prompt: "Is 20 ÷ 18 closer to 1/2, 1, or 1 1/2?", responseType: "singleChoice", choices: [{ id: "half", label: "1/2" }, { id: "one", label: "1" }, { id: "one-half", label: "1 1/2" }], answerKey: ["one"], hint: "20 is only a little larger than 18.", correctFeedback: "Correct. 20 ÷ 18 is about 1.11, which is closest to 1.", incorrectFeedback: "Compare 20 with one half, one, and one and a half groups of 18." },
+      { id: "quotient-9-20", label: "9 ÷ 20", prompt: "Is 9 ÷ 20 closer to 1/2, 1, or 1 1/2?", responseType: "singleChoice", choices: [{ id: "half", label: "1/2" }, { id: "one", label: "1" }, { id: "one-half", label: "1 1/2" }], answerKey: ["half"], hint: "Half of 20 is 10.", correctFeedback: "Correct. 9 ÷ 20 is 0.45, which is closest to 1/2.", incorrectFeedback: "Compare 9 with half of 20." },
+      { id: "quotient-7-5", label: "7 ÷ 5", prompt: "Is 7 ÷ 5 closer to 1/2, 1, or 1 1/2?", responseType: "singleChoice", choices: [{ id: "half", label: "1/2" }, { id: "one", label: "1" }, { id: "one-half", label: "1 1/2" }], answerKey: ["one-half"], hint: "One and one half groups of 5 is 7.5.", correctFeedback: "Correct. 7 ÷ 5 is 1.4, which is closest to 1 1/2.", incorrectFeedback: "Compare 7 with 5 and with 7.5." },
+    ],
+  },
+  {
+    id: "teach-u3-l5-2",
+    unitNumber: 3,
+    lessonNumber: 5,
+    section: "A",
+    title: "Comparing Speeds and Prices",
+    partLabel: "5.2",
+    activityOrder: 2,
+    activityTitle: "5.2: More Treadmills",
+    pdfPages: [1, 2],
+    customVisual: "unit3TreadmillRates",
+    sourceDirections: "Some students did treadmill workouts, each one running at a constant speed. Answer every comparison and rate question.",
+    responseType: "questionSet",
+    questions: [
+      { id: "same-tyler-kiran", label: "Question 1a", prompt: "What is the same about Tyler's and Kiran's workouts?", responseType: "singleChoice", choices: [{ id: "time", label: "They ran for the same amount of time." }, { id: "distance", label: "They ran the same distance." }, { id: "speed", label: "They ran at the same speed." }], answerKey: ["time"], pdfPage: 1, hint: "Convert one half hour to minutes.", correctFeedback: "Correct. One half hour is 30 minutes, so Tyler and Kiran ran for the same time.", incorrectFeedback: "Compare the two times in the same unit." },
+      { id: "same-kiran-mai", label: "Question 1b", prompt: "What is the same about Kiran's and Mai's workouts?", responseType: "singleChoice", choices: [{ id: "time", label: "They ran for the same amount of time." }, { id: "distance", label: "They ran the same distance." }, { id: "speed", label: "They ran at the same speed." }], answerKey: ["distance"], pdfPage: 1, hint: "Convert 6.3 kilometers to meters.", correctFeedback: "Correct. 6.3 kilometers is 6,300 meters, so they ran the same distance.", incorrectFeedback: "Compare the two distances in the same unit." },
+      { id: "same-mai-tyler", label: "Question 1c", prompt: "What is the same about Mai's and Tyler's workouts?", responseType: "singleChoice", choices: [{ id: "time", label: "They ran for the same amount of time." }, { id: "distance", label: "They ran the same distance." }, { id: "speed", label: "They ran at the same speed." }], answerKey: ["speed"], pdfPage: 1, hint: "Find meters per minute for both runners.", correctFeedback: "Correct. Tyler and Mai each ran 140 meters per minute.", incorrectFeedback: "Neither the original distance nor time matches, so compare their rates per minute." },
+      { id: "tyler-rate", label: "Question 2a", prompt: "At what rate did Tyler run?", responseType: "number", inputLabel: "Meters per minute", answerKey: ["140"], pdfPage: 1, hint: "Divide 4,200 meters by 30 minutes.", correctFeedback: "Correct. Tyler ran 140 meters per minute.", incorrectFeedback: "Compute 4,200 ÷ 30." },
+      { id: "kiran-rate", label: "Question 2b", prompt: "At what rate did Kiran run?", responseType: "number", inputLabel: "Meters per minute", answerKey: ["210"], pdfPage: 1, hint: "One half hour is 30 minutes. Divide 6,300 by 30.", correctFeedback: "Correct. Kiran ran 210 meters per minute.", incorrectFeedback: "Convert one half hour to 30 minutes, then compute the rate per minute." },
+      { id: "mai-rate", label: "Question 2c", prompt: "At what rate did Mai run?", responseType: "number", inputLabel: "Meters per minute", answerKey: ["140"], pdfPage: 1, hint: "6.3 kilometers is 6,300 meters. Divide by 45 minutes.", correctFeedback: "Correct. Mai ran 140 meters per minute.", incorrectFeedback: "Convert kilometers to meters, then divide by 45." },
+      { id: "mai-distance-30", label: "Question 3", prompt: "How far did Mai run in her first 30 minutes on the treadmill?", responseType: "number", inputLabel: "Meters", answerKey: ["4200"], pdfPage: 2, hint: "Use Mai's rate of 140 meters per minute for 30 minutes.", correctFeedback: "Correct. 140 × 30 = 4,200 meters, or 4.2 kilometers.", incorrectFeedback: "Multiply Mai's meters-per-minute rate by 30 minutes." },
+    ],
+  },
+  {
+    id: "teach-u3-l5-optional",
+    unitNumber: 3,
+    lessonNumber: 5,
+    section: "A",
+    title: "Comparing Speeds and Prices",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? One Kilometer Apart",
+    pdfPage: 2,
+    customVisual: "unit3RunnerGap",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Tyler and Kiran start at the same time and run at constant speeds. Eventually, Kiran is 1 kilometer ahead of Tyler.",
+    responseType: "questionSet",
+    questions: [
+      { id: "runner-gap-time", label: "Elapsed time", prompt: "How much time did it take for Kiran to be 1 kilometer ahead of Tyler?", responseType: "number", inputLabel: "Minutes", answerKey: ["100/7", "14 2/7", "14.285714", "14.2857"], hint: "Find how many more meters Kiran gains each minute, then determine when that difference reaches 1,000 meters.", correctFeedback: "Correct. Kiran gains 210 − 140 = 70 meters each minute. A 1,000-meter gap takes 1,000 ÷ 70 = 100/7, or 14 2/7 minutes.", incorrectFeedback: "Find the difference between the two rates, then divide 1,000 meters by that meters-per-minute difference." },
+    ],
+  },
+  {
+    id: "teach-u3-l5-3",
+    unitNumber: 3,
+    lessonNumber: 5,
+    section: "A",
+    title: "Comparing Speeds and Prices",
+    partLabel: "5.3",
+    activityOrder: 3,
+    activityTitle: "5.3: The Best Deal on Beans",
+    pdfPage: 2,
+    cropPath: "lesson-05-bean-ads.png",
+    visualWidth: 330,
+    visualHeight: 360,
+    visualDisplayMaxWidth: 420,
+    visualAlt: "The exact source ads for four stores: 8 cans for 6 dollars, 10 cans for 10 dollars, 2 cans for 3 dollars, and 80 cents each.",
+    sourceDirections: "Four stores posted sales on 15-ounce cans of baked beans. For this task, the best deal means the lowest price for one can.",
+    responseType: "questionSet",
+    questions: [
+      { id: "bean-best-deal", label: "Question 1", prompt: "Which store is offering the best deal?", responseType: "singleChoice", choices: [{ id: "top-left", label: "Top left: 8 cans for $6" }, { id: "top-right", label: "Top right: 10 cans for $10" }, { id: "bottom-left", label: "Bottom left: 2 cans for $3" }, { id: "bottom-right", label: "Bottom right: 80¢ each" }], answerKey: ["top-left"], reasoningPrompt: "Optional: Explain your comparison using price per can.", reasoningOptional: true, hint: "Find the price for one 15-ounce can in each ad.", correctFeedback: "Correct. The top-left store charges $6 ÷ 8 = $0.75 per can, lower than $1.00, $1.50, and $0.80 per can.", incorrectFeedback: "Compute each store's price per one can before comparing." },
+      { id: "bean-large-can", label: "Question 2", prompt: "The bottom-right store also sells 28-ounce cans for $1.40 each. How does that price compare with the 15-ounce-can deals?", responseType: "singleChoice", choices: [{ id: "same-best", label: "It has the same price per ounce as the top-left deal and a lower price per ounce than the other three deals." }, { id: "lower-all", label: "It has a lower price per ounce than every 15-ounce deal." }, { id: "same-all", label: "It has the same price per ounce as all four 15-ounce deals." }, { id: "higher-all", label: "It has a higher price per ounce than every 15-ounce deal." }], answerKey: ["same-best"], hint: "$1.40 ÷ 28 = $0.05 per ounce. Compare that with each 15-ounce can's price divided by 15.", correctFeedback: "Correct. The 28-ounce can costs $0.05 per ounce. The top-left deal also costs $0.75 ÷ 15 = $0.05 per ounce, while the other deals cost more per ounce.", incorrectFeedback: "Compare price per ounce, not only price per can or can size." },
+    ],
+  },
+  {
+    id: "teach-u3-l5-summary",
+    unitNumber: 3,
+    lessonNumber: 5,
+    section: "A",
+    title: "Comparing Speeds and Prices",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 5 Summary",
+    pdfPage: 3,
+    customVisual: "unit3CompareRatesSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l6-1",
+    unitNumber: 3,
+    lessonNumber: 6,
+    section: "A",
+    title: "Interpreting Rates",
+    partLabel: "6.1",
+    activityOrder: 1,
+    activityTitle: "6.1: Something per Something",
+    pdfPage: 1,
+    customVisual: "unit3PerLanguage",
+    sourceDirections: "Think of two things you have heard described in terms of ‘something per something.’ Record both ideas for the class list.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "per-examples",
+        label: "Your two examples",
+        prompt: "Write two different ‘something per something’ examples. Separate the examples with a semicolon or put them on different lines.",
+        responseType: "openResponse",
+        inputLabel: "Two examples",
+        placeholder: "First example; second example",
+        acceptAnyResponse: true,
+        minLength: 3,
+        hint: "Think about rates you hear in sports, shopping, travel, school, music, or science. The word ‘per’ connects two quantities.",
+        savedFeedback: "Response recorded. Your two examples can join the class list; this open brainstorm has no single correct response.",
+        correctFeedback: "Response recorded. Your two examples can join the class list; this open brainstorm has no single correct response.",
+        incorrectFeedback: "Record two ‘something per something’ examples before submitting.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l6-2",
+    unitNumber: 3,
+    lessonNumber: 6,
+    section: "A",
+    title: "Interpreting Rates",
+    partLabel: "6.2",
+    activityOrder: 2,
+    activityTitle: "6.2: Cooking Oatmeal",
+    pdfPages: [1, 2],
+    customVisual: "unit3OatmealRates",
+    sourceDirections: "A large batch of oatmeal uses 15 cups of water and 6 cups of oats. Priya says this is 0.4 cup of oats per cup of water. Han says it is 2.5 cups of water per cup of oats.",
+    responseType: "questionSet",
+    questions: [
+      { id: "oatmeal-who", label: "Question 1", prompt: "Who is correct?", responseType: "singleChoice", choices: [{ id: "priya", label: "Priya only" }, { id: "han", label: "Han only" }, { id: "both", label: "Both Priya and Han" }, { id: "neither", label: "Neither" }], answerKey: ["both"], pdfPage: 1, reasoningPrompt: "Optional: Explain what each unit rate means.", reasoningOptional: true, hint: "Check 6 ÷ 15 and 15 ÷ 6. The two quotients answer different ‘per 1’ questions.", correctFeedback: "Correct. Both are right: 6 ÷ 15 = 0.4 cup of oats per cup of water, and 15 ÷ 6 = 2.5 cups of water per cup of oats.", incorrectFeedback: "Compute both directions of the ratio and interpret the unit attached to each quotient." },
+      { id: "lin-water", label: "Question 2a", prompt: "Lin cooks 5 cups of oats. How many cups of water should she boil?", responseType: "number", inputLabel: "Cups of water", answerKey: ["12.5", "25/2", "12 1/2"], pdfPage: 2, hint: "Use 2.5 cups of water per cup of oats.", correctFeedback: "Correct. 5 × 2.5 = 12.5 cups of water.", incorrectFeedback: "Multiply 5 cups of oats by 2.5 cups of water per cup of oats." },
+      { id: "diego-oats", label: "Question 2b", prompt: "Diego boils 10 cups of water. How many cups of oats should he add?", responseType: "number", inputLabel: "Cups of oats", answerKey: ["4"], pdfPage: 2, hint: "Use 0.4 cup of oats per cup of water.", correctFeedback: "Correct. 10 × 0.4 = 4 cups of oats.", incorrectFeedback: "Multiply 10 cups of water by 0.4 cup of oats per cup of water." },
+      { id: "lin-rate", label: "Question 3a", prompt: "Which rate is the more direct one to use for Lin's question, where the oats are known and the water is unknown?", responseType: "singleChoice", choices: [{ id: "priya", label: "Priya's 0.4 cup of oats per cup of water" }, { id: "han", label: "Han's 2.5 cups of water per cup of oats" }], answerKey: ["han"], pdfPage: 2, reasoningPrompt: "Optional: Explain why that rate matches the known quantity.", reasoningOptional: true, hint: "The useful rate should turn a known number of cups of oats into cups of water.", correctFeedback: "Correct. Han's rate gives cups of water for each known cup of oats.", incorrectFeedback: "Choose the rate whose ‘per 1’ unit matches the known cups of oats." },
+      { id: "diego-rate", label: "Question 3b", prompt: "Which rate is the more direct one to use for Diego's question, where the water is known and the oats are unknown?", responseType: "singleChoice", choices: [{ id: "priya", label: "Priya's 0.4 cup of oats per cup of water" }, { id: "han", label: "Han's 2.5 cups of water per cup of oats" }], answerKey: ["priya"], pdfPage: 2, reasoningPrompt: "Optional: Explain why that rate matches the known quantity.", reasoningOptional: true, hint: "The useful rate should turn a known number of cups of water into cups of oats.", correctFeedback: "Correct. Priya's rate gives cups of oats for each known cup of water.", incorrectFeedback: "Choose the rate whose ‘per 1’ unit matches the known cups of water." },
+    ],
+  },
+  {
+    id: "teach-u3-l6-3",
+    unitNumber: 3,
+    lessonNumber: 6,
+    section: "A",
+    title: "Interpreting Rates",
+    partLabel: "6.3",
+    activityOrder: 3,
+    activityTitle: "6.3: Cheesecake, Milk, and Raffle Tickets",
+    pdfPages: [2, 3],
+    customVisual: "unit3UnitRateContexts",
+    sourceDirections: "Find both unit rates for each source situation. Then choose a useful rate to solve each follow-up problem.",
+    responseType: "questionSet",
+    questions: [
+      { id: "cream-per-sugar", label: "Cheesecake 1", prompt: "A recipe uses 12 ounces of cream cheese with 15 ounces of sugar. How many ounces of cream cheese are there for every ounce of sugar?", responseType: "number", inputLabel: "Ounces of cream cheese per ounce of sugar", answerKey: ["0.8", "4/5"], pdfPage: 2, hint: "Divide 12 by 15 and simplify.", correctFeedback: "Correct. 12 ÷ 15 = 4/5 = 0.8 ounce of cream cheese per ounce of sugar.", incorrectFeedback: "The requested order is cream cheese per sugar, so compute 12 ÷ 15." },
+      { id: "sugar-per-cream", label: "Cheesecake 2", prompt: "How many ounces of sugar are there for every ounce of cream cheese?", responseType: "number", inputLabel: "Ounces of sugar per ounce of cream cheese", answerKey: ["1.25", "5/4", "1 1/4"], pdfPage: 2, hint: "Reverse the quotient: divide 15 by 12.", correctFeedback: "Correct. 15 ÷ 12 = 5/4 = 1.25 ounces of sugar per ounce of cream cheese.", incorrectFeedback: "The requested order is sugar per cream cheese, so compute 15 ÷ 12." },
+      { id: "gallons-per-week", label: "Milk 1", prompt: "Mai's family drinks 10 gallons of milk every 6 weeks. How many gallons do they drink per week?", responseType: "number", inputLabel: "Gallons per week", answerKey: ["5/3", "1 2/3", "1.6667", "1.6666667"], pdfPage: 2, hint: "Divide 10 gallons by 6 weeks and simplify.", correctFeedback: "Correct. 10 ÷ 6 = 5/3 = 1 2/3 gallons per week.", incorrectFeedback: "Compute gallons divided by weeks: 10 ÷ 6." },
+      { id: "weeks-per-gallon", label: "Milk 2", prompt: "How many weeks does it take the family to consume 1 gallon of milk?", responseType: "number", inputLabel: "Weeks per gallon", answerKey: ["0.6", "3/5"], pdfPage: 2, hint: "Reverse the quotient: divide 6 weeks by 10 gallons.", correctFeedback: "Correct. 6 ÷ 10 = 3/5 = 0.6 week per gallon.", incorrectFeedback: "Compute weeks divided by gallons: 6 ÷ 10." },
+      { id: "price-per-ticket", label: "Tickets 1", prompt: "Tyler paid $16 for 4 raffle tickets. What is the price per ticket?", responseType: "number", inputLabel: "Dollars per ticket", answerKey: ["4"], pdfPage: 3, hint: "Divide the total price by the number of tickets.", correctFeedback: "Correct. $16 ÷ 4 = $4 per ticket.", incorrectFeedback: "Compute dollars divided by tickets: 16 ÷ 4." },
+      { id: "tickets-per-dollar", label: "Tickets 2", prompt: "How many tickets is that per dollar?", responseType: "number", inputLabel: "Tickets per dollar", answerKey: ["0.25", "1/4"], pdfPage: 3, hint: "Divide 4 tickets by 16 dollars.", correctFeedback: "Correct. 4 ÷ 16 = 1/4 ticket per dollar.", incorrectFeedback: "Compute tickets divided by dollars: 4 ÷ 16." },
+      { id: "cheesecake-extra", label: "Follow-up 1", prompt: "How much cream cheese should Lin mix with 35 ounces of sugar?", responseType: "number", inputLabel: "Ounces of cream cheese", answerKey: ["28"], pdfPage: 3, hint: "Use 4/5 ounce of cream cheese per ounce of sugar.", correctFeedback: "Correct. 35 × 4/5 = 28 ounces of cream cheese.", incorrectFeedback: "Use the cream-cheese-per-sugar rate with 35 ounces of sugar." },
+      { id: "milk-three-gallons", label: "Follow-up 2", prompt: "How many weeks will it take Mai's family to finish 3 gallons of milk?", responseType: "number", inputLabel: "Weeks", answerKey: ["1.8", "9/5", "1 4/5"], pdfPage: 3, hint: "Use 3/5 week per gallon for 3 gallons.", correctFeedback: "Correct. 3 × 3/5 = 9/5 = 1.8 weeks.", incorrectFeedback: "Multiply 3 gallons by the weeks-per-gallon rate." },
+      { id: "thousand-tickets", label: "Follow-up 3", prompt: "How much would all 1,000 raffle tickets cost?", responseType: "number", inputLabel: "Dollars", answerKey: ["4000", "4,000"], pdfPage: 3, hint: "Use $4 per ticket for 1,000 tickets.", correctFeedback: "Correct. 1,000 × $4 = $4,000.", incorrectFeedback: "Multiply the number of tickets by the price per ticket." },
+    ],
+  },
+  {
+    id: "teach-u3-l6-optional",
+    unitNumber: 3,
+    lessonNumber: 6,
+    section: "A",
+    title: "Interpreting Rates",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? A Worse Raffle Deal",
+    pdfPage: 3,
+    customVisual: "unit3RaffleDeal",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Write a deal on Tyler's raffle tickets that sounds good but is actually a little worse than buying tickets at the normal price of $16 for 4 tickets.",
+    responseType: "questionSet",
+    questions: [
+      { id: "worse-raffle-deal", label: "Your deal", prompt: "Choose how many tickets your deal includes and its total price. The app will compare its price per ticket with the normal $4 rate.", fields: [{ id: "tickets", label: "Tickets in your deal", responseType: "number", placeholder: "Example: 5" }, { id: "price", label: "Total price (dollars)", responseType: "number", placeholder: "Example: 21" }], dynamicAnswer: "unit3WorseRaffleDeal", hint: "A mathematically worse deal costs more than $4 per ticket. For example, compare total price ÷ ticket count with 16 ÷ 4.", correctFeedback: "Correct. Your deal costs more than $4 per ticket, so it is a little worse than the normal price even if the larger ticket bundle sounds appealing.", incorrectFeedback: "This deal is not worse than the normal price yet. Make its total price divided by its ticket count greater than $4." },
+    ],
+  },
+  {
+    id: "teach-u3-l6-summary",
+    unitNumber: 3,
+    lessonNumber: 6,
+    section: "A",
+    title: "Interpreting Rates",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 6 Summary",
+    pdfPage: 4,
+    customVisual: "unit3InterpretingRatesSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l7-1",
+    unitNumber: 3,
+    lessonNumber: 7,
+    section: "B",
+    title: "Equivalent Ratios Have the Same Unit Rates",
+    partLabel: "7.1",
+    activityOrder: 1,
+    activityTitle: "7.1: Which One Doesn't Belong?",
+    pdfPage: 1,
+    customVisual: "unit3SpeedWodb",
+    sourceDirections: "Choose one rate that does not belong with the other three. More than one choice can be defended with a true comparison.",
+    responseType: "questionSet",
+    questions: [
+      { id: "speed-wodb", label: "Your choice", prompt: "Which one doesn't belong? Choose a rate and use the optional explanation to compare it with all three others.", responseType: "singleChoice", choices: [{ id: "five-fifteen", label: "5 miles in 15 minutes" }, { id: "twenty-hour", label: "20 miles per hour" }, { id: "three-mile", label: "3 minutes per mile" }, { id: "thirty-two-km", label: "32 kilometers per hour" }], dynamicAnswer: "unit2AnySelectedChoice", reasoningPrompt: "Optional: Explain a feature your choice does not share with the other three.", reasoningOptional: true, hint: "Compare units, order, and equivalent speeds. A valid answer must distinguish the chosen rate from every other rate.", correctFeedback: "Response recorded. This task has no single correct choice: 3 minutes per mile is the only time-per-distance rate, 32 kilometers per hour is the only metric rate, and the other rates can be compared by converting units or finding a per-one rate.", incorrectFeedback: "Choose one rate before submitting." },
+    ],
+  },
+  {
+    id: "teach-u3-l7-2",
+    unitNumber: 3,
+    lessonNumber: 7,
+    section: "B",
+    title: "Equivalent Ratios Have the Same Unit Rates",
+    partLabel: "7.2",
+    activityOrder: 2,
+    activityTitle: "7.2: Burritos",
+    pdfPages: [1, 2],
+    customVisual: "unit3BurritoRates",
+    sourceDirections: "Two burritos cost $14. Complete the equivalent-ratio table, compare every unit price, and explain why doubling both quantities preserves the price per burrito.",
+    responseType: "questionSet",
+    questions: [
+      { id: "burrito-four", label: "4 burritos", prompt: "Complete the row for 4 burritos.", fields: [{ id: "cost", label: "Cost (dollars)", responseType: "number", placeholder: "Cost" }, { id: "unit", label: "Price per burrito", responseType: "number", placeholder: "Unit price" }], acceptedFieldSets: [{ cost: "28", unit: "7" }], hint: "Double both quantities in 2 burritos for $14.", correctFeedback: "Correct. 4 burritos cost $28, and $28 ÷ 4 = $7 per burrito.", incorrectFeedback: "Scale 2 burritos and $14 by the same factor, then divide cost by burritos." },
+      { id: "burrito-five", label: "5 burritos", prompt: "Complete the row for 5 burritos.", fields: [{ id: "cost", label: "Cost (dollars)", responseType: "number", placeholder: "Cost" }, { id: "unit", label: "Price per burrito", responseType: "number", placeholder: "Unit price" }], acceptedFieldSets: [{ cost: "35", unit: "7" }], hint: "Use $7 for each burrito.", correctFeedback: "Correct. 5 burritos cost $35, and $35 ÷ 5 = $7 per burrito.", incorrectFeedback: "Multiply 5 by the price for one burrito, then check the quotient." },
+      { id: "burrito-ten", label: "10 burritos", prompt: "Complete the row for 10 burritos.", fields: [{ id: "cost", label: "Cost (dollars)", responseType: "number", placeholder: "Cost" }, { id: "unit", label: "Price per burrito", responseType: "number", placeholder: "Unit price" }], acceptedFieldSets: [{ cost: "70", unit: "7" }], hint: "Use $7 for each burrito.", correctFeedback: "Correct. 10 burritos cost $70, and $70 ÷ 10 = $7 per burrito.", incorrectFeedback: "Multiply 10 by the price for one burrito, then check the quotient." },
+      { id: "burrito-symbolic", label: "b burritos", prompt: "Complete the general row for b burritos.", fields: [{ id: "cost", label: "Cost in terms of b", responseType: "shortAnswer", placeholder: "Expression" }, { id: "unit", label: "Price per burrito", responseType: "number", placeholder: "Unit price" }], acceptedFieldSets: [{ cost: ["7b", "7*b", "b*7"], unit: "7" }], hint: "Multiply b burritos by $7 per burrito.", correctFeedback: "Correct. b burritos cost 7b dollars, and 7b ÷ b = 7 dollars per burrito.", incorrectFeedback: "Write the total cost as 7 times b, then divide by b." },
+      { id: "burrito-notice", label: "What do you notice?", prompt: "What stays the same in every row of the table?", responseType: "singleChoice", choices: [{ id: "unit", label: "The price per burrito stays $7." }, { id: "cost", label: "The total cost stays $14." }, { id: "count", label: "The number of burritos stays 2." }], answerKey: ["unit"], hint: "Compare the last column, not the total quantities.", correctFeedback: "Correct. Equivalent ratios can have different totals while preserving the same unit price.", incorrectFeedback: "Recalculate cost divided by burritos in each row." },
+      { id: "lin-symbolic", label: "Lin's purchase", prompt: "Noah buys b burritos for c dollars. Lin buys 2b burritos for 2c dollars. What is Lin's price per burrito?", responseType: "shortAnswer", inputLabel: "Price per burrito", answerKey: ["c/b", "c÷b", "c / b"], hint: "Divide Lin's total cost, 2c, by her number of burritos, 2b, and simplify.", correctFeedback: "Correct. 2c ÷ 2b = c ÷ b, the same unit price Noah paid.", incorrectFeedback: "Start with 2c ÷ 2b and cancel the common factor 2." },
+      { id: "same-unit-why", label: "Why the rate is unchanged", prompt: "Why do b:c and 2b:2c produce the same cost per burrito?", responseType: "singleChoice", choices: [{ id: "scale", label: "Both quantities are multiplied by the same factor, so their quotient is unchanged." }, { id: "add", label: "Adding the quantities makes their quotient unchanged." }, { id: "totals", label: "Equivalent ratios must have the same total quantities." }], answerKey: ["scale"], reasoningPrompt: "Optional: Explain the cancellation using c/b and 2c/(2b).", reasoningOptional: true, hint: "Look for the same nonzero scale factor in both quantities.", correctFeedback: "Correct. Scaling both quantities by 2 creates an equivalent ratio and preserves the unit rate.", incorrectFeedback: "Equivalent ratios scale both quantities by the same factor." },
+    ],
+  },
+  {
+    id: "teach-u3-l7-3",
+    unitNumber: 3,
+    lessonNumber: 7,
+    section: "B",
+    title: "Equivalent Ratios Have the Same Unit Rates",
+    partLabel: "7.3",
+    activityOrder: 3,
+    activityTitle: "7.3: Bracelets and Burritos",
+    pdfPages: [2, 3],
+    customVisual: "unit3EquivalentRateTables",
+    sourceDirections: "Complete both source tables. The bracelet maker works at 6 bracelets per hour, and burritos cost $7 each.",
+    responseType: "questionSet",
+    questions: [
+      { id: "bracelets-five", label: "Bracelets 1", prompt: "How many bracelets can be made in 5 hours?", responseType: "number", inputLabel: "Bracelets", answerKey: ["30"], hint: "Use 6 bracelets each hour.", correctFeedback: "Correct. 5 × 6 = 30 bracelets.", incorrectFeedback: "Multiply 5 hours by 6 bracelets per hour." },
+      { id: "bracelets-seven", label: "Bracelets 2", prompt: "How many bracelets can be made in 7 hours?", responseType: "number", inputLabel: "Bracelets", answerKey: ["42"], hint: "Use 6 bracelets each hour.", correctFeedback: "Correct. 7 × 6 = 42 bracelets.", incorrectFeedback: "Multiply 7 hours by 6 bracelets per hour." },
+      { id: "bracelets-sixty-six", label: "Bracelets 3", prompt: "How many hours are needed to make 66 bracelets?", responseType: "number", inputLabel: "Hours", answerKey: ["11"], hint: "Divide bracelets by 6 bracelets per hour.", correctFeedback: "Correct. 66 ÷ 6 = 11 hours.", incorrectFeedback: "Divide 66 bracelets by the unit rate." },
+      { id: "bracelets-hundred", label: "Bracelets 4", prompt: "How many hours are needed to make 100 bracelets?", responseType: "number", inputLabel: "Hours", answerKey: ["50/3", "16 2/3", "16.6667", "16.6666667"], hint: "Divide 100 by 6 and express the remainder as a fraction of an hour.", correctFeedback: "Correct. 100 ÷ 6 = 50/3 = 16 2/3 hours.", incorrectFeedback: "Divide 100 bracelets by 6 bracelets per hour." },
+      { id: "burritos-fourteen", label: "Burritos 1", prompt: "How many burritos can be bought for $14?", responseType: "number", inputLabel: "Burritos", answerKey: ["2"], hint: "Divide cost by $7 per burrito.", correctFeedback: "Correct. $14 buys 2 burritos.", incorrectFeedback: "Divide 14 by 7." },
+      { id: "burritos-twenty-eight", label: "Burritos 2", prompt: "How many burritos can be bought for $28?", responseType: "number", inputLabel: "Burritos", answerKey: ["4"], hint: "Divide cost by $7 per burrito.", correctFeedback: "Correct. $28 buys 4 burritos.", incorrectFeedback: "Divide 28 by 7." },
+      { id: "burritos-five-again", label: "Burritos 3", prompt: "How much do 5 burritos cost?", responseType: "number", inputLabel: "Dollars", answerKey: ["35"], hint: "Multiply burritos by $7 each.", correctFeedback: "Correct. 5 burritos cost $35.", incorrectFeedback: "Multiply 5 by 7." },
+      { id: "burritos-ten-again", label: "Burritos 4", prompt: "How much do 10 burritos cost?", responseType: "number", inputLabel: "Dollars", answerKey: ["70"], hint: "Multiply burritos by $7 each.", correctFeedback: "Correct. 10 burritos cost $70.", incorrectFeedback: "Multiply 10 by 7." },
+      { id: "tables-match", label: "Compare", prompt: "Do the burrito results match the equivalent-ratio table from Activity 7.2?", responseType: "singleChoice", choices: [{ id: "yes", label: "Yes. The same $7 unit price produces the same pairs." }, { id: "no", label: "No. Equivalent tables must contain different pairs." }], answerKey: ["yes"], hint: "Compare the ordered pairs in both tables.", correctFeedback: "Correct. Both tables describe the same $7-per-burrito relationship.", incorrectFeedback: "Equivalent ratios with the same unit rate produce matching quantity pairs." },
+    ],
+  },
+  {
+    id: "teach-u3-l7-4",
+    unitNumber: 3,
+    lessonNumber: 7,
+    section: "B",
+    title: "Equivalent Ratios Have the Same Unit Rates",
+    partLabel: "7.4",
+    activityOrder: 4,
+    activityTitle: "7.4: Apples and Applesauce",
+    pdfPage: 3,
+    customVisual: "unit3ApplesauceRates",
+    sourceDirections: "Four pounds of apples make 6 cups of applesauce. Complete the equivalent-ratio table.",
+    responseType: "questionSet",
+    questions: [
+      { id: "apples-seven", label: "7 pounds", prompt: "How many cups of applesauce can be made from 7 pounds of apples?", responseType: "number", inputLabel: "Cups", answerKey: ["10.5", "21/2", "10 1/2"], hint: "The rate is 6 ÷ 4 = 1.5 cups per pound.", correctFeedback: "Correct. 7 × 1.5 = 10.5 cups.", incorrectFeedback: "Multiply 7 pounds by 1.5 cups per pound." },
+      { id: "apples-ten", label: "10 pounds", prompt: "How many cups of applesauce can be made from 10 pounds of apples?", responseType: "number", inputLabel: "Cups", answerKey: ["15"], hint: "Use 1.5 cups per pound.", correctFeedback: "Correct. 10 × 1.5 = 15 cups.", incorrectFeedback: "Multiply 10 pounds by 1.5 cups per pound." },
+      { id: "sauce-nine", label: "9 cups", prompt: "How many pounds of apples are needed for 9 cups of applesauce?", responseType: "number", inputLabel: "Pounds", answerKey: ["6"], hint: "Use 4 ÷ 6 = 2/3 pound per cup.", correctFeedback: "Correct. 9 × 2/3 = 6 pounds.", incorrectFeedback: "Multiply 9 cups by 2/3 pound per cup." },
+      { id: "sauce-twenty", label: "20 cups", prompt: "How many pounds of apples are needed for 20 cups of applesauce?", responseType: "number", inputLabel: "Pounds", answerKey: ["40/3", "13 1/3", "13.3333", "13.3333333"], hint: "Use 2/3 pound of apples per cup of applesauce.", correctFeedback: "Correct. 20 × 2/3 = 40/3 = 13 1/3 pounds.", incorrectFeedback: "Multiply 20 cups by 2/3 pound per cup." },
+    ],
+  },
+  {
+    id: "teach-u3-l7-optional",
+    unitNumber: 3,
+    lessonNumber: 7,
+    section: "B",
+    title: "Equivalent Ratios Have the Same Unit Rates",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Combined Rates",
+    pdfPages: [3, 4],
+    customVisual: "unit3CombinedRates",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Combine two constant rates in each situation, then determine the required time.",
+    responseType: "questionSet",
+    questions: [
+      { id: "ice-cream-scoops", label: "Ice cream", prompt: "Jada scoops 2 cones every 5 minutes and Noah scoops 3 cones every 5 minutes. Working together, how many minutes do they need per cone?", responseType: "number", inputLabel: "Minutes per cone", answerKey: ["1"], hint: "First combine their scoops in the same 5-minute interval.", correctFeedback: "Correct. Together they scoop 5 cones in 5 minutes, so they need 1 minute per cone.", incorrectFeedback: "Add their cones per 5 minutes before finding the per-one rate." },
+      { id: "pool-hoses", label: "Pool hoses", prompt: "Hose A fills 5 gallons in 2 minutes and Hose B fills 10 gallons in 8 minutes. How long will both hoses take to fill a 750-gallon pool?", responseType: "number", inputLabel: "Minutes", answerKey: ["200"], hint: "Find each hose's gallons per minute, add the rates, then divide 750 by the combined rate.", correctFeedback: "Correct. The hoses fill 2.5 + 1.25 = 3.75 gallons per minute, so 750 ÷ 3.75 = 200 minutes.", incorrectFeedback: "Combine the hoses in gallons per minute, then divide 750 gallons by that rate." },
+    ],
+  },
+  {
+    id: "teach-u3-l7-summary",
+    unitNumber: 3,
+    lessonNumber: 7,
+    section: "B",
+    title: "Equivalent Ratios Have the Same Unit Rates",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 7 Summary",
+    pdfPage: 4,
+    customVisual: "unit3EquivalentRatesSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l8-1",
+    unitNumber: 3,
+    lessonNumber: 8,
+    section: "B",
+    title: "More about Constant Speed",
+    partLabel: "8.1",
+    activityOrder: 1,
+    activityTitle: "8.1: Back on the Treadmill Again",
+    pdfPage: 1,
+    customVisual: "unit3TreadmillAgain",
+    sourceDirections: "Andre's dad ran 12 miles in 75 minutes at a constant rate.",
+    responseType: "questionSet",
+    questions: [
+      { id: "treadmill-eight", label: "8 miles", prompt: "How long would it take him to run 8 miles?", responseType: "number", inputLabel: "Minutes", answerKey: ["50"], hint: "Find the pace in minutes per mile, or scale 12 miles down to 8 miles.", correctFeedback: "Correct. The pace is 75 ÷ 12 = 6.25 minutes per mile, so 8 miles take 50 minutes.", incorrectFeedback: "Use 75/12 minutes per mile for 8 miles." },
+      { id: "treadmill-thirty", label: "30 minutes", prompt: "How far could he run in 30 minutes?", responseType: "number", inputLabel: "Miles", answerKey: ["4.8", "24/5", "4 4/5"], hint: "Find miles per minute, or scale 75 minutes down to 30 minutes.", correctFeedback: "Correct. The speed is 12 ÷ 75 = 0.16 mile per minute, so 30 minutes gives 4.8 miles.", incorrectFeedback: "Use 12/75 mile per minute for 30 minutes." },
+    ],
+  },
+  {
+    id: "teach-u3-l8-2",
+    unitNumber: 3,
+    lessonNumber: 8,
+    section: "B",
+    title: "More about Constant Speed",
+    partLabel: "8.2",
+    activityOrder: 2,
+    activityTitle: "8.2: Picnics on the Rail Trail",
+    pdfPages: [1, 2],
+    customVisual: "unit3RailTrail",
+    sourceDirections: "Kiran and Clare start 24 miles apart at 8:00 a.m. and walk toward each other. Kiran walks 3 miles per hour and Clare walks 3.4 miles per hour.",
+    responseType: "questionSet",
+    questions: [
+      { id: "trail-one-hour", label: "Question 1", prompt: "After one hour, how far apart will they be?", responseType: "number", inputLabel: "Miles apart", answerKey: ["17.6", "88/5", "17 3/5"], hint: "In one hour they close 3 + 3.4 miles of the original 24-mile gap.", correctFeedback: "Correct. They close 6.4 miles, leaving 24 − 6.4 = 17.6 miles.", incorrectFeedback: "Subtract both one-hour distances from 24 miles." },
+      { id: "trail-table", label: "Question 2", prompt: "Complete the distance-apart table for 0, 1, 2, and 3 hours.", fields: [{ id: "h0", label: "0 hours", responseType: "number", placeholder: "Miles apart" }, { id: "h1", label: "1 hour", responseType: "number", placeholder: "Miles apart" }, { id: "h2", label: "2 hours", responseType: "number", placeholder: "Miles apart" }, { id: "h3", label: "3 hours", responseType: "number", placeholder: "Miles apart" }], acceptedFieldSets: [{ h0: "24", h1: "17.6", h2: "11.2", h3: "4.8" }], hint: "The gap decreases by 6.4 miles every hour.", correctFeedback: "Correct. The distances apart are 24, 17.6, 11.2, and 4.8 miles.", incorrectFeedback: "Start at 24 and subtract the combined 6.4-mile-per-hour closing rate for each hour." },
+      { id: "trail-meet-time", label: "Question 3", prompt: "At what time will Kiran and Clare meet for their picnic?", responseType: "shortAnswer", inputLabel: "Clock time", answerKey: ["11:45", "11:45 am", "11:45 a.m.", "11 45"], hint: "Find 24 ÷ 6.4 hours after 8:00 a.m.", correctFeedback: "Correct. They meet after 3.75 hours, which is 3 hours 45 minutes after 8:00 a.m.: 11:45 a.m.", incorrectFeedback: "Divide 24 miles by their 6.4-mile-per-hour closing rate, then convert the fractional hour to minutes." },
+      { id: "trail-kiran-claim", label: "Question 4", prompt: "Kiran says their motion is equivalent to Clare staying put while he jogs toward her at 6.4 miles per hour. Is he correct?", responseType: "singleChoice", choices: [{ id: "yes", label: "Yes. Their distance closes at 3 + 3.4 = 6.4 miles per hour." }, { id: "no", label: "No. Only Kiran's 3-mile-per-hour speed matters." }], answerKey: ["yes"], reasoningPrompt: "Optional: Explain what the 6.4-mile-per-hour rate measures.", reasoningOptional: true, hint: "Focus on how quickly the distance between them changes.", correctFeedback: "Correct. The 6.4-mile-per-hour combined rate measures how quickly the gap closes.", incorrectFeedback: "Add the distances both friends travel toward each other in the same hour." },
+      { id: "trail-kiran-jog", label: "Question 5", prompt: "Months later they start at 8:00 a.m. and meet at 10:30 a.m. Clare still walks 3.4 miles per hour. How fast was Kiran jogging?", responseType: "number", inputLabel: "Miles per hour", answerKey: ["6.2", "31/5", "6 1/5"], hint: "They meet in 2.5 hours. First find the combined speed needed to close 24 miles.", correctFeedback: "Correct. Their combined speed is 24 ÷ 2.5 = 9.6 mph, so Kiran jogs 9.6 − 3.4 = 6.2 mph.", incorrectFeedback: "Find the combined closing speed for 24 miles in 2.5 hours, then subtract Clare's speed." },
+    ],
+  },
+  {
+    id: "teach-u3-l8-optional",
+    unitNumber: 3,
+    lessonNumber: 8,
+    section: "B",
+    title: "More about Constant Speed",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Rail Trail Extensions",
+    pdfPage: 2,
+    customVisual: "unit3RailTrailExtensions",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Extend the original 24-mile rail-trail situation with a running dog and a new 2-to-1 speed relationship.",
+    responseType: "questionSet",
+    questions: [
+      { id: "trail-dog", label: "Running dog", prompt: "The dog runs 6 miles per hour from 8:00 until Kiran and Clare meet. How far does the dog run?", responseType: "number", inputLabel: "Miles", answerKey: ["22.5", "45/2", "22 1/2"], hint: "The friends meet after 3.75 hours in the original situation. The dog's turnarounds do not change its total running time.", correctFeedback: "Correct. The dog runs for 3.75 hours, so 6 × 3.75 = 22.5 miles.", incorrectFeedback: "Multiply the dog's 6-mile-per-hour speed by the friends' total walking time." },
+      { id: "trail-twice-speed", label: "Twice as fast", prompt: "The next Saturday, Kiran jogs twice as fast as Clare walks. Where on the 24-mile trail do they meet?", fields: [{ id: "fromKiran", label: "Miles from Kiran's start", responseType: "number", placeholder: "Distance" }, { id: "fromClare", label: "Miles from Clare's start", responseType: "number", placeholder: "Distance" }], acceptedFieldSets: [{ fromKiran: "16", fromClare: "8" }], hint: "Their distances are in a 2:1 ratio and add to 24 miles.", correctFeedback: "Correct. The 24 miles split into 3 equal parts: Kiran travels 16 miles and Clare travels 8 miles.", incorrectFeedback: "Split the 24-mile trail in the 2:1 ratio of their speeds." },
+    ],
+  },
+  {
+    id: "teach-u3-l8-3",
+    unitNumber: 3,
+    lessonNumber: 8,
+    section: "B",
+    title: "More about Constant Speed",
+    partLabel: "8.3",
+    activityOrder: 3,
+    activityTitle: "8.3: Swimming and Biking",
+    pdfPage: 3,
+    customVisual: "unit3SwimmingBiking",
+    sourceDirections: "Jada bikes 2 miles in 12 minutes. Her cousin swims 1 mile in 24 minutes. Later they start together and move in opposite directions.",
+    responseType: "questionSet",
+    questions: [
+      { id: "bike-faster", label: "Question 1", prompt: "Who is moving faster, and how much faster in miles per hour?", fields: [{ id: "person", label: "Faster person", responseType: "shortAnswer", placeholder: "Name" }, { id: "difference", label: "Difference (miles per hour)", responseType: "number", placeholder: "Speed difference" }], acceptedFieldSets: [{ person: ["jada", "Jada"], difference: "7.5" }], hint: "Convert both rates to miles per hour: Jada bikes 10 mph and her cousin swims 2.5 mph.", correctFeedback: "Correct. Jada's 10 mph is 7.5 mph faster than her cousin's 2.5 mph.", incorrectFeedback: "Find both speeds in the same units before comparing." },
+      { id: "opposite-fifteen", label: "Question 2a", prompt: "How far apart will they be after 15 minutes?", responseType: "number", inputLabel: "Miles apart", answerKey: ["3.125", "25/8", "3 1/8"], hint: "Add their speeds because they move in opposite directions, then multiply by 15 minutes.", correctFeedback: "Correct. Their combined speed is 5/24 mile per minute, so in 15 minutes they are 25/8 = 3 1/8 miles apart.", incorrectFeedback: "Add 1/6 and 1/24 mile per minute, then multiply by 15." },
+      { id: "opposite-five", label: "Question 2b", prompt: "How long will it take them to be 5 miles apart?", responseType: "number", inputLabel: "Minutes", answerKey: ["24"], hint: "Divide 5 miles by their combined 5/24 mile-per-minute rate.", correctFeedback: "Correct. 5 ÷ (5/24) = 24 minutes.", incorrectFeedback: "Use the sum of their speeds because the distance between them grows in both directions." },
+    ],
+  },
+  {
+    id: "teach-u3-l8-summary",
+    unitNumber: 3,
+    lessonNumber: 8,
+    section: "B",
+    title: "More about Constant Speed",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 8 Summary",
+    pdfPage: 4,
+    customVisual: "unit3SpeedPaceSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l9-1",
+    unitNumber: 3,
+    lessonNumber: 9,
+    section: "B",
+    title: "Solving Rate Problems",
+    partLabel: "9.1",
+    activityOrder: 1,
+    activityTitle: "9.1: Grid of 100",
+    pdfPage: 1,
+    customVisual: "unit3HundredGrids",
+    sourceDirections: "The whole 10-by-10 grid represents 1. Determine how much is shaded in each source grid.",
+    responseType: "questionSet",
+    questions: [
+      { id: "grid-a", label: "Grid A", prompt: "How much of Grid A is shaded? Enter a fraction, decimal, or percent.", responseType: "shortAnswer", inputLabel: "Shaded amount", answerKey: ["1/4", "0.25", ".25", "25%", "25 percent"], hint: "The shaded rectangle is 5 rows by 5 columns out of 100 squares.", correctFeedback: "Correct. Grid A has 25 of 100 squares shaded: 25/100 = 1/4 = 0.25 = 25%.", incorrectFeedback: "Count the shaded rows and columns as a part of all 100 squares." },
+      { id: "grid-b", label: "Grid B", prompt: "How much of Grid B is shaded? Enter a fraction, decimal, or percent.", responseType: "shortAnswer", inputLabel: "Shaded amount", answerKey: ["1/10", "0.1", ".1", "10%", "10 percent"], hint: "One complete column of the 10-by-10 grid is shaded.", correctFeedback: "Correct. Grid B has 10 of 100 squares shaded: 10/100 = 1/10 = 0.1 = 10%.", incorrectFeedback: "Compare the one shaded column with all 10 columns." },
+      { id: "grid-c", label: "Grid C", prompt: "How much of Grid C is shaded? Enter a fraction, decimal, or percent.", responseType: "shortAnswer", inputLabel: "Shaded amount", answerKey: ["3/4", "0.75", ".75", "75%", "75 percent"], hint: "Combine the fully shaded bottom half with the shaded quarter in the upper-left corner.", correctFeedback: "Correct. Grid C has 75 of 100 squares shaded: 75/100 = 3/4 = 0.75 = 75%.", incorrectFeedback: "Add the 50 shaded squares in the bottom half and the 25 shaded squares in the upper-left quarter." },
+    ],
+  },
+  {
+    id: "teach-u3-l9-2",
+    unitNumber: 3,
+    lessonNumber: 9,
+    section: "B",
+    title: "Solving Rate Problems",
+    partLabel: "9.2",
+    activityOrder: 2,
+    activityTitle: "9.2: Card Sort: Is It a Deal?",
+    pdfPages: [1, 2],
+    blacklineMasters: unit3DealBlackline,
+    customVisual: "unit3DealCards",
+    sourceDirections: "Compare the original and new unit prices on every source card A–E. Decide whether each new offer is a deal you would take, revise after feedback, and finish with all five cards sorted.",
+    responseType: "questionSet",
+    questions: [
+      { id: "deal-a", label: "Card A", prompt: "Drink Pack: Original 4 for $3.16; new deal 3 for $2.25. Would you take the new deal?", responseType: "singleChoice", choices: [{ id: "take", label: "Take the deal" }, { id: "reject", label: "Reject the deal" }], answerKey: ["take"], reasoningPrompt: "Optional: Record the two unit prices or another fair comparison.", reasoningOptional: true, hint: "Compare $3.16 ÷ 4 with $2.25 ÷ 3.", correctFeedback: "Correct. The original price is $0.79 per drink and the new price is $0.75 per drink, so the new offer is better.", incorrectFeedback: "Compare the price of one drink in each offer." },
+      { id: "deal-b", label: "Card B", prompt: "Juice Boxes: Original 10 for $3.50; new deal 6 for $2.40. Would you take the new deal?", responseType: "singleChoice", choices: [{ id: "take", label: "Take the deal" }, { id: "reject", label: "Reject the deal" }], answerKey: ["reject"], reasoningPrompt: "Optional: Record the two unit prices or another fair comparison.", reasoningOptional: true, hint: "Compare $3.50 ÷ 10 with $2.40 ÷ 6.", correctFeedback: "Correct. The original price is $0.35 per box and the new price is $0.40 per box, so the new offer costs more.", incorrectFeedback: "Find the price per juice box for both offers." },
+      { id: "deal-c", label: "Card C", prompt: "Granola Bars: Original 5 for $4.40; new deal 4 for $3.12. Would you take the new deal?", responseType: "singleChoice", choices: [{ id: "take", label: "Take the deal" }, { id: "reject", label: "Reject the deal" }], answerKey: ["take"], reasoningPrompt: "Optional: Record the two unit prices or another fair comparison.", reasoningOptional: true, hint: "Compare $4.40 ÷ 5 with $3.12 ÷ 4.", correctFeedback: "Correct. The original price is $0.88 per bar and the new price is $0.78 per bar, so the new offer is better.", incorrectFeedback: "Find the price per granola bar for both offers." },
+      { id: "deal-d", label: "Card D", prompt: "Hummus: Original 16 for $14.40; new deal 10 for $9.00. Would you take the new deal?", responseType: "singleChoice", choices: [{ id: "take", label: "Take the deal" }, { id: "reject", label: "Reject the deal" }], answerKey: ["take"], reasoningPrompt: "Optional: Record the two unit prices or another fair comparison.", reasoningOptional: true, hint: "Compare $14.40 ÷ 16 with $9.00 ÷ 10.", correctFeedback: "Correct. Both offers cost $0.90 per container, so the new offer is fair rather than more expensive.", incorrectFeedback: "Both prices can be compared per one hummus container." },
+      { id: "deal-e", label: "Card E", prompt: "Yogurt: Original 8 for $6.80; new deal 6 for $5.22. Would you take the new deal?", responseType: "singleChoice", choices: [{ id: "take", label: "Take the deal" }, { id: "reject", label: "Reject the deal" }], answerKey: ["reject"], reasoningPrompt: "Optional: Record the two unit prices or another fair comparison.", reasoningOptional: true, hint: "Compare $6.80 ÷ 8 with $5.22 ÷ 6.", correctFeedback: "Correct. The original price is $0.85 per yogurt and the new price is $0.87 per yogurt, so the new offer costs more.", incorrectFeedback: "Find the price per yogurt for both offers." },
+    ],
+  },
+  {
+    id: "teach-u3-l9-optional",
+    unitNumber: 3,
+    lessonNumber: 9,
+    section: "B",
+    title: "Solving Rate Problems",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Make Your Own Deal",
+    pdfPage: 2,
+    blacklineMasters: unit3DealBlackline,
+    customVisual: "unit3FruitSnackDeal",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Card F says 12 fruit snacks cost $9.12. Choose a price for 9 fruit snacks. You may make a fair or unfair offer, but try to make the difference subtle.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fruit-snack-offer", label: "Your offer", prompt: "What price would you charge for 9 fruit snacks?", fields: [{ id: "amount", label: "Price (dollars)", responseType: "number", placeholder: "Enter your offer" }], dynamicAnswer: "unit3PositiveMeasurementEstimate", hint: "A fair equivalent price would preserve the original price per fruit snack. You may intentionally choose a nearby fair or unfair price.", correctFeedback: "Offer recorded. The original price is $0.76 per fruit snack, so a fair price for 9 is $6.84. Compare your offer with $6.84 to decide whether another group should take it.", incorrectFeedback: "Enter a positive price for the 9-pack." },
+    ],
+  },
+  {
+    id: "teach-u3-l9-3",
+    unitNumber: 3,
+    lessonNumber: 9,
+    section: "B",
+    title: "Solving Rate Problems",
+    partLabel: "9.3",
+    activityOrder: 3,
+    activityTitle: "9.3: The Fastest of All",
+    pdfPages: [2, 3],
+    customVisual: "unit3AnimalDistances",
+    sourceDirections: "Six animals each sprint for one minute. Convert their distances to a common unit, identify the farthest sprint, and rank every animal.",
+    responseType: "questionSet",
+    questions: [
+      { id: "animal-winner", label: "Question 1", prompt: "Which animal sprinted the farthest?", responseType: "singleChoice", choices: [{ id: "cougar", label: "Cougar" }, { id: "antelope", label: "Antelope" }, { id: "hare", label: "Hare" }, { id: "kangaroo", label: "Kangaroo" }, { id: "ostrich", label: "Ostrich" }, { id: "coyote", label: "Coyote" }], answerKey: ["antelope"], hint: "Convert every distance to the same unit. Useful facts: 1 mile = 1,760 yards = 5,280 feet; 1 yard = 3 feet; 1 foot = 12 inches; 1 kilometer = 1,000 meters; 1 meter = 100 centimeters.", correctFeedback: "Correct. The antelope runs 1 mile, about 1,609.344 meters, which is the farthest distance.", incorrectFeedback: "Convert all six distances to one common unit before comparing." },
+      { id: "animal-rankings", label: "Question 2", prompt: "Rank all six animals from farthest to shortest sprint.", fields: [{ id: "first", label: "1st", responseType: "shortAnswer", placeholder: "Animal" }, { id: "second", label: "2nd", responseType: "shortAnswer", placeholder: "Animal" }, { id: "third", label: "3rd", responseType: "shortAnswer", placeholder: "Animal" }, { id: "fourth", label: "4th", responseType: "shortAnswer", placeholder: "Animal" }, { id: "fifth", label: "5th", responseType: "shortAnswer", placeholder: "Animal" }, { id: "sixth", label: "6th", responseType: "shortAnswer", placeholder: "Animal" }], acceptedFieldSets: [{ first: "antelope", second: "cougar", third: "hare", fourth: "coyote", fifth: "ostrich", sixth: "kangaroo" }], hint: "In meters, the distances are approximately 1,609.344; 1,287.475; 1,260.653; 1,150.010; 1,150; and 1,073. Watch the very small difference between the coyote and ostrich.", correctFeedback: "Correct. The ranking is antelope, cougar, hare, coyote, ostrich, kangaroo. The coyote runs only 0.0104 meter farther than the ostrich.", incorrectFeedback: "Use one common unit and order all six converted distances. Check the coyote and ostrich especially carefully." },
+    ],
+  },
+  {
+    id: "teach-u3-l9-summary",
+    unitNumber: 3,
+    lessonNumber: 9,
+    section: "B",
+    title: "Solving Rate Problems",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 9 Summary",
+    pdfPage: 3,
+    customVisual: "unit3RateProblemsSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l10-1",
+    unitNumber: 3,
+    lessonNumber: 10,
+    section: "B",
+    title: "What Are Percentages?",
+    partLabel: "10.1",
+    activityOrder: 1,
+    activityTitle: "10.1: Dollars and Cents",
+    pdfPage: 1,
+    customVisual: "unit3DollarsAndCents",
+    sourceDirections: "Find each answer mentally. Use the relationship $1 = 100 cents to move between dollars and cents.",
+    responseType: "questionSet",
+    questions: [
+      { id: "sticker-dollars", label: "Sticker", prompt: "A sticker costs 25 cents. How many dollars is that?", responseType: "number", inputLabel: "Dollars", answerKey: ["0.25", ".25", "1/4"], hint: "Twenty-five cents is 25 out of the 100 cents in one dollar.", correctFeedback: "Correct. 25 cents is 25/100 of a dollar, so it is $0.25.", incorrectFeedback: "Divide 25 cents by 100 cents per dollar." },
+      { id: "pen-cents", label: "Pen", prompt: "A pen costs 1.50 dollars. How many cents is that?", responseType: "number", inputLabel: "Cents", answerKey: ["150"], hint: "Each dollar is 100 cents, and half a dollar is 50 cents.", correctFeedback: "Correct. $1.50 is 100 cents + 50 cents = 150 cents.", incorrectFeedback: "Multiply the dollar amount by 100 cents per dollar." },
+      { id: "cents-dollar", label: "One dollar", prompt: "How many cents are in one dollar?", responseType: "number", inputLabel: "Cents", answerKey: ["100"], hint: "This is the benchmark relationship for U.S. money.", correctFeedback: "Correct. One dollar contains 100 cents.", incorrectFeedback: "Recall the number of pennies equal to one dollar." },
+      { id: "dollars-cent", label: "One cent", prompt: "How many dollars are in one cent?", responseType: "number", inputLabel: "Dollars", answerKey: ["0.01", ".01", "1/100"], hint: "One cent is 1 out of 100 equal cents in one dollar.", correctFeedback: "Correct. One cent is 1/100 of a dollar, or $0.01.", incorrectFeedback: "Write one cent as a fraction or decimal part of one dollar." },
+    ],
+  },
+  {
+    id: "teach-u3-l10-2",
+    unitNumber: 3,
+    lessonNumber: 10,
+    section: "B",
+    title: "What Are Percentages?",
+    partLabel: "10.2",
+    activityOrder: 2,
+    activityTitle: "10.2: Coins",
+    pdfPages: [1, 2],
+    pdfPage: 1,
+    customVisual: "unit3Coins",
+    sourceDirections: "Complete the U.S. coin values, match each percentage of a dollar to its coin, then use rates per 100 to reason about groups of coins.",
+    responseType: "questionSet",
+    questions: [
+      { id: "coin-values", label: "Coin values", prompt: "Complete the table to show the value of each U.S. coin in cents.", fields: [{ id: "penny", label: "Penny", responseType: "number", placeholder: "Cents" }, { id: "nickel", label: "Nickel", responseType: "number", placeholder: "Cents" }, { id: "dime", label: "Dime", responseType: "number", placeholder: "Cents" }, { id: "quarter", label: "Quarter", responseType: "number", placeholder: "Cents" }, { id: "halfDollar", label: "Half dollar", responseType: "number", placeholder: "Cents" }, { id: "dollar", label: "Dollar", responseType: "number", placeholder: "Cents" }], acceptedFieldSets: [{ penny: "1", nickel: "5", dime: "10", quarter: "25", halfDollar: "50", dollar: "100" }], hint: "Use the familiar coin values; a half dollar is half of 100 cents.", correctFeedback: "Correct. The coin values are 1, 5, 10, 25, 50, and 100 cents.", incorrectFeedback: "Recheck each coin value in cents, especially the half-dollar and dollar coins." },
+      { id: "coin-matches", label: "Match percentages", prompt: "Write the coin name that matches each percentage of a dollar.", fields: [{ id: "p25", label: "25% of a dollar", responseType: "shortAnswer", placeholder: "Coin name" }, { id: "p5", label: "5% of a dollar", responseType: "shortAnswer", placeholder: "Coin name" }, { id: "p1", label: "1% of a dollar", responseType: "shortAnswer", placeholder: "Coin name" }, { id: "p100", label: "100% of a dollar", responseType: "shortAnswer", placeholder: "Coin name" }, { id: "p10", label: "10% of a dollar", responseType: "shortAnswer", placeholder: "Coin name" }, { id: "p50", label: "50% of a dollar", responseType: "shortAnswer", placeholder: "Coin name" }], acceptedFieldSets: [{ p25: "quarter", p5: "nickel", p1: "penny", p100: ["dollar", "dollar coin"], p10: "dime", p50: ["half dollar", "half-dollar"] }], hint: "Because one dollar is 100 cents, a coin worth n cents is n% of a dollar.", correctFeedback: "Correct. Quarter, nickel, penny, dollar, dime, and half dollar match 25%, 5%, 1%, 100%, 10%, and 50%.", incorrectFeedback: "Match each percent to the coin with the same number of cents out of 100." },
+      { id: "six-dimes", label: "6 dimes", prompt: "The value of 6 dimes is what percent of the value of a dollar?", responseType: "number", inputLabel: "Percent", answerKey: ["60", "60%"], hint: "One dime is 10% of a dollar. Scale that rate by 6.", correctFeedback: "Correct. Six dimes are 60 cents, so they are 60% of a dollar.", incorrectFeedback: "Find the total number of cents in 6 dimes, then compare it with 100 cents." },
+      { id: "six-quarters", label: "6 quarters", prompt: "The value of 6 quarters is what percent of the value of a dollar?", responseType: "number", inputLabel: "Percent", answerKey: ["150", "150%"], hint: "One quarter is 25% of a dollar. The result may be greater than 100%.", correctFeedback: "Correct. Six quarters are 150 cents, so they are 150% of a dollar.", incorrectFeedback: "Multiply 25% per quarter by 6. A percentage can be greater than 100%." },
+    ],
+  },
+  {
+    id: "teach-u3-l10-optional",
+    unitNumber: 3,
+    lessonNumber: 10,
+    section: "B",
+    title: "What Are Percentages?",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Two Coin Sets",
+    pdfPage: 2,
+    customVisual: "unit3CoinSets",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Find two different sets of coins that each make 120% of a dollar, where no type of coin is in both sets. Enter 0 for every unused coin type.",
+    responseType: "questionSet",
+    questions: [
+      { id: "coin-sets", label: "Two sets", prompt: "Build Set A and Set B. Each must total 120 cents, and a denomination used in one set cannot be used in the other.", fields: [{ id: "aPenny", label: "Set A pennies", responseType: "number", placeholder: "0 or more" }, { id: "aNickel", label: "Set A nickels", responseType: "number", placeholder: "0 or more" }, { id: "aDime", label: "Set A dimes", responseType: "number", placeholder: "0 or more" }, { id: "aQuarter", label: "Set A quarters", responseType: "number", placeholder: "0 or more" }, { id: "aHalf", label: "Set A half dollars", responseType: "number", placeholder: "0 or more" }, { id: "aDollar", label: "Set A dollar coins", responseType: "number", placeholder: "0 or more" }, { id: "bPenny", label: "Set B pennies", responseType: "number", placeholder: "0 or more" }, { id: "bNickel", label: "Set B nickels", responseType: "number", placeholder: "0 or more" }, { id: "bDime", label: "Set B dimes", responseType: "number", placeholder: "0 or more" }, { id: "bQuarter", label: "Set B quarters", responseType: "number", placeholder: "0 or more" }, { id: "bHalf", label: "Set B half dollars", responseType: "number", placeholder: "0 or more" }, { id: "bDollar", label: "Set B dollar coins", responseType: "number", placeholder: "0 or more" }], dynamicAnswer: "unit3DisjointCoinSets", hint: "Try giving one set a dollar coin and the other set quarters. Keep the remaining coin types separate too.", correctFeedback: "Correct. Both sets are worth 120 cents, and no coin denomination appears in both sets.", incorrectFeedback: "Check both totals and the separation rule. Each set must equal 120 cents, all counts must be whole numbers at least 0, and each denomination may appear in at most one set." },
+    ],
+  },
+  {
+    id: "teach-u3-l10-3",
+    unitNumber: 3,
+    lessonNumber: 10,
+    section: "B",
+    title: "What Are Percentages?",
+    partLabel: "10.3",
+    activityOrder: 3,
+    activityTitle: "10.3: Coins on a Number Line",
+    pdfPages: [2, 3],
+    pdfPage: 2,
+    customVisual: "unit3CoinNumberLine",
+    sourceDirections: "A $1 coin is worth 100% of the value of a dollar. Use the aligned dollar and percent number lines to reason about each amount.",
+    responseType: "questionSet",
+    questions: [
+      { id: "jada-coins", label: "Jada", prompt: "The coins in Jada's pocket are worth 75% of a dollar. How much are they worth in dollars?", responseType: "number", inputLabel: "Dollars", answerKey: ["0.75", ".75", "3/4"], hint: "On the double number line, 75% is aligned with three fourths of $1.", correctFeedback: "Correct. 75% of one dollar is $0.75.", incorrectFeedback: "Locate 75% on the percent line and read the aligned dollar value." },
+      { id: "diego-coins", label: "Diego", prompt: "The coins in Diego's pocket are worth 150% of a dollar. How much are they worth in dollars?", responseType: "number", inputLabel: "Dollars", answerKey: ["1.5", "1.50", "3/2"], hint: "150% is one whole dollar plus half of another dollar.", correctFeedback: "Correct. 150% of one dollar is $1.50.", incorrectFeedback: "Use 100% = $1 and add another 50% of a dollar." },
+      { id: "elena-coins", label: "Elena", prompt: "Elena has 3 quarters and 5 dimes. What percentage of a dollar does she have?", responseType: "number", inputLabel: "Percent", answerKey: ["125", "125%"], hint: "Three quarters are 75 cents and five dimes are 50 cents.", correctFeedback: "Correct. 75 cents + 50 cents = 125 cents, which is 125% of a dollar.", incorrectFeedback: "Find the total cents, then use 100 cents as 100%." },
+    ],
+  },
+  {
+    id: "teach-u3-l10-summary",
+    unitNumber: 3,
+    lessonNumber: 10,
+    section: "B",
+    title: "What Are Percentages?",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 10 Summary",
+    pdfPage: 3,
+    customVisual: "unit3PercentageSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l11-1",
+    unitNumber: 3,
+    lessonNumber: 11,
+    section: "B",
+    title: "Percentages and Double Number Lines",
+    partLabel: "11.1",
+    activityOrder: 1,
+    activityTitle: "11.1: Fundraising Goal",
+    pdfPage: 1,
+    customVisual: "unit3FundraisingPercent",
+    sourceDirections: "Lin, Jada, and Andre each had a goal of raising $40. Find the amount each friend raised from the given percentage of that goal.",
+    responseType: "questionSet",
+    questions: [
+      { id: "lin-fundraising", label: "Lin", prompt: "Lin raised 100% of her $40 goal. How much money did she raise?", responseType: "number", inputLabel: "Dollars", answerKey: ["40"], hint: "The full goal is 100%.", correctFeedback: "Correct. 100% of $40 is $40.", incorrectFeedback: "Match the full $40 goal with 100%." },
+      { id: "jada-fundraising", label: "Jada", prompt: "Jada raised 50% of her $40 goal. How much money did she raise?", responseType: "number", inputLabel: "Dollars", answerKey: ["20"], hint: "Fifty percent is one half of the goal.", correctFeedback: "Correct. Half of $40 is $20, so 50% of $40 is $20.", incorrectFeedback: "Find one half of $40." },
+      { id: "andre-fundraising", label: "Andre", prompt: "Andre raised 150% of his $40 goal. How much money did he raise?", responseType: "number", inputLabel: "Dollars", answerKey: ["60"], hint: "Combine 100% of the goal with another 50%.", correctFeedback: "Correct. $40 + $20 = $60, so 150% of $40 is $60.", incorrectFeedback: "Add the value of 100% and 50% of the $40 goal." },
+    ],
+  },
+  {
+    id: "teach-u3-l11-2",
+    unitNumber: 3,
+    lessonNumber: 11,
+    section: "B",
+    title: "Percentages and Double Number Lines",
+    partLabel: "11.2",
+    activityOrder: 2,
+    activityTitle: "11.2: Three-Day Biking Trip",
+    pdfPage: 1,
+    customVisual: "unit3BikingPercent",
+    sourceDirections: "Elena biked 8 miles on Saturday. Use the aligned distance and percentage number lines to answer all three source questions.",
+    responseType: "questionSet",
+    questions: [
+      { id: "saturday-distance", label: "Saturday", prompt: "What is 100% of Elena's Saturday distance?", responseType: "number", inputLabel: "Miles", answerKey: ["8"], hint: "The problem states her entire Saturday distance.", correctFeedback: "Correct. Her complete Saturday distance is 8 miles, so 100% is 8 miles.", incorrectFeedback: "Use the given Saturday distance as the whole, or 100%." },
+      { id: "sunday-distance", label: "Sunday", prompt: "On Sunday, Elena biked 75% of her Saturday distance. How far was that?", responseType: "number", inputLabel: "Miles", answerKey: ["6"], hint: "Twenty-five percent of 8 miles is 2 miles; 75% is three of those parts.", correctFeedback: "Correct. 75% of 8 miles is 6 miles.", incorrectFeedback: "Divide 8 miles into four equal 25% parts, then take three parts." },
+      { id: "monday-distance", label: "Monday", prompt: "On Monday, Elena biked 125% of her Saturday distance. How far was that?", responseType: "number", inputLabel: "Miles", answerKey: ["10"], hint: "Add 25% of 8 miles to the full 8 miles.", correctFeedback: "Correct. 100% of 8 is 8 and 25% is 2, so 125% is 10 miles.", incorrectFeedback: "Use 125% = 100% + 25%." },
+    ],
+  },
+  {
+    id: "teach-u3-l11-3",
+    unitNumber: 3,
+    lessonNumber: 11,
+    section: "B",
+    title: "Percentages and Double Number Lines",
+    partLabel: "11.3",
+    activityOrder: 3,
+    activityTitle: "11.3: Puppies Grow Up",
+    pdfPage: 2,
+    customVisual: "unit3PuppyPercent",
+    sourceDirections: "Both puppies now weigh 9 pounds, but that weight represents a different percentage of each puppy's adult weight. Find both adult weights, then compare the situations.",
+    responseType: "questionSet",
+    questions: [
+      { id: "jada-puppy", label: "Jada's puppy", prompt: "Jada's puppy weighs 9 pounds, about 20% of its adult weight. What will its adult weight be?", responseType: "number", inputLabel: "Adult weight (pounds)", answerKey: ["45"], hint: "If 20% is 9 pounds, five equal 20% parts make 100%.", correctFeedback: "Correct. 9 × 5 = 45, so the projected adult weight is 45 pounds.", incorrectFeedback: "Scale 20% and 9 pounds by the same factor to reach 100%." },
+      { id: "andre-puppy", label: "Andre's puppy", prompt: "Andre's puppy weighs 9 pounds, about 30% of its adult weight. What will its adult weight be?", responseType: "number", inputLabel: "Adult weight (pounds)", answerKey: ["30"], hint: "Find 10% first: one third of 9 pounds is 3 pounds. Then scale to 100%.", correctFeedback: "Correct. 10% is 3 pounds, so 100% is 30 pounds.", incorrectFeedback: "Divide 9 pounds by 3 to find 10%, then multiply by 10." },
+      { id: "puppy-compare", label: "Compare", prompt: "What is the same about the puppies, and what is different?", responseType: "singleChoice", choices: [{ id: "same-now-different-adult", label: "They both weigh 9 pounds now, but 9 pounds is 20% for Jada's puppy and 30% for Andre's, so their projected adult weights differ." }, { id: "same-adult", label: "They weigh the same now and will have the same adult weight." }, { id: "different-now", label: "They have different current weights but the same percentage of adult weight." }], answerKey: ["same-now-different-adult"], reasoningPrompt: "Optional: Explain the comparison in your own words.", reasoningOptional: true, hint: "Compare the given 9-pound weights, the percentages, and the adult weights you found.", correctFeedback: "Correct. Both puppies weigh 9 pounds now. Jada's puppy is at 20% and projects to 45 pounds; Andre's is at 30% and projects to 30 pounds.", incorrectFeedback: "Use all three comparisons: current weight, current percentage, and projected adult weight." },
+    ],
+  },
+  {
+    id: "teach-u3-l11-optional",
+    unitNumber: 3,
+    lessonNumber: 11,
+    section: "B",
+    title: "Percentages and Double Number Lines",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Bread and Income in 1955",
+    pdfPage: 2,
+    customVisual: "unit3BreadPercent",
+    sourceContext: "Optional source extension",
+    sourceDirections: "A loaf of bread costs $2.50 today and cost $0.20 in 1955. Find the 1955 percentage, then apply that same percentage to a $10 hourly wage.",
+    responseType: "questionSet",
+    questions: [
+      { id: "bread-percent", label: "Bread price", prompt: "What percentage of today's $2.50 price did someone in 1955 pay for bread?", responseType: "number", inputLabel: "Percent", answerKey: ["8", "8%"], hint: "Compute 0.20 ÷ 2.50 and express the result per 100.", correctFeedback: "Correct. 0.20 ÷ 2.50 = 0.08, so the 1955 bread price was 8% of today's price.", incorrectFeedback: "Compare $0.20 with $2.50, where today's price is 100%." },
+      { id: "income-1955", label: "Hourly wage", prompt: "A job pays $10.00 an hour today. If the same percentage applies to income, how much would that job have paid in 1955?", responseType: "number", inputLabel: "Dollars per hour", answerKey: ["0.8", ".8", "0.80", "4/5"], unlockedAfterQuestionId: "bread-percent", hint: "Find 8% of $10.00.", correctFeedback: "Correct. 8% of $10.00 is $0.80 per hour.", incorrectFeedback: "Multiply $10.00 by 0.08." },
+    ],
+  },
+  {
+    id: "teach-u3-l11-summary",
+    unitNumber: 3,
+    lessonNumber: 11,
+    section: "B",
+    title: "Percentages and Double Number Lines",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 11 Summary",
+    pdfPage: 3,
+    customVisual: "unit3PercentageLinesSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l12-1",
+    unitNumber: 3,
+    lessonNumber: 12,
+    section: "C",
+    title: "Percentages and Tape Diagrams",
+    partLabel: "12.1",
+    activityOrder: 1,
+    activityTitle: "12.1: Notice and Wonder: Tape Diagrams",
+    pdfPage: 1,
+    customVisual: "unit3TapeNoticeWonder",
+    sourceDirections: "Study the two same-length tape diagrams. Record at least one thing you notice and one thing you wonder.",
+    responseType: "questionSet",
+    questions: [
+      { id: "tape-notice", label: "Notice", prompt: "What do you notice about the two diagrams?", responseType: "openResponse", acceptAnyResponse: true, minLength: 1, inputLabel: "Your notice", placeholder: "Record one observation", hint: "Compare total length, equal parts, labels, and shading.", correctFeedback: "Notice recorded. The two tapes have the same total length; the lower one is partitioned into four equal parts with three shaded.", incorrectFeedback: "Record one observation about the diagrams." },
+      { id: "tape-wonder", label: "Wonder", prompt: "What do you wonder about the two diagrams?", responseType: "openResponse", acceptAnyResponse: true, minLength: 1, inputLabel: "Your wonder", placeholder: "Record one question", hint: "You might wonder what percentage the brace represents or how the 80 relates to the lower tape.", correctFeedback: "Wonder recorded. The source intentionally leaves the percentage unknown for discussion.", incorrectFeedback: "Record one question about the diagrams." },
+    ],
+  },
+  {
+    id: "teach-u3-l12-2",
+    unitNumber: 3,
+    lessonNumber: 12,
+    section: "C",
+    title: "Percentages and Tape Diagrams",
+    partLabel: "12.2",
+    activityOrder: 2,
+    activityTitle: "12.2: Revisiting Jada's Puppy",
+    pdfPages: [1, 2],
+    pdfPage: 1,
+    customVisual: "unit3PuppyTapes",
+    sourceDirections: "Use both source tape diagrams to connect 9-pound units with adult weight, fractions, multiplicative comparisons, and percentages.",
+    responseType: "questionSet",
+    questions: [
+      { id: "puppy-adult-diagram", label: "Adult weight", prompt: "The adult weight will be 45 pounds. How can you see that in the first diagram?", responseType: "singleChoice", choices: [{ id: "five-nines", label: "The whole tape has five equal 9-pound parts, so 5 × 9 = 45 pounds." }, { id: "four-nines", label: "The whole tape has four equal 9-pound parts, so 4 × 9 = 36 pounds." }, { id: "twenty-times-nine", label: "The 20% label means multiply 20 × 9." }], answerKey: ["five-nines"], hint: "Count the equal 9-pound boxes in the whole tape.", correctFeedback: "Correct. Five equal boxes of 9 pounds make the 45-pound adult weight.", incorrectFeedback: "Count every equal part in the full puppy tape." },
+      { id: "puppy-fraction", label: "Fraction of adult weight", prompt: "What fraction of its adult weight is the puppy now, and how does the first diagram show it?", responseType: "singleChoice", choices: [{ id: "one-fifth", label: "1/5, because the current 9 pounds is one of five equal parts." }, { id: "one-fourth", label: "1/4, because one box is shaded." }, { id: "five-one", label: "5/1, because the whole has five boxes." }], answerKey: ["one-fifth"], hint: "Use current-weight parts over total equal parts.", correctFeedback: "Correct. The puppy's current weight is 1 of 5 equal parts, so it is 1/5 of the adult weight.", incorrectFeedback: "Compare one current-weight box with all five boxes." },
+      { id: "dog-times", label: "Times greater", prompt: "The friend's dog weighs 90 pounds and the puppy weighs 9 pounds. How many times greater is the dog's weight?", responseType: "number", inputLabel: "Times as great", answerKey: ["10"], hint: "The second diagram shows ten 9-pound boxes for the dog and one for the puppy.", correctFeedback: "Correct. 90 ÷ 9 = 10, so the dog's weight is 10 times the puppy's weight.", incorrectFeedback: "Divide the dog's 90 pounds by the puppy's 9 pounds." },
+      { id: "dog-fractions", label: "Compare with fractions", prompt: "Which fractional comparison correctly describes both weights?", responseType: "singleChoice", choices: [{ id: "tenth-and-ten", label: "The puppy is 1/10 as heavy as the dog, and the dog is 10/1 as heavy as the puppy." }, { id: "fifth-and-five", label: "The puppy is 1/5 as heavy as the dog, and the dog is 5/1 as heavy as the puppy." }, { id: "same-fraction", label: "Each is 1/1 as heavy as the other." }], answerKey: ["tenth-and-ten"], hint: "Use the one puppy box and ten same-sized dog boxes.", correctFeedback: "Correct. The puppy is 1/10 of the dog's weight, while the dog is 10 times the puppy's weight.", incorrectFeedback: "Compare one 9-pound box with ten 9-pound boxes." },
+      { id: "dog-percentages", label: "Compare with percentages", prompt: "Which percentage comparison correctly describes both weights?", responseType: "singleChoice", choices: [{ id: "ten-and-thousand", label: "The puppy is 10% as heavy as the dog, and the dog is 1,000% as heavy as the puppy." }, { id: "twenty-and-five-hundred", label: "The puppy is 20% as heavy as the dog, and the dog is 500% as heavy as the puppy." }, { id: "hundred-both", label: "Each is 100% as heavy as the other." }], answerKey: ["ten-and-thousand"], hint: "Convert 1/10 and 10/1 to rates per 100.", correctFeedback: "Correct. 1/10 = 10%, and 10 = 1,000%.", incorrectFeedback: "Translate the fractional comparison into percentages." },
+    ],
+  },
+  {
+    id: "teach-u3-l12-3",
+    unitNumber: 3,
+    lessonNumber: 12,
+    section: "C",
+    title: "Percentages and Tape Diagrams",
+    partLabel: "12.3",
+    activityOrder: 3,
+    activityTitle: "12.3: 5 Dollars",
+    pdfPages: [2, 3],
+    pdfPage: 2,
+    customVisual: "unit3MoneyTapeBuilder",
+    sourceDirections: "Noah has $5. Find Elena's and Diego's amounts, compare each person with Noah using fractions, and use the tape constructor to illustrate both comparisons.",
+    responseType: "questionSet",
+    questions: [
+      { id: "elena-money", label: "Elena's amount", prompt: "Elena has 40% as much as Noah. How much money does Elena have?", responseType: "number", inputLabel: "Dollars", answerKey: ["2"], hint: "Forty percent is 2/5 of Noah's $5.", correctFeedback: "Correct. 40% of $5 is $2.", incorrectFeedback: "Find 2/5 of $5." },
+      { id: "elena-fractions", label: "Elena and Noah", prompt: "Compare Elena's and Noah's money using fractions.", fields: [{ id: "elenaOfNoah", label: "Elena has this fraction as much as Noah", responseType: "shortAnswer", placeholder: "Fraction" }, { id: "noahOfElena", label: "Noah has this fraction as much as Elena", responseType: "shortAnswer", placeholder: "Fraction" }], acceptedFieldSets: [{ elenaOfNoah: ["2/5", "0.4"], noahOfElena: ["5/2", "2.5", "2 1/2"] }], hint: "Use Elena's $2 and Noah's $5 in both comparison orders. The tape constructor uses five $1 parts for Noah.", correctFeedback: "Correct. Elena has 2/5 as much as Noah, and Noah has 5/2 as much as Elena.", incorrectFeedback: "Write amount being compared over reference amount in each order." },
+      { id: "diego-money", label: "Diego's amount", prompt: "Diego has 150% as much as Noah. How much money does Diego have?", responseType: "number", inputLabel: "Dollars", answerKey: ["7.5", "7.50", "15/2"], hint: "One hundred fifty percent is 3/2 of Noah's $5.", correctFeedback: "Correct. 150% of $5 is $7.50.", incorrectFeedback: "Find 3/2 of $5." },
+      { id: "diego-fractions", label: "Diego and Noah", prompt: "Compare Diego's and Noah's money using fractions.", fields: [{ id: "diegoOfNoah", label: "Diego has this fraction as much as Noah", responseType: "shortAnswer", placeholder: "Fraction" }, { id: "noahOfDiego", label: "Noah has this fraction as much as Diego", responseType: "shortAnswer", placeholder: "Fraction" }], acceptedFieldSets: [{ diegoOfNoah: ["3/2", "1.5", "1 1/2"], noahOfDiego: ["2/3"] }], hint: "Represent Noah with two equal $2.50 parts and Diego with three of the same parts.", correctFeedback: "Correct. Diego has 3/2 as much as Noah, and Noah has 2/3 as much as Diego.", incorrectFeedback: "Use Diego's $7.50 and Noah's $5 in both comparison orders." },
+    ],
+  },
+  {
+    id: "teach-u3-l12-4",
+    unitNumber: 3,
+    lessonNumber: 12,
+    section: "C",
+    title: "Percentages and Tape Diagrams",
+    partLabel: "12.4",
+    activityOrder: 4,
+    activityTitle: "12.4: Staying Hydrated",
+    pdfPage: 3,
+    customVisual: "unit3HydrationPercent",
+    sourceDirections: "Andre drank 1.5 liters during the first part of a hike. Use that amount as 50% to find the whole, then find 80% of the whole for the entire hike.",
+    responseType: "questionSet",
+    questions: [
+      { id: "water-brought", label: "Water brought", prompt: "If 1.5 liters is 50% of the water Andre brought, how much water did he bring?", responseType: "number", inputLabel: "Liters", answerKey: ["3"], hint: "Two equal 50% parts make 100%.", correctFeedback: "Correct. 1.5 + 1.5 = 3 liters, so Andre brought 3 liters.", incorrectFeedback: "Double 1.5 liters to move from 50% to 100%." },
+      { id: "water-drank", label: "Entire hike", prompt: "If Andre drank 80% of his water on his entire hike, how much did he drink?", responseType: "number", inputLabel: "Liters", answerKey: ["2.4", "12/5", "2 2/5"], unlockedAfterQuestionId: "water-brought", hint: "Find 80% of the 3 liters he brought, not 80% of 1.5 liters.", correctFeedback: "Correct. 80% of 3 liters is 2.4 liters.", incorrectFeedback: "Use the 3-liter whole from Question 1, then multiply by 0.8." },
+    ],
+  },
+  {
+    id: "teach-u3-l12-optional",
+    unitNumber: 3,
+    lessonNumber: 12,
+    section: "C",
+    title: "Percentages and Tape Diagrams",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? Possible or Impossible",
+    pdfPage: 4,
+    customVisual: "unit3HydrationPossibilities",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Decide whether each source scenario is possible. Distinguish an amount Andre can bring from an amount he can drink out of the water he brought.",
+    responseType: "questionSet",
+    questions: [
+      { id: "bring-150", label: "Bring 150%", prompt: "Andre plans to bring his dog on his next hike, along with 150% as much water as he brought on this hike. Is that possible?", responseType: "singleChoice", choices: [{ id: "possible", label: "Possible" }, { id: "impossible", label: "Impossible" }], answerKey: ["possible"], hint: "A person can choose to bring more than the previous amount.", correctFeedback: "Correct. He can bring 150% of 3 liters, or 4.5 liters, on a future hike.", incorrectFeedback: "Percentages greater than 100% can describe bringing more than a previous amount." },
+      { id: "drink-150", label: "Drink 150%", prompt: "Andre plans to drink 150% of the water he brought on his hike. Is that possible?", responseType: "singleChoice", choices: [{ id: "possible", label: "Possible" }, { id: "impossible", label: "Impossible" }], answerKey: ["impossible"], hint: "He cannot drink more water than the amount he brought.", correctFeedback: "Correct. Drinking 150% of the water brought would require drinking more than the available whole.", incorrectFeedback: "Here the water brought is the entire available amount, or 100%." },
+    ],
+  },
+  {
+    id: "teach-u3-l12-summary",
+    unitNumber: 3,
+    lessonNumber: 12,
+    section: "C",
+    title: "Percentages and Tape Diagrams",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 12 Summary",
+    pdfPage: 4,
+    customVisual: "unit3TapeDiagramSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l13-1",
+    unitNumber: 3,
+    lessonNumber: 13,
+    section: "C",
+    title: "Benchmark Percentages",
+    partLabel: "13.1",
+    activityOrder: 1,
+    activityTitle: "13.1: What Percentage Is Shaded?",
+    pdfPage: 1,
+    customVisual: "unit3ShadedBenchmarkTapes",
+    sourceDirections: "What percentage of each source tape diagram is shaded? Treat each complete tape as 100%.",
+    responseType: "questionSet",
+    questions: [
+      { id: "shaded-a", label: "Diagram A", prompt: "What percentage of Diagram A is shaded?", responseType: "number", inputLabel: "Percent shaded", answerKey: ["10", "10%"], hint: "One of 10 equal parts is shaded.", correctFeedback: "Correct. 1/10 of the tape is shaded, and 1/10 = 10%.", incorrectFeedback: "Count shaded parts and total equal parts, then write the fraction as a percentage." },
+      { id: "shaded-b", label: "Diagram B", prompt: "What percentage of Diagram B is shaded?", responseType: "number", inputLabel: "Percent shaded", answerKey: ["50", "50%"], hint: "One of 2 equal parts is shaded.", correctFeedback: "Correct. 1/2 of the tape is shaded, and 1/2 = 50%.", incorrectFeedback: "Compare the one shaded half with the complete tape." },
+      { id: "shaded-c", label: "Diagram C", prompt: "What percentage of Diagram C is shaded?", responseType: "number", inputLabel: "Percent shaded", answerKey: ["75", "75%"], hint: "Three of 4 equal parts are shaded.", correctFeedback: "Correct. 3/4 of the tape is shaded, and 3/4 = 75%.", incorrectFeedback: "Write the shaded fraction first: 3 out of 4 equal parts." },
+    ],
+  },
+  {
+    id: "teach-u3-l13-2",
+    unitNumber: 3,
+    lessonNumber: 13,
+    section: "C",
+    title: "Benchmark Percentages",
+    partLabel: "13.2",
+    activityOrder: 2,
+    activityTitle: "13.2: Liters, Meters, and Hours",
+    pdfPage: 1,
+    customVisual: "unit3BenchmarkPercentages",
+    sourceDirections: "Calculate each benchmark percentage mentally, then identify a method that works for any number.",
+    responseType: "questionSet",
+    questions: [
+      { id: "fifty-milk", label: "50% · milk", prompt: "How much is 50% of 10 liters of milk?", responseType: "number", inputLabel: "Liters", answerKey: ["5"], hint: "Fifty percent is one half.", correctFeedback: "Correct. Half of 10 liters is 5 liters.", incorrectFeedback: "Divide 10 liters into two equal parts." },
+      { id: "fifty-trip", label: "50% · trip", prompt: "How far is 50% of a 2,000-kilometer trip?", responseType: "number", inputLabel: "Kilometers", answerKey: ["1000", "1,000"], hint: "Find half of 2,000.", correctFeedback: "Correct. 2,000 ÷ 2 = 1,000 kilometers.", incorrectFeedback: "Fifty percent means half of the whole trip." },
+      { id: "fifty-day", label: "50% · day", prompt: "How long is 50% of a 24-hour day?", responseType: "number", inputLabel: "Hours", answerKey: ["12"], hint: "Find half of 24.", correctFeedback: "Correct. Half of 24 hours is 12 hours.", incorrectFeedback: "Divide the 24-hour whole into two equal parts." },
+      { id: "fifty-method", label: "50% · method", prompt: "How can you find 50% of any number?", responseType: "singleChoice", choices: [{ id: "divide-two", label: "Divide the number by 2." }, { id: "divide-ten", label: "Divide the number by 10." }, { id: "quarter-times-three", label: "Divide by 4, then multiply by 3." }], answerKey: ["divide-two"], hint: "Connect 50% with a familiar fraction.", correctFeedback: "Correct. 50% = 1/2, so divide by 2 (or multiply by 1/2).", incorrectFeedback: "Think of 50% as one half." },
+      { id: "ten-trip", label: "10% · trip", prompt: "How far is 10% of a 2,000-kilometer trip?", responseType: "number", inputLabel: "Kilometers", answerKey: ["200"], hint: "Divide 2,000 into ten equal parts.", correctFeedback: "Correct. 2,000 ÷ 10 = 200 kilometers.", incorrectFeedback: "Ten percent is one tenth of the whole trip." },
+      { id: "ten-milk", label: "10% · milk", prompt: "How much is 10% of 10 liters of milk?", responseType: "number", inputLabel: "Liters", answerKey: ["1"], hint: "Find one tenth of 10.", correctFeedback: "Correct. 10 ÷ 10 = 1 liter.", incorrectFeedback: "Ten percent is one of ten equal parts." },
+      { id: "ten-day", label: "10% · day", prompt: "How long is 10% of a 24-hour day?", responseType: "number", inputLabel: "Hours", answerKey: ["2.4", "12/5", "2 2/5"], hint: "Divide 24 by 10.", correctFeedback: "Correct. 24 ÷ 10 = 2.4 hours.", incorrectFeedback: "Find one tenth of 24 hours." },
+      { id: "ten-method", label: "10% · method", prompt: "How can you find 10% of any number?", responseType: "singleChoice", choices: [{ id: "divide-ten", label: "Divide the number by 10." }, { id: "divide-two", label: "Divide the number by 2." }, { id: "quarter-times-three", label: "Divide by 4, then multiply by 3." }], answerKey: ["divide-ten"], hint: "Connect 10% with tenths.", correctFeedback: "Correct. 10% = 1/10, so divide by 10 (or multiply by 1/10).", incorrectFeedback: "Think of 10% as one tenth." },
+      { id: "seventy-five-day", label: "75% · day", prompt: "How long is 75% of a 24-hour day?", responseType: "number", inputLabel: "Hours", answerKey: ["18"], hint: "Find three fourths of 24.", correctFeedback: "Correct. One fourth is 6 hours, so three fourths is 18 hours.", incorrectFeedback: "Divide 24 by 4, then take 3 parts." },
+      { id: "seventy-five-trip", label: "75% · trip", prompt: "How far is 75% of a 2,000-kilometer trip?", responseType: "number", inputLabel: "Kilometers", answerKey: ["1500", "1,500"], hint: "Find three fourths of 2,000.", correctFeedback: "Correct. One fourth is 500, and 3 × 500 = 1,500 kilometers.", incorrectFeedback: "Divide 2,000 by 4, then multiply by 3." },
+      { id: "seventy-five-milk", label: "75% · milk", prompt: "How much is 75% of 10 liters of milk?", responseType: "number", inputLabel: "Liters", answerKey: ["7.5", "7.50", "15/2", "7 1/2"], hint: "Find three fourths of 10.", correctFeedback: "Correct. One fourth is 2.5 liters, so three fourths is 7.5 liters.", incorrectFeedback: "Divide 10 by 4, then multiply by 3." },
+      { id: "seventy-five-method", label: "75% · method", prompt: "How can you find 75% of any number?", responseType: "singleChoice", choices: [{ id: "quarter-times-three", label: "Divide by 4, then multiply by 3." }, { id: "divide-ten", label: "Divide the number by 10." }, { id: "divide-two", label: "Divide the number by 2." }], answerKey: ["quarter-times-three"], hint: "Connect 75% with three fourths.", correctFeedback: "Correct. 75% = 3/4, so find one fourth and take three of those parts.", incorrectFeedback: "Think of 75% as three fourths." },
+    ],
+  },
+  {
+    id: "teach-u3-l13-3",
+    unitNumber: 3,
+    lessonNumber: 13,
+    section: "C",
+    title: "Benchmark Percentages",
+    partLabel: "13.3",
+    activityOrder: 3,
+    activityTitle: "13.3: Nine is . . .",
+    pdfPage: 2,
+    customVisual: "unit3NineBenchmarks",
+    sourceDirections: "Find each whole mentally when 9 is the stated benchmark percentage. You may record an optional mental strategy; feedback explains a correct strategy for every answer.",
+    responseType: "questionSet",
+    questions: [
+      { id: "nine-fifty", label: "9 is 50%", prompt: "9 is 50% of what number?", responseType: "number", inputLabel: "Whole number", answerKey: ["18"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "If 9 is one half, the whole has two equal 9s.", correctFeedback: "Correct. Double 9 because 50% is one half: 9 × 2 = 18.", incorrectFeedback: "Make two equal 50% parts." },
+      { id: "nine-twenty-five", label: "9 is 25%", prompt: "9 is 25% of what number?", responseType: "number", inputLabel: "Whole number", answerKey: ["36"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "If 9 is one fourth, the whole has four equal 9s.", correctFeedback: "Correct. 25% is one fourth, so 9 × 4 = 36.", incorrectFeedback: "Build four equal 25% parts." },
+      { id: "nine-ten", label: "9 is 10%", prompt: "9 is 10% of what number?", responseType: "number", inputLabel: "Whole number", answerKey: ["90"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "Ten equal 10% parts make the whole.", correctFeedback: "Correct. 9 × 10 = 90.", incorrectFeedback: "Scale 10% to 100%." },
+      { id: "nine-seventy-five", label: "9 is 75%", prompt: "9 is 75% of what number?", responseType: "number", inputLabel: "Whole number", answerKey: ["12"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "If three fourths is 9, one fourth is 3.", correctFeedback: "Correct. One fourth is 9 ÷ 3 = 3, so the whole is 4 × 3 = 12.", incorrectFeedback: "Use 75% = 3/4. Find one fourth first." },
+      { id: "nine-one-fifty", label: "9 is 150%", prompt: "9 is 150% of what number?", responseType: "number", inputLabel: "Whole number", answerKey: ["6"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "If three halves is 9, one half is 3.", correctFeedback: "Correct. 150% is 3/2. If three halves total 9, the two-half whole is 6.", incorrectFeedback: "Use 150% = 3/2. Find one half, then two halves." },
+    ],
+  },
+  {
+    id: "teach-u3-l13-4",
+    unitNumber: 3,
+    lessonNumber: 13,
+    section: "C",
+    title: "Benchmark Percentages",
+    partLabel: "13.4",
+    activityOrder: 4,
+    activityTitle: "13.4: Matching the Percentage",
+    pdfPage: 2,
+    customVisual: "unit3PercentageMatchBank",
+    sourceDirections: "Match a percentage to every source comparison. One percentage will be left over.",
+    responseType: "questionSet",
+    questions: [
+      { id: "match-7-14", label: "7 of 14", prompt: "7 is what percentage of 14?", responseType: "singleChoice", choices: [{ id: "4", label: "4%" }, { id: "10", label: "10%" }, { id: "25", label: "25%" }, { id: "50", label: "50%" }, { id: "75", label: "75%" }, { id: "400", label: "400%" }], answerKey: ["50"], hint: "7 is one half of 14.", correctFeedback: "Correct. 7/14 = 1/2 = 50%.", incorrectFeedback: "Simplify 7/14, then connect the fraction with a percentage." },
+      { id: "match-5-20", label: "5 of 20", prompt: "5 is what percentage of 20?", responseType: "singleChoice", choices: [{ id: "4", label: "4%" }, { id: "10", label: "10%" }, { id: "25", label: "25%" }, { id: "50", label: "50%" }, { id: "75", label: "75%" }, { id: "400", label: "400%" }], answerKey: ["25"], hint: "5 is one fourth of 20.", correctFeedback: "Correct. 5/20 = 1/4 = 25%.", incorrectFeedback: "Simplify 5/20 before choosing a percentage." },
+      { id: "match-3-30", label: "3 of 30", prompt: "3 is what percentage of 30?", responseType: "singleChoice", choices: [{ id: "4", label: "4%" }, { id: "10", label: "10%" }, { id: "25", label: "25%" }, { id: "50", label: "50%" }, { id: "75", label: "75%" }, { id: "400", label: "400%" }], answerKey: ["10"], hint: "3 is one tenth of 30.", correctFeedback: "Correct. 3/30 = 1/10 = 10%.", incorrectFeedback: "Compare 3 with ten equal groups that total 30." },
+      { id: "match-6-8", label: "6 of 8", prompt: "6 is what percentage of 8?", responseType: "singleChoice", choices: [{ id: "4", label: "4%" }, { id: "10", label: "10%" }, { id: "25", label: "25%" }, { id: "50", label: "50%" }, { id: "75", label: "75%" }, { id: "400", label: "400%" }], answerKey: ["75"], hint: "6/8 simplifies to three fourths.", correctFeedback: "Correct. 6/8 = 3/4 = 75%.", incorrectFeedback: "Simplify 6/8 and use a benchmark percentage." },
+      { id: "match-20-5", label: "20 of 5", prompt: "20 is what percentage of 5?", responseType: "singleChoice", choices: [{ id: "4", label: "4%" }, { id: "10", label: "10%" }, { id: "25", label: "25%" }, { id: "50", label: "50%" }, { id: "75", label: "75%" }, { id: "400", label: "400%" }], answerKey: ["400"], hint: "20 is four times 5. One whole 5 is 100%.", correctFeedback: "Correct. 20 is 4 × 5, so it is 400% of 5.", incorrectFeedback: "Count how many complete 5s fit in 20, then multiply that count by 100%." },
+      { id: "match-unused", label: "Left over", prompt: "Which percentage is left over after all five matches?", responseType: "singleChoice", choices: [{ id: "4", label: "4%" }, { id: "10", label: "10%" }, { id: "25", label: "25%" }, { id: "50", label: "50%" }, { id: "75", label: "75%" }, { id: "400", label: "400%" }], answerKey: ["4"], hint: "List the five percentages you used and find the remaining source choice.", correctFeedback: "Correct. 4% is the unused percentage.", incorrectFeedback: "Check each completed match against the six source choices." },
+    ],
+  },
+  {
+    id: "teach-u3-l13-optional",
+    unitNumber: 3,
+    lessonNumber: 13,
+    section: "C",
+    title: "Benchmark Percentages",
+    partLabel: "Optional",
+    activityOrder: 90,
+    activityTitle: "Are You Ready for More? World Population",
+    pdfPage: 3,
+    customVisual: "unit3PopulationResearch",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Research a current world-population estimate and the percentage under age 14. Use one consistent unit (people, millions, or billions) for all three population amounts.",
+    responseType: "questionSet",
+    questions: [{
+      id: "population-research",
+      label: "Research worksheet",
+      prompt: "Record a current estimate, then calculate how many people are under 14 and how many are 14 or older.",
+      dynamicAnswer: "unit3PopulationResearch",
+      fields: [
+        { id: "percent", label: "Percentage under age 14", responseType: "number", placeholder: "Percent" },
+        { id: "total", label: "Current world population", responseType: "number", placeholder: "Use one unit" },
+        { id: "under", label: "Population under age 14", responseType: "number", placeholder: "Same unit" },
+        { id: "older", label: "Population age 14 or older", responseType: "number", placeholder: "Same unit" },
+      ],
+      reasoningPrompt: "Optional: Record the source and year for your estimates.",
+      reasoningOptional: true,
+      hint: "Under 14 = total × percent ÷ 100. Age 14 or older = total − under 14. Rounded estimates are accepted.",
+      correctFeedback: "Your three population amounts are consistent with the percentage you entered, allowing for rounding.",
+      incorrectFeedback: "Use the same population unit in all fields, multiply the total by the percentage, and subtract that result from the total.",
+    }],
+  },
+  {
+    id: "teach-u3-l13-summary",
+    unitNumber: 3,
+    lessonNumber: 13,
+    section: "C",
+    title: "Benchmark Percentages",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 13 Summary",
+    pdfPage: 3,
+    customVisual: "unit3BenchmarkSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l14-1",
+    unitNumber: 3,
+    lessonNumber: 14,
+    section: "C",
+    title: "Solving Percentage Problems",
+    partLabel: "14.1",
+    activityOrder: 1,
+    activityTitle: "14.1: Number Talk: Multiplication with Decimals",
+    pdfPage: 1,
+    customVisual: "unit3DecimalNumberTalk",
+    sourceDirections: "Find both source products mentally. Submit each product independently, then compare the structure of the two expressions.",
+    responseType: "questionSet",
+    questions: [
+      { id: "decimal-product-a", label: "Product 1", prompt: "Find 6 × 0.8 × 2 mentally.", responseType: "number", inputLabel: "Product", answerKey: ["9.6", "48/5", "9 3/5"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "You can multiply 6 × 2 first, then take 0.8 of 12.", correctFeedback: "Correct. Regrouping gives (6 × 2) × 0.8 = 12 × 0.8 = 9.6.", incorrectFeedback: "Use the factors in an order that makes the decimal multiplication convenient." },
+      { id: "decimal-product-b", label: "Product 2", prompt: "Find 4.5 × 0.6 × 4 mentally.", responseType: "number", inputLabel: "Product", answerKey: ["10.8", "54/5", "10 4/5"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "Multiplying 4.5 by 4 first makes a whole number.", correctFeedback: "Correct. Regrouping gives (4.5 × 4) × 0.6 = 18 × 0.6 = 10.8.", incorrectFeedback: "Look for two factors whose product is a whole number, then multiply by the remaining decimal." },
+    ],
+  },
+  {
+    id: "teach-u3-l14-2",
+    unitNumber: 3,
+    lessonNumber: 14,
+    section: "C",
+    title: "Solving Percentage Problems",
+    partLabel: "14.2",
+    activityOrder: 2,
+    activityTitle: "14.2: Coupons",
+    pdfPage: 1,
+    customVisual: "unit3CouponProblems",
+    sourceDirections: "Han and Clare each use a coupon. Solve the two source questions independently and keep the correct whole, discount, and requested unit aligned.",
+    responseType: "questionSet",
+    questions: [
+      { id: "han-coupon", label: "Han", prompt: "Han buys an item with a normal price of $15 and uses a 10% off coupon. How much does he save?", responseType: "number", inputLabel: "Dollars saved", answerKey: ["1.5", "1.50", "3/2", "1 1/2"], reasoningPrompt: "Optional: Show how 10% and $15 are related.", reasoningOptional: true, hint: "The $15 normal price is 100%. Find one tenth of that whole.", correctFeedback: "Correct. 10% of $15 is 0.10 × 15 = $1.50, so Han saves $1.50.", incorrectFeedback: "Find the discount amount, not the sale price. Ten percent is one tenth of the $15 whole." },
+      { id: "clare-coupon", label: "Clare", prompt: "Clare buys an item with a normal price of $24 and saves $6. For what percentage off is her coupon?", responseType: "number", inputLabel: "Percent off", answerKey: ["25", "25%"], reasoningPrompt: "Optional: Show how $6 compares with the $24 whole.", reasoningOptional: true, hint: "Ask what fraction 6 is of 24, then write that fraction as a percentage.", correctFeedback: "Correct. $6 is one fourth of $24, and one fourth is 25%, so Clare's coupon is 25% off.", incorrectFeedback: "Compare the $6 savings with the $24 normal price, not with the sale price." },
+    ],
+  },
+  {
+    id: "teach-u3-l14-optional",
+    unitNumber: 3,
+    lessonNumber: 14,
+    section: "C",
+    title: "Solving Percentage Problems",
+    partLabel: "Optional",
+    activityOrder: 2.5,
+    activityTitle: "Are You Ready for More? Comparing Full and Sale Prices",
+    pdfPage: 1,
+    customVisual: "unit3CouponComparison",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Clare pays full price. Han pays 80% of the same full price. Decide whether Clare pays 125% of Han's amount.",
+    responseType: "questionSet",
+    questions: [
+      { id: "clare-han-percent", label: "Comparison", prompt: "Is Clare correct that she paid 125% of what Han paid?", responseType: "singleChoice", choices: [{ id: "yes", label: "Yes, her statement is true." }, { id: "no", label: "No, her statement is not true." }], answerKey: ["yes"], reasoningPrompt: "Optional: Explain by choosing any convenient full price.", reasoningOptional: true, hint: "Choose a full price such as $100. Han would pay 80% of it. Then compare Clare's amount with Han's amount.", correctFeedback: "Correct. If the full price is $100, Han pays $80, and $100 ÷ $80 = 1.25. Clare pays 125% of Han's amount.", incorrectFeedback: "Compare the full price with 80% of the full price. The reference whole in Clare's claim is Han's payment." },
+    ],
+  },
+  {
+    id: "teach-u3-l14-3",
+    unitNumber: 3,
+    lessonNumber: 14,
+    section: "C",
+    title: "Solving Percentage Problems",
+    partLabel: "14.3",
+    activityOrder: 3,
+    activityTitle: "14.3: Info Gap: Music Devices",
+    pdfPage: 2,
+    customVisual: "unit3MusicInfoGap",
+    sourceDirections: "The app is your data-card partner. Read only your problem card, choose one specific request, submit that request, and keep asking until you have enough information. Then submit the calculation separately.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "music-round-1-devices",
+        label: "Problem 1a",
+        prompt: "After requesting the needed data, select every device Jada can afford.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "device-a", label: "Device A" },
+          { id: "device-b", label: "Device B" },
+          { id: "device-c", label: "Device C" },
+        ],
+        answerKey: ["device-a"],
+        dynamicAnswer: "unit3InfoGapRound1Devices",
+        blacklineMasters: [unit3MusicDeviceProblemBlacklines.round1],
+        reasoningPrompt: "Optional: Explain how Jada's amount compares with the three prices.",
+        reasoningOptional: true,
+        hint: "You need each device price and the data that determines how much money Jada has. Ask for each fact specifically.",
+        correctFeedback: "Correct. Device C costs $40, so 60% of $40 is $24. Of the three prices, Jada can afford Device A only.",
+        incorrectFeedback: "Keep the data card hidden except for specifically requested facts. Request every needed value, determine Jada's amount, and compare it with all three prices.",
+      },
+      {
+        id: "music-round-1-percent",
+        label: "Problem 1b",
+        prompt: "What percentage of Device B's price does Jada have?",
+        responseType: "number",
+        inputLabel: "Percentage of Device B's price",
+        answerKey: ["96", "96%"],
+        dynamicAnswer: "unit3InfoGapRound1Percent",
+        blacklineMasters: [unit3MusicDeviceProblemBlacklines.round1],
+        unlockedAfterQuestionId: "music-round-1-devices",
+        reasoningPrompt: "Optional: Show the calculation that compares Jada's amount with Device B's price.",
+        reasoningOptional: true,
+        hint: "Use Jada's amount as the part and Device B's price as the whole.",
+        correctFeedback: "Correct. Jada has $24, and $24 is 96% of Device B's $25 price because 24 ÷ 25 × 100% = 96%.",
+        incorrectFeedback: "Use Jada's $24 as the part and Device B's $25 price as the whole: 24 ÷ 25 × 100%.",
+      },
+      {
+        id: "music-round-2",
+        label: "Problem Card 2",
+        prompt: "After requesting the needed data, find the cost of Device D.",
+        responseType: "number",
+        inputLabel: "Device D cost (dollars)",
+        answerKey: ["60"],
+        dynamicAnswer: "unit3InfoGapRound2",
+        blacklineMasters: [unit3MusicDeviceProblemBlacklines.round2],
+        unlockedAfterQuestionId: "music-round-1-percent",
+        reasoningPrompt: "Optional: Explain how the requested data determines the whole price.",
+        reasoningOptional: true,
+        hint: "Request Jada's amount and the percentage of Device D's price that amount represents.",
+        correctFeedback: "Correct. Jada's $24 is 40% of Device D's price, so the full price is $24 ÷ 0.40 = $60.",
+        incorrectFeedback: "Request both needed facts, then use $24 as 40% of the unknown whole.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l14-summary",
+    unitNumber: 3,
+    lessonNumber: 14,
+    section: "C",
+    title: "Solving Percentage Problems",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 14 Summary",
+    pdfPage: 3,
+    customVisual: "unit3PercentageProblemSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l15-1",
+    unitNumber: 3,
+    lessonNumber: 15,
+    section: "C",
+    title: "Finding This Percent of That",
+    partLabel: "15.1",
+    activityOrder: 1,
+    activityTitle: "15.1: Number Talk: Decimals",
+    pdfPage: 1,
+    customVisual: "unit3DecimalHundredTalk",
+    sourceDirections: "Find the value of each source expression mentally. Submit each result independently.",
+    responseType: "questionSet",
+    questions: [
+      { id: "decimal-hundred-a", label: "Expression 1", prompt: "Find the value of (0.23) × 100 mentally.", responseType: "number", inputLabel: "Value", answerKey: ["23"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "Multiplying by 100 shifts the place values two places.", correctFeedback: "Correct. 0.23 × 100 = 23.", incorrectFeedback: "Use place value to multiply 0.23 by 100." },
+      { id: "decimal-hundred-b", label: "Expression 2", prompt: "Find the value of 50 ÷ 100 mentally.", responseType: "number", inputLabel: "Value", answerKey: ["0.5", "1/2"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "Dividing by 100 moves the decimal point two places to the left.", correctFeedback: "Correct. 50 ÷ 100 = 0.5.", incorrectFeedback: "Divide 50 by 100 and write the result as a decimal." },
+      { id: "decimal-hundred-c", label: "Expression 3", prompt: "Find the value of 145 × 1/100 mentally.", responseType: "number", inputLabel: "Value", answerKey: ["1.45", "145/100", "1 45/100"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "Multiplying by one hundredth is the same as dividing by 100.", correctFeedback: "Correct. 145 × 1/100 = 1.45.", incorrectFeedback: "Find one hundredth of 145." },
+      { id: "decimal-hundred-d", label: "Expression 4", prompt: "Find the value of 7 ÷ 100 mentally.", responseType: "number", inputLabel: "Value", answerKey: ["0.07", "7/100"], reasoningPrompt: "Optional: Record your mental strategy.", reasoningOptional: true, hint: "Seven hundredths is written 0.07.", correctFeedback: "Correct. 7 ÷ 100 = 0.07.", incorrectFeedback: "Write 7 divided by 100 as hundredths." },
+    ],
+  },
+  {
+    id: "teach-u3-l15-2",
+    unitNumber: 3,
+    lessonNumber: 15,
+    section: "C",
+    title: "Finding This Percent of That",
+    partLabel: "15.2",
+    activityOrder: 2,
+    activityTitle: "15.2: Audience Size",
+    pdfPage: 1,
+    customVisual: "unit3AudienceSizes",
+    sourceDirections: "A school music concert was attended by 250 people. Find the attendance at each other event from its percentage of the concert audience.",
+    responseType: "questionSet",
+    questions: [
+      { id: "audience-basketball", label: "Basketball game", prompt: "Attendance at a basketball game was 30% of attendance at the concert. How many people attended?", responseType: "number", inputLabel: "People", answerKey: ["75"], reasoningPrompt: "Optional: Show how you found 30% of 250.", reasoningOptional: true, hint: "Find 10% of 250, then take three of those parts.", correctFeedback: "Correct. 30% of 250 is 0.30 × 250 = 75 people.", incorrectFeedback: "Use 250 as the whole and find 30% of it." },
+      { id: "audience-drama", label: "Drama play", prompt: "Attendance at the drama play was 140% of attendance at the concert. How many people attended?", responseType: "number", inputLabel: "People", answerKey: ["350"], reasoningPrompt: "Optional: Show how you found 140% of 250.", reasoningOptional: true, hint: "Combine 100% of 250 with 40% of 250.", correctFeedback: "Correct. 140% of 250 is 1.40 × 250 = 350 people.", incorrectFeedback: "Use 250 as 100%, then add another 40% of 250." },
+      { id: "audience-literacy", label: "Literacy night", prompt: "Attendance at literacy night was 44% of attendance at the concert. How many people attended?", responseType: "number", inputLabel: "People", answerKey: ["110"], reasoningPrompt: "Optional: Show how you found 44% of 250.", reasoningOptional: true, hint: "Multiply 250 by 44/100, or 0.44.", correctFeedback: "Correct. 44% of 250 is 0.44 × 250 = 110 people.", incorrectFeedback: "Use 250 as the whole and multiply it by 0.44." },
+    ],
+  },
+  {
+    id: "teach-u3-l15-optional",
+    unitNumber: 3,
+    lessonNumber: 15,
+    section: "C",
+    title: "Finding This Percent of That",
+    partLabel: "Optional",
+    activityOrder: 2.5,
+    activityTitle: "Are You Ready for More? Audience Overlap",
+    pdfPage: 2,
+    customVisual: "unit3AudienceOverlap",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Fifty percent of the people who attended the drama play also attended the music concert. Find what percentage of the concert audience also attended the drama play.",
+    responseType: "questionSet",
+    questions: [{ id: "audience-overlap", label: "Audience overlap", prompt: "What percentage of the people who attended the music concert also attended the drama play?", responseType: "number", inputLabel: "Percentage", answerKey: ["70", "70%"], reasoningPrompt: "Optional: Show how you found the overlap and compared it with 250.", reasoningOptional: true, hint: "First use the drama-play audience from 15.2. Half of that audience attended the concert. Then compare that overlap with 250.", correctFeedback: "Correct. The drama audience was 350, and 50% of 350 is 175. Since 175 ÷ 250 = 0.70, 70% of the concert audience also attended the drama play.", incorrectFeedback: "Find half of the drama audience, then use the concert audience of 250 as the reference whole." }],
+  },
+  {
+    id: "teach-u3-l15-3",
+    unitNumber: 3,
+    lessonNumber: 15,
+    section: "C",
+    title: "Finding This Percent of That",
+    partLabel: "15.3",
+    activityOrder: 3,
+    activityTitle: "15.3: Everything is On Sale",
+    pdfPage: 2,
+    customVisual: "unit3SalePrices",
+    sourceDirections: "During a sale, every item is 80% of its regular price. Find the requested sale prices, describe the repeated process, and identify every expression that finds 80% of x.",
+    responseType: "questionSet",
+    questions: [
+      { id: "sale-shirt", label: "Question 1", prompt: "If the regular price of a T-shirt is $10, what is its sale price?", responseType: "number", inputLabel: "Sale price (dollars)", answerKey: ["8", "8.00"], reasoningPrompt: "Optional: Show how you found 80% of $10.", reasoningOptional: true, hint: "Multiply the $10 regular price by 0.8.", correctFeedback: "Correct. 80% of $10 is 0.8 × 10 = $8.", incorrectFeedback: "The sale price is 80% of the $10 regular price." },
+      {
+        id: "sale-table",
+        label: "Question 2",
+        prompt: "Find the sale price of each source item.",
+        fields: [
+          { id: "item1", label: "Item 1: regular price $1", responseType: "number", placeholder: "Sale price" },
+          { id: "item2", label: "Item 2: regular price $4", responseType: "number", placeholder: "Sale price" },
+          { id: "item3", label: "Item 3: regular price $10", responseType: "number", placeholder: "Sale price" },
+          { id: "item4", label: "Item 4: regular price $55", responseType: "number", placeholder: "Sale price" },
+          { id: "item5", label: "Item 5: regular price $120", responseType: "number", placeholder: "Sale price" },
+        ],
+        acceptedFieldSets: [{ item1: ["0.8", "0.80"], item2: ["3.2", "3.20"], item3: ["8", "8.00"], item4: ["44", "44.00"], item5: ["96", "96.00"] }],
+        hint: "Multiply each regular price by 0.8. Keep every answer in dollars.",
+        correctFeedback: "Correct. The five sale prices are $0.80, $3.20, $8, $44, and $96.",
+        incorrectFeedback: "At least one sale price needs revision. Find 80% of each regular price by multiplying by 0.8.",
+      },
+      { id: "sale-process", label: "Question 3", prompt: "You found 80% of many values. Describe a process you repeated to find the sale prices.", responseType: "openResponse", acceptAnyResponse: true, minLength: 1, placeholder: "Describe the repeated process.", hint: "You might describe multiplying each regular price by 80/100 or by 0.8.", savedFeedback: "Response recorded. One consistent process is to multiply every regular price by 80/100, or 0.8.", correctFeedback: "Response recorded. One consistent process is to multiply every regular price by 80/100, or 0.8.", incorrectFeedback: "Record the process you used; the app saves the explanation without grading its wording." },
+      {
+        id: "sale-expressions",
+        label: "Question 4",
+        prompt: "Select all of the source expressions that could be used to find 80% of x.",
+        responseType: "multiSelect",
+        choices: [
+          { id: "eight-hundredths", label: "8/100 · x" },
+          { id: "eight-tenths", label: "8/10 · x" },
+          { id: "eight-fifths", label: "8/5 · x" },
+          { id: "eighty-times", label: "80 · x" },
+          { id: "decimal-eight", label: "0.8 · x" },
+          { id: "eighty-hundredths", label: "80/100 · x" },
+          { id: "four-tenths", label: "4/10 · x" },
+          { id: "four-fifths", label: "4/5 · x" },
+          { id: "eight-times", label: "8 · x" },
+          { id: "decimal-eight-hundredths", label: "0.08 · x" },
+        ],
+        answerKey: ["eight-tenths", "decimal-eight", "eighty-hundredths", "four-fifths"],
+        reasoningPrompt: "Optional: Explain why the selected factors are all equal to 0.8.",
+        reasoningOptional: true,
+        hint: "Rewrite each numerical factor as a decimal and keep the expressions equal to 0.8x.",
+        correctFeedback: "Correct. 8/10, 0.8, 80/100, and 4/5 are equivalent, so each expression equals 80% of x.",
+        incorrectFeedback: "Select every expression whose numerical factor is equivalent to 80/100, or 0.8.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l15-summary",
+    unitNumber: 3,
+    lessonNumber: 15,
+    section: "C",
+    title: "Finding This Percent of That",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 15 Summary",
+    pdfPage: 3,
+    customVisual: "unit3PercentOfNumberSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l16-1",
+    unitNumber: 3,
+    lessonNumber: 16,
+    section: "C",
+    title: "Finding the Percentage",
+    partLabel: "16.1",
+    activityOrder: 1,
+    activityTitle: "16.1: True or False: Percentages",
+    pdfPage: 1,
+    customVisual: "unit3PercentageTrueFalse",
+    sourceDirections: "Decide whether each source statement is true or false. Submit each decision independently and be prepared to explain your reasoning.",
+    responseType: "questionSet",
+    questions: [
+      { id: "percentage-true-false-a", label: "Statement 1", prompt: "25% of 512 is equal to 1/4 · 500.", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["false"], reasoningPrompt: "Optional: Explain your decision.", reasoningOptional: true, hint: "Compare one fourth of 512 with one fourth of 500.", correctFeedback: "Correct. The statement is false: 25% of 512 is 128, while 1/4 · 500 is 125.", incorrectFeedback: "Evaluate both sides; the numbers being divided into fourths are different." },
+      { id: "percentage-true-false-b", label: "Statement 2", prompt: "90% of 133 is equal to 0.9 · 133.", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["true"], reasoningPrompt: "Optional: Explain your decision.", reasoningOptional: true, hint: "Write 90% as a decimal factor.", correctFeedback: "Correct. The statement is true because 90% = 90/100 = 0.9.", incorrectFeedback: "Convert 90% to a decimal before comparing the expressions." },
+      { id: "percentage-true-false-c", label: "Statement 3", prompt: "30% of 44 is equal to 3% of 440.", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["true"], reasoningPrompt: "Optional: Explain your decision.", reasoningOptional: true, hint: "One quantity is ten times as large while its percentage is one tenth as large.", correctFeedback: "Correct. Both sides equal 13.2, so the statement is true.", incorrectFeedback: "Calculate 0.30 × 44 and 0.03 × 440, or compare the compensating factors of 10." },
+      { id: "percentage-true-false-d", label: "Statement 4", prompt: "The percentage 21 is of 28 is equal to the percentage 30 is of 40.", responseType: "singleChoice", choices: [{ id: "true", label: "True" }, { id: "false", label: "False" }], answerKey: ["true"], reasoningPrompt: "Optional: Explain your decision.", reasoningOptional: true, hint: "Compare the fractions 21/28 and 30/40.", correctFeedback: "Correct. Both ratios simplify to 3/4, or 75%, so the statement is true.", incorrectFeedback: "Simplify each part-to-whole fraction before comparing the percentages." },
+    ],
+  },
+  {
+    id: "teach-u3-l16-2",
+    unitNumber: 3,
+    lessonNumber: 16,
+    section: "C",
+    title: "Finding the Percentage",
+    partLabel: "16.2",
+    activityOrder: 2,
+    activityTitle: "16.2: Jumping Rope",
+    pdfPage: 2,
+    customVisual: "unit3JumpRope",
+    sourceDirections: "Diego jumped rope for 20 minutes. Find what percentage of Diego's time each other time represents, record the source table including decimal quotients, and state what you notice.",
+    responseType: "questionSet",
+    questions: [
+      { id: "jump-jada", label: "Question 1", prompt: "Jada jumped rope for 15 minutes. What percentage of Diego's 20 minutes is that?", responseType: "number", inputLabel: "Percentage", answerKey: ["75", "75%"], reasoningPrompt: "Optional: Show how 15 compares with 20.", reasoningOptional: true, hint: "Divide 15 by 20, then multiply by 100.", correctFeedback: "Correct. 15 ÷ 20 = 0.75, so Jada's time is 75% of Diego's.", incorrectFeedback: "Use Diego's 20 minutes as the reference whole." },
+      { id: "jump-lin", label: "Question 2", prompt: "Lin jumped rope for 24 minutes. What percentage of Diego's 20 minutes is that?", responseType: "number", inputLabel: "Percentage", answerKey: ["120", "120%"], reasoningPrompt: "Optional: Show how 24 compares with 20.", reasoningOptional: true, hint: "Divide 24 by 20, then multiply by 100.", correctFeedback: "Correct. 24 ÷ 20 = 1.2, so Lin's time is 120% of Diego's.", incorrectFeedback: "A time greater than Diego's 20 minutes should be more than 100%." },
+      { id: "jump-noah", label: "Question 3", prompt: "Noah jumped rope for 9 minutes. What percentage of Diego's 20 minutes is that?", responseType: "number", inputLabel: "Percentage", answerKey: ["45", "45%"], reasoningPrompt: "Optional: Show how 9 compares with 20.", reasoningOptional: true, hint: "Divide 9 by 20, then multiply by 100.", correctFeedback: "Correct. 9 ÷ 20 = 0.45, so Noah's time is 45% of Diego's.", incorrectFeedback: "Use 20 minutes as the denominator, then convert the quotient to a percentage." },
+      {
+        id: "jump-table",
+        label: "Question 4",
+        prompt: "Record the percentages and decimal quotients in the source table.",
+        fields: [
+          { id: "jadaPercent", label: "Jada percentage", responseType: "number", placeholder: "Percent" },
+          { id: "jadaQuotient", label: "15 ÷ 20 as a decimal", responseType: "number", placeholder: "Decimal" },
+          { id: "linPercent", label: "Lin percentage", responseType: "number", placeholder: "Percent" },
+          { id: "linQuotient", label: "24 ÷ 20 as a decimal", responseType: "number", placeholder: "Decimal" },
+          { id: "noahPercent", label: "Noah percentage", responseType: "number", placeholder: "Percent" },
+          { id: "noahQuotient", label: "9 ÷ 20 as a decimal", responseType: "number", placeholder: "Decimal" },
+        ],
+        acceptedFieldSets: [{ jadaPercent: ["75", "75%"], jadaQuotient: ["0.75", "3/4"], linPercent: ["120", "120%"], linQuotient: ["1.2", "6/5"], noahPercent: ["45", "45%"], noahQuotient: ["0.45", "9/20"] }],
+        hint: "Each quotient is time ÷ 20. Multiply the decimal quotient by 100 to get the percentage.",
+        correctFeedback: "Correct. The percentage column is 100 times the decimal quotient column: 75 and 0.75, 120 and 1.2, 45 and 0.45.",
+        incorrectFeedback: "At least one table entry needs revision. Divide each time by 20, write the decimal, then multiply by 100 for the percentage.",
+      },
+      { id: "jump-notice", label: "Question 5", prompt: "What do you notice about the numbers in the last two columns of the table?", responseType: "openResponse", acceptAnyResponse: true, minLength: 1, placeholder: "Record what you notice.", hint: "Compare each percentage with its decimal quotient.", savedFeedback: "Response recorded. Each percentage is 100 times its decimal quotient; equivalently, the decimal point moves two places.", correctFeedback: "Response recorded. Each percentage is 100 times its decimal quotient; equivalently, the decimal point moves two places.", incorrectFeedback: "Record one observation about the percentage and quotient columns." },
+    ],
+  },
+  {
+    id: "teach-u3-l16-3",
+    unitNumber: 3,
+    lessonNumber: 16,
+    section: "C",
+    title: "Finding the Percentage",
+    partLabel: "16.3",
+    activityOrder: 3,
+    activityTitle: "16.3: Restaurant Capacity",
+    pdfPage: 3,
+    customVisual: "unit3RestaurantCapacity",
+    sourceDirections: "A restaurant's maximum occupancy is 75 people. Find what percentage of that capacity each source attendance represents.",
+    responseType: "questionSet",
+    questions: [
+      { id: "capacity-nine", label: "Question 1", prompt: "What percentage of the restaurant's 75-person capacity is 9 people?", responseType: "number", inputLabel: "Percentage", answerKey: ["12", "12%"], reasoningPrompt: "Optional: Show your reasoning.", reasoningOptional: true, hint: "Calculate 9 ÷ 75 × 100.", correctFeedback: "Correct. 9 ÷ 75 × 100 = 12%, so 9 people is 12% of capacity.", incorrectFeedback: "Use 75 people as the reference whole." },
+      { id: "capacity-fifty-one", label: "Question 2", prompt: "What percentage of the restaurant's 75-person capacity is 51 people?", responseType: "number", inputLabel: "Percentage", answerKey: ["68", "68%"], reasoningPrompt: "Optional: Show your reasoning.", reasoningOptional: true, hint: "Calculate 51 ÷ 75 × 100.", correctFeedback: "Correct. 51 ÷ 75 × 100 = 68%, so 51 people is 68% of capacity.", incorrectFeedback: "Divide 51 by the 75-person capacity, then convert to a percentage." },
+      { id: "capacity-eighty-four", label: "Question 3", prompt: "What percentage of the restaurant's 75-person capacity is 84 people?", responseType: "number", inputLabel: "Percentage", answerKey: ["112", "112%"], reasoningPrompt: "Optional: Show your reasoning.", reasoningOptional: true, hint: "Because 84 is greater than 75, the result should exceed 100%.", correctFeedback: "Correct. 84 ÷ 75 × 100 = 112%, so 84 people is 112% of capacity.", incorrectFeedback: "Use 75 as the whole; an attendance of 84 is more than full capacity." },
+    ],
+  },
+  {
+    id: "teach-u3-l16-optional",
+    unitNumber: 3,
+    lessonNumber: 16,
+    section: "C",
+    title: "Finding the Percentage",
+    partLabel: "Optional",
+    activityOrder: 3.5,
+    activityTitle: "Are You Ready for More? Earth's Water",
+    pdfPage: 3,
+    customVisual: "unit3EarthWater",
+    sourceContext: "Optional source extension",
+    sourceDirections: "Water makes up about 71% of Earth's surface, while 29% consists of continents and islands. Of all Earth's water, 96% is ocean salt water and 4% is fresh water. The total water volume is 1,386 million cubic kilometers.",
+    responseType: "questionSet",
+    questions: [{
+      id: "earth-water-volumes",
+      label: "Salt and fresh water",
+      prompt: "What are the volumes of salt water and fresh water?",
+      fields: [
+        { id: "salt", label: "Salt water (million cubic kilometers)", responseType: "number", placeholder: "Volume" },
+        { id: "fresh", label: "Fresh water (million cubic kilometers)", responseType: "number", placeholder: "Volume" },
+      ],
+      acceptedFieldSets: [{ salt: ["1330.56", "1,330.56"], fresh: ["55.44"] }],
+      reasoningPrompt: "Optional: Show how the two percentages partition the total water volume.",
+      reasoningOptional: true,
+      hint: "Multiply 1,386 by 0.96 and by 0.04. The two results should total 1,386.",
+      correctFeedback: "Correct. Salt water is 0.96 × 1,386 = 1,330.56 million cubic kilometers, and fresh water is 0.04 × 1,386 = 55.44 million cubic kilometers.",
+      incorrectFeedback: "Use 96% and 4% of the 1,386-million-cubic-kilometer water total; the results must add back to 1,386.",
+    }],
+  },
+  {
+    id: "teach-u3-l16-summary",
+    unitNumber: 3,
+    lessonNumber: 16,
+    section: "C",
+    title: "Finding the Percentage",
+    partLabel: "Summary",
+    activityOrder: 100,
+    activityTitle: "Lesson 16 Summary",
+    pdfPage: 4,
+    customVisual: "unit3FindingPercentageSummary",
+    responseType: "lessonSummary",
+  },
+  {
+    id: "teach-u3-l17-1",
+    unitNumber: 3,
+    lessonNumber: 17,
+    section: "C",
+    title: "Painting a Room",
+    partLabel: "17.1",
+    activityOrder: 1,
+    activityTitle: "17.1: Getting Ready to Paint",
+    pdfPage: 1,
+    customVisual: "unit3PaintPrep",
+    sourceDirections: "What are some tools that are helpful when painting a room? Brainstorm a useful list for the project.",
+    responseType: "questionSet",
+    questions: [{
+      id: "painting-tools",
+      label: "Your tool list",
+      prompt: "List some tools or supplies that would help you paint a room.",
+      responseType: "openResponse",
+      acceptAnyResponse: true,
+      minLength: 1,
+      placeholder: "Record your painting tools and supplies.",
+      hint: "Think about applying paint, protecting the room, reaching high places, and cleaning up.",
+      savedFeedback: "Response recorded. A painting project might use brushes, rollers, a tray, painter's tape, a drop sheet, and cleanup supplies; other sensible tools can also belong on the list.",
+      correctFeedback: "Response recorded. A painting project might use brushes, rollers, a tray, painter's tape, a drop sheet, and cleanup supplies; other sensible tools can also belong on the list.",
+      incorrectFeedback: "Record at least one tool or supply that could help with a room-painting project.",
+    }],
+  },
+  {
+    id: "teach-u3-l17-2",
+    unitNumber: 3,
+    lessonNumber: 17,
+    section: "C",
+    title: "Painting a Room",
+    partLabel: "17.2",
+    activityOrder: 2,
+    activityTitle: "17.2: How Much It Costs to Paint",
+    pdfPages: [1, 2, 3],
+    pdfPage: 1,
+    customVisual: "questionSetVisual",
+    sourceDirections: "Use the complete source floor plan and measurements to find the paintable wall area, the paint needed for two coats, and the least project cost before and after the coupon. The app provides the public lesson's $20 painting-kit estimate so the total-cost questions have a fixed non-paint supply cost.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "room-wall-area",
+        label: "Question 1",
+        prompt: "If you paint all the walls in the room, including inside the closet, how many square feet do you need to cover for one coat?",
+        responseType: "number",
+        inputLabel: "Paintable wall area (square feet)",
+        answerKey: ["300"],
+        visualAssetPath: "artifacts/unit 3/_teachme-crops/lesson-17-floor-plan.png",
+        visualWidth: 680,
+        visualHeight: 480,
+        visualDisplayMaxWidth: 680,
+        visualAlt: "Exact source floor plan of the bedroom with wall, door, window, closet, and dimension labels.",
+        visualDirections: "Use the exact source floor plan. Draw lines or rectangles over it to organize the wall faces you include and the openings you subtract.",
+        annotation: {
+          label: "Bedroom floor-plan planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          naturalWidth: 680,
+          naturalHeight: 480,
+          bounds: { x: 0, y: 0, width: 680, height: 480 },
+          grid: { originX: 0, originY: 0, cellX: 10, cellY: 10, columns: 68, rows: 48 },
+        },
+        reasoningPrompt: "Optional: Record how you included the closet walls and removed the door, window, and mirrored doors.",
+        reasoningOptional: true,
+        hint: "Convert both 3-yard walls to 9 feet. Include the 3 square feet above the door and all exposed faces of the 0.5-by-2-foot closet wall.",
+        correctFeedback: "Correct. The paintable wall faces total 300 square feet. This includes the closet interior and both long faces plus the end face of the small closet wall, while excluding the window, door, and mirrored doors.",
+        incorrectFeedback: "Recheck every wall face in feet. Include the closet interior and every exposed face of the small wall, then subtract the window, door, and mirrored doors.",
+      },
+      {
+        id: "room-paint-quarts",
+        label: "Question 2",
+        prompt: "Two quarts cover 175 square feet. How many whole quarts must you buy to apply two coats to all 300 square feet?",
+        responseType: "number",
+        inputLabel: "Whole quarts to buy",
+        answerKey: ["7"],
+        unlockedAfterQuestionId: "room-wall-area",
+        visualAssetPath: "artifacts/unit 3/_teachme-crops/lesson-17-floor-plan.png",
+        visualWidth: 680,
+        visualHeight: 480,
+        visualDisplayMaxWidth: 680,
+        visualAlt: "Exact source floor plan of the bedroom with wall, door, window, closet, and dimension labels.",
+        visualDirections: "Keep the 300-square-foot one-coat result visible. The two coats require paint coverage for twice that area.",
+        annotation: {
+          label: "Bedroom paint-coverage planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          naturalWidth: 680,
+          naturalHeight: 480,
+          bounds: { x: 0, y: 0, width: 680, height: 480 },
+          grid: { originX: 0, originY: 0, cellX: 10, cellY: 10, columns: 68, rows: 48 },
+        },
+        reasoningPrompt: "Optional: Show how the two-coat area and the 2-quart coverage rate determine the purchase amount.",
+        reasoningOptional: true,
+        hint: "Two coats cover 600 square feet. Scale the rate 2 quarts per 175 square feet, then round up because paint is sold only in whole containers.",
+        correctFeedback: "Correct. Two coats require 600 square feet of coverage. That takes 600 ÷ 175 × 2 = 6 6/7 quarts, so you must buy at least 7 whole quarts.",
+        incorrectFeedback: "Use 600 square feet for two coats, apply the rate 2 quarts per 175 square feet, and round the purchase up to a whole quart.",
+      },
+      {
+        id: "room-project-cost",
+        label: "Question 3",
+        prompt: "Before the coupon, what is the least total project cost if the painting kit costs $20 and you must buy at least 7 quarts of paint?",
+        responseType: "number",
+        inputLabel: "Least project cost (dollars)",
+        answerKey: ["87.6", "87.60", "$87.60"],
+        unlockedAfterQuestionId: "room-paint-quarts",
+        visualType: "paintPurchase",
+        purchaseMode: "regular",
+        reasoningPrompt: "Optional: Name the container combination you chose and show its paint cost.",
+        reasoningOptional: true,
+        hint: "Compare 7 quart cans, 2 gallon cans, 1 gallon plus 3 quart cans, and one 5-gallon container. Add the $20 kit after finding the least paint cost.",
+        correctFeedback: "Correct. One gallon plus 3 quart cans provides exactly 7 quarts and costs $34.90 + 3($10.90) = $67.60. With the $20 painting kit, the project total is $87.60.",
+        incorrectFeedback: "Compare enough whole-container combinations to reach at least 7 quarts, then add the app-provided $20 painting kit.",
+      },
+      {
+        id: "room-coupon-cost",
+        label: "Question 4",
+        prompt: "With 20% off every quart-sized can, find the new least total project cost and how much it saves compared with $87.60.",
+        fields: [
+          { id: "total", label: "New least project cost (dollars)", responseType: "number", placeholder: "Type the total" },
+          { id: "saved", label: "Amount saved (dollars)", responseType: "number", placeholder: "Type the savings" },
+        ],
+        acceptedFieldSets: [{ total: ["81.04", "$81.04"], saved: ["6.56", "$6.56"] }],
+        unlockedAfterQuestionId: "room-project-cost",
+        visualType: "paintPurchase",
+        purchaseMode: "coupon",
+        reasoningPrompt: "Optional: Explain why the least-cost container combination changes after the coupon.",
+        reasoningOptional: true,
+        hint: "A discounted quart can costs 80% of $10.90. Compare 7 discounted quart cans with the other container combinations, then add the $20 kit.",
+        correctFeedback: "Correct. Seven discounted quart cans cost 7 × $8.72 = $61.04. Adding the $20 kit gives $81.04, which is $6.56 less than the original least total of $87.60.",
+        incorrectFeedback: "Apply the 20% discount only to quart-sized cans, compare all valid container combinations again, and include the $20 kit.",
+      },
+    ],
+  },
+  {
+    id: "teach-u3-l17-3",
+    unitNumber: 3,
+    lessonNumber: 17,
+    section: "C",
+    title: "Painting a Room",
+    partLabel: "17.3",
+    activityOrder: 3,
+    activityTitle: "17.3: How Long It Takes to Paint",
+    pdfPage: 3,
+    customVisual: "unit3PaintingTime",
+    sourceDirections: "It takes 96 minutes to put two coats on the 72-square-foot east wall. Use the 300-square-foot room result from 17.2 to judge the percentage claim, then use the same rate to compare working alone with finishing alongside a friend.",
+    responseType: "questionSet",
+    questions: [
+      {
+        id: "painting-quarter-finished",
+        label: "Question 1",
+        prompt: "After the east wall is finished, your friend says you are 25% finished with the painting. Is your friend correct?",
+        responseType: "singleChoice",
+        choices: [{ id: "yes", label: "Yes" }, { id: "no", label: "No" }],
+        answerKey: ["no"],
+        reasoningPrompt: "Optional: Compare the 72-square-foot east wall with the 300-square-foot room total.",
+        reasoningOptional: true,
+        hint: "Find 72 ÷ 300 × 100. The percentage should be close to, but not exactly, 25%.",
+        correctFeedback: "Correct. The friend is not correct: 72 ÷ 300 = 0.24, so finishing the east wall means 24% of the room's paintable wall area is complete.",
+        incorrectFeedback: "Compare the east wall's 72 square feet with the complete 300-square-foot paintable area.",
+      },
+      {
+        id: "painting-time-saved",
+        label: "Question 2",
+        prompt: "It takes you and your friend 150 more minutes to finish the room. How many minutes of painting time did your friend save you?",
+        responseType: "number",
+        inputLabel: "Minutes saved",
+        answerKey: ["154"],
+        unlockedAfterQuestionId: "painting-quarter-finished",
+        reasoningPrompt: "Optional: Find how long the full room would take alone, then compare it with the actual elapsed painting time.",
+        reasoningOptional: true,
+        hint: "At a constant rate, 96 minutes is 24% of the time needed alone. Compare that full-alone time with 96 + 150 minutes.",
+        correctFeedback: "Correct. Working alone would take 96 ÷ 0.24 = 400 minutes. With the friend, the elapsed painting time is 96 + 150 = 246 minutes, so the friend saves 400 − 246 = 154 minutes.",
+        incorrectFeedback: "Use the 24% result to find the full time working alone, then subtract the 246 minutes actually spent painting.",
+      },
+    ],
+  },
+];
+
+const allTeachCards = [...unit1TeachCards, ...unit2TeachCards, ...unit3TeachCards];
+const allTeachSources = [...teachMeSources, ...unit2TeachSources, ...unit3TeachSources];
 
 function teachLessonCrop(lessonNumber) {
   const base = unit1TeachCards.find((card) => card.lessonNumber === lessonNumber && card.cropPath);
@@ -11411,14 +14027,8 @@ function quadrilateralExtensionFeedback(card) {
   }
   const evaluation = quadrilateralExtensionEvaluation(card);
   if (!evaluation.complete) return "Place four vertices and choose one diagonal before submitting the optional challenge.";
-  if (!normalizeAnswer(getTeachCustomResponse(card).extensionRule)) {
-    return "Add a rule about quadrilaterals that can be decomposed into two identical triangles.";
-  }
   if (!evaluation.congruent) {
-    return "This diagonal does not make two identical triangles. Adjust the vertices or test the other diagonal, then revise your rule.";
-  }
-  if (!evaluation.ruleStrong) {
-    return "Your drawing works. Strengthen the rule by connecting it to parallelograms or to both pairs of opposite sides being parallel.";
+    return "This diagonal does not make two identical triangles. Adjust the vertices or test the other diagonal.";
   }
   return "Your diagonal makes two triangles with the same three side lengths. A parallelogram always works because either diagonal splits it into two identical triangles.";
 }
@@ -11436,7 +14046,15 @@ function renderQuadrilateralExtension(card) {
     : "";
   const submitted = isTeachQuestionSubmitted(card, "optional-extension");
   const evaluation = quadrilateralExtensionEvaluation(card);
-  const feedbackClass = submitted ? (evaluation.complete && evaluation.congruent && evaluation.ruleStrong ? "is-correct" : "is-incorrect") : "";
+  const feedbackClass = submitted ? (evaluation.complete && evaluation.congruent ? "is-correct" : "is-incorrect") : "";
+  const rule = normalizeAnswer(response.extensionRule);
+  const ruleAdvisory = renderFreeTextAdvisory({
+    submitted,
+    evaluation: { answered: rule.length > 0, correct: evaluation.ruleStrong },
+    criteria: { validationGuidance: "connect the rule to parallelograms or to both pairs of opposite sides being parallel" },
+    label: "Rule",
+    attributes: 'data-quadrilateral-extension-advisory',
+  });
   return `
     <section class="quadrilateral-extension">
       <button class="hint-button quadrilateral-extension-toggle" type="button" data-quadrilateral-extension-toggle="${card.id}" aria-expanded="${state.teachQuadrilateralExtensionOpen}">
@@ -11479,6 +14097,7 @@ function renderQuadrilateralExtension(card) {
         <button class="practice-submit" type="button" data-quadrilateral-extension-submit="${card.id}">Submit optional challenge</button>
       </div>
       <p class="practice-feedback teach-question-feedback ${feedbackClass}" data-quadrilateral-extension-feedback aria-live="polite">${escapeHtml(quadrilateralExtensionFeedback(card))}</p>
+      ${ruleAdvisory}
       ` : ""}
     </section>
   `;
@@ -13933,8 +16552,21 @@ function practiceReasoningEvaluation(item) {
   };
 }
 
+function practiceUsesAdvisoryPrimaryText(item) {
+  return item.responseType === "open" || item.responseType === "validatedText";
+}
+
+function practicePrimaryTextEvaluation(item) {
+  const answered = hasPracticeResponse(item);
+  if (item.responseType === "validatedText") {
+    return { answered, correct: answered && isPracticePrimaryCorrect(item) };
+  }
+  return { answered, correct: answered };
+}
+
 function isPracticeCorrect(item) {
-  return isPracticePrimaryCorrect(item) && practiceReasoningEvaluation(item).correct;
+  if (practiceUsesAdvisoryPrimaryText(item)) return hasPracticeResponse(item);
+  return isPracticePrimaryCorrect(item);
 }
 
 function hasPracticeResponse(item) {
@@ -14322,6 +16954,79 @@ function updatePracticeCompositionDom(itemId) {
   if (status) status.textContent = practiceCompositionStatus(itemId);
 }
 
+function practiceCompositionReferenceItems(item) {
+  const referenceIds = Array.isArray(item.visualModelData?.referenceCompositionItemIds)
+    ? item.visualModelData.referenceCompositionItemIds
+    : [];
+  return referenceIds
+    .filter((referenceId) => referenceId !== item.id)
+    .map((referenceId) => practiceBank.find((entry) => entry.id === referenceId))
+    .filter((referenceItem) => (
+      referenceItem
+      && state.practiceSubmitted[referenceItem.id]
+      && practiceCompositionRequirementIsMet(referenceItem)
+    ));
+}
+
+function practiceCompositionReferenceViewBox(item) {
+  const definition = practiceCompositionDefinition(item.id);
+  const workspace = getPracticeCompositionWorkspace(item.id);
+  const points = Object.values(workspace.pieces).flatMap((piece) => (
+    definition.vertices.map((vertex) => practiceCompositionPoint(definition, piece, vertex))
+  ));
+  const padding = 22;
+  const minX = Math.min(...points.map((point) => point.x)) - padding;
+  const minY = Math.min(...points.map((point) => point.y)) - padding;
+  const maxX = Math.max(...points.map((point) => point.x)) + padding;
+  const maxY = Math.max(...points.map((point) => point.y)) + padding;
+  return `${minX} ${minY} ${Math.max(1, maxX - minX)} ${Math.max(1, maxY - minY)}`;
+}
+
+function renderPracticeCompositionReferences(item) {
+  const referenceItems = practiceCompositionReferenceItems(item);
+  if (!referenceItems.length) return "";
+  return `
+    <section class="practice-composition-reference-section" aria-label="Completed composition references">
+      <strong>Completed compositions for comparison</strong>
+      <div class="practice-composition-reference-gallery">
+        ${referenceItems.map((referenceItem) => {
+          const definition = practiceCompositionDefinition(referenceItem.id);
+          const workspace = getPracticeCompositionWorkspace(referenceItem.id);
+          const pieceLabels = Array.isArray(referenceItem.visualModelData?.pieceLabels)
+            ? referenceItem.visualModelData.pieceLabels
+            : ["", ""];
+          const polygons = ["copy-a", "copy-b"].map((pieceId, index) => {
+            const piece = workspace.pieces[pieceId];
+            const points = definition.vertices
+              .map((vertex) => practiceCompositionPoint(definition, piece, vertex))
+              .map((point) => `${point.x},${point.y}`)
+              .join(" ");
+            const labelPoint = practiceCompositionPoint(
+              definition,
+              piece,
+              [definition.centerX, definition.centerY],
+            );
+            return `
+              <polygon points="${points}" class="practice-composition-reference-piece practice-composition-reference-piece--${index + 1}"></polygon>
+              <text x="${labelPoint.x}" y="${labelPoint.y + 7}" text-anchor="middle">${escapeHtml(pieceLabels[index] || "")}</text>
+            `;
+          }).join("");
+          const label = referenceItem.visualModelData?.referenceCompositionLabel
+            || `Triangle ${referenceItem.practicePartLabel || ""}`.trim();
+          return `
+            <figure class="practice-composition-reference" data-practice-composition-reference-item="${referenceItem.id}">
+              <figcaption>${escapeHtml(label)}</figcaption>
+              <svg viewBox="${practiceCompositionReferenceViewBox(referenceItem)}" role="img" aria-label="Completed ${escapeHtml(label)} composition">
+                ${polygons}
+              </svg>
+            </figure>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function practiceQuadrilateralDrawingCount(item) {
   const configuredCount = Number(item?.visualModelData?.drawingCount);
   return Number.isInteger(configuredCount) && configuredCount > 0 ? configuredCount : 3;
@@ -14696,28 +17401,77 @@ function renderPracticeQuadrilateralWorkspace(item) {
   const completedDrawing = drawing.vertices.length === vertexCount;
   const allowVertexEditing = item.visualModelData?.allowVertexEditing !== false && completedDrawing;
   const showCalculatedArea = item.visualModelData?.showCalculatedArea === true;
-  const referenceDrawings = item.visualModelData?.retainInactiveDrawings === true
+  const minimumReferenceVertices = item.visualModelData?.retainCompletedDrawingsOnly === true
+    ? vertexCount
+    : 2;
+  const localReferenceDrawings = item.visualModelData?.retainInactiveDrawings === true
     ? workspace.drawings
-      .map((referenceDrawing, index) => ({ drawing: referenceDrawing, index }))
-      .filter((entry) => entry.index !== workspace.activeDrawing && entry.drawing.vertices.length >= 2)
+      .map((referenceDrawing, index) => ({
+        drawing: referenceDrawing,
+        index,
+        key: String(index),
+        displayLabel: `Drawing ${index + 1}`,
+        markerLabel: `D${index + 1}`,
+        sibling: false,
+      }))
+      .filter((entry) => entry.index !== workspace.activeDrawing && entry.drawing.vertices.length >= minimumReferenceVertices)
     : [];
+  const siblingReferenceDrawings = (Array.isArray(item.visualModelData?.referenceDrawingItemIds)
+    ? item.visualModelData.referenceDrawingItemIds
+    : [])
+    .filter((referenceId) => referenceId !== item.id)
+    .map((referenceId) => practiceBank.find((entry) => entry.id === referenceId))
+    .filter(Boolean)
+    .map((referenceItem) => {
+      const referenceWorkspace = state.practiceQuadrilateralWorkspaces[referenceItem.id];
+      const referenceDrawing = referenceWorkspace?.drawings?.[0];
+      if (!referenceDrawing?.submitted || !practiceQuadrilateralValidation(referenceItem, 0).correct) return null;
+      return {
+        drawing: referenceDrawing,
+        index: 0,
+        key: referenceItem.id,
+        displayLabel: referenceItem.visualModelData?.referenceDrawingLabel
+          || referenceItem.practicePartLabel
+          || "Completed drawing",
+        markerLabel: referenceItem.visualModelData?.referenceDrawingMarker
+          || referenceItem.practicePartLabel
+          || "R",
+        sibling: true,
+      };
+    })
+    .filter(Boolean);
+  const referenceDrawings = [...localReferenceDrawings, ...siblingReferenceDrawings];
   const referenceShapes = referenceDrawings.map((entry) => {
     const points = entry.drawing.vertices
       .map((point) => `${padding + point.x * cell},${padding + point.y * cell}`)
       .join(" ");
     const tagName = entry.drawing.vertices.length === vertexCount ? "polygon" : "polyline";
     const openClass = tagName === "polyline" ? " is-open" : "";
-    return `<${tagName} points="${points}" class="practice-quadrilateral-reference-shape${openClass}" data-practice-quadrilateral-reference-drawing="${entry.index}" aria-hidden="true"></${tagName}>`;
+    return `<${tagName} points="${points}" class="practice-quadrilateral-reference-shape${openClass}" data-practice-quadrilateral-reference-drawing="${escapeHtml(entry.key)}" aria-hidden="true"></${tagName}>`;
   }).join("");
-  const referenceLabels = referenceDrawings.length > 1
+  const referenceLabels = referenceDrawings.length > 1 || referenceDrawings.some((entry) => entry.sibling)
     ? referenceDrawings.map((entry) => {
       const center = entry.drawing.vertices.reduce((total, point) => ({
         x: total.x + point.x,
         y: total.y + point.y,
       }), { x: 0, y: 0 });
       const divisor = entry.drawing.vertices.length;
-      return `<text x="${padding + center.x / divisor * cell}" y="${padding + center.y / divisor * cell + 6}" text-anchor="middle" class="practice-quadrilateral-reference-label" data-practice-quadrilateral-reference-label="${entry.index}" aria-hidden="true">D${entry.index + 1}</text>`;
+      return `<text x="${padding + center.x / divisor * cell}" y="${padding + center.y / divisor * cell + 6}" text-anchor="middle" class="practice-quadrilateral-reference-label" data-practice-quadrilateral-reference-label="${escapeHtml(entry.key)}" aria-hidden="true">${escapeHtml(entry.markerLabel)}</text>`;
     }).join("")
+    : "";
+  const referenceCuts = item.visualModelData?.validationMode === "identicalTriangleCuts"
+    ? referenceDrawings
+      .filter((entry) => entry.drawing.vertices.length === vertexCount)
+      .map((entry) => `<line
+        x1="${padding + entry.drawing.vertices[0].x * cell}"
+        y1="${padding + entry.drawing.vertices[0].y * cell}"
+        x2="${padding + entry.drawing.vertices[2].x * cell}"
+        y2="${padding + entry.drawing.vertices[2].y * cell}"
+        class="practice-quadrilateral-reference-cut"
+        data-practice-quadrilateral-reference-cut-drawing="${escapeHtml(entry.key)}"
+        aria-hidden="true"
+      ></line>`)
+      .join("")
     : "";
   const referenceSummary = referenceDrawings.length
     ? `
@@ -14728,9 +17482,9 @@ function renderPracticeQuadrilateralWorkspace(item) {
             entry.drawing.height ? `Height ${entry.drawing.height}` : "",
           ].filter(Boolean).join(" · ");
           return `
-            <div data-practice-quadrilateral-reference-summary="${entry.index}">
+            <div data-practice-quadrilateral-reference-summary="${escapeHtml(entry.key)}">
               <span class="practice-quadrilateral-reference-swatch" aria-hidden="true"></span>
-              <strong>Drawing ${entry.index + 1} reference</strong>
+              <strong>${escapeHtml(entry.displayLabel)} reference</strong>
               ${dimensions ? `<span>${escapeHtml(dimensions)}</span>` : ""}
             </div>
           `;
@@ -14803,6 +17557,7 @@ function renderPracticeQuadrilateralWorkspace(item) {
         ${grid.join("")}
         ${referenceShapes}
         ${shape}
+        ${referenceCuts}
         ${referenceLabels}
         ${cutLine}
         ${pointTargets.join("")}
@@ -15831,7 +18586,8 @@ function practiceSourceAnnotationDefinition(item) {
     rows: Math.max(1, Number(grid.rows) || 1),
     tools: tools.length ? tools : ["line"],
     defaultTool: tools.includes(data.defaultAnnotationTool) ? data.defaultAnnotationTool : tools[0] || "line",
-    displayMaxHeight: Number(data.displayMaxHeight) || 460,
+    displayMaxHeight: Number(data.displayMaxHeight)
+      || (data.displayVariant === "compactPortrait" ? 390 : 460),
   };
 }
 
@@ -15986,10 +18742,15 @@ function renderPracticeSourceAnnotation(item) {
   const workspace = getPracticeSourceAnnotation(item);
   const requiredDrawing = item.responseType === "heightDrawing";
   const displayWidth = Math.min(definition.width, Math.round(definition.displayMaxHeight * definition.width / definition.height));
+  const mobileDisplayMaxHeight = Number(data.displayMobileMaxHeight) || 340;
+  const mobileDisplayWidth = Math.min(definition.width, Math.round(mobileDisplayMaxHeight * definition.width / definition.height));
+  const displayVariantClass = data.displayVariant === "compactPortrait"
+    ? "practice-source-visual--compact-portrait"
+    : "practice-source-visual--compact-square";
   const cursor = practiceSourceAnnotationGridPoint(definition, workspace.cursor);
   const instructionId = `${item.id}-annotation-instructions`;
   return `
-    <figure class="practice-source-visual practice-source-annotation-visual practice-source-visual--compact-square">
+    <figure class="practice-source-visual practice-source-annotation-visual ${displayVariantClass}">
       <div class="practice-source-annotation-toolbar" role="toolbar" aria-label="Drawing tools">
         ${definition.tools.map((tool) => `
           <button
@@ -16004,7 +18765,7 @@ function renderPracticeSourceAnnotation(item) {
       </div>
       <div
         class="practice-source-annotation-canvas"
-        style="--practice-annotation-max-width: ${displayWidth}px; aspect-ratio: ${definition.width} / ${definition.height};"
+        style="--practice-annotation-max-width: ${displayWidth}px; --practice-annotation-mobile-max-width: ${mobileDisplayWidth}px; aspect-ratio: ${definition.width} / ${definition.height};"
       >
         <img
           class="practice-source-visual-image"
@@ -17273,6 +20034,7 @@ function practiceVisual(item) {
           ${pieces}
         </svg>
         <p class="practice-composition-status" data-practice-composition-status aria-live="polite">${escapeHtml(practiceCompositionStatus(item.id))}</p>
+        ${renderPracticeCompositionReferences(item)}
         <p class="practice-composition-source-note">${escapeHtml(data.sourceNote || "The triangle shapes are traced from the source diagram.")}</p>
       </section>
     `;
@@ -17379,14 +20141,54 @@ function practiceVisual(item) {
   if (data.type === "rectangleDimensions") {
     const widthLabel = escapeHtml(data.widthLabel || "width");
     const heightLabel = escapeHtml(data.heightLabel || "height");
-    return svg(`
-      <rect x="92" y="58" width="240" height="150" class="shape-fill blue"></rect>
-      <rect x="92" y="58" width="240" height="150" class="model-outline"></rect>
-      <line x1="92" y1="236" x2="332" y2="236" class="measure-line"></line>
-      <text x="212" y="270" text-anchor="middle" class="measure-label">${widthLabel}</text>
-      <line x1="362" y1="58" x2="362" y2="208" class="measure-line"></line>
-      <text x="378" y="138" class="measure-label">${heightLabel}</text>
-    `, "0 0 450 300");
+    const gridColumns = Math.max(1, Math.round(Number(data.gridColumns) || 1));
+    const gridRows = Math.max(1, Math.round(Number(data.gridRows) || 1));
+    const viewWidth = 660;
+    const viewHeight = 420;
+    const plot = { x: 40, y: 36, width: 520, height: 300 };
+    const cell = Math.min(plot.width / gridColumns, plot.height / gridRows);
+    const shapeWidth = gridColumns * cell;
+    const shapeHeight = gridRows * cell;
+    const shapeX = plot.x + (plot.width - shapeWidth) / 2;
+    const shapeY = plot.y + (plot.height - shapeHeight) / 2;
+    const denseGrid = Math.max(gridColumns, gridRows) > 20;
+    const verticalGridLines = Array.from({ length: Math.max(0, gridColumns - 1) }, (_, index) => {
+      const x = shapeX + (index + 1) * cell;
+      return `<line x1="${x}" y1="${shapeY}" x2="${x}" y2="${shapeY + shapeHeight}" class="practice-dimension-grid-line${denseGrid ? " is-dense" : ""}" vector-effect="non-scaling-stroke"></line>`;
+    }).join("");
+    const horizontalGridLines = Array.from({ length: Math.max(0, gridRows - 1) }, (_, index) => {
+      const y = shapeY + (index + 1) * cell;
+      return `<line x1="${shapeX}" y1="${y}" x2="${shapeX + shapeWidth}" y2="${y}" class="practice-dimension-grid-line${denseGrid ? " is-dense" : ""}" vector-effect="non-scaling-stroke"></line>`;
+    }).join("");
+    const widthMeasureY = shapeY + shapeHeight + 22;
+    const heightMeasureX = shapeX + shapeWidth + 22;
+    const gridUnitLabel = data.gridUnitLabel ? ` Each grid interval represents ${data.gridUnitLabel}.` : "";
+    return `
+      <svg
+        class="practice-dimension-model"
+        viewBox="0 0 ${viewWidth} ${viewHeight}"
+        role="img"
+        aria-label="Rectangle ${widthLabel} by ${heightLabel}, drawn proportionally on a ${gridColumns} by ${gridRows} square grid.${escapeHtml(gridUnitLabel)}"
+        data-grid-columns="${gridColumns}"
+        data-grid-rows="${gridRows}"
+      >
+        <rect x="0" y="0" width="${viewWidth}" height="${viewHeight}" class="practice-dimension-canvas"></rect>
+        <rect
+          x="${shapeX}"
+          y="${shapeY}"
+          width="${shapeWidth}"
+          height="${shapeHeight}"
+          class="shape-fill blue"
+          data-dimension-rectangle
+        ></rect>
+        <g aria-hidden="true">${verticalGridLines}${horizontalGridLines}</g>
+        <rect x="${shapeX}" y="${shapeY}" width="${shapeWidth}" height="${shapeHeight}" class="model-outline" vector-effect="non-scaling-stroke"></rect>
+        <line x1="${shapeX}" y1="${widthMeasureY}" x2="${shapeX + shapeWidth}" y2="${widthMeasureY}" class="measure-line" vector-effect="non-scaling-stroke"></line>
+        <text x="${shapeX + shapeWidth / 2}" y="${widthMeasureY + 32}" text-anchor="middle" class="measure-label">${widthLabel}</text>
+        <line x1="${heightMeasureX}" y1="${shapeY}" x2="${heightMeasureX}" y2="${shapeY + shapeHeight}" class="measure-line" vector-effect="non-scaling-stroke"></line>
+        <text x="${heightMeasureX + 14}" y="${shapeY + shapeHeight / 2 + 6}" class="measure-label">${heightLabel}</text>
+      </svg>
+    `;
   }
   if (data.type === "parallelogramProperties") {
     return `
@@ -18144,9 +20946,36 @@ function renderAnswerControl(item) {
     `;
   }
   const selected = state.practiceSelections[item.id] || [];
+  const choiceScratch = item.choiceScratch?.enabled ? item.choiceScratch : null;
+  const choiceScratchMaxLength = Math.min(
+    CHOICE_SCRATCH_MAX_LENGTH,
+    Math.max(1, Number(choiceScratch?.maxLength) || CHOICE_SCRATCH_MAX_LENGTH),
+  );
   return `
-    <div class="option-grid" role="group" aria-label="${escapeHtml(item.prompt)}">
-      ${item.choices.map((choice) => `
+    <div class="option-grid ${choiceScratch ? "practice-option-scratch-list" : ""}" role="group" aria-label="${escapeHtml(item.prompt)}">
+      ${choiceScratch ? `
+        <div class="practice-option-scratch-header" aria-hidden="true">
+          <span>Choice</span>
+          <span>${escapeHtml(choiceScratch.label || "Scratch notes (optional)")}</span>
+        </div>
+      ` : ""}
+      ${item.choices.map((choice) => choiceScratch ? `
+        <div class="practice-option-scratch-row">
+          <button class="option-button ${selected.includes(choice.id) ? "is-selected" : ""}" type="button" data-practice-option="${item.id}" data-option-id="${choice.id}" aria-pressed="${selected.includes(choice.id)}">
+            ${escapeHtml(choice.label)}
+          </button>
+          <input
+            class="practice-option-scratch-input"
+            type="text"
+            maxlength="${choiceScratchMaxLength}"
+            data-practice-choice-scratch="${item.id}"
+            data-option-id="${choice.id}"
+            value="${escapeHtml(state.practiceChoiceScratch[item.id]?.[choice.id] || "")}"
+            placeholder="${escapeHtml(choiceScratch.placeholder || "Write any notes")}"
+            aria-label="${escapeHtml(`${choiceScratch.label || "Scratch notes"} for choice ${choice.id}`)}"
+          >
+        </div>
+      ` : `
         <button class="option-button ${selected.includes(choice.id) ? "is-selected" : ""}" type="button" data-practice-option="${item.id}" data-option-id="${choice.id}" aria-pressed="${selected.includes(choice.id)}">
           ${escapeHtml(choice.label)}
         </button>
@@ -18233,6 +21062,11 @@ function teachCropUrl(card) {
 }
 
 function teachPdfPages(card) {
+  if (card.responseType === "questionSet") {
+    const question = questionSetDefinition(card, questionSetActiveId(card));
+    if (Array.isArray(question?.pdfPages) && question.pdfPages.length) return question.pdfPages;
+    if (Number.isFinite(Number(question?.pdfPage))) return [Number(question.pdfPage)];
+  }
   return card.pdfPages || [card.pdfPage];
 }
 
@@ -18242,6 +21076,11 @@ function teachPdfModalId(card, pageNumber = card.pdfPage) {
 }
 
 function teachBlacklineSources(card) {
+  if (card.responseType === "questionSet") {
+    const question = questionSetDefinition(card, questionSetActiveId(card));
+    if (Array.isArray(question?.blacklineMasters) && question.blacklineMasters.length) return question.blacklineMasters;
+    if (question?.blacklineMaster) return [question.blacklineMaster];
+  }
   if (card.blacklineMasters?.length) return card.blacklineMasters;
   if (card.blacklineMaster) return [card.blacklineMaster];
   return [];
@@ -18551,12 +21390,16 @@ function scrollToTeachLesson(lessonNumber, unitNumber = state.activeUnit) {
     if (state.view !== unitConfig.view || state.activeUnit !== unitNumber || state.mode !== "teach" || activeLessonForUnit(unitNumber) !== lessonNumber) return;
     ensureLessonScrollCapacity(target, deck);
     target.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: "auto",
       block: "start",
     });
   };
 
-  window.requestAnimationFrame(scrollIfCurrent);
+  const queueSettledScroll = () => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(scrollIfCurrent));
+  };
+
+  queueSettledScroll();
 
   const precedingImages = [...deck.querySelectorAll("img")].filter((image) => (
     image.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
@@ -18564,26 +21407,68 @@ function scrollToTeachLesson(lessonNumber, unitNumber = state.activeUnit) {
   precedingImages.forEach((image) => {
     image.loading = "eager";
     if (image.complete) return;
-    image.addEventListener("load", () => window.requestAnimationFrame(scrollIfCurrent), { once: true });
-    image.addEventListener("error", () => window.requestAnimationFrame(scrollIfCurrent), { once: true });
+    image.addEventListener("load", queueSettledScroll, { once: true });
+    image.addEventListener("error", queueSettledScroll, { once: true });
   });
+
+  if (document.readyState === "complete") {
+    queueSettledScroll();
+  } else {
+    window.addEventListener("load", queueSettledScroll, { once: true });
+  }
+
+  document.fonts?.ready.then(queueSettledScroll);
 }
 
 function scrollToPracticeLesson(lessonNumber, unitNumber = state.activeUnit) {
   const unitConfig = appUnitRoutes[unitNumber] || appUnitRoutes[1];
+  const deck = document.getElementById(practiceDomIds(unitNumber).list);
   const activeItem = activePracticeItemForLesson(unitNumber, lessonNumber);
   const target = activeItem
     ? document.querySelector(`[data-practice-card="${activeItem.id}"]`)
     : document.querySelector(`[data-practice-lesson="${lessonNumber}"]`);
-  if (!target) return;
+  if (!target || !deck) return;
 
-  window.requestAnimationFrame(() => {
-    if (state.view !== unitConfig.view || state.activeUnit !== unitNumber || state.mode !== "practice" || activeLessonForUnit(unitNumber) !== lessonNumber) return;
+  const scrollIfCurrent = () => {
+    const currentItem = activePracticeItemForLesson(unitNumber, lessonNumber);
+    if (
+      !target.isConnected
+      || state.view !== unitConfig.view
+      || state.activeUnit !== unitNumber
+      || state.mode !== "practice"
+      || activeLessonForUnit(unitNumber) !== lessonNumber
+      || (currentItem && target.dataset.practiceCard !== currentItem.id)
+    ) return;
+    ensureLessonScrollCapacity(target, deck);
     target.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: "auto",
       block: "start",
     });
+  };
+
+  const queueSettledScroll = () => {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(scrollIfCurrent));
+  };
+
+  queueSettledScroll();
+
+  const precedingImages = [...deck.querySelectorAll("img")].filter((image) => (
+    image.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
+  ));
+  precedingImages.forEach((image) => {
+    image.loading = "eager";
+    if (image.complete) return;
+    image.addEventListener("load", queueSettledScroll, { once: true });
+    image.addEventListener("error", queueSettledScroll, { once: true });
   });
+
+  if (document.readyState === "complete") {
+    queueSettledScroll();
+  } else {
+    window.addEventListener("load", queueSettledScroll, { once: true });
+  }
+
+  document.fonts?.ready.then(queueSettledScroll);
 }
 
 function ensurePracticeLessonIsRendered(lessonNumber, unitNumber = state.activeUnit) {
@@ -21370,12 +24255,2210 @@ function renderUnit2DiagramSummary() {
   `;
 }
 
+function renderUnit3ClimbRate() {
+  const hourTicks = Array.from({ length: 7 }, (_, index) => {
+    const x = 92 + index * 72;
+    const meterLabel = index === 0 ? "0" : index === 6 ? "828" : "?";
+    return `
+      <g>
+        <line x1="${x}" y1="76" x2="${x}" y2="104"></line>
+        <line x1="${x}" y1="174" x2="${x}" y2="202"></line>
+        <text x="${x}" y="56">${index}</text>
+        <text x="${x}" y="232">${meterLabel}</text>
+      </g>
+    `;
+  }).join("");
+  return `
+    <section class="unit3-climb-rate" aria-label="Double number line for the Burj Khalifa climb">
+      <h3>Constant-rate climb</h3>
+      <p>The known pair is <strong>6 hours</strong> and <strong>828 meters</strong>. Use equivalent ratios to fill the distances between them.</p>
+      <svg viewBox="0 0 620 260" role="img" aria-label="Hours from zero through six aligned with meters from zero through 828; intermediate meter values are unknown">
+        <text class="unit3-axis-label" x="18" y="94">hours</text>
+        <text class="unit3-axis-label" x="18" y="192">meters</text>
+        <line class="unit3-double-line" x1="92" y1="90" x2="524" y2="90"></line>
+        <line class="unit3-double-line" x1="92" y1="188" x2="524" y2="188"></line>
+        ${hourTicks}
+      </svg>
+    </section>
+  `;
+}
+
+function renderUnit3PlanetWeights() {
+  return `
+    <section class="unit3-planet-weights" aria-label="Equivalent weights on Earth, the Moon, and Mars">
+      <h3>Scale the same Earth weight</h3>
+      <div class="unit3-planet-weight-grid">
+        <article>
+          <span class="unit3-planet-symbol is-earth" aria-hidden="true">E</span>
+          <strong>Earth</strong>
+          <b>100 lb</b>
+        </article>
+        <span class="unit3-equivalent-mark" aria-hidden="true">=</span>
+        <article>
+          <span class="unit3-planet-symbol is-moon" aria-hidden="true">M</span>
+          <strong>Moon</strong>
+          <b>16.5 lb</b>
+        </article>
+        <article>
+          <span class="unit3-planet-symbol is-earth" aria-hidden="true">E</span>
+          <strong>Earth</strong>
+          <b>100 lb</b>
+        </article>
+        <span class="unit3-equivalent-mark" aria-hidden="true">=</span>
+        <article>
+          <span class="unit3-planet-symbol is-mars" aria-hidden="true">M</span>
+          <strong>Mars</strong>
+          <b>38 lb</b>
+        </article>
+      </div>
+      <p class="unit3-planet-target"><strong>Your starting weight:</strong> 60 pounds on Earth</p>
+    </section>
+  `;
+}
+
+function renderUnit3RateSummary() {
+  const lineTicks = [
+    { students: 0, minutes: 0 },
+    { students: 300, minutes: 20 },
+    { students: 600, minutes: 40 },
+    { students: 900, minutes: 60 },
+  ].map((tick, index) => {
+    const x = 128 + index * 138;
+    return `
+      <g>
+        <line x1="${x}" y1="72" x2="${x}" y2="100"></line>
+        <line x1="${x}" y1="168" x2="${x}" y2="196"></line>
+        <text x="${x}" y="52">${tick.students}</text>
+        <text x="${x}" y="224">${tick.minutes}</text>
+      </g>
+    `;
+  }).join("");
+  return `
+    <section class="lesson-summary unit3-rate-summary">
+      <p>There are many real-world situations in which something keeps happening at the same rate. For example:</p>
+      <ul>
+        <li>a bus stop that is serviced by 4 buses per hour</li>
+        <li>a washing machine that takes 45 minutes per load of laundry</li>
+        <li>a school cafeteria that serves 15 students per minute</li>
+      </ul>
+      <p>In situations like these, we can use equivalent ratios to predict how long it will take for something to happen some number of times, or how many times it will happen in a particular length of time.</p>
+      <section class="unit3-summary-example">
+        <div>
+          <h3>How long will it take the school cafeteria to serve 600 students?</h3>
+          <table>
+            <thead>
+              <tr><th>number of students</th><th>time in minutes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>15</td><td>1</td></tr>
+              <tr><td>60</td><td>4</td></tr>
+              <tr><td>600</td><td>40</td></tr>
+            </tbody>
+          </table>
+          <p>The table shows that it will take the cafeteria <strong>40 minutes</strong> to serve 600 students.</p>
+        </div>
+        <div>
+          <h3>How many students can the cafeteria serve in 1 hour?</h3>
+          <svg viewBox="0 0 590 250" role="img" aria-label="Double number line showing zero, 300, 600, and 900 students aligned with zero, 20, 40, and 60 minutes">
+            <text class="unit3-axis-label" x="18" y="92">students</text>
+            <text class="unit3-axis-label" x="18" y="188">minutes</text>
+            <line class="unit3-double-line" x1="128" y1="86" x2="542" y2="86"></line>
+            <line class="unit3-double-line" x1="128" y1="182" x2="542" y2="182"></line>
+            ${lineTicks}
+          </svg>
+          <p>The double number line shows that the cafeteria can serve <strong>900 students in 1 hour</strong>.</p>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function unit3ArtifactUrl(relativePath) {
+  return encodeURI(`artifacts/unit 3/${relativePath}`);
+}
+
+function unit3MeasurementUnitById(unitId) {
+  return unit3MeasurementUnits.find((unit) => unit.id === unitId) || null;
+}
+
+function unit3MeasurementUnitField(unitId) {
+  return `measurementUnit_${unitId}`;
+}
+
+function unit3MeasurementObjectField(objectId) {
+  return `measurementObject_${objectId}`;
+}
+
+function unit3MeasurementGroupForQuestion(questionId) {
+  return {
+    "match-length": "length",
+    "match-volume": "volume",
+    "match-weight": "weight",
+  }[questionId] || null;
+}
+
+function unit3MeasurementSelectedField(stage) {
+  return `measurementSelected_${stage}`;
+}
+
+function unit3MeasurementCorrectCount(card, groupKey) {
+  const group = unit3MeasurementObjectGroups[groupKey];
+  if (!group) return 0;
+  const response = getTeachCustomResponse(card);
+  return group.objects.filter((object) => response[unit3MeasurementObjectField(object.id)] === object.answer).length;
+}
+
+function renderUnit3MeasurementUnitSort(card, question) {
+  const response = getTeachCustomResponse(card);
+  const selectedId = response[unit3MeasurementSelectedField("units")] || unit3MeasurementUnits[0].id;
+  const selected = unit3MeasurementUnitById(selectedId) || unit3MeasurementUnits[0];
+  const assignedCount = unit3MeasurementUnits.filter((unit) => response[unit3MeasurementUnitField(unit.id)]).length;
+  const submitted = isTeachQuestionSubmitted(card, question.id);
+  return `
+    <section class="unit3-measurement-sort" aria-label="Sort all standard-unit cards by attribute">
+      <div class="unit3-measurement-toolbar">
+        <div>
+          <span class="unit3-workspace-eyebrow">Selected unit card</span>
+          <strong>${escapeHtml(selected.label)}</strong>
+        </div>
+        <div class="unit3-attribute-buttons" role="group" aria-label="Assign the selected unit card">
+          ${[
+            ["length", "Length"],
+            ["volume", "Volume"],
+            ["weight", "Weight or mass"],
+          ].map(([group, label]) => `
+            <button
+              class="page-chip ${response[unit3MeasurementUnitField(selected.id)] === group ? "is-active" : ""}"
+              type="button"
+              data-unit3-measure-assign="${card.id}"
+              data-measure-stage="units"
+              data-measure-value="${group}"
+              aria-pressed="${response[unit3MeasurementUnitField(selected.id)] === group}"
+            >${label}</button>
+          `).join("")}
+        </div>
+        <button class="hint-button" type="button" data-unit3-measure-reset="${card.id}" data-measure-stage="units">Reset unit sort</button>
+      </div>
+      <div class="unit3-unit-card-grid">
+        ${unit3MeasurementUnits.map((unit) => {
+          const assignment = response[unit3MeasurementUnitField(unit.id)] || "";
+          const isCorrect = assignment === unit.group;
+          const statusClass = submitted && assignment ? (isCorrect ? "is-correct" : "is-incorrect") : "";
+          return `
+            <button
+              class="unit3-unit-card ${selected.id === unit.id ? "is-selected" : ""} ${statusClass}"
+              type="button"
+              data-unit3-measure-select="${card.id}"
+              data-measure-stage="units"
+              data-measure-card-id="${unit.id}"
+              aria-pressed="${selected.id === unit.id}"
+            >
+              <strong>${escapeHtml(unit.label)}</strong>
+              <span>${assignment ? escapeHtml(assignment === "weight" ? "weight or mass" : assignment) : "Not sorted"}</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+      <p class="unit3-measurement-count">${assignedCount} of ${unit3MeasurementUnits.length} unit cards sorted.</p>
+    </section>
+  `;
+}
+
+function renderUnit3MeasurementObjectCard(card, question, groupKey, object) {
+  const group = unit3MeasurementObjectGroups[groupKey];
+  const response = getTeachCustomResponse(card);
+  const selectedId = response[unit3MeasurementSelectedField(groupKey)] || group.objects[0].id;
+  const assignment = response[unit3MeasurementObjectField(object.id)] || "";
+  const assignmentUnit = unit3MeasurementUnitById(assignment);
+  const submitted = isTeachQuestionSubmitted(card, question.id);
+  const statusClass = submitted && assignment
+    ? assignment === object.answer ? "is-correct" : "is-incorrect"
+    : "";
+  const path = `_rendered-previews/Blackline Masters/Grade6-3-B2-3-card-sort-measurements-card-sort-measurements/page-${String(group.page).padStart(3, "0")}.png`;
+  return `
+    <button
+      class="unit3-picture-card ${selectedId === object.id ? "is-selected" : ""} ${statusClass}"
+      type="button"
+      data-unit3-measure-select="${card.id}"
+      data-measure-stage="${groupKey}"
+      data-measure-card-id="${object.id}"
+      aria-pressed="${selectedId === object.id}"
+      aria-label="${escapeHtml(object.label)}; ${assignmentUnit ? `matched with ${assignmentUnit.label}` : "not matched"}"
+    >
+      <span class="unit3-picture-card-sprite" aria-hidden="true">
+        <img
+          src="${unit3ArtifactUrl(path)}"
+          alt=""
+          style="--sprite-column:${object.column}; --sprite-row:${object.row};"
+        >
+      </span>
+      <span class="unit3-picture-card-match">${assignmentUnit ? escapeHtml(assignmentUnit.label) : "Choose a unit"}</span>
+    </button>
+  `;
+}
+
+function renderUnit3MeasurementObjectMatches(card, question, groupKey) {
+  const group = unit3MeasurementObjectGroups[groupKey];
+  const response = getTeachCustomResponse(card);
+  const selectedId = response[unit3MeasurementSelectedField(groupKey)] || group.objects[0].id;
+  const selected = group.objects.find((object) => object.id === selectedId) || group.objects[0];
+  const assignedCount = group.objects.filter((object) => response[unit3MeasurementObjectField(object.id)]).length;
+  return `
+    <section class="unit3-measurement-sort" aria-label="${escapeHtml(group.label)}">
+      <div class="unit3-measurement-toolbar is-picture-stage">
+        <div>
+          <span class="unit3-workspace-eyebrow">Selected source picture</span>
+          <strong>${escapeHtml(selected.label)}</strong>
+        </div>
+        <div class="unit3-unit-choice-tray" role="group" aria-label="Choose the closest unit for ${escapeHtml(selected.label)}">
+          ${group.units.map((unitId) => {
+            const unit = unit3MeasurementUnitById(unitId);
+            const active = response[unit3MeasurementObjectField(selected.id)] === unitId;
+            return `
+              <button
+                class="page-chip ${active ? "is-active" : ""}"
+                type="button"
+                data-unit3-measure-assign="${card.id}"
+                data-measure-stage="${groupKey}"
+                data-measure-value="${unitId}"
+                aria-pressed="${active}"
+              >${escapeHtml(unit.label)}</button>
+            `;
+          }).join("")}
+        </div>
+        <button class="hint-button" type="button" data-unit3-measure-reset="${card.id}" data-measure-stage="${groupKey}">Reset these matches</button>
+      </div>
+      <div class="unit3-picture-card-grid">
+        ${group.objects.map((object) => renderUnit3MeasurementObjectCard(card, question, groupKey, object)).join("")}
+      </div>
+      <p class="unit3-measurement-count">${assignedCount} of ${group.objects.length} ${groupKey === "weight" ? "WM" : groupKey === "volume" ? "V" : "L"} cards matched.</p>
+    </section>
+  `;
+}
+
+function renderUnit3MeasurementCardSort(card) {
+  const question = questionSetDefinition(card, questionSetActiveId(card));
+  if (!question) return "";
+  if (question.id === "sort-units") return renderUnit3MeasurementUnitSort(card, question);
+  const groupKey = unit3MeasurementGroupForQuestion(question.id);
+  if (groupKey) return renderUnit3MeasurementObjectMatches(card, question, groupKey);
+  const groupSummaries = Object.entries(unit3MeasurementObjectGroups).map(([groupKey, group]) => (
+    `<li><strong>${escapeHtml(group.label)}:</strong> ${unit3MeasurementCorrectCount(card, groupKey)} of ${group.objects.length} source matches currently agree with the benchmark set.</li>`
+  )).join("");
+  return `
+    <section class="unit3-measurement-reflection">
+      <h3>Review the complete card sort</h3>
+      <ul>${groupSummaries}</ul>
+      <p>Return to any matching tab to inspect or revise a difficult card before recording your discussion.</p>
+    </section>
+  `;
+}
+
+function unit3StringAssignment(card) {
+  const assignmentId = getTeachCustomResponse(card).stringAssignment || "foot";
+  return unit3StringAssignments.find((assignment) => assignment.id === assignmentId) || unit3StringAssignments[1];
+}
+
+function unit3StringEstimateCentimeters(card) {
+  const assignment = unit3StringAssignment(card);
+  const value = Number(getTeachCustomResponse(card).stringEstimateCm);
+  return clampNumber(Number.isFinite(value) ? value : 0, 0, assignment.workspaceMaxCentimeters);
+}
+
+function unit3FormatMeasurement(value) {
+  return Number(value.toFixed(2)).toString();
+}
+
+function unit3StringScalePercent(centimeters, assignment) {
+  return clampNumber((centimeters / assignment.workspaceMaxCentimeters) * 100, 0, 100);
+}
+
+function unit3StringReferenceRows(assignment) {
+  const references = unit3ClassroomReferenceSets[assignment.referenceSet] || unit3ClassroomReferenceSets.medium;
+  return references.map((reference) => {
+    const count = reference.count || 1;
+    const widthPercent = unit3StringScalePercent(reference.centimeters, assignment);
+    const objects = Array.from({ length: count }, () => (
+      `<span class="unit3-classroom-object is-${reference.kind}" aria-hidden="true"></span>`
+    )).join("");
+    return `
+      <div class="unit3-string-scale-row unit3-string-reference-row">
+        <span class="unit3-string-scale-label">${escapeHtml(reference.label)}</span>
+        <div class="unit3-string-reference-lane">
+          <span
+            class="unit3-string-reference-objects"
+            data-unit3-string-reference="${reference.id}"
+            data-reference-centimeters="${reference.centimeters}"
+            style="width:${widthPercent}%"
+            role="img"
+            aria-label="${escapeHtml(reference.label)}, shown at the same approximate relative scale as the string"
+          >${objects}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function unit3StringRulerTicks(assignment) {
+  const tickCount = Math.floor(assignment.workspaceMaxCentimeters / assignment.rulerStepCentimeters);
+  return Array.from({ length: tickCount + 1 }, (_, index) => {
+    const value = index * assignment.rulerStepCentimeters;
+    return `<span style="left:${unit3StringScalePercent(value, assignment)}%">${value}</span>`;
+  }).join("");
+}
+
+function renderUnit3StringEstimate(card) {
+  const assignment = unit3StringAssignment(card);
+  const estimate = unit3StringEstimateCentimeters(card);
+  const submitted = isTeachQuestionSubmitted(card, "string-cut");
+  const targetPercent = unit3StringScalePercent(assignment.centimeters, assignment);
+  const estimatePercent = unit3StringScalePercent(estimate, assignment);
+  const error = Math.abs(estimate - assignment.centimeters);
+  return `
+    <section class="unit3-string-estimator">
+      <div class="unit3-string-assignment">
+        <div>
+          <span class="unit3-workspace-eyebrow">App assignment</span>
+          <strong>${escapeHtml(assignment.label)}</strong>
+        </div>
+        <button class="hint-button" type="button" data-unit3-string-next="${card.id}">Get another assignment</button>
+      </div>
+      <div class="unit3-string-comparison" data-unit3-string-scale="${assignment.referenceSet}">
+        <div class="unit3-string-reference-heading">
+          <strong>Classroom reference shelf</strong>
+          <span>Approximate sizes only. Real objects vary.</span>
+        </div>
+        <div class="unit3-string-scale-rows">
+          ${unit3StringReferenceRows(assignment)}
+          <div class="unit3-string-scale-row unit3-string-work-row">
+            <span class="unit3-string-scale-label"><strong>Your string</strong></span>
+            <div class="unit3-string-track-stack">
+              <div class="unit3-string-track ${submitted ? "is-measured" : ""}">
+                <span class="unit3-string-line" data-unit3-string-line style="width:${estimatePercent}%"></span>
+                <span class="unit3-string-cut" data-unit3-string-cut style="left:${estimatePercent}%" aria-hidden="true"></span>
+                ${submitted ? `<span class="unit3-string-target" style="left:${targetPercent}%" aria-hidden="true"></span>` : ""}
+                <input
+                  type="range"
+                  min="0"
+                  max="${assignment.workspaceMaxCentimeters}"
+                  step="0.25"
+                  value="${estimate}"
+                  data-unit3-string-slider="${card.id}"
+                  aria-label="Estimated string length on an unmarked comparison strip"
+                >
+              </div>
+              ${submitted ? `
+                <div class="unit3-string-ruler" aria-label="Revealed ruler from zero to ${assignment.workspaceMaxCentimeters} centimeters">
+                  ${unit3StringRulerTicks(assignment)}
+                </div>
+              ` : ""}
+            </div>
+          </div>
+        </div>
+      </div>
+      ${submitted ? `
+        <p class="unit3-string-result"><strong>Your cut:</strong> ${unit3FormatMeasurement(estimate)} cm. <strong>Target:</strong> ${unit3FormatMeasurement(assignment.centimeters)} cm. <strong>Difference:</strong> ${unit3FormatMeasurement(error)} cm.</p>
+      ` : `<p class="unit3-string-hidden-note">Drag the orange cut marker. Measurement labels and the target stay hidden until you submit.</p>`}
+    </section>
+  `;
+}
+
+function renderUnit3MeasurementSummary() {
+  const groups = [
+    {
+      title: "For units of length",
+      items: [
+        "1 millimeter is about the thickness of a dime.",
+        "1 centimeter is about the width of a pinky finger.",
+        "1 inch is about the length from the tip of your thumb to the first knuckle.",
+        "1 foot is the length of a football.",
+        "1 yard is about the length of a baseball bat.",
+        "1 meter is about the length of a baseball bat and ball.",
+        "1 kilometer is about the distance someone walks in ten minutes.",
+        "1 mile is about the distance someone runs in ten minutes.",
+      ],
+    },
+    {
+      title: "For units of volume",
+      items: [
+        "1 milliliter is about the volume of a raindrop.",
+        "1 cup is about the volume of a school milk carton.",
+        "1 quart is about the volume of a large sports drink bottle.",
+        "1 liter is about the volume of a reusable water bottle.",
+        "1 gallon is about the volume of a large milk jug.",
+      ],
+    },
+    {
+      title: "For units of weight and mass",
+      items: [
+        "1 gram is about the mass of a raisin.",
+        "1 ounce is about the weight of a slice of bread.",
+        "1 pound is about the weight of a loaf of bread.",
+        "1 kilogram is about the mass of a textbook.",
+        "1 ton is about the weight of a small car.",
+      ],
+    },
+  ];
+  return `
+    <section class="lesson-summary unit3-measurement-summary">
+      <p>We can use everyday objects to estimate standard units of measurement.</p>
+      <div class="unit3-measurement-summary-grid">
+        ${groups.map((group) => `
+          <article>
+            <h3>${escapeHtml(group.title)}:</h3>
+            <ul>${group.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3PaperRods() {
+  const rodRow = (color, count, width, label) => `
+    <div class="unit3-paper-rod-row">
+      <span>${escapeHtml(label)}</span>
+      <div class="unit3-paper-rod-line" aria-hidden="true">
+        ${Array.from({ length: count }, () => `<i class="${color}" style="--rod-width:${width}px"></i>`).join("")}
+      </div>
+    </div>
+  `;
+  return `
+    <section class="unit3-paper-rods" aria-label="Compare six-centimeter green rods and nine-centimeter blue rods across the same paper width">
+      <div class="unit3-paper-sheet"><span>printer paper width</span></div>
+      ${rodRow("green", 4, 90, "6 cm green rods")}
+      ${rodRow("blue", 3, 135, "9 cm blue rods")}
+      <p>Both rows span the same paper width. Compare how many copies of each differently sized unit are needed.</p>
+    </section>
+  `;
+}
+
+function unit3StationScaleObject(objectId) {
+  return unit3StationScaleObjects.find((object) => object.id === objectId) || unit3StationScaleObjects[0];
+}
+
+function unit3StationScaleViewedField(objectId, unitId) {
+  return `station4Viewed_${objectId}_${unitId}`;
+}
+
+function unit3StationScaleObjectComplete(response, object) {
+  return unit3StationScaleUnits.every((unit) => response[unit3StationScaleViewedField(object.id, unit.id)] === "yes");
+}
+
+function unit3StationScaleCompleteCount(card) {
+  const response = getTeachCustomResponse(card);
+  return unit3StationScaleObjects.filter((object) => unit3StationScaleObjectComplete(response, object)).length;
+}
+
+function renderUnit3StationBox(card, interactive = true) {
+  const response = getTeachCustomResponse(card);
+  const activeUnit = response.station1ActiveUnit || "inches";
+  const inchViewed = response.station1InchesViewed === "yes";
+  const centimeterViewed = response.station1CentimetersViewed === "yes";
+  const count = activeUnit === "inches" ? 12 : 197;
+  const viewed = activeUnit === "inches" ? inchViewed : centimeterViewed;
+  const cells = viewed ? Array.from({ length: count }, () => "<i></i>").join("") : "";
+  return `
+    <section class="unit3-station-workspace unit3-station-box" aria-label="Virtual box packed with two differently sized cube units">
+      <div class="unit3-station-heading">
+        <div><span class="unit3-workspace-eyebrow">Station 1</span><strong>Volume of one box</strong></div>
+        ${interactive ? `<div class="unit3-station-actions">
+          <button class="page-chip ${activeUnit === "inches" ? "is-active" : ""}" type="button" data-unit3-station-action="box" data-card-id="${card.id}" data-value="inches">Pack with 1 in³ cubes</button>
+          <button class="page-chip ${activeUnit === "centimeters" ? "is-active" : ""}" type="button" data-unit3-station-action="box" data-card-id="${card.id}" data-value="centimeters">Pack with 1 cm³ cubes</button>
+        </div>` : ""}
+      </div>
+      <div class="unit3-cube-box ${activeUnit === "centimeters" ? "is-small-cubes" : "is-large-cubes"}">
+        ${viewed ? cells : `<span>Choose a cube size to pack the box.</span>`}
+      </div>
+      <table class="unit3-station-table">
+        <thead><tr><th>volume of the box</th><th>cubic inches</th><th>cubic centimeters</th></tr></thead>
+        <tbody><tr><th>recorded count</th><td>${inchViewed ? "12" : "—"}</td><td>${centimeterViewed ? "about 197" : "—"}</td></tr></tbody>
+      </table>
+      <p class="unit3-station-note">${viewed ? `${count === 197 ? "About " : ""}${count} ${activeUnit === "inches" ? "cubic-inch" : "cubic-centimeter"} cubes fill the app's virtual box.` : "Pack the same box with both unit sizes."}</p>
+    </section>
+  `;
+}
+
+function renderUnit3StationLength(card, interactive = true) {
+  const response = getTeachCustomResponse(card);
+  const activeUnit = response.station2ActiveUnit || "meters";
+  const metersViewed = response.station2MetersViewed === "yes";
+  const feetViewed = response.station2FeetViewed === "yes";
+  const viewed = activeUnit === "meters" ? metersViewed : feetViewed;
+  const count = activeUnit === "meters" ? 6 : 20;
+  return `
+    <section class="unit3-station-workspace unit3-station-length" aria-label="Measure the same fixed length with meters and feet">
+      <div class="unit3-station-heading">
+        <div><span class="unit3-workspace-eyebrow">Station 2</span><strong>App-assigned hallway length</strong></div>
+        ${interactive ? `<div class="unit3-station-actions">
+          <button class="page-chip ${activeUnit === "meters" ? "is-active" : ""}" type="button" data-unit3-station-action="length" data-card-id="${card.id}" data-value="meters">Measure in meters</button>
+          <button class="page-chip ${activeUnit === "feet" ? "is-active" : ""}" type="button" data-unit3-station-action="length" data-card-id="${card.id}" data-value="feet">Measure in feet</button>
+        </div>` : ""}
+      </div>
+      <div class="unit3-length-track ${viewed ? "is-measured" : ""}" style="--station-ticks:${count}">
+        ${viewed ? Array.from({ length: count }, (_, index) => `<i style="left:${((index + 1) / count) * 100}%"></i>`).join("") : ""}
+        <span>${viewed ? `${count} ${activeUnit}` : "Measure this fixed length from zero."}</span>
+      </div>
+      <table class="unit3-station-table">
+        <thead><tr><th>length of hallway</th><th>meters</th><th>feet</th></tr></thead>
+        <tbody><tr><th>nearest whole unit</th><td>${metersViewed ? "6" : "—"}</td><td>${feetViewed ? "20" : "—"}</td></tr></tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderUnit3StationWater(card, interactive = true) {
+  const response = getTeachCustomResponse(card);
+  const quartPours = clampNumber(Number(response.station3QuartPours) || 0, 0, 4);
+  const literPours = clampNumber(Number(response.station3LiterPours) || 0, 0, 3);
+  const literChecked = response.station3LiterChecked === "yes";
+  const trial = (unit, count, max, checked) => {
+    const isQuart = unit === "quart";
+    const complete = isQuart ? count === 4 : count === 3 && checked;
+    const remaining = isQuart ? Math.max(0, 1 - count / 4) : Math.max(0, 1 - count / 3.785);
+    return `
+      <article class="unit3-water-trial ${complete ? "is-complete" : ""}">
+        <h3>${isQuart ? "Quart bottles" : "Liter bottles"}</h3>
+        <div class="unit3-water-jug"><i style="height:${remaining * 100}%"></i><span>${Math.round(remaining * 100)}% left</span></div>
+        <div class="unit3-water-bottles" aria-label="${count} complete ${unit} bottles">
+          ${Array.from({ length: max }, (_, index) => `<i class="${index < count ? "is-full" : ""}"></i>`).join("")}
+        </div>
+        <p><strong>${count}</strong> complete ${unit} bottle${count === 1 ? "" : "s"}${!isQuart && checked ? "; about 0.8 liter remains" : ""}.</p>
+        ${interactive ? `<div class="unit3-station-actions">
+          <button class="page-chip" type="button" data-unit3-station-action="water-pour" data-card-id="${card.id}" data-value="${unit}" ${complete ? "disabled" : ""}>Pour next ${unit}</button>
+          <button class="hint-button" type="button" data-unit3-station-action="water-reset" data-card-id="${card.id}" data-value="${unit}">Reset trial</button>
+        </div>` : ""}
+      </article>
+    `;
+  };
+  return `
+    <section class="unit3-station-workspace" aria-label="Pour one gallon into quart and liter bottles">
+      <div class="unit3-station-heading"><div><span class="unit3-workspace-eyebrow">Station 3</span><strong>1 gallon of water</strong></div></div>
+      <div class="unit3-water-trials">
+        ${trial("quart", quartPours, 4, quartPours === 4)}
+        ${trial("liter", literPours, 4, literChecked)}
+      </div>
+      <table class="unit3-station-table">
+        <thead><tr><th>1 gallon of water</th><th>quarts</th><th>liters</th></tr></thead>
+        <tbody><tr><th>complete bottles</th><td>${quartPours === 4 ? "4" : "—"}</td><td>${literPours === 3 && literChecked ? "3, with water left" : "—"}</td></tr></tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderUnit3StationScale(card, interactive = true) {
+  const response = getTeachCustomResponse(card);
+  const selected = unit3StationScaleObject(response.station4Object);
+  const activeUnit = unit3StationScaleUnits.some((unit) => unit.id === response.station4Unit) ? response.station4Unit : "pounds";
+  const activeViewed = response[unit3StationScaleViewedField(selected.id, activeUnit)] === "yes";
+  const completeCount = unit3StationScaleCompleteCount(card);
+  const imagePath = `_rendered-previews/Blackline Masters/Grade6-3-B3-2-measurement-stations-measurement-stations/page-${String(selected.page).padStart(3, "0")}.png`;
+  return `
+    <section class="unit3-station-workspace unit3-station-scale" aria-label="Source paper scale with seven selectable objects">
+      <div class="unit3-station-heading"><div><span class="unit3-workspace-eyebrow">Station 4</span><strong>Paper scale</strong></div><span>${completeCount} of 3 required objects recorded</span></div>
+      ${interactive ? `<div class="unit3-scale-object-buttons" role="group" aria-label="Choose a source object">
+        ${unit3StationScaleObjects.map((object) => `<button class="page-chip ${object.id === selected.id ? "is-active" : ""}" type="button" data-unit3-station-action="scale-object" data-card-id="${card.id}" data-value="${object.id}">${escapeHtml(object.label)}</button>`).join("")}
+      </div>` : ""}
+      <div class="unit3-scale-stage">
+        <figure>
+          <img src="${unit3ArtifactUrl(imagePath)}" alt="Exact source paper-scale picture of ${escapeHtml(selected.label)}.">
+          <figcaption>${escapeHtml(selected.label)}</figcaption>
+        </figure>
+        <div class="unit3-scale-readout">
+          <span>${escapeHtml(activeUnit)}</span>
+          <strong>${activeViewed ? escapeHtml(selected[activeUnit]) : "—"}</strong>
+          <p>${activeViewed ? "Reading recorded in the table." : "Choose this unit to read and record the scale."}</p>
+        </div>
+      </div>
+      ${interactive ? `<div class="unit3-scale-unit-buttons" role="group" aria-label="Read the selected object in a unit">
+        ${unit3StationScaleUnits.map((unit) => `<button class="page-chip ${unit.id === activeUnit && activeViewed ? "is-active" : ""}" type="button" data-unit3-station-action="scale-unit" data-card-id="${card.id}" data-value="${unit.id}">${escapeHtml(unit.label)}</button>`).join("")}
+      </div>` : ""}
+      <div class="unit3-station-table-wrap">
+        <table class="unit3-station-table">
+          <thead><tr><th>object</th>${unit3StationScaleUnits.map((unit) => `<th>${escapeHtml(unit.label)}</th>`).join("")}</tr></thead>
+          <tbody>${unit3StationScaleObjects.map((object) => `<tr class="${unit3StationScaleObjectComplete(response, object) ? "is-complete" : ""}"><th>${escapeHtml(object.label)}</th>${unit3StationScaleUnits.map((unit) => `<td>${response[unit3StationScaleViewedField(object.id, unit.id)] === "yes" ? escapeHtml(object[unit.id]) : "—"}</td>`).join("")}</tr>`).join("")}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function unit3StationSaltAmount(card, target) {
+  return clampNumber(Number(getTeachCustomResponse(card)[`station5Amount_${target}`]) || 0, 0, target);
+}
+
+function renderUnit3StationSalt(card, interactive = true) {
+  const response = getTeachCustomResponse(card);
+  const target = [20, 40, 50].includes(Number(response.station5Target)) ? Number(response.station5Target) : 20;
+  const amount = unit3StationSaltAmount(card, target);
+  const teaspoons = amount / 5;
+  return `
+    <section class="unit3-station-workspace unit3-station-salt" aria-label="Measure salt in level teaspoons and milliliters">
+      <div class="unit3-station-heading">
+        <div><span class="unit3-workspace-eyebrow">Station 5</span><strong>Level teaspoons of salt</strong></div>
+        ${interactive ? `<div class="unit3-station-actions">${[20, 40, 50].map((value) => `<button class="page-chip ${target === value ? "is-active" : ""}" type="button" data-unit3-station-action="salt-target" data-card-id="${card.id}" data-value="${value}">${value} mL target</button>`).join("")}</div>` : ""}
+      </div>
+      <div class="unit3-salt-stage">
+        <div class="unit3-graduated-cylinder" aria-label="Graduated cylinder at ${amount} milliliters"><i style="height:${(amount / 50) * 100}%"></i>${[10, 20, 30, 40, 50].map((mark) => `<span style="bottom:${(mark / 50) * 100}%">${mark}</span>`).join("")}</div>
+        <div class="unit3-salt-count"><strong>${teaspoons}</strong><span>level teaspoon${teaspoons === 1 ? "" : "s"}</span><p>${amount} milliliters in the cylinder</p></div>
+      </div>
+      ${interactive ? `<div class="unit3-station-actions unit3-salt-actions">
+        <button class="page-chip" type="button" data-unit3-station-action="salt-add" data-card-id="${card.id}" ${amount >= target ? "disabled" : ""}>Add 1 level teaspoon</button>
+        <button class="page-chip" type="button" data-unit3-station-action="salt-record" data-card-id="${card.id}" ${amount !== target ? "disabled" : ""}>Record ${target} mL</button>
+        <button class="hint-button" type="button" data-unit3-station-action="salt-reset" data-card-id="${card.id}">Pour back / reset</button>
+      </div>` : ""}
+      <table class="unit3-station-table">
+        <thead><tr><th>amount of salt</th><th>milliliters</th><th>teaspoons</th></tr></thead>
+        <tbody>
+          ${[["small", 20], ["medium", 40], ["large", 50]].map(([label, value]) => `<tr><th>${label} amount</th><td>${value}</td><td>${response[`station5Record_${value}`] || "—"}</td></tr>`).join("")}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderUnit3StationReview(card, question) {
+  if (["follow-cube-size", "follow-cube-count"].includes(question.id)) return renderUnit3StationBox(card, false);
+  if (question.id === "follow-length") return renderUnit3StationLength(card, false);
+  if (question.id === "follow-volume") return renderUnit3StationWater(card, false);
+  if (question.id === "follow-weight") return renderUnit3StationScale(card, false);
+  if (question.id.startsWith("follow-salt")) return renderUnit3StationSalt(card, false);
+  return "";
+}
+
+function renderUnit3MeasurementStations(card) {
+  const question = questionSetDefinition(card, questionSetActiveId(card));
+  if (!question) return "";
+  if (question.id === "station-1") return renderUnit3StationBox(card);
+  if (question.id === "station-2") return renderUnit3StationLength(card);
+  if (question.id === "station-3") return renderUnit3StationWater(card);
+  if (question.id === "station-4") return renderUnit3StationScale(card);
+  if (question.id === "station-5") return renderUnit3StationSalt(card);
+  return renderUnit3StationReview(card, question);
+}
+
+function renderUnit3MetricMedicine() {
+  return `
+    <section class="unit3-metric-medicine" aria-label="Metric medication labels">
+      <article><strong>10 mg</strong><span>tablet dose</span></article>
+      <article><strong>5 mL</strong><span>liquid dose</span></article>
+      <article><strong>0.25 g</strong><span>measured mass</span></article>
+      <p>Use the response space to organize reasons a shared measurement system matters in healthcare.</p>
+    </section>
+  `;
+}
+
+function renderUnit3DifferentUnitsSummary() {
+  return `
+    <section class="lesson-summary unit3-different-units-summary">
+      <p>The size of the unit we use to measure something affects the measurement.</p>
+      <p>If we measure the same quantity with different units, it will take more of the smaller unit and fewer of the larger unit to express the measurement. For example, a room that measures 4 yards in length will measure 12 feet.</p>
+      <div class="unit3-yard-foot-model" role="img" aria-label="Four equal yard sections aligned exactly above twelve equal foot sections">
+        <div class="yards">${Array.from({ length: 4 }, () => "<i></i>").join("")}</div>
+        <div class="feet">${Array.from({ length: 12 }, () => "<i></i>").join("")}</div>
+      </div>
+      <p>There are 3 feet in a yard, so one foot is <strong>1/3</strong> of a yard.</p>
+      <ul>
+        <li>It takes 3 times as many feet to measure the same length as it does with yards.</li>
+        <li>It takes 1/3 as many yards to measure the same length as it does with feet.</li>
+      </ul>
+    </section>
+  `;
+}
+
+function renderUnit3FractionNumberTalk() {
+  const prompts = [
+    ["1/4", "32"],
+    ["3/4", "32"],
+    ["3/8", "32"],
+    ["3/8", "64"],
+  ];
+  return `
+    <section class="unit3-fraction-talk" aria-label="Four source fraction expressions">
+      ${prompts.map(([fraction, whole], index) => `
+        <article>
+          <span>Expression ${index + 1}</span>
+          <strong>${fraction}</strong>
+          <b>of ${whole}</b>
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderUnit3RoadTrip() {
+  return `
+    <section class="unit3-road-trip" aria-label="Road sign and kilometer-to-mile relationship">
+      <div class="unit3-speed-sign" role="img" aria-label="Maximum speed 80 road sign">
+        <span>MAXIMUM</span><strong>80</strong>
+      </div>
+      <div class="unit3-conversion-balance">
+        <article><strong>8</strong><span>kilometers</span></article>
+        <b aria-hidden="true">≈</b>
+        <article><strong>5</strong><span>miles</span></article>
+      </div>
+      <p>Elena's mom was driving <strong>75 miles per hour</strong>. Convert both speeds to one unit before comparing them.</p>
+    </section>
+  `;
+}
+
+function renderUnit3VeterinaryWeights(card) {
+  const activeId = questionSetActiveId(card);
+  const subjects = {
+    "fido-weight": ["Fido the Labrador", "88 lb", "? kg"],
+    "spot-weight": ["Spot the Beagle", "33 lb", "? kg"],
+    "bella-weight": ["Bella the Chihuahua", "5 1/2 lb", "? kg"],
+    "medicine-limit": ["Medication limit", "? lb", "25 kg"],
+  };
+  const [label, pounds, kilograms] = subjects[activeId] || subjects["fido-weight"];
+  return `
+    <section class="unit3-veterinary" aria-label="Veterinary weight conversion workspace">
+      <div class="unit3-conversion-balance is-compact">
+        <article><strong>22</strong><span>pounds</span></article>
+        <b aria-hidden="true">=</b>
+        <article><strong>10</strong><span>kilograms</span></article>
+      </div>
+      <article class="unit3-vet-subject">
+        <span>${escapeHtml(label)}</span>
+        <div><strong>${escapeHtml(pounds)}</strong><b aria-hidden="true">↔</b><strong>${escapeHtml(kilograms)}</strong></div>
+      </article>
+      <table aria-label="Scratch conversion table">
+        <thead><tr><th>Pounds</th><th>Kilograms</th></tr></thead>
+        <tbody><tr><td>22</td><td>10</td></tr><tr><td>${escapeHtml(pounds)}</td><td>${escapeHtml(kilograms)}</td></tr></tbody>
+      </table>
+    </section>
+  `;
+}
+
+function renderUnit3TablespoonCells(count = 16) {
+  return Array.from({ length: Math.max(16, count) }, (_, index) => (
+    `<i class="${index < count ? "is-filled" : ""}" aria-hidden="true"></i>`
+  )).join("");
+}
+
+function renderUnit3TablespoonConversion(card) {
+  const activeId = questionSetActiveId(card);
+  const promptData = {
+    almonds: { amount: "1/2 cup", tablespoons: 0, cups: 1 },
+    oatmeal: { amount: "1 1/4 cups", tablespoons: 0, cups: 2 },
+    flour: { amount: "2 3/4 cups", tablespoons: 0, cups: 3 },
+    sugar: { amount: "28 tablespoons", tablespoons: 28, cups: 2 },
+    cocoa: { amount: "6 tablespoons", tablespoons: 6, cups: 1 },
+  };
+  const data = promptData[activeId] || promptData.almonds;
+  return `
+    <section class="unit3-tablespoon-workspace" aria-label="Cup and tablespoon conversion workspace">
+      <div class="unit3-conversion-balance is-compact">
+        <article><strong>1</strong><span>cup</span></article>
+        <b aria-hidden="true">=</b>
+        <article><strong>16</strong><span>tablespoons</span></article>
+      </div>
+      <h3>Measure ${escapeHtml(data.amount)}</h3>
+      <div class="unit3-cup-trays" aria-label="Sixteen-cell cup trays">
+        ${Array.from({ length: data.cups }, (_, index) => `
+          <article>
+            <span>Cup ${index + 1}</span>
+            <div>${renderUnit3TablespoonCells(data.tablespoons ? Math.max(0, Math.min(16, data.tablespoons - index * 16)) : 0)}</div>
+          </article>
+        `).join("")}
+      </div>
+      <p>${data.tablespoons ? "The filled cells show the supplied tablespoons. Group them into cups and parts of a cup." : "Use each 16-cell tray as one cup. Partition or combine the trays to find the requested tablespoons."}</p>
+    </section>
+  `;
+}
+
+function renderUnit3ConversionSummary() {
+  const rows = [
+    ["100", "254"],
+    ["1", "2.54"],
+    ["20", "50.8"],
+  ];
+  const ticks = [
+    [0, 0],
+    [20, 50.8],
+    [40, 101.6],
+    [60, 152.4],
+    [80, 203.2],
+    [100, 254],
+  ];
+  return `
+    <section class="lesson-summary unit3-conversion-summary">
+      <p>When we measure something in two different units, the measurements form an equivalent ratio. We can reason with these equivalent ratios to convert measurements from one unit to another.</p>
+      <p>Suppose you cut off 20 inches of hair. Your Canadian friend asks how many centimeters of hair that was. Since 100 inches equal 254 centimeters, we can use equivalent ratios to find out how many centimeters equal 20 inches.</p>
+      <div class="unit3-conversion-summary-grid">
+        <section>
+          <h3>Using a double number line:</h3>
+          <div class="unit3-conversion-lines" role="img" aria-label="Inches zero through one hundred aligned with centimeters zero through two hundred fifty-four">
+            <span class="is-label">length (in)</span>
+            <div class="is-line">${ticks.map(([inches]) => `<i><b>${inches}</b></i>`).join("")}</div>
+            <span class="is-label">length (cm)</span>
+            <div class="is-line">${ticks.map(([, centimeters]) => `<i><b>${centimeters}</b></i>`).join("")}</div>
+          </div>
+        </section>
+        <section>
+          <h3>Using a table:</h3>
+          <table><thead><tr><th>length (in)</th><th>length (cm)</th></tr></thead><tbody>${rows.map(([inches, centimeters]) => `<tr><td>${inches}</td><td>${centimeters}</td></tr>`).join("")}</tbody></table>
+        </section>
+      </div>
+      <p>One quick way to solve the problem is to start by finding out how many centimeters are in 1 inch. We can then multiply 2.54 and 20 to find that 20 inches equal 50.8 centimeters.</p>
+    </section>
+  `;
+}
+
+function renderUnit3ClosestQuotient() {
+  return `
+    <section class="unit3-closest-quotient" aria-label="Three source division expressions and three benchmark values">
+      <div class="unit3-quotient-expressions">
+        ${["20 ÷ 18", "9 ÷ 20", "7 ÷ 5"].map((expression, index) => `<article><span>Expression ${index + 1}</span><strong>${expression}</strong></article>`).join("")}
+      </div>
+      <div class="unit3-quotient-benchmarks" aria-label="Benchmarks one half, one, and one and one half">
+        <span>1/2</span><span>1</span><span>1 1/2</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3TreadmillRates(card) {
+  const activeId = questionSetActiveId(card);
+  const runners = [
+    { id: "tyler", name: "Tyler", distance: "4,200 meters", time: "30 minutes", questions: ["same-tyler-kiran", "same-mai-tyler", "tyler-rate"] },
+    { id: "kiran", name: "Kiran", distance: "6,300 meters", time: "1/2 hour", questions: ["same-tyler-kiran", "same-kiran-mai", "kiran-rate"] },
+    { id: "mai", name: "Mai", distance: "6.3 kilometers", time: "45 minutes", questions: ["same-kiran-mai", "same-mai-tyler", "mai-rate", "mai-distance-30"] },
+  ];
+  return `
+    <section class="unit3-treadmills" aria-label="Source treadmill workout data">
+      ${runners.map((runner) => `
+        <article class="${runner.questions.includes(activeId) ? "is-active" : ""}">
+          <span class="unit3-runner-icon" aria-hidden="true">${runner.name[0]}</span>
+          <strong>${runner.name}</strong>
+          <b>${runner.distance}</b>
+          <span>in ${runner.time}</span>
+        </article>
+      `).join("")}
+      <p>Convert distances and times to matching units before comparing them.</p>
+    </section>
+  `;
+}
+
+function renderUnit3RunnerGap() {
+  return `
+    <section class="unit3-runner-gap" aria-label="Tyler and Kiran start together and Kiran eventually leads by one kilometer">
+      <div class="unit3-runner-start"><span>Start together</span><i></i></div>
+      <div class="unit3-runner-track is-kiran"><strong>Kiran</strong><span>6,300 m in 1/2 hour</span><i></i></div>
+      <div class="unit3-runner-track is-tyler"><strong>Tyler</strong><span>4,200 m in 30 minutes</span><i></i></div>
+      <div class="unit3-gap-target"><span>Target difference</span><strong>1 kilometer</strong></div>
+    </section>
+  `;
+}
+
+function renderUnit3CompareRatesSummary() {
+  return `
+    <section class="lesson-summary unit3-compare-rates-summary">
+      <p>Diego ran 3 kilometers in 20 minutes. Andre ran 2,550 meters in 17 minutes. Who ran faster? Since neither their distances nor their times are the same, we have two possible strategies:</p>
+      <ul>
+        <li>Find the time each person took to travel the <em>same distance</em>. The person who traveled that distance in less time is faster.</li>
+        <li>Find the distance each person traveled in the <em>same time</em>. The person who traveled a longer distance in the same amount of time is faster.</li>
+      </ul>
+      <p>It is often helpful to compare distances traveled in <em>1 unit</em> of time (1 minute, for example), which means finding the speed such as meters per minute.</p>
+      <p>Let's compare Diego and Andre's speeds in meters per minute.</p>
+      <div class="unit3-rate-table-pair">
+        <table aria-label="Diego's distance and time"><thead><tr><th>distance<br>(meters)</th><th>time<br>(minutes)</th></tr></thead><tbody><tr><td>3,000</td><td>20</td></tr><tr><td>1,500</td><td>10</td></tr><tr><td>150</td><td>1</td></tr></tbody></table>
+        <table aria-label="Andre's distance and time"><thead><tr><th>distance<br>(meters)</th><th>time<br>(minutes)</th></tr></thead><tbody><tr><td>2,550</td><td>17</td></tr><tr><td>150</td><td>1</td></tr></tbody></table>
+      </div>
+      <p>Both Diego and Andre ran 150 meters per minute, so they ran at the same speed.</p>
+      <p>Finding ratios that tell us how much of quantity <em>A</em> per 1 unit of quantity <em>B</em> is an efficient way to compare rates in different situations. Here are some familiar examples:</p>
+      <ul><li>Car speeds in <em>miles per hour</em>.</li><li>Fruit and vegetable prices in <em>dollars per pound</em>.</li></ul>
+    </section>
+  `;
+}
+
+function renderUnit3PerLanguage() {
+  return `
+    <section class="unit3-per-language" aria-label="Two blank something-per-something structures">
+      <article><span>something</span><strong>per</strong><span>something</span></article>
+      <article><span>something</span><strong>per</strong><span>something</span></article>
+      <p>The word <strong>per</strong> connects two quantities. Your examples can come from any familiar context.</p>
+    </section>
+  `;
+}
+
+function renderUnit3OatmealRates(card) {
+  const activeId = questionSetActiveId(card);
+  const highlightPriya = ["oatmeal-who", "diego-oats", "diego-rate"].includes(activeId);
+  const highlightHan = ["oatmeal-who", "lin-water", "lin-rate"].includes(activeId);
+  return `
+    <section class="unit3-oatmeal-rates" aria-label="Oatmeal recipe and its two unit rates">
+      <div class="unit3-oatmeal-batch">
+        <span>Large batch</span>
+        <strong>15 cups water</strong>
+        <b>with</b>
+        <strong>6 cups oats</strong>
+      </div>
+      <div class="unit3-oatmeal-claims">
+        <article class="${highlightPriya ? "is-active" : ""}">
+          <span>Priya</span>
+          <strong>6 : 15</strong>
+          <p>0.4 cup oats per cup water</p>
+        </article>
+        <article class="${highlightHan ? "is-active" : ""}">
+          <span>Han</span>
+          <strong>15 : 6</strong>
+          <p>2.5 cups water per cup oats</p>
+        </article>
+      </div>
+      <table aria-label="Source oatmeal ratio table"><thead><tr><th>water (cups)</th><th>oats (cups)</th></tr></thead><tbody><tr><td>15</td><td>6</td></tr><tr><td>1</td><td></td></tr><tr><td></td><td>1</td></tr></tbody></table>
+    </section>
+  `;
+}
+
+function renderUnit3UnitRateContexts(card) {
+  const activeId = questionSetActiveId(card);
+  const contexts = [
+    { label: "Cheesecake", amountA: "12 oz cream cheese", amountB: "15 oz sugar", ids: ["cream-per-sugar", "sugar-per-cream", "cheesecake-extra"] },
+    { label: "Milk", amountA: "10 gallons", amountB: "6 weeks", ids: ["gallons-per-week", "weeks-per-gallon", "milk-three-gallons"] },
+    { label: "Raffle tickets", amountA: "$16", amountB: "4 tickets", ids: ["price-per-ticket", "tickets-per-dollar", "thousand-tickets"] },
+  ];
+  return `
+    <section class="unit3-unit-rate-contexts" aria-label="Three source unit-rate situations">
+      ${contexts.map((context) => `
+        <article class="${context.ids.includes(activeId) ? "is-active" : ""}">
+          <span>${context.label}</span>
+          <div><strong>${context.amountA}</strong><b>for</b><strong>${context.amountB}</strong></div>
+        </article>
+      `).join("")}
+      <p>Each situation has two useful unit rates. Keep the requested quantity order when you divide.</p>
+    </section>
+  `;
+}
+
+function renderUnit3RaffleDeal() {
+  return `
+    <section class="unit3-raffle-deal" aria-label="Normal raffle ticket price for comparison">
+      <span>Normal price</span>
+      <div><strong>4 tickets</strong><b>for</b><strong>$16</strong></div>
+      <p>$4 per ticket</p>
+      <div class="unit3-raffle-arrow" aria-hidden="true">compare with your deal</div>
+    </section>
+  `;
+}
+
+function renderUnit3InterpretingRatesSummary() {
+  return `
+    <section class="lesson-summary unit3-interpreting-rates-summary">
+      <p>Suppose a farm lets us pick 2 pounds of blueberries for 5 dollars. We can say:</p>
+      <div class="unit3-blueberry-summary-intro">
+        <table aria-label="Blueberry price ratio and both unit rates"><thead><tr><th>blueberries<br>(pounds)</th><th>price<br>(dollars)</th></tr></thead><tbody><tr><td>2</td><td>5</td></tr><tr><td>1</td><td>5/2</td></tr><tr><td>2/5</td><td>1</td></tr></tbody></table>
+        <ul>
+          <li>We get <strong>2/5 pound of blueberries per dollar</strong>.</li>
+          <li>The blueberries cost <strong>5/2 dollars per pound</strong>.</li>
+        </ul>
+      </div>
+      <p>The “cost per pound” and the “number of pounds per dollar” are the two <em>unit rates</em> for this situation.</p>
+      <p>A unit rate tells us how much of one quantity for 1 of the other quantity. Each of these numbers is useful in the right situation.</p>
+      <div class="unit3-blueberry-summary-use">
+        <article>
+          <p>If we want to find out how much 8 pounds of blueberries will cost, it helps to know how much 1 pound of blueberries will cost.</p>
+          <table aria-label="Using dollars per pound"><thead><tr><th>blueberries<br>(pounds)</th><th>price<br>(dollars)</th></tr></thead><tbody><tr><td>1</td><td>5/2</td></tr><tr><td>8</td><td>8 × 5/2</td></tr></tbody></table>
+        </article>
+        <article>
+          <p>If we want to find out how many pounds we can buy for 10 dollars, it helps to know how many pounds we can buy for 1 dollar.</p>
+          <table aria-label="Using pounds per dollar"><thead><tr><th>blueberries<br>(pounds)</th><th>price<br>(dollars)</th></tr></thead><tbody><tr><td>2/5</td><td>1</td></tr><tr><td>10 × 2/5</td><td>10</td></tr></tbody></table>
+        </article>
+      </div>
+      <p><strong>Which unit rate is most useful depends on what question we want to answer, so be ready to find either one!</strong></p>
+    </section>
+  `;
+}
+
+function renderUnit3SpeedWodb() {
+  return `
+    <section class="unit3-speed-wodb" aria-label="Four source rates to compare">
+      <article><strong>5 miles</strong><span>in 15 minutes</span></article>
+      <article><strong>20 miles</strong><span>per hour</span></article>
+      <article><strong>3 minutes</strong><span>per mile</span></article>
+      <article><strong>32 kilometers</strong><span>per hour</span></article>
+    </section>
+  `;
+}
+
+function renderUnit3BurritoRates(card) {
+  const activeId = questionSetActiveId(card);
+  const rows = [
+    ["2", "$14", "$7", "given"],
+    ["4", "$28", "$7", "burrito-four"],
+    ["5", "$35", "$7", "burrito-five"],
+    ["10", "$70", "$7", "burrito-ten"],
+    ["b", "$7b", "$7", "burrito-symbolic"],
+  ];
+  return `
+    <section class="unit3-rate-table-workspace" aria-label="Equivalent burrito ratios and unit prices">
+      <table><thead><tr><th>number of burritos</th><th>cost (dollars)</th><th>cost per burrito</th></tr></thead><tbody>
+        ${rows.map(([count, cost, rate, id]) => `<tr class="${id === activeId ? "is-active" : ""}"><td>${count}</td><td>${cost}</td><td>${rate}</td></tr>`).join("")}
+      </tbody></table>
+      <p>Every completed row must preserve the same cost per burrito.</p>
+    </section>
+  `;
+}
+
+function renderUnit3EquivalentRateTables(card) {
+  const activeId = questionSetActiveId(card);
+  const braceletRows = [["2", "12", "given"], ["5", "30", "bracelets-five"], ["7", "42", "bracelets-seven"], ["11", "66", "bracelets-sixty-six"], ["16 2/3", "100", "bracelets-hundred"]];
+  const burritoRows = [["2", "$14", "burritos-fourteen"], ["4", "$28", "burritos-twenty-eight"], ["5", "$35", "burritos-five-again"], ["10", "$70", "burritos-ten-again"]];
+  const table = (label, first, second, rows) => `
+    <article><h3>${label}</h3><table><thead><tr><th>${first}</th><th>${second}</th></tr></thead><tbody>${rows.map(([a, b, id]) => `<tr class="${id === activeId ? "is-active" : ""}"><td>${a}</td><td>${b}</td></tr>`).join("")}</tbody></table></article>`;
+  return `
+    <section class="unit3-equivalent-rate-tables">
+      ${table("Bracelets", "time (hours)", "bracelets made", braceletRows)}
+      ${table("Burritos", "number of burritos", "cost (dollars)", burritoRows)}
+    </section>
+  `;
+}
+
+function renderUnit3ApplesauceRates(card) {
+  const activeId = questionSetActiveId(card);
+  const rows = [["4", "6", "given"], ["7", "10 1/2", "apples-seven"], ["10", "15", "apples-ten"], ["6", "9", "sauce-nine"], ["13 1/3", "20", "sauce-twenty"]];
+  return `
+    <section class="unit3-rate-table-workspace" aria-label="Equivalent apple and applesauce ratios">
+      <table><thead><tr><th>apples (pounds)</th><th>applesauce (cups)</th></tr></thead><tbody>${rows.map(([pounds, cups, id]) => `<tr class="${id === activeId ? "is-active" : ""}"><td>${pounds}</td><td>${cups}</td></tr>`).join("")}</tbody></table>
+      <p>The two unit rates are 1.5 cups per pound and 2/3 pound per cup.</p>
+    </section>
+  `;
+}
+
+function renderUnit3CombinedRates(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-combined-rates">
+      <article class="${activeId === "ice-cream-scoops" ? "is-active" : ""}"><h3>Ice cream cones</h3><p><strong>Jada:</strong> 2 cones in 5 minutes</p><p><strong>Noah:</strong> 3 cones in 5 minutes</p></article>
+      <article class="${activeId === "pool-hoses" ? "is-active" : ""}"><h3>Pool hoses</h3><p><strong>Hose A:</strong> 5 gallons in 2 minutes</p><p><strong>Hose B:</strong> 10 gallons in 8 minutes</p><p><strong>Pool:</strong> 750 gallons</p></article>
+    </section>
+  `;
+}
+
+function renderUnit3EquivalentRatesSummary() {
+  return `
+    <section class="lesson-summary unit3-equivalent-rates-summary">
+      <p>Suppose apples cost $2.50 per pound. Each equivalent ratio of pounds of apples to price has the same price per pound:</p>
+      <table aria-label="Equivalent apple-price ratios and dollars per pound"><thead><tr><th>apples (pounds)</th><th>price (dollars)</th><th>price per pound</th></tr></thead><tbody><tr><td>4</td><td>10</td><td>10 ÷ 4 = 2.50</td></tr><tr><td>8</td><td>20</td><td>20 ÷ 8 = 2.50</td></tr><tr><td>20</td><td>50</td><td>50 ÷ 20 = 2.50</td></tr></tbody></table>
+      <p>We can reverse the quotient. Every equivalent ratio also has the same pounds per dollar:</p>
+      <table aria-label="Equivalent apple-price ratios and pounds per dollar"><thead><tr><th>apples (pounds)</th><th>price (dollars)</th><th>pounds per dollar</th></tr></thead><tbody><tr><td>4</td><td>10</td><td>4 ÷ 10 = 0.4</td></tr><tr><td>8</td><td>20</td><td>8 ÷ 20 = 0.4</td></tr><tr><td>20</td><td>50</td><td>20 ÷ 50 = 0.4</td></tr></tbody></table>
+      <p>In general, if one ratio is <em>a:b</em>, scaling both quantities by the same nonzero number <em>s</em> preserves both unit rates:</p>
+      <table aria-label="General equivalent ratios and unit rates"><thead><tr><th>quantity x</th><th>quantity y</th><th>x per y</th><th>y per x</th></tr></thead><tbody><tr><td>a</td><td>b</td><td>a/b</td><td>b/a</td></tr><tr><td>s · a</td><td>s · b</td><td>(s · a)/(s · b) = a/b</td><td>(s · b)/(s · a) = b/a</td></tr></tbody></table>
+      <p><strong>Equivalent ratios have equal unit rates.</strong></p>
+    </section>
+  `;
+}
+
+function renderUnit3TreadmillAgain(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-treadmill-again">
+      <div class="unit3-treadmill-belt" aria-hidden="true"><span>constant rate</span></div>
+      <table aria-label="Andre's dad treadmill distance and time"><thead><tr><th>distance (miles)</th><th>time (minutes)</th></tr></thead><tbody><tr><td>12</td><td>75</td></tr><tr class="${activeId === "treadmill-eight" ? "is-active" : ""}"><td>8</td><td>?</td></tr><tr class="${activeId === "treadmill-thirty" ? "is-active" : ""}"><td>?</td><td>30</td></tr></tbody></table>
+    </section>
+  `;
+}
+
+function renderUnit3RailTrail(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-rail-trail" aria-label="Kiran and Clare walking toward each other on a 24-mile trail">
+      <div class="unit3-trail-labels"><strong>Kiran</strong><span>24 miles apart at 8:00 a.m.</span><strong>Clare</strong></div>
+      <div class="unit3-trail-line"><i class="is-kiran"></i><i class="is-clare"></i></div>
+      <div class="unit3-trail-rates"><span>3 miles per hour →</span><span>← 3.4 miles per hour</span></div>
+      <p class="${activeId === "trail-kiran-claim" ? "is-active" : ""}">The distance between them closes at <strong>6.4 miles per hour</strong>.</p>
+    </section>
+  `;
+}
+
+function renderUnit3RailTrailExtensions(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-rail-extensions">
+      <article class="${activeId === "trail-dog" ? "is-active" : ""}"><h3>Running dog</h3><div class="unit3-dog-path">Kiran ⇄ dog ⇄ Clare</div><p>6 miles per hour until the friends meet</p></article>
+      <article class="${activeId === "trail-twice-speed" ? "is-active" : ""}"><h3>New speed relationship</h3><div class="unit3-ratio-path"><span>2 equal distance parts</span><span>1 equal distance part</span></div><p>Kiran jogs twice as fast as Clare walks.</p></article>
+    </section>
+  `;
+}
+
+function renderUnit3SwimmingBiking(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-swim-bike">
+      <div class="unit3-swim-bike-rates">
+        <article><strong>Jada biking</strong><span>2 miles in 12 minutes</span></article>
+        <article><strong>Cousin swimming</strong><span>1 mile in 24 minutes</span></article>
+      </div>
+      <div class="unit3-opposite-track ${activeId.startsWith("opposite-") ? "is-active" : ""}" aria-label="Jada and her cousin start together and move in opposite directions"><span>← cousin swims</span><i></i><span>Jada bikes →</span></div>
+    </section>
+  `;
+}
+
+function renderUnit3SpeedPaceSummary() {
+  return `
+    <section class="lesson-summary unit3-speed-pace-summary">
+      <p>When two objects move at constant speed and their distance-to-time ratios are equivalent, they are moving at the same speed. If those ratios are not equivalent, their speeds are different.</p>
+      <div class="unit3-speed-pace-columns">
+        <article><h3>Speed: distance per unit of time</h3><ul><li>A snail crawling 5 centimeters in 2 minutes travels 2.5 centimeters per minute.</li><li>A toddler walking 9 feet in 6 seconds travels 1.5 feet per second.</li><li>A cyclist biking 20 kilometers in 2 hours travels 10 kilometers per hour.</li></ul></article>
+        <article><h3>Pace: time per unit of distance</h3><ul><li>The snail's pace is 0.4 minute per centimeter.</li><li>The toddler's pace is 2/3 second per foot.</li><li>The cyclist's pace is 0.1 hour per kilometer.</li></ul></article>
+      </div>
+      <p><strong>Speed and pace are reciprocals.</strong> Both can compare motion. A higher speed is faster because more distance is traveled in the same time. A greater pace is slower because more time is needed for the same distance.</p>
+      <p>Because speed is distance per 1 unit of time, multiply elapsed time by speed to find distance traveled.</p>
+      <table aria-label="Using speed to find distance"><thead><tr><th>time (minutes)</th><th>distance (centimeters)</th></tr></thead><tbody><tr><td>2</td><td>5</td></tr><tr><td>1</td><td>2.5</td></tr><tr><td>4</td><td>10</td></tr></tbody></table>
+    </section>
+  `;
+}
+
+function renderUnit3HundredGrids(card) {
+  const activeId = questionSetActiveId(card);
+  const grids = [
+    { id: "grid-a", label: "A", shaded: (row, column) => row < 5 && column < 5 },
+    { id: "grid-b", label: "B", shaded: (_row, column) => column === 0 },
+    { id: "grid-c", label: "C", shaded: (row, column) => row >= 5 || (row < 5 && column < 5) },
+  ];
+  return `
+    <section class="unit3-hundred-grids" aria-label="Three source ten-by-ten shaded grids">
+      ${grids.map((grid) => `
+        <figure class="${activeId === grid.id ? "is-active" : ""}">
+          <div class="unit3-hundred-grid" aria-label="Grid ${grid.label}">
+            ${Array.from({ length: 100 }, (_, index) => {
+              const row = Math.floor(index / 10);
+              const column = index % 10;
+              return `<span class="${grid.shaded(row, column) ? "is-shaded" : ""}"></span>`;
+            }).join("")}
+          </div>
+          <figcaption>${grid.label}</figcaption>
+        </figure>
+      `).join("")}
+    </section>
+  `;
+}
+
+const unit3DealCardData = [
+  { id: "deal-a", letter: "A", title: "Drink Pack", original: "4 for $3.16", offer: "3 for $2.25" },
+  { id: "deal-b", letter: "B", title: "Juice Boxes", original: "10 for $3.50", offer: "6 for $2.40" },
+  { id: "deal-c", letter: "C", title: "Granola Bars", original: "5 for $4.40", offer: "4 for $3.12" },
+  { id: "deal-d", letter: "D", title: "Hummus", original: "16 for $14.40", offer: "10 for $9.00" },
+  { id: "deal-e", letter: "E", title: "Yogurt", original: "8 for $6.80", offer: "6 for $5.22" },
+];
+
+function renderUnit3DealCards(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-deal-cards" aria-label="Complete source offer-card set A through E">
+      ${unit3DealCardData.map((deal) => {
+        const question = card.questions.find((item) => item.id === deal.id);
+        const status = questionSetStatus(card, question);
+        return `
+          <article class="${activeId === deal.id ? "is-active" : ""} ${status.className}">
+            <header><span>Card ${deal.letter}</span><strong>${deal.title}</strong></header>
+            <dl><div><dt>Original</dt><dd>${deal.original}</dd></div><div><dt>New Deal</dt><dd>${deal.offer}</dd></div></dl>
+            <p>${status.text}</p>
+          </article>
+        `;
+      }).join("")}
+    </section>
+  `;
+}
+
+function renderUnit3FruitSnackDeal() {
+  return `
+    <section class="unit3-fruit-snack-deal" aria-label="Source Card F fruit snack offer">
+      <span>Card F</span>
+      <h3>Fruit Snacks</h3>
+      <div><strong>Original</strong><b>12 for $9.12</b></div>
+      <div><strong>Your New Deal</strong><b>9 for $_____</b></div>
+      <p>Choose a price near enough to a fair value that another group must investigate the unit rate.</p>
+    </section>
+  `;
+}
+
+function renderUnit3AnimalDistances(card) {
+  const activeId = questionSetActiveId(card);
+  const animals = [
+    ["cougar", "1,408 yards"],
+    ["antelope", "1 mile"],
+    ["hare", "49,632 inches"],
+    ["kangaroo", "1,073 meters"],
+    ["ostrich", "1.15 kilometers"],
+    ["coyote", "3,773 feet"],
+  ];
+  return `
+    <section class="unit3-animal-distances">
+      <div>
+        <h3>One-minute sprint results</h3>
+        <table aria-label="Source animal sprint distances"><thead><tr><th>animal</th><th>sprint distance</th></tr></thead><tbody>${animals.map(([animal, distance]) => `<tr><td>${animal}</td><td>${distance}</td></tr>`).join("")}</tbody></table>
+      </div>
+      <aside class="${activeId === "animal-rankings" ? "is-active" : ""}">
+        <h3>Source conversion</h3>
+        <p><strong>1 inch = 2.54 centimeters</strong></p>
+        <p>Use one common unit for every animal. Additional conversion facts are available in the hint.</p>
+      </aside>
+    </section>
+  `;
+}
+
+function renderUnit3RateProblemsSummary() {
+  return `
+    <section class="lesson-summary unit3-rate-problems-summary">
+      <p>Sometimes we can find and use more than one unit rate to solve a problem.</p>
+      <p>Suppose a grocery store is having a sale on shredded cheese. A small bag that holds 8 ounces is sold for $2. A large bag that holds 2 kilograms is sold for $16. How do you know which is a better deal?</p>
+      <p>Here are two different ways to solve this problem:</p>
+      <div class="unit3-cheese-methods">
+        <article>
+          <h3>Compare dollars per kilogram.</h3>
+          <ul>
+            <li>The large bag costs <strong>$8 per kilogram</strong>, because 16 ÷ 2 = 8.</li>
+            <li>The small bag holds <strong>1/2 pound</strong> of cheese, because there are 16 ounces in 1 pound, and 8 ÷ 16 = 1/2.</li>
+            <li>The small bag costs <strong>$4 per pound</strong>, because 2 ÷ 1/2 = 4. This is about <strong>$8.80 per kilogram</strong>, because there are about 2.2 pounds in 1 kilogram, and 4.00 · 2.2 = 8.80.</li>
+          </ul>
+          <p>The large bag is a better deal, because it costs less money for the same amount of cheese.</p>
+        </article>
+        <article>
+          <h3>Compare ounces per dollar.</h3>
+          <ul>
+            <li>With the small bag, we get <strong>4 ounces per dollar</strong>, because 8 ÷ 2 = 4.</li>
+            <li>The large bag holds <strong>2,000 grams</strong> of cheese. There are 1,000 grams in 1 kilogram, and 2 · 1,000 = 2,000. This means <strong>125 grams per dollar</strong>, because 2,000 ÷ 16 = 125.</li>
+            <li>There are about 28.35 grams in 1 ounce, and 125 ÷ 28.35 ≈ 4.4, so this is about <strong>4.4 ounces per dollar</strong>.</li>
+          </ul>
+          <p>The large bag is a better deal, because you get more cheese for the same amount of money.</p>
+        </article>
+      </div>
+      <p><strong>Another way to solve the problem would be to compare the unit prices of each bag in dollars per ounce. Try it!</strong></p>
+    </section>
+  `;
+}
+
+function renderUnit3DollarsAndCents(card) {
+  const activeId = questionSetActiveId(card);
+  const facts = [
+    ["$1", "100¢", "cents-dollar"],
+    ["$0.25", "25¢", "sticker-dollars"],
+    ["$1.50", "150¢", "pen-cents"],
+    ["$0.01", "1¢", "dollars-cent"],
+  ];
+  return `
+    <section class="unit3-money-equivalences" aria-label="Dollar and cent equivalences">
+      ${facts.map(([dollars, cents, id]) => `<div class="${activeId === id ? "is-active" : ""}"><strong>${dollars}</strong><span>=</span><strong>${cents}</strong></div>`).join("")}
+      <p>Each cent is one of 100 equal parts of a dollar.</p>
+    </section>
+  `;
+}
+
+function renderUnit3Coins(card) {
+  const activeId = questionSetActiveId(card);
+  const coinValues = [["penny", "1¢"], ["nickel", "5¢"], ["dime", "10¢"], ["quarter", "25¢"], ["half dollar", "50¢"], ["dollar", "100¢"]];
+  return `
+    <section class="unit3-coins-visual">
+      <figure>
+        <img src="${encodeURI("artifacts/unit 3/_teachme-crops/lesson-10-us-coins.png")}" width="620" height="130" alt="Source photographs of a penny, nickel, dime, quarter, half-dollar coin, and dollar coin in that order." loading="lazy">
+        <figcaption>Source coins, ordered to match the app table below.</figcaption>
+      </figure>
+      <div class="unit3-coin-value-table ${activeId === "coin-values" || activeId === "coin-matches" ? "is-active" : ""}" aria-label="Coin names and values">
+        ${coinValues.map(([name, value]) => `<div><span>${name}</span><strong>${value}</strong></div>`).join("")}
+      </div>
+      <div class="unit3-quarter-ratio ${activeId === "six-dimes" || activeId === "six-quarters" ? "is-active" : ""}"><span>1 quarter</span><i style="--coin-ratio: 25%">25¢</i><span>1 dollar</span><i style="--coin-ratio: 100%">100¢</i></div>
+      <p>The value of a quarter is 25% of the value of a dollar because there are 25 cents for every 100 cents.</p>
+    </section>
+  `;
+}
+
+function renderUnit3CoinSets() {
+  const coins = [["penny", 1], ["nickel", 5], ["dime", 10], ["quarter", 25], ["half dollar", 50], ["dollar", 100]];
+  return `
+    <section class="unit3-coin-set-guide">
+      <h3>Two separate 120-cent sets</h3>
+      <div class="unit3-coin-set-rules"><span><strong>Set A</strong> = 120¢</span><span><strong>Set B</strong> = 120¢</span></div>
+      <div class="unit3-coin-denominations">${coins.map(([name, value]) => `<div><strong>${name}</strong><span>${value}¢ each</span></div>`).join("")}</div>
+      <p>Use 0 for an unused denomination. Any one denomination may appear in Set A or Set B, but not both.</p>
+    </section>
+  `;
+}
+
+function renderUnit3CoinNumberLine(card) {
+  const activeId = questionSetActiveId(card);
+  const dollarValues = ["$0", "$0.25", "$0.50", "$0.75", "$1.00", "$1.25", "$1.50"];
+  const percentValues = ["0%", "25%", "50%", "75%", "100%", "125%", "150%"];
+  return `
+    <section class="unit3-percentage-number-line ${activeId ? `is-${activeId}` : ""}" aria-label="Double number line aligning dollar values with percentages of one dollar">
+      <p><strong>$1.00</strong> is worth <strong>100%</strong> of a dollar.</p>
+      <div class="unit3-double-line-row"><strong>value of coins (dollars)</strong><div>${dollarValues.map((value, index) => `<span class="${index === 4 ? "is-anchor" : ""}">${value}</span>`).join("")}</div></div>
+      <div class="unit3-double-line-row"><strong>percentage of a dollar</strong><div>${percentValues.map((value, index) => `<span class="${index === 4 ? "is-anchor" : ""}">${value}</span>`).join("")}</div></div>
+    </section>
+  `;
+}
+
+function renderUnit3PercentageSummary() {
+  const dollars = ["$0", "$2.50", "$5.00", "$7.50", "$10.00", "$12.50", "$15.00"];
+  const percents = ["0%", "25%", "50%", "75%", "100%", "125%", "150%"];
+  return `
+    <section class="lesson-summary unit3-percentage-summary">
+      <p>A <strong>percentage</strong> is a <em>rate per 100</em>.</p>
+      <p>We can find percentages of $10 using a double number line where 10 and 100% are aligned, as shown here:</p>
+      <div class="unit3-percentage-number-line" aria-label="Double number line aligning dollar amounts with percentages of ten dollars">
+        <div class="unit3-double-line-row"><strong>money (dollars)</strong><div>${dollars.map((value, index) => `<span class="${index === 4 ? "is-anchor" : ""}">${value}</span>`).join("")}</div></div>
+        <div class="unit3-double-line-row"><strong>percentage</strong><div>${percents.map((value, index) => `<span class="${index === 4 ? "is-anchor" : ""}">${value}</span>`).join("")}</div></div>
+      </div>
+      <p>Looking at the double number line, we can see that <strong>$5.00 is 50% of $10.00</strong> and that <strong>$12.50 is 125% of $10.00</strong>.</p>
+    </section>
+  `;
+}
+
+function renderUnit3PercentLine({ topLabel, bottomLabel, topValues, bottomValues, anchors = [] }) {
+  const count = Math.max(topValues.length, bottomValues.length);
+  const row = (label, values) => `
+    <div class="unit3-percent-line-row">
+      <strong>${escapeHtml(label)}</strong>
+      <div style="--unit3-percent-ticks: ${count}">${Array.from({ length: count }, (_, index) => `<span class="${anchors.includes(index) ? "is-anchor" : ""}">${escapeHtml(values[index] || "")}</span>`).join("")}</div>
+    </div>`;
+  return `<div class="unit3-percent-line">${row(topLabel, topValues)}${row(bottomLabel, bottomValues)}</div>`;
+}
+
+function renderUnit3FundraisingPercent(card) {
+  const revealJada = isTeachQuestionSubmitted(card, "jada-fundraising") && questionSetQuestionIsCorrect(card, card.questions.find((question) => question.id === "jada-fundraising"));
+  const revealAndre = isTeachQuestionSubmitted(card, "andre-fundraising") && questionSetQuestionIsCorrect(card, card.questions.find((question) => question.id === "andre-fundraising"));
+  return `
+    <section class="unit3-percent-workspace">
+      <h3>Fundraising goal: $40</h3>
+      ${renderUnit3PercentLine({ topLabel: "money raised", bottomLabel: "percentage of goal", topValues: ["$0", revealJada ? "$20" : "?", "$40", revealAndre ? "$60" : "?"], bottomValues: ["0%", "50%", "100%", "150%"], anchors: [2] })}
+      <p>The $40 goal is the whole, so it aligns with 100%.</p>
+    </section>
+  `;
+}
+
+function renderUnit3BikingPercent(card) {
+  const correct = (id) => {
+    const question = card.questions.find((item) => item.id === id);
+    return isTeachQuestionSubmitted(card, id) && questionSetQuestionIsCorrect(card, question);
+  };
+  const topValues = ["0", "", "", correct("sunday-distance") ? "6" : "?", "8", correct("monday-distance") ? "10" : "?", ""];
+  return `
+    <section class="unit3-percent-workspace">
+      <h3>Elena's Saturday distance is 8 miles.</h3>
+      ${renderUnit3PercentLine({ topLabel: "distance (miles)", bottomLabel: "percentage", topValues, bottomValues: ["0%", "25%", "50%", "75%", "100%", "125%", "150%"], anchors: [4] })}
+      <p>Equal horizontal intervals represent equal 25% changes.</p>
+    </section>
+  `;
+}
+
+function renderUnit3PuppyPercent(card) {
+  const activeId = questionSetActiveId(card);
+  const puppyLine = ({ owner, percent, answer, questionId }) => {
+    const submitted = isTeachQuestionSubmitted(card, questionId);
+    const question = card.questions.find((item) => item.id === questionId);
+    const reveal = submitted && questionSetQuestionIsCorrect(card, question);
+    const top = Array(11).fill("");
+    const bottom = Array(11).fill("");
+    top[0] = "0";
+    top[percent / 10] = "9";
+    top[10] = reveal ? String(answer) : "?";
+    bottom[0] = "0%";
+    bottom[percent / 10] = `${percent}%`;
+    bottom[10] = "100%";
+    return `<article class="${activeId === questionId || activeId === "puppy-compare" ? "is-active" : ""}"><h3>${owner}'s puppy</h3>${renderUnit3PercentLine({ topLabel: "weight (pounds)", bottomLabel: "percentage of adult weight", topValues: top, bottomValues: bottom, anchors: [percent / 10, 10] })}</article>`;
+  };
+  return `<section class="unit3-puppy-lines">${puppyLine({ owner: "Jada", percent: 20, answer: 45, questionId: "jada-puppy" })}${puppyLine({ owner: "Andre", percent: 30, answer: 30, questionId: "andre-puppy" })}</section>`;
+}
+
+function renderUnit3BreadPercent(card) {
+  const breadQuestion = card.questions.find((question) => question.id === "bread-percent");
+  const wageQuestion = card.questions.find((question) => question.id === "income-1955");
+  const breadCorrect = isTeachQuestionSubmitted(card, breadQuestion.id) && questionSetQuestionIsCorrect(card, breadQuestion);
+  const wageCorrect = isTeachQuestionSubmitted(card, wageQuestion.id) && questionSetQuestionIsCorrect(card, wageQuestion);
+  return `
+    <section class="unit3-bread-percent">
+      <article><span>1955 bread</span><strong>$0.20</strong><b>${breadCorrect ? "8%" : "?%"}</b></article>
+      <article><span>Today's bread</span><strong>$2.50</strong><b>100%</b></article>
+      <article><span>1955 wage</span><strong>${wageCorrect ? "$0.80" : "$?"}</strong><b>${breadCorrect ? "8%" : "?%"}</b></article>
+      <article><span>Today's wage</span><strong>$10.00</strong><b>100%</b></article>
+    </section>
+  `;
+}
+
+function renderUnit3PercentageLinesSummary() {
+  const firstWeights = Array.from({ length: 11 }, (_, index) => String(index * 5));
+  const firstPercents = Array.from({ length: 11 }, (_, index) => `${index * 10}%`);
+  const secondMoney = Array.from({ length: 15 }, (_, index) => String(index * 2));
+  const secondPercents = Array.from({ length: 15 }, (_, index) => `${index * 10}%`);
+  return `
+    <section class="lesson-summary unit3-percentage-lines-summary">
+      <section>
+        <p>We can use a double number line to solve problems about percentages. For example, what is 30% of 50 pounds? We can draw a double number line like this:</p>
+        ${renderUnit3PercentLine({ topLabel: "weight (pounds)", bottomLabel: "percentage", topValues: firstWeights, bottomValues: firstPercents, anchors: [3, 10] })}
+        <p>We divide the distance between 0% and 100% and that between 0 and 50 pounds into ten equal parts. We label the tick marks on the top line by counting by 5s (50 ÷ 10 = 5) and on the bottom line counting by 10% (100 ÷ 10 = 10). We can then see that 30% of 50 pounds is 15 pounds.</p>
+        <p>We can also use a table to solve this problem.</p>
+        <table aria-label="Finding 30 percent of 50 pounds"><thead><tr><th>weight (pounds)</th><th>percentage</th></tr></thead><tbody><tr><td>50</td><td>100</td></tr><tr><td>5</td><td>10</td></tr><tr><td>15</td><td>30</td></tr></tbody></table>
+      </section>
+      <section>
+        <p>Suppose we know that 140% of an amount is $28. What is 100% of that amount? Let's use a double number line to find out.</p>
+        ${renderUnit3PercentLine({ topLabel: "money (dollars)", bottomLabel: "percentage", topValues: secondMoney, bottomValues: secondPercents, anchors: [10, 14] })}
+        <p>We divide the distance between 0% and 140% and that between $0 and $28 into fourteen equal intervals. We label the tick marks on the top line by counting by 2s and on the bottom line counting by 10%. We would then see that 100% is $20.</p>
+        <p>Or we can use a table as shown.</p>
+        <table aria-label="Finding 100 percent when 140 percent is 28 dollars"><thead><tr><th>money (dollars)</th><th>percentage</th></tr></thead><tbody><tr><td>28</td><td>140</td></tr><tr><td>2</td><td>10</td></tr><tr><td>20</td><td>100</td></tr></tbody></table>
+      </section>
+    </section>
+  `;
+}
+
+function renderUnit3TapeSegments({ count, highlighted = 0, labels = [], className = "" }) {
+  return `
+    <div class="unit3-tape-segments ${className}" style="--unit3-tape-count:${count}">
+      ${Array.from({ length: count }, (_, index) => `
+        <span class="${index < highlighted ? "is-highlighted" : ""}">${escapeHtml(labels[index] || "")}</span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderUnit3TapeNoticeWonder() {
+  return `
+    <section class="unit3-tape-notice-wonder" aria-label="Two same-length tape diagrams to compare">
+      <div class="unit3-tape-row">
+        <strong>80</strong>
+        ${renderUnit3TapeSegments({ count: 1, className: "is-whole" })}
+      </div>
+      <div class="unit3-tape-row">
+        <strong>?</strong>
+        <div class="unit3-tape-braced">
+          ${renderUnit3TapeSegments({ count: 4, highlighted: 3 })}
+          <span class="unit3-tape-brace" aria-hidden="true"></span>
+          <b>?%</b>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3PuppyTapes(card) {
+  const activeId = questionSetActiveId(card);
+  const firstActive = ["puppy-adult-diagram", "puppy-fraction"].includes(activeId);
+  const secondActive = ["dog-times", "dog-fractions", "dog-percentages"].includes(activeId);
+  return `
+    <section class="unit3-puppy-tapes" aria-label="Source tape diagrams comparing puppy weights">
+      <article class="${firstActive ? "is-active" : ""}">
+        <h3>Puppy's current and adult weight</h3>
+        <div class="unit3-puppy-tape-line">
+          <span>adult weight</span>
+          ${renderUnit3TapeSegments({ count: 5, highlighted: 1, labels: Array(5).fill("9 lb") })}
+        </div>
+        <div class="unit3-puppy-underbrace"><span></span><strong>20%</strong></div>
+      </article>
+      <article class="${secondActive ? "is-active" : ""}">
+        <h3>Friend's dog and puppy</h3>
+        <div class="unit3-puppy-tape-line">
+          <span>dog</span>
+          ${renderUnit3TapeSegments({ count: 10, labels: Array(10).fill("9") })}
+        </div>
+        <div class="unit3-puppy-tape-line">
+          <span>puppy</span>
+          ${renderUnit3TapeSegments({ count: 1, highlighted: 1, labels: ["9 lb"], className: "is-one-of-ten" })}
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function unit3MoneyTapeBlocks(card, person) {
+  const field = person === "elena" ? "unit3L12ElenaBlocks" : "unit3L12DiegoBlocks";
+  const fallback = person === "elena" ? 0 : 0;
+  return clampNumber(Number(getTeachCustomResponse(card)[field]) || fallback, 0, 10);
+}
+
+function renderUnit3MoneyTapeBuilder(card) {
+  const activeId = questionSetActiveId(card);
+  const person = activeId.startsWith("diego") ? "diego" : "elena";
+  const isElena = person === "elena";
+  const blocks = unit3MoneyTapeBlocks(card, person);
+  const unitValue = isElena ? "$1" : "$2.50";
+  const noahBlocks = isElena ? 5 : 2;
+  const targetBlocks = isElena ? 2 : 3;
+  const name = isElena ? "Elena" : "Diego";
+  return `
+    <section class="unit3-money-tape-builder" aria-label="Interactive tape constructor for comparing ${name}'s money with Noah's money">
+      <header>
+        <div>
+          <h3>${name} and Noah</h3>
+          <p>Use equal ${unitValue} parts to model the comparison. This workspace is scratch work; your submitted amounts and fractions are checked on the right.</p>
+        </div>
+        <strong>${isElena ? "40% as much" : "150% as much"}</strong>
+      </header>
+      <div class="unit3-money-tape-row">
+        <span>Noah</span>
+        ${renderUnit3TapeSegments({ count: noahBlocks, highlighted: noahBlocks, labels: Array(noahBlocks).fill(unitValue) })}
+        <b>$5</b>
+      </div>
+      <div class="unit3-money-tape-row">
+        <span>${name}</span>
+        <div class="unit3-money-tape-student">
+          ${blocks ? renderUnit3TapeSegments({ count: Math.max(blocks, noahBlocks), highlighted: blocks, labels: Array(Math.max(blocks, noahBlocks)).fill(unitValue) }) : `<div class="unit3-empty-tape">Add equal parts</div>`}
+        </div>
+        <b>${blocks ? `${blocks} part${blocks === 1 ? "" : "s"}` : "0 parts"}</b>
+      </div>
+      <div class="unit3-money-tape-controls">
+        <button class="hint-button" type="button" data-unit3-money-tape="decrease" data-card-id="${card.id}" data-person="${person}" ${blocks === 0 ? "disabled" : ""}>Remove a part</button>
+        <span><strong>${blocks}</strong> equal parts selected</span>
+        <button class="page-chip" type="button" data-unit3-money-tape="increase" data-card-id="${card.id}" data-person="${person}" ${blocks === 10 ? "disabled" : ""}>Add a part</button>
+        <button class="hint-button" type="button" data-unit3-money-tape="reset" data-card-id="${card.id}" data-person="${person}">Reset</button>
+      </div>
+      ${blocks === targetBlocks ? `<p class="unit3-money-tape-match">This construction matches the source relationship.</p>` : ""}
+    </section>
+  `;
+}
+
+function renderUnit3HydrationPercent(card) {
+  const waterQuestion = card.questions.find((question) => question.id === "water-brought");
+  const drankQuestion = card.questions.find((question) => question.id === "water-drank");
+  const wholeKnown = isTeachQuestionSubmitted(card, waterQuestion.id) && questionSetQuestionIsCorrect(card, waterQuestion);
+  const drankKnown = isTeachQuestionSubmitted(card, drankQuestion.id) && questionSetQuestionIsCorrect(card, drankQuestion);
+  return `
+    <section class="unit3-hydration-percent" aria-label="Tape diagrams for Andre's water">
+      <article>
+        <h3>First part of the hike</h3>
+        ${renderUnit3TapeSegments({ count: 10, highlighted: 5 })}
+        <div class="unit3-tape-scale"><span>0%</span><strong>50% = 1.5 L</strong><span>100% = ${wholeKnown ? "3 L" : "?"}</span></div>
+      </article>
+      <article>
+        <h3>Entire hike</h3>
+        ${renderUnit3TapeSegments({ count: 10, highlighted: 8 })}
+        <div class="unit3-tape-scale"><span>0%</span><strong>80% = ${drankKnown ? "2.4 L" : "?"}</strong><span>100% = ${wholeKnown ? "3 L" : "?"}</span></div>
+      </article>
+    </section>
+  `;
+}
+
+function renderUnit3HydrationPossibilities(card) {
+  const bringQuestion = card.questions.find((question) => question.id === "bring-150");
+  const bringKnown = isTeachQuestionSubmitted(card, bringQuestion.id) && questionSetQuestionIsCorrect(card, bringQuestion);
+  return `
+    <section class="unit3-hydration-possibilities" aria-label="Comparing 100 percent with 150 percent of a water amount">
+      <article><span>Water brought on this hike</span><strong>100%</strong><b>3 L</b></article>
+      <article><span>Water he can choose to bring next time</span><strong>150%</strong><b>${bringKnown ? "4.5 L" : "?"}</b></article>
+      <article class="is-limited"><span>Water available to drink on this hike</span><strong>100% maximum</strong><b>3 L</b></article>
+    </section>
+  `;
+}
+
+function renderUnit3TapeDiagramSummary() {
+  return `
+    <section class="lesson-summary unit3-tape-diagram-summary">
+      <p>Tape diagrams can help us make sense of percentages.</p>
+      <article>
+        <div>
+          <h3>Find 30% of 50</h3>
+          <p>Ten equal boxes represent 100%, so one box represents 10%. The first three boxes represent 30%, and each box is 5. Therefore, 30% of 50 is 15.</p>
+        </div>
+        <figure><img src="artifacts/unit 3/_teachme-crops/lesson-12-summary-30-of-50.png" width="510" height="125" alt="Source tape diagram divided into ten equal parts with the first three parts highlighted, showing 10 percent and 100 percent braces."></figure>
+      </article>
+      <article>
+        <div>
+          <h3>Find the number when 140% is 28</h3>
+          <p>Seven equal boxes represent 140%, so one box represents 20%. Five boxes represent 100%. Each box is 4, so the number is 20.</p>
+        </div>
+        <figure><img src="artifacts/unit 3/_teachme-crops/lesson-12-summary-140-percent.png" width="390" height="135" alt="Source tape diagram divided into seven equal parts, showing 20 percent and 100 percent braces."></figure>
+      </article>
+    </section>
+  `;
+}
+
+function renderUnit3ShadedBenchmarkTapes(card) {
+  const activeId = questionSetActiveId(card);
+  const tapes = [
+    { id: "shaded-a", label: "A", count: 10, highlighted: 1, className: "is-green" },
+    { id: "shaded-b", label: "B", count: 2, highlighted: 1, className: "is-blue" },
+    { id: "shaded-c", label: "C", count: 4, highlighted: 3, className: "is-amber" },
+  ];
+  return `
+    <section class="unit3-shaded-benchmark-tapes" aria-label="Three exact source tape diagrams with different shaded fractions">
+      ${tapes.map((tape) => `
+        <article class="${activeId === tape.id ? "is-active" : ""}">
+          <strong>${tape.label}</strong>
+          ${renderUnit3TapeSegments({ count: tape.count, highlighted: tape.highlighted, className: tape.className })}
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderUnit3BenchmarkPercentages(card) {
+  const activeId = questionSetActiveId(card);
+  const group = activeId.startsWith("ten-") ? "10%" : activeId.startsWith("seventy-five-") ? "75%" : "50%";
+  const contexts = [
+    { label: "milk", value: "10 liters" },
+    { label: "trip", value: "2,000 kilometers" },
+    { label: "day", value: "24 hours" },
+  ];
+  return `
+    <section class="unit3-benchmark-percentages" aria-label="Source whole quantities for mental benchmark-percentage calculations">
+      <header><span>Current benchmark</span><strong>${group}</strong></header>
+      <div>
+        ${contexts.map((context) => `<article><span>100% of the ${context.label}</span><strong>${context.value}</strong><b>${group} = ?</b></article>`).join("")}
+      </div>
+      <p>Work mentally. Use the same benchmark relationship for every whole; the workspace does not reveal the calculated values.</p>
+    </section>
+  `;
+}
+
+function renderUnit3NineBenchmarks(card) {
+  const activeId = questionSetActiveId(card);
+  const percentById = {
+    "nine-fifty": 50,
+    "nine-twenty-five": 25,
+    "nine-ten": 10,
+    "nine-seventy-five": 75,
+    "nine-one-fifty": 150,
+  };
+  const percent = percentById[activeId] || 50;
+  const scaleMax = percent > 100 ? 150 : 100;
+  const fill = percent / scaleMax * 100;
+  const wholeMarker = 100 / scaleMax * 100;
+  return `
+    <section class="unit3-nine-benchmarks" aria-label="Tape model showing 9 as ${percent} percent of an unknown whole">
+      <h3>9 is ${percent}% of what number?</h3>
+      <div class="unit3-nine-bar" style="--unit3-nine-fill:${fill}%; --unit3-nine-whole:${wholeMarker}%">
+        <span class="unit3-nine-fill"><b>9</b></span>
+        <i aria-hidden="true"></i>
+      </div>
+      <div class="unit3-nine-scale"><span>0%</span><strong>${percent}% = 9</strong><span>100% = ?</span>${scaleMax > 100 ? `<span>${scaleMax}%</span>` : ""}</div>
+    </section>
+  `;
+}
+
+function renderUnit3PercentageMatchBank() {
+  return `
+    <section class="unit3-percentage-match-bank">
+      <h3>Source percentage bank</h3>
+      <div>${[4, 10, 25, 50, 75, 400].map((value) => `<span>${value}%</span>`).join("")}</div>
+      <p>Use each matching percentage once. One source percentage remains unused.</p>
+    </section>
+  `;
+}
+
+function renderUnit3PopulationResearch() {
+  return `
+    <section class="unit3-population-research">
+      <h3>Use one current source and one consistent population unit</h3>
+      <div>
+        <article><span>1</span><strong>Research</strong><p>Find the current world population and the percentage under age 14.</p></article>
+        <article><span>2</span><strong>Calculate</strong><p>total × percent ÷ 100 = population under 14</p></article>
+        <article><span>3</span><strong>Compare</strong><p>total − population under 14 = population age 14 or older</p></article>
+      </div>
+      <p>Rounded estimates are accepted when all three amounts use the same unit.</p>
+    </section>
+  `;
+}
+
+function renderUnit3BenchmarkSummary() {
+  return `
+    <section class="lesson-summary unit3-benchmark-summary">
+      <p>Certain percentages are easy to think about in terms of fractions.</p>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-13-summary-quarter-benchmarks.png" width="1030" height="195" alt="Source double number line aligning one fourth, one half, three fourths, and one whole with 25, 50, 75, and 100 percent."></figure>
+      <ul>
+        <li><strong>25%</strong> of a number is always <strong>1/4</strong> of that number. For example, 25% of 40 liters is 1/4 × 40, or 10 liters.</li>
+        <li><strong>50%</strong> of a number is always <strong>1/2</strong> of that number. For example, 50% of 82 kilometers is 1/2 × 82, or 41 kilometers.</li>
+        <li><strong>75%</strong> of a number is always <strong>3/4</strong> of that number. For example, 75% of 1 pound is 3/4 pound.</li>
+        <li><strong>10%</strong> of a number is always <strong>1/10</strong> of that number. For example, 10% of 95 meters is 9.5 meters.</li>
+        <li>We can also find multiples of 10% using tenths. For example, 70% of a number is always 7/10 of that number, so 70% of 30 days is 7/10 × 30, or 21 days.</li>
+      </ul>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-13-summary-tenths.png" width="1030" height="230" alt="Source double number line aligning one tenth and seven tenths of a number with 10 percent and 70 percent."></figure>
+    </section>
+  `;
+}
+
+function renderUnit3DecimalNumberTalk(card) {
+  const activeId = questionSetActiveId(card);
+  const expressions = [
+    { id: "decimal-product-a", expression: "6 × 0.8 × 2" },
+    { id: "decimal-product-b", expression: "4.5 × 0.6 × 4" },
+  ];
+  return `
+    <section class="unit3-decimal-number-talk" aria-label="Two source decimal multiplication expressions">
+      ${expressions.map((item, index) => `
+        <article class="${activeId === item.id ? "is-active" : ""}">
+          <span>Expression ${index + 1}</span>
+          <strong>${item.expression}</strong>
+        </article>
+      `).join("")}
+      <p>Reorder or regroup the factors mentally. The value of each expression stays the same.</p>
+    </section>
+  `;
+}
+
+function renderUnit3CouponProblems(card) {
+  const activeId = questionSetActiveId(card);
+  const problems = [
+    { id: "han-coupon", name: "Han", whole: "$15 normal price", comparison: "10% off", unknown: "savings = ?" },
+    { id: "clare-coupon", name: "Clare", whole: "$24 normal price", comparison: "$6 saved", unknown: "percent off = ?" },
+  ];
+  return `
+    <section class="unit3-coupon-problems" aria-label="Coupon percentage problem quantities">
+      ${problems.map((problem) => `
+        <article class="${activeId === problem.id ? "is-active" : ""}">
+          <h3>${problem.name}</h3>
+          <div><span>Whole</span><strong>${problem.whole}</strong></div>
+          <div><span>Known comparison</span><strong>${problem.comparison}</strong></div>
+          <p>${problem.unknown}</p>
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderUnit3CouponComparison() {
+  return `
+    <section class="unit3-coupon-comparison" aria-label="Clare and Han compare payments for the same full price">
+      <article><span>Clare pays</span><strong>100%</strong><b>full price</b></article>
+      <article><span>Han pays</span><strong>80%</strong><b>of that same full price</b></article>
+      <p>Clare's claim compares her payment with <strong>Han's payment</strong>, so Han's amount is the reference whole in the final percentage.</p>
+    </section>
+  `;
+}
+
+const unit3MusicInfoGapRequests = {
+  "music-round-1": [
+    { id: "all", label: "Please show me the entire data card.", generic: true },
+    { id: "device-a", label: "What does Device A cost?", reveal: "Device A costs $15." },
+    { id: "device-b", label: "What does Device B cost?", reveal: "Device B costs $25." },
+    { id: "device-c", label: "What does Device C cost?", reveal: "Device C costs $40." },
+    { id: "jada-c", label: "How much money does Jada have compared with Device C's price?", reveal: "Jada has 60% of the cost of Device C." },
+  ],
+  "music-round-2": [
+    { id: "all", label: "Please show me the entire data card.", generic: true },
+    { id: "jada-money", label: "How much money does Jada have?", reveal: "Jada has $24." },
+    { id: "jada-d", label: "What percentage of Device D's price does Jada have?", reveal: "Jada has 40% of the cost of Device D." },
+  ],
+};
+
+function unit3MusicInfoGapField(questionId, suffix) {
+  return `${unit3MusicInfoGapRoundId(questionId)}:${suffix}`;
+}
+
+function unit3MusicInfoGapRoundId(questionId) {
+  return String(questionId).startsWith("music-round-1") ? "music-round-1" : "music-round-2";
+}
+
+function unit3MusicInfoGapRevealed(card, questionId) {
+  return String(getTeachCustomResponse(card)[unit3MusicInfoGapField(questionId, "revealed")] || "")
+    .split("|")
+    .filter(Boolean);
+}
+
+function unit3MusicInfoGapRequiredRequestIds(questionId) {
+  return (unit3MusicInfoGapRequests[unit3MusicInfoGapRoundId(questionId)] || [])
+    .filter((request) => !request.generic)
+    .map((request) => request.id);
+}
+
+function unit3MusicInfoGapHasRequiredData(card, questionId) {
+  const revealed = unit3MusicInfoGapRevealed(card, questionId);
+  return unit3MusicInfoGapRequiredRequestIds(questionId).every((requestId) => revealed.includes(requestId));
+}
+
+function renderUnit3MusicInfoGap(card) {
+  const questionId = questionSetActiveId(card);
+  const roundId = unit3MusicInfoGapRoundId(questionId);
+  const requests = unit3MusicInfoGapRequests[roundId] || unit3MusicInfoGapRequests["music-round-1"];
+  const response = getTeachCustomResponse(card);
+  const selected = response[unit3MusicInfoGapField(questionId, "pending")] || "";
+  const revealed = unit3MusicInfoGapRevealed(card, questionId);
+  const requestFeedback = response[unit3MusicInfoGapField(questionId, "feedback")]
+    || "Choose one specific request, then ask the app partner.";
+  const roundNumber = roundId === "music-round-2" ? 2 : 1;
+  return `
+    <section class="unit3-music-info-gap" aria-label="Information-gap workspace for Music Devices Problem Card ${roundNumber}">
+      <header>
+        <span>Problem Card ${roundNumber}</span>
+        <strong>${roundId === "music-round-2" ? "How much does Device D cost?" : "Which devices can Jada afford, and what percentage of Device B's price does she have?"}</strong>
+      </header>
+      <div class="unit3-info-request-panel">
+        <h3>Ask for one useful fact</h3>
+        <div class="unit3-info-request-options" role="group" aria-label="Information requests">
+          ${requests.map((request) => `
+            <button
+              class="option-button ${selected === request.id ? "is-selected" : ""}"
+              type="button"
+              data-unit3-info-request-choice="${card.id}"
+              data-question-id="${questionId}"
+              data-request-id="${request.id}"
+              aria-pressed="${selected === request.id}"
+            >${escapeHtml(request.label)}</button>
+          `).join("")}
+        </div>
+        <button class="practice-submit" type="button" data-unit3-info-request-submit="${card.id}" data-question-id="${questionId}">Submit request</button>
+        <p class="unit3-info-request-feedback" aria-live="polite">${escapeHtml(requestFeedback)}</p>
+      </div>
+      <div class="unit3-info-reveals ${revealed.length ? "has-data" : "is-empty"}">
+        <h3>Facts the app partner has shared</h3>
+        ${revealed.length
+          ? `<ul>${revealed.map((requestId) => {
+              const request = requests.find((entry) => entry.id === requestId);
+              return request?.reveal ? `<li>${escapeHtml(request.reveal)}</li>` : "";
+            }).join("")}</ul>`
+          : "<p>No data-card facts have been revealed yet.</p>"}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3PercentageProblemSummary() {
+  return `
+    <section class="lesson-summary unit3-percentage-problem-summary">
+      <p>A pot can hold 36 liters of water. What percentage of the pot is filled when it contains 9 liters of water?</p>
+      <p>Here are two different ways to solve this problem:</p>
+      <h3>Using a double number line:</h3>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-14-summary-number-line.png" width="1080" height="205" alt="Source double number line aligning 0, 9, 18, 27, and 36 liters with 0, 25, 50, 75, and 100 percent."></figure>
+      <p>We can divide the distance between 0 and 36 into four equal intervals, so 9 is 1/4 of 36, or 9 is 25% of 36.</p>
+      <h3>Using a table:</h3>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-14-summary-table.png" width="680" height="180" alt="Source table pairing 36 liters with 100 percent and 9 liters with 25 percent."></figure>
+    </section>
+  `;
+}
+
+function renderUnit3DecimalHundredTalk(card) {
+  const activeId = questionSetActiveId(card);
+  const expressions = [
+    { id: "decimal-hundred-a", expression: "(0.23) × 100" },
+    { id: "decimal-hundred-b", expression: "50 ÷ 100" },
+    { id: "decimal-hundred-c", expression: "145 × 1/100" },
+    { id: "decimal-hundred-d", expression: "7 ÷ 100" },
+  ];
+  return `
+    <section class="unit3-decimal-hundred-talk" aria-label="Four source decimal expressions">
+      ${expressions.map((item, index) => `
+        <article class="${activeId === item.id ? "is-active" : ""}">
+          <span>Expression ${index + 1}</span>
+          <strong>${item.expression}</strong>
+        </article>
+      `).join("")}
+      <p>Find each value mentally. Use multiplication or division by 100 to track how the place values change.</p>
+    </section>
+  `;
+}
+
+function renderUnit3AudienceSizes(card) {
+  const activeId = questionSetActiveId(card);
+  const events = [
+    { id: "audience-basketball", name: "Basketball game", percent: "30%" },
+    { id: "audience-drama", name: "Drama play", percent: "140%" },
+    { id: "audience-literacy", name: "Literacy night", percent: "44%" },
+  ];
+  return `
+    <section class="unit3-audience-sizes" aria-label="School event attendance percentages">
+      <header><span>Reference whole</span><strong>Music concert: 250 people = 100%</strong></header>
+      <div>
+        ${events.map((event) => `
+          <article class="${activeId === event.id ? "is-active" : ""}">
+            <span>${event.name}</span>
+            <strong>${event.percent}</strong>
+            <b>of the concert audience</b>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3AudienceOverlap() {
+  return `
+    <section class="unit3-audience-overlap" aria-label="Known audience relationships for the optional extension">
+      <article><span>Music concert</span><strong>250 people</strong><b>reference whole for the requested percentage</b></article>
+      <article><span>Drama play</span><strong>140% of concert attendance</strong><b>50% also attended the concert</b></article>
+      <p>First determine the overlapping number of people. Then compare that overlap with the 250-person concert audience.</p>
+    </section>
+  `;
+}
+
+function renderUnit3SalePrices(card) {
+  const activeId = questionSetActiveId(card);
+  const regularPrices = ["$1", "$4", "$10", "$55", "$120"];
+  return `
+    <section class="unit3-sale-prices" aria-label="Everything is On Sale source quantities">
+      <header><span>Sale rule</span><strong>Every item costs 80% of its regular price.</strong></header>
+      <div class="unit3-sale-table-wrap">
+        <table>
+          <thead><tr><th scope="col">Item</th>${regularPrices.map((_, index) => `<th scope="col">${index + 1}</th>`).join("")}</tr></thead>
+          <tbody>
+            <tr><th scope="row">Regular price</th>${regularPrices.map((price) => `<td>${price}</td>`).join("")}</tr>
+            <tr><th scope="row">Sale price</th>${regularPrices.map(() => "<td aria-label=\"Sale price to find\">?</td>").join("")}</tr>
+          </tbody>
+        </table>
+      </div>
+      ${activeId === "sale-process" ? `
+        <figure>
+          <img src="artifacts/unit 3/_teachme-crops/lesson-15-sale-tape.png" width="300" height="175" alt="Source tape diagrams showing 80 percent of an unknown number x.">
+        </figure>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderUnit3PercentOfNumberSummary() {
+  return `
+    <section class="lesson-summary unit3-percent-of-number-summary">
+      <p>To find 49% of a number, we can multiply the number by <strong>49/100</strong> or <strong>0.49</strong>.</p>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-15-summary-49-percent.png" width="430" height="170" alt="Source tape diagrams showing 49 percent of x as 0.49x."></figure>
+      <p>To find 135% of a number, we can multiply the number by <strong>135/100</strong> or <strong>1.35</strong>.</p>
+      <p>To find 6% of a number, we can multiply the number by <strong>6/100</strong> or <strong>0.06</strong>.</p>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-15-summary-number-lines.png" width="650" height="205" alt="Three aligned source number lines connecting fractional, decimal, and percentage multiples of x."></figure>
+      <p>In general, to find <em>P%</em> of <em>x</em>, we can multiply: <strong>P/100 · x</strong>.</p>
+    </section>
+  `;
+}
+
+function renderUnit3PercentageTrueFalse(card) {
+  const activeId = questionSetActiveId(card);
+  const statements = [
+    { id: "percentage-true-false-a", number: 1, text: "25% of 512 = 1/4 · 500" },
+    { id: "percentage-true-false-b", number: 2, text: "90% of 133 = 0.9 · 133" },
+    { id: "percentage-true-false-c", number: 3, text: "30% of 44 = 3% of 440" },
+    { id: "percentage-true-false-d", number: 4, text: "21 is the same percentage of 28 as 30 is of 40" },
+  ];
+  return `
+    <section class="unit3-percentage-true-false" aria-label="Four percentage statements">
+      ${statements.map((statement) => `
+        <article class="${activeId === statement.id ? "is-active" : ""}">
+          <span>${statement.number}</span>
+          <strong>${statement.text}</strong>
+        </article>
+      `).join("")}
+    </section>
+  `;
+}
+
+function renderUnit3JumpRope(card) {
+  const activeId = questionSetActiveId(card);
+  const tableValue = (fieldId) => escapeHtml(questionSetValue(card, "jump-table", fieldId) || "?");
+  const rows = [
+    { id: "diego", name: "Diego", time: "20", percent: "100", quotient: "20 ÷ 20 = 1" },
+    { id: "jump-jada", name: "Jada", time: "15", percent: tableValue("jadaPercent"), quotient: `15 ÷ 20 = ${tableValue("jadaQuotient")}` },
+    { id: "jump-lin", name: "Lin", time: "24", percent: tableValue("linPercent"), quotient: `24 ÷ 20 = ${tableValue("linQuotient")}` },
+    { id: "jump-noah", name: "Noah", time: "9", percent: tableValue("noahPercent"), quotient: `9 ÷ 20 = ${tableValue("noahQuotient")}` },
+  ];
+  return `
+    <section class="unit3-jump-rope" aria-label="Jump-roping contest source table">
+      <p><strong>Reference whole:</strong> Diego jumped rope for 20 minutes.</p>
+      <div class="unit3-jump-table-wrap">
+        <table>
+          <thead><tr><th scope="col">Student</th><th scope="col">Time (minutes)</th><th scope="col">Percentage</th><th scope="col">Time ÷ 20</th></tr></thead>
+          <tbody>
+            ${rows.map((row) => `<tr class="${activeId === row.id ? "is-active" : ""}"><th scope="row">${row.name}</th><td>${row.time}</td><td>${row.percent}</td><td>${row.quotient}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3RestaurantCapacity(card) {
+  const activeId = questionSetActiveId(card);
+  const attendances = [
+    { id: "capacity-nine", people: 9 },
+    { id: "capacity-fifty-one", people: 51 },
+    { id: "capacity-eighty-four", people: 84 },
+  ];
+  return `
+    <section class="unit3-restaurant-capacity" aria-label="Restaurant occupancy comparisons">
+      <header><span>Maximum occupancy</span><strong>75 people = 100%</strong></header>
+      <div>
+        ${attendances.map((item, index) => `
+          <article class="${activeId === item.id ? "is-active" : ""}">
+            <span>Question ${index + 1}</span>
+            <strong>${item.people} people</strong>
+            <b>What percentage of 75?</b>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3EarthWater() {
+  return `
+    <section class="unit3-earth-water" aria-label="Earth surface and water percentage relationships">
+      <article>
+        <h3>Earth's surface</h3>
+        <div class="unit3-partition-bar" style="--unit3-part: 71" aria-label="71 percent water and 29 percent land"><span></span><b></b></div>
+        <div class="unit3-partition-labels"><span>71% water</span><b>29% land</b></div>
+      </article>
+      <article>
+        <h3>All water on Earth</h3>
+        <div class="unit3-partition-bar is-water" style="--unit3-part: 96" aria-label="96 percent salt water and 4 percent fresh water"><span></span><b></b></div>
+        <div class="unit3-partition-labels"><span>96% salt water</span><b>4% fresh water</b></div>
+        <p>Total volume: <strong>1,386 million cubic kilometers</strong></p>
+      </article>
+    </section>
+  `;
+}
+
+function renderUnit3FindingPercentageSummary() {
+  return `
+    <section class="lesson-summary unit3-finding-percentage-summary">
+      <p>What percentage of 90 kg is 36 kg? One way to solve this problem is to first find what percentage 1 kg is of 90, and then multiply by 36.</p>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-16-summary-table.png" width="450" height="150" alt="Source table relating 90, 1, and 36 kilograms to their percentages."></figure>
+      <p>From the table we can see that 1 kg is <strong>(1/90 · 100)%</strong>, so 36 kg is <strong>(36/90 · 100)%</strong> or 40% of 90. We can confirm this on a double number line:</p>
+      <figure><img src="artifacts/unit 3/_teachme-crops/lesson-16-summary-number-line.png" width="670" height="170" alt="Source double number line aligning 36 kilograms with 40 percent of 90 kilograms."></figure>
+      <p>In general, to find what percentage a number <em>C</em> is of another number <em>B</em> is to calculate <strong>C/B</strong> of 100%. We can find that by multiplying: <strong>C/B · 100</strong>.</p>
+      <p>Suppose a school club has raised $88 for a project but needs a total of $160. What percentage of its goal has the club raised?</p>
+      <p>To find what percentage $88 is of $160, we find <strong>88/160</strong> of 100% or <strong>88/160 · 100</strong>, which equals <strong>11/20 · 100</strong> or 55. The club has raised 55% of its goal.</p>
+    </section>
+  `;
+}
+
+function renderUnit3PaintPrep() {
+  return `
+    <section class="unit3-paint-prep" aria-label="Room-painting supply brainstorm">
+      <div class="unit3-paint-wall" aria-hidden="true">
+        <span></span>
+        <b></b>
+      </div>
+      <div class="unit3-paint-planning-slots" aria-label="Four spaces for painting-tool ideas">
+        ${[1, 2, 3, 4].map((number) => `<span><b>${number}</b><i>Your idea</i></span>`).join("")}
+      </div>
+      <p>Think through the whole project: prepare the room, protect surfaces, apply the paint, and clean up.</p>
+    </section>
+  `;
+}
+
+function renderUnit3PaintPurchaseVisual(question) {
+  const couponMode = question?.purchaseMode === "coupon";
+  return `
+    <section class="unit3-paint-purchase" aria-label="Paint container prices and project cost assumptions">
+      <header>
+        <span>Paint needed</span>
+        <strong>At least 7 quarts</strong>
+      </header>
+      <div class="unit3-paint-purchase-table-wrap">
+        <table>
+          <thead><tr><th scope="col">Container</th><th scope="col">Paint amount</th><th scope="col">Regular price</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1-quart can</th><td>1 quart</td><td>$10.90</td></tr>
+            <tr><th scope="row">1-gallon can</th><td>4 quarts</td><td>$34.90</td></tr>
+            <tr><th scope="row">5-gallon can</th><td>20 quarts</td><td>$165.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="unit3-paint-cost-notes">
+        <span><b>Other supplies:</b> use the app-provided $20 painting-kit estimate.</span>
+        ${couponMode
+          ? "<span class=\"is-coupon\"><b>Coupon:</b> 20% off every 1-quart can. Recompare all valid purchase plans.</span>"
+          : "<span>Choose whole containers that provide at least 7 quarts; extra paint is allowed.</span>"}
+      </div>
+    </section>
+  `;
+}
+
+function renderUnit3PaintingTime(card) {
+  const activeId = questionSetActiveId(card);
+  return `
+    <section class="unit3-painting-time" aria-label="Room area and painting-time information carried forward from the source project">
+      <header><span>Results carried forward from 17.2</span><strong>Compare the east wall with the complete room</strong></header>
+      <div class="unit3-painting-area-comparison">
+        <article class="${activeId === "painting-quarter-finished" ? "is-active" : ""}">
+          <span>East wall</span>
+          <strong>72 square feet</strong>
+          <b>96 minutes for two coats</b>
+        </article>
+        <article>
+          <span>All paintable walls</span>
+          <strong>300 square feet</strong>
+          <b>full-room time working alone: ?</b>
+        </article>
+      </div>
+      <div class="unit3-painting-timeline ${activeId === "painting-time-saved" ? "is-active" : ""}">
+        <span><b>Work alone first</b><strong>96 minutes</strong></span>
+        <i aria-hidden="true"></i>
+        <span><b>Finish with friend</b><strong>150 more minutes</strong></span>
+        <i aria-hidden="true"></i>
+        <span><b>Time saved</b><strong>?</strong></span>
+      </div>
+    </section>
+  `;
+}
+
 function renderTeachLessonGroup(group, unitNumber = state.activeUnit) {
   const card = activeTeachCardForGroup(group, unitNumber);
   return renderTeachCard(card, group);
 }
 
 function renderTeachVisualContent(card) {
+  if (card.customVisual === "unit3ClimbRate") return renderUnit3ClimbRate(card);
+  if (card.customVisual === "unit3PlanetWeights") return renderUnit3PlanetWeights(card);
+  if (card.customVisual === "unit3RateSummary") return renderUnit3RateSummary(card);
+  if (card.customVisual === "unit3StringEstimate") return renderUnit3StringEstimate(card);
+  if (card.customVisual === "unit3MeasurementCardSort") return renderUnit3MeasurementCardSort(card);
+  if (card.customVisual === "unit3MeasurementSummary") return renderUnit3MeasurementSummary(card);
+  if (card.customVisual === "unit3PaperRods") return renderUnit3PaperRods(card);
+  if (card.customVisual === "unit3MeasurementStations") return renderUnit3MeasurementStations(card);
+  if (card.customVisual === "unit3MetricMedicine") return renderUnit3MetricMedicine(card);
+  if (card.customVisual === "unit3DifferentUnitsSummary") return renderUnit3DifferentUnitsSummary(card);
+  if (card.customVisual === "unit3FractionNumberTalk") return renderUnit3FractionNumberTalk(card);
+  if (card.customVisual === "unit3RoadTrip") return renderUnit3RoadTrip(card);
+  if (card.customVisual === "unit3VeterinaryWeights") return renderUnit3VeterinaryWeights(card);
+  if (card.customVisual === "unit3TablespoonConversion") return renderUnit3TablespoonConversion(card);
+  if (card.customVisual === "unit3ConversionSummary") return renderUnit3ConversionSummary(card);
+  if (card.customVisual === "unit3ClosestQuotient") return renderUnit3ClosestQuotient(card);
+  if (card.customVisual === "unit3TreadmillRates") return renderUnit3TreadmillRates(card);
+  if (card.customVisual === "unit3RunnerGap") return renderUnit3RunnerGap(card);
+  if (card.customVisual === "unit3CompareRatesSummary") return renderUnit3CompareRatesSummary(card);
+  if (card.customVisual === "unit3PerLanguage") return renderUnit3PerLanguage(card);
+  if (card.customVisual === "unit3OatmealRates") return renderUnit3OatmealRates(card);
+  if (card.customVisual === "unit3UnitRateContexts") return renderUnit3UnitRateContexts(card);
+  if (card.customVisual === "unit3RaffleDeal") return renderUnit3RaffleDeal(card);
+  if (card.customVisual === "unit3InterpretingRatesSummary") return renderUnit3InterpretingRatesSummary(card);
+  if (card.customVisual === "unit3SpeedWodb") return renderUnit3SpeedWodb(card);
+  if (card.customVisual === "unit3BurritoRates") return renderUnit3BurritoRates(card);
+  if (card.customVisual === "unit3EquivalentRateTables") return renderUnit3EquivalentRateTables(card);
+  if (card.customVisual === "unit3ApplesauceRates") return renderUnit3ApplesauceRates(card);
+  if (card.customVisual === "unit3CombinedRates") return renderUnit3CombinedRates(card);
+  if (card.customVisual === "unit3EquivalentRatesSummary") return renderUnit3EquivalentRatesSummary(card);
+  if (card.customVisual === "unit3TreadmillAgain") return renderUnit3TreadmillAgain(card);
+  if (card.customVisual === "unit3RailTrail") return renderUnit3RailTrail(card);
+  if (card.customVisual === "unit3RailTrailExtensions") return renderUnit3RailTrailExtensions(card);
+  if (card.customVisual === "unit3SwimmingBiking") return renderUnit3SwimmingBiking(card);
+  if (card.customVisual === "unit3SpeedPaceSummary") return renderUnit3SpeedPaceSummary(card);
+  if (card.customVisual === "unit3HundredGrids") return renderUnit3HundredGrids(card);
+  if (card.customVisual === "unit3DealCards") return renderUnit3DealCards(card);
+  if (card.customVisual === "unit3FruitSnackDeal") return renderUnit3FruitSnackDeal(card);
+  if (card.customVisual === "unit3AnimalDistances") return renderUnit3AnimalDistances(card);
+  if (card.customVisual === "unit3RateProblemsSummary") return renderUnit3RateProblemsSummary(card);
+  if (card.customVisual === "unit3DollarsAndCents") return renderUnit3DollarsAndCents(card);
+  if (card.customVisual === "unit3Coins") return renderUnit3Coins(card);
+  if (card.customVisual === "unit3CoinSets") return renderUnit3CoinSets(card);
+  if (card.customVisual === "unit3CoinNumberLine") return renderUnit3CoinNumberLine(card);
+  if (card.customVisual === "unit3PercentageSummary") return renderUnit3PercentageSummary(card);
+  if (card.customVisual === "unit3FundraisingPercent") return renderUnit3FundraisingPercent(card);
+  if (card.customVisual === "unit3BikingPercent") return renderUnit3BikingPercent(card);
+  if (card.customVisual === "unit3PuppyPercent") return renderUnit3PuppyPercent(card);
+  if (card.customVisual === "unit3BreadPercent") return renderUnit3BreadPercent(card);
+  if (card.customVisual === "unit3PercentageLinesSummary") return renderUnit3PercentageLinesSummary(card);
+  if (card.customVisual === "unit3TapeNoticeWonder") return renderUnit3TapeNoticeWonder(card);
+  if (card.customVisual === "unit3PuppyTapes") return renderUnit3PuppyTapes(card);
+  if (card.customVisual === "unit3MoneyTapeBuilder") return renderUnit3MoneyTapeBuilder(card);
+  if (card.customVisual === "unit3HydrationPercent") return renderUnit3HydrationPercent(card);
+  if (card.customVisual === "unit3HydrationPossibilities") return renderUnit3HydrationPossibilities(card);
+  if (card.customVisual === "unit3TapeDiagramSummary") return renderUnit3TapeDiagramSummary(card);
+  if (card.customVisual === "unit3ShadedBenchmarkTapes") return renderUnit3ShadedBenchmarkTapes(card);
+  if (card.customVisual === "unit3BenchmarkPercentages") return renderUnit3BenchmarkPercentages(card);
+  if (card.customVisual === "unit3NineBenchmarks") return renderUnit3NineBenchmarks(card);
+  if (card.customVisual === "unit3PercentageMatchBank") return renderUnit3PercentageMatchBank(card);
+  if (card.customVisual === "unit3PopulationResearch") return renderUnit3PopulationResearch(card);
+  if (card.customVisual === "unit3BenchmarkSummary") return renderUnit3BenchmarkSummary(card);
+  if (card.customVisual === "unit3DecimalNumberTalk") return renderUnit3DecimalNumberTalk(card);
+  if (card.customVisual === "unit3CouponProblems") return renderUnit3CouponProblems(card);
+  if (card.customVisual === "unit3CouponComparison") return renderUnit3CouponComparison(card);
+  if (card.customVisual === "unit3MusicInfoGap") return renderUnit3MusicInfoGap(card);
+  if (card.customVisual === "unit3PercentageProblemSummary") return renderUnit3PercentageProblemSummary(card);
+  if (card.customVisual === "unit3DecimalHundredTalk") return renderUnit3DecimalHundredTalk(card);
+  if (card.customVisual === "unit3AudienceSizes") return renderUnit3AudienceSizes(card);
+  if (card.customVisual === "unit3AudienceOverlap") return renderUnit3AudienceOverlap(card);
+  if (card.customVisual === "unit3SalePrices") return renderUnit3SalePrices(card);
+  if (card.customVisual === "unit3PercentOfNumberSummary") return renderUnit3PercentOfNumberSummary(card);
+  if (card.customVisual === "unit3PercentageTrueFalse") return renderUnit3PercentageTrueFalse(card);
+  if (card.customVisual === "unit3JumpRope") return renderUnit3JumpRope(card);
+  if (card.customVisual === "unit3RestaurantCapacity") return renderUnit3RestaurantCapacity(card);
+  if (card.customVisual === "unit3EarthWater") return renderUnit3EarthWater(card);
+  if (card.customVisual === "unit3FindingPercentageSummary") return renderUnit3FindingPercentageSummary(card);
+  if (card.customVisual === "unit3PaintPrep") return renderUnit3PaintPrep(card);
+  if (card.customVisual === "unit3PaintingTime") return renderUnit3PaintingTime(card);
   if (card.customVisual === "unit2FigureSort") return renderUnit2FigureSortVisual(card);
   if (card.customVisual === "unit2TeacherCollection") return renderUnit2TeacherCollectionVisual(card);
   if (card.customVisual === "unit2StudentCollection") return renderUnit2StudentCollectionVisual(card);
@@ -21560,10 +26643,14 @@ function renderQuestionSetVisual(card) {
   if (question?.visualType === "prismDimensions") return renderPrismDimensionsVisual(question);
   if (question?.visualType === "prismDimensionSet") return renderPrismDimensionSetVisual();
   if (question?.visualType === "prismPairExamples") return renderPrismPairExamplesVisual();
+  if (question?.visualType === "paintPurchase") return renderUnit3PaintPurchaseVisual(question);
   if (question?.visualType === "tentDesigner") return renderTentDesigner(card);
   if (question?.visualType === "tentComparison") return renderTentComparison(card);
-  const cropPath = question?.visualCropPath || card.cropPath;
+  const cropPath = question?.visualAssetPath || question?.visualCropPath || card.cropPath;
   if (!question || !cropPath) return "";
+  const visualSrc = question.visualAssetPath
+    ? question.visualAssetPath
+    : `artifacts/unit 1/_teachme-crops/${cropPath}`;
   const positiveInteger = (value) => Number.isInteger(value) && value > 0 && value <= 4096 ? value : null;
   const width = positiveInteger(question.visualWidth);
   const height = positiveInteger(question.visualHeight);
@@ -21582,7 +26669,7 @@ function renderQuestionSetVisual(card) {
         >
           <img
             class="practice-source-visual-image"
-            src="${encodeURI(`artifacts/unit 1/_teachme-crops/${cropPath}`)}"
+            src="${encodeURI(visualSrc)}"
             alt="${escapeHtml(question.visualAlt || card.visualAlt)}"
             ${dimensions}
             loading="lazy"
@@ -21599,7 +26686,7 @@ function renderQuestionSetVisual(card) {
       ${question.visualDirections ? `<figcaption>${escapeHtml(question.visualDirections)}</figcaption>` : ""}
       ${renderQuestionSetReferenceVisual(question)}
       <img
-        src="${encodeURI(`artifacts/unit 1/_teachme-crops/${cropPath}`)}"
+        src="${encodeURI(visualSrc)}"
         alt="${escapeHtml(question.visualAlt || card.visualAlt)}"
         ${dimensions}
         loading="lazy"
@@ -23206,7 +28293,7 @@ function rectangularPrismNetAnalysis(card) {
   if (definition.differentFromItemId) {
     const referenceCard = practiceBank.find((item) => item.id === definition.differentFromItemId);
     const referenceAnalysis = referenceCard ? rectangularPrismNetAnalysis(referenceCard) : null;
-    referenceComplete = Boolean(referenceAnalysis?.baseValid);
+    referenceComplete = Boolean(referenceAnalysis?.baseValid && state.practiceSubmitted[referenceCard.id]);
     differentFromReference = referenceComplete
       && rectangularPrismNetCanonicalSignature(faces)
         !== rectangularPrismNetCanonicalSignature(referenceAnalysis.faces);
@@ -23397,6 +28484,60 @@ function endRectangularPrismNetPointer(event) {
   return true;
 }
 
+function rectangularPrismNetReferenceItems(card) {
+  const referenceIds = Array.isArray(card.visualModelData?.referenceNetItemIds)
+    ? card.visualModelData.referenceNetItemIds
+    : [];
+  return referenceIds
+    .filter((referenceId) => referenceId !== card.id)
+    .map((referenceId) => practiceBank.find((entry) => entry.id === referenceId))
+    .filter((referenceCard) => (
+      referenceCard
+      && state.practiceSubmitted[referenceCard.id]
+      && rectangularPrismNetAnalysis(referenceCard).valid
+    ));
+}
+
+function renderRectangularPrismNetReferences(card) {
+  const referenceCards = rectangularPrismNetReferenceItems(card);
+  if (!referenceCards.length) return "";
+  return `
+    <section class="rectangular-prism-net-reference-section" aria-label="Completed net references">
+      <strong>Completed nets for comparison</strong>
+      <div class="rectangular-prism-net-reference-gallery">
+        ${referenceCards.map((referenceCard) => {
+          const referenceFaces = rectangularPrismNetFaces(referenceCard);
+          const minX = Math.min(...referenceFaces.map((face) => face.x));
+          const minY = Math.min(...referenceFaces.map((face) => face.y));
+          const maxX = Math.max(...referenceFaces.map((face) => face.x + face.width));
+          const maxY = Math.max(...referenceFaces.map((face) => face.y + face.height));
+          const padding = 0.6;
+          const label = referenceCard.visualModelData?.referenceNetLabel
+            || `Net ${referenceCard.practicePartLabel || ""}`.trim();
+          const referenceDefinition = rectangularPrismNetDefinition(referenceCard);
+          return `
+            <figure class="rectangular-prism-net-reference" data-prism-net-reference-item="${referenceCard.id}">
+              <figcaption>${escapeHtml(label)}</figcaption>
+              <svg viewBox="${minX - padding} ${minY - padding} ${maxX - minX + padding * 2} ${maxY - minY + padding * 2}" role="img" aria-label="Completed ${escapeHtml(label)}">
+                ${referenceFaces.map((face) => `
+                  <rect
+                    x="${face.x}"
+                    y="${face.y}"
+                    width="${face.width}"
+                    height="${face.height}"
+                    class="rectangular-prism-net-reference-face face-type-${referenceDefinition.faceTypes.indexOf(face.type) + 1}"
+                    data-prism-net-reference-face="${face.id}"
+                  ></rect>
+                `).join("")}
+              </svg>
+            </figure>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderRectangularPrismNetVisual(card) {
   const definition = rectangularPrismNetDefinition(card);
   const analysis = definition.freeform ? null : rectangularPrismNetAnalysis(card);
@@ -23431,6 +28572,7 @@ function renderRectangularPrismNetVisual(card) {
           ${teachCropImage("lesson-15-p001-polyhedron-drawings-blackline.png", 700, 188, "Assigned source Polyhedron C with dimensions 13, 5, and 4 units.")}
         </figure>
       `}
+      ${renderRectangularPrismNetReferences(card)}
       <div class="rectangular-prism-net-tools">
         ${definition.freeform ? `
           <p>Select a face, then drag it or use the arrow keys to move it on the grid.</p>
@@ -24522,7 +29664,7 @@ function questionSetAreaIsCorrect(card, question) {
   return acceptedSets.some((acceptedSet) => (
     questionSetFieldMatches(card, question, baseField, acceptedSet.base)
     && questionSetFieldMatches(card, question, areaField, acceptedSet.area)
-  )) && questionSetReasoningEvaluation(card, question).correct;
+  ));
 }
 
 function questionSetAllBasesAnyAreasProgress(card) {
@@ -24759,6 +29901,31 @@ function appendFeedbackCriteria(baseFeedback, criteriaFeedback) {
   return [feedback, criteria].filter(Boolean).join(" ");
 }
 
+function renderFreeTextAdvisory({
+  submitted = false,
+  evaluation = null,
+  criteria = {},
+  label = "Reasoning",
+  attributes = "",
+} = {}) {
+  if (!submitted || !evaluation) return "";
+  const answered = Boolean(evaluation.answered);
+  const passed = answered && Boolean(evaluation.correct);
+  const className = passed ? "is-pass" : answered ? "is-revise" : "is-empty";
+  const guidance = passed ? "" : freeTextValidationCriteria(criteria);
+  const statusText = passed
+    ? "Passed the app's writing check."
+    : answered
+      ? "Did not pass the app's writing check."
+      : "No response was entered for this writing field.";
+  const text = [
+    `${label} check (advisory): ${statusText}`,
+    guidance,
+    "This writing check does not change the answer verdict.",
+  ].filter(Boolean).join(" ");
+  return `<p class="free-text-advisory ${className}" ${attributes}>${escapeHtml(text)}</p>`;
+}
+
 function questionAnswerValidationCriteria(question) {
   return {
     concepts: question.answerConcepts,
@@ -24920,6 +30087,110 @@ function unit2FermiDisplayIsCorrect(card, question) {
   return Number.isFinite(estimate) && estimate > 0 && units.length >= 2;
 }
 
+function unit3PositiveMeasurementEstimateIsCorrect(card, question) {
+  const amount = parseMathNumber(questionSetValue(card, question.id, "amount"));
+  return Number.isFinite(amount) && amount > 0;
+}
+
+function unit3EitherSpeedingDifferenceIsCorrect(card, question) {
+  return ["40-kmh", "25-mph"].includes(questionSetSelections(card, question)[0]);
+}
+
+function unit3WorseRaffleDealIsCorrect(card, question) {
+  const tickets = parseMathNumber(questionSetValue(card, question.id, "tickets"));
+  const price = parseMathNumber(questionSetValue(card, question.id, "price"));
+  return Number.isFinite(tickets)
+    && Number.isFinite(price)
+    && tickets >= 2
+    && price > 0
+    && price / tickets > 4;
+}
+
+function unit3DisjointCoinSetsAreCorrect(card, question) {
+  const denominations = [
+    ["Penny", 1],
+    ["Nickel", 5],
+    ["Dime", 10],
+    ["Quarter", 25],
+    ["Half", 50],
+    ["Dollar", 100],
+  ];
+  const counts = ["a", "b"].map((setPrefix) => denominations.map(([fieldName]) => (
+    parseMathNumber(questionSetValue(card, question.id, `${setPrefix}${fieldName}`))
+  )));
+  if (!counts.flat().every((count) => Number.isInteger(count) && count >= 0)) return false;
+  const totals = counts.map((setCounts) => setCounts.reduce((sum, count, index) => sum + count * denominations[index][1], 0));
+  const disjoint = denominations.every((_denomination, index) => !(counts[0][index] > 0 && counts[1][index] > 0));
+  return totals[0] === 120 && totals[1] === 120 && disjoint;
+}
+
+function unit3PopulationResearchIsCorrect(card, question) {
+  const percent = parseMathNumber(questionSetValue(card, question.id, "percent"));
+  const total = parseMathNumber(questionSetValue(card, question.id, "total"));
+  const under = parseMathNumber(questionSetValue(card, question.id, "under"));
+  const older = parseMathNumber(questionSetValue(card, question.id, "older"));
+  if (![percent, total, under, older].every(Number.isFinite)) return false;
+  if (percent <= 0 || percent >= 100 || total <= 0 || under < 0 || older < 0) return false;
+  const expectedUnder = total * percent / 100;
+  const expectedOlder = total - expectedUnder;
+  const tolerance = Math.max(Math.abs(total) * 0.015, 0.01);
+  return Math.abs(under - expectedUnder) <= tolerance
+    && Math.abs(older - expectedOlder) <= tolerance
+    && Math.abs(under + older - total) <= tolerance;
+}
+
+function unit3MusicInfoGapRound1DevicesAreCorrect(card, question) {
+  const selected = questionSetSelections(card, question);
+  return unit3MusicInfoGapHasRequiredData(card, question.id)
+    && selected.length === 1
+    && selected[0] === "device-a";
+}
+
+function unit3MusicInfoGapRound1PercentIsCorrect(card, question) {
+  return unit3MusicInfoGapHasRequiredData(card, question.id)
+    && answerMatches(questionSetValue(card, question.id), "96");
+}
+
+function unit3MusicInfoGapRound2IsCorrect(card, question) {
+  return unit3MusicInfoGapHasRequiredData(card, question.id)
+    && answerMatches(questionSetValue(card, question.id), "60");
+}
+
+function unit3MeasurementUnitSortIsCorrect(card) {
+  const response = getTeachCustomResponse(card);
+  return unit3MeasurementUnits.every((unit) => response[unit3MeasurementUnitField(unit.id)] === unit.group);
+}
+
+function unit3MeasurementMatchesAreCorrect(card, groupKey) {
+  const group = unit3MeasurementObjectGroups[groupKey];
+  const response = getTeachCustomResponse(card);
+  return Boolean(group && group.objects.every((object) => response[unit3MeasurementObjectField(object.id)] === object.answer));
+}
+
+function unit3StationBoxIsComplete(card) {
+  const response = getTeachCustomResponse(card);
+  return response.station1InchesViewed === "yes" && response.station1CentimetersViewed === "yes";
+}
+
+function unit3StationLengthIsComplete(card) {
+  const response = getTeachCustomResponse(card);
+  return response.station2MetersViewed === "yes" && response.station2FeetViewed === "yes";
+}
+
+function unit3StationWaterIsComplete(card) {
+  const response = getTeachCustomResponse(card);
+  return Number(response.station3QuartPours) === 4
+    && Number(response.station3LiterPours) === 3
+    && response.station3LiterChecked === "yes";
+}
+
+function unit3StationSaltIsComplete(card) {
+  const response = getTeachCustomResponse(card);
+  return response.station5Record_20 === "4"
+    && response.station5Record_40 === "8"
+    && response.station5Record_50 === "10";
+}
+
 function questionSetAnswerIsCorrect(card, question) {
   const answerKey = Array.isArray(question.answerKey) ? question.answerKey : [];
   if (question.answerOptional) return true;
@@ -24947,6 +30218,50 @@ function questionSetAnswerIsCorrect(card, question) {
   if (question.dynamicAnswer === "unit2FermiDisplay") {
     return unit2FermiDisplayIsCorrect(card, question);
   }
+  if (question.dynamicAnswer === "unit3PositiveMeasurementEstimate") {
+    return unit3PositiveMeasurementEstimateIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3EitherSpeedingDifference") {
+    return unit3EitherSpeedingDifferenceIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3WorseRaffleDeal") {
+    return unit3WorseRaffleDealIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3DisjointCoinSets") {
+    return unit3DisjointCoinSetsAreCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3PopulationResearch") {
+    return unit3PopulationResearchIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3InfoGapRound1Devices") {
+    return unit3MusicInfoGapRound1DevicesAreCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3InfoGapRound1Percent") {
+    return unit3MusicInfoGapRound1PercentIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3InfoGapRound2") {
+    return unit3MusicInfoGapRound2IsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "unit3StringEstimate") {
+    return unit3StringEstimateCentimeters(card) > 0;
+  }
+  if (question.dynamicAnswer === "unit3MeasurementUnitSort") {
+    return unit3MeasurementUnitSortIsCorrect(card);
+  }
+  if (question.dynamicAnswer === "unit3MeasurementLengthMatches") {
+    return unit3MeasurementMatchesAreCorrect(card, "length");
+  }
+  if (question.dynamicAnswer === "unit3MeasurementVolumeMatches") {
+    return unit3MeasurementMatchesAreCorrect(card, "volume");
+  }
+  if (question.dynamicAnswer === "unit3MeasurementWeightMatches") {
+    return unit3MeasurementMatchesAreCorrect(card, "weight");
+  }
+  if (question.dynamicAnswer === "unit3StationBox") return unit3StationBoxIsComplete(card);
+  if (question.dynamicAnswer === "unit3StationLength") return unit3StationLengthIsComplete(card);
+  if (question.dynamicAnswer === "unit3StationWater") return unit3StationWaterIsComplete(card);
+  if (question.dynamicAnswer === "unit3StationScale") return unit3StationScaleCompleteCount(card) >= 3;
+  if (question.dynamicAnswer === "unit3StationSalt") return unit3StationSaltIsComplete(card);
   if (question.dynamicAnswer === "unit2StudentCollectionSort") {
     return unit2StudentCollectionIsSorted(card);
   }
@@ -25206,6 +30521,30 @@ function questionSetHasAnswer(card, question) {
   if (question.dynamicAnswer === "unit2PaintDoubleLine") {
     return unit2PaintDoubleLineHasValues(card);
   }
+  if (question.dynamicAnswer === "unit3PositiveMeasurementEstimate") {
+    return normalizeAnswer(questionSetValue(card, question.id, "amount")).length > 0;
+  }
+  if (question.dynamicAnswer === "unit3StringEstimate") {
+    return unit3StringEstimateCentimeters(card) > 0;
+  }
+  if (question.dynamicAnswer === "unit3MeasurementUnitSort") {
+    const response = getTeachCustomResponse(card);
+    return unit3MeasurementUnits.some((unit) => response[unit3MeasurementUnitField(unit.id)]);
+  }
+  if (["unit3MeasurementLengthMatches", "unit3MeasurementVolumeMatches", "unit3MeasurementWeightMatches"].includes(question.dynamicAnswer)) {
+    const groupKey = {
+      unit3MeasurementLengthMatches: "length",
+      unit3MeasurementVolumeMatches: "volume",
+      unit3MeasurementWeightMatches: "weight",
+    }[question.dynamicAnswer];
+    const response = getTeachCustomResponse(card);
+    return unit3MeasurementObjectGroups[groupKey].objects.some((object) => response[unit3MeasurementObjectField(object.id)]);
+  }
+  if (question.dynamicAnswer === "unit3StationBox") return unit3StationBoxIsComplete(card);
+  if (question.dynamicAnswer === "unit3StationLength") return unit3StationLengthIsComplete(card);
+  if (question.dynamicAnswer === "unit3StationWater") return unit3StationWaterIsComplete(card);
+  if (question.dynamicAnswer === "unit3StationScale") return unit3StationScaleCompleteCount(card) >= 3;
+  if (question.dynamicAnswer === "unit3StationSalt") return unit3StationSaltIsComplete(card);
   if (question.dynamicAnswer === "unit2LightBlueEquivalent") {
     return unit2DynamicFieldsHaveValues(card, question, ["white", "blue"]);
   }
@@ -25270,6 +30609,139 @@ function questionSetReasoningEvaluation(card, question) {
   return { answered: reasoning.length > 0, correct };
 }
 
+function questionSetFreeTextFieldIds(question) {
+  const dynamicFields = {
+    unit2InventedRatioProblem: ["categoryA", "categoryB"],
+    unit2TapeStory: ["firstName", "secondName"],
+    unit2FermiBrainstorm: ["q1", "q2", "q3", "q4", "q5"],
+    unit2FermiOrganizer: ["s1", "a1", "s2", "a2", "s3", "a3", "s4", "a4"],
+    unit2FermiDisplay: ["units"],
+    eightCubeShapeMetrics: ["name"],
+  };
+  if (dynamicFields[question.dynamicAnswer]) return dynamicFields[question.dynamicAnswer];
+  if (question.dynamicAnswer === "unit2NineDigitRatios") return [];
+  return (question.fields || [])
+    .filter((field) => field.responseType === "text")
+    .map((field) => field.id);
+}
+
+function questionSetHasPrimaryFreeText(question) {
+  return question.responseType === "openResponse" || question.responseType === "text";
+}
+
+function questionSetIsTextOnly(question) {
+  if (questionSetHasPrimaryFreeText(question)) return true;
+  const fields = question.fields || [];
+  if (!fields.length) return false;
+  const freeTextIds = new Set(questionSetFreeTextFieldIds(question));
+  return fields.every((field) => freeTextIds.has(field.id));
+}
+
+function questionSetObjectiveFields(question) {
+  const freeTextIds = new Set(questionSetFreeTextFieldIds(question));
+  return (question.fields || []).filter((field) => !freeTextIds.has(field.id));
+}
+
+function questionSetHasObjectiveAnswer(card, question) {
+  if (questionSetIsTextOnly(question)) return questionSetHasAnswer(card, question);
+  const objectiveFields = questionSetObjectiveFields(question);
+  if (objectiveFields.length) {
+    return objectiveFields.every((field) => (
+      normalizeAnswer(questionSetValue(card, question.id, field.id)).length > 0
+    ));
+  }
+  return questionSetHasAnswer(card, question);
+}
+
+function questionSetObjectiveAnswerIsCorrect(card, question) {
+  if (questionSetIsTextOnly(question)) return questionSetHasAnswer(card, question);
+  if (question.dynamicAnswer === "unit2InventedRatioProblem") {
+    const partA = parseMathNumber(questionSetValue(card, question.id, "partA"));
+    const partB = parseMathNumber(questionSetValue(card, question.id, "partB"));
+    const total = parseMathNumber(questionSetValue(card, question.id, "total"));
+    return Number.isInteger(partA)
+      && Number.isInteger(partB)
+      && Number.isInteger(total)
+      && partA > 0
+      && partB > 0
+      && total > 0
+      && total % (partA + partB) === 0;
+  }
+  if (question.dynamicAnswer === "unit2TapeStory") {
+    return answerMatches(questionSetValue(card, question.id, "firstTotal"), "21")
+      && answerMatches(questionSetValue(card, question.id, "secondTotal"), "9");
+  }
+  if (question.dynamicAnswer === "unit2FermiDisplay") {
+    const estimate = parseMathNumber(questionSetValue(card, question.id, "estimate"));
+    return Number.isFinite(estimate) && estimate > 0;
+  }
+  if (question.dynamicAnswer === "unit3PositiveMeasurementEstimate") {
+    return unit3PositiveMeasurementEstimateIsCorrect(card, question);
+  }
+  if (question.dynamicAnswer === "eightCubeShapeMetrics") {
+    const shapeId = question.shapeId === "B" ? "B" : "A";
+    const cells = eightCubeShapeCells(card, shapeId);
+    return eightCubeShapeIsConnected(cells)
+      && answerMatches(questionSetValue(card, question.id, "volume"), "8")
+      && answerMatches(questionSetValue(card, question.id, "surfaceArea"), String(eightCubeShapeSurfaceArea(cells)));
+  }
+  return questionSetAnswerIsCorrect(card, question);
+}
+
+function questionSetPrimaryTextEvaluation(card, question) {
+  if (questionSetHasPrimaryFreeText(question)) {
+    const answered = normalizeAnswer(questionSetValue(card, question.id)).length > 0;
+    return {
+      answered,
+      correct: answered && questionSetAnswerIsCorrect(card, question),
+    };
+  }
+  const fieldIds = questionSetFreeTextFieldIds(question);
+  if (!fieldIds.length) return null;
+  const values = fieldIds.map((fieldId) => normalizeAnswer(questionSetValue(card, question.id, fieldId)));
+  const answered = values.every((value) => value.length > 0);
+  let correct = answered;
+  if (question.dynamicAnswer === "unit2InventedRatioProblem") {
+    correct = answered && values.every((value) => value.length >= 2) && values[0] !== values[1];
+  } else if (question.dynamicAnswer === "unit2TapeStory") {
+    correct = answered && values.every((value) => value.length >= 2) && values[0] !== values[1];
+  } else if (question.dynamicAnswer === "unit2FermiBrainstorm") {
+    correct = unit2FermiBrainstormIsCorrect(card, question);
+  } else if (question.dynamicAnswer === "unit2FermiOrganizer") {
+    correct = unit2FermiOrganizerIsCorrect(card, question);
+  } else if (question.dynamicAnswer === "unit2FermiDisplay") {
+    correct = answered && values[0].length >= 2;
+  } else if (question.dynamicAnswer === "eightCubeShapeMetrics") {
+    correct = answered && values[0].length >= 2;
+  }
+  return { answered, correct };
+}
+
+function questionSetHasPrimaryTextCheck(question) {
+  if (questionSetFreeTextFieldIds(question).length) return true;
+  if (!questionSetHasPrimaryFreeText(question)) return false;
+  const criteria = questionAnswerValidationCriteria(question);
+  return !question.acceptAnyResponse && (
+    hasTaskSpecificFreeTextCriteria(criteria)
+    || (Number.isInteger(question.minLength) && question.minLength > 1)
+  );
+}
+
+function questionSetPrimaryTextCriteria(question) {
+  const guidance = {
+    unit2InventedRatioProblem: "name two different categories with at least 2 characters each",
+    unit2TapeStory: "name two different quantities with at least 2 characters each",
+    unit2FermiBrainstorm: "write five distinct questions of at least 8 characters that include how or what",
+    unit2FermiOrganizer: "write four distinct sub-questions of at least 6 characters and a nonempty estimate or answer for each",
+    unit2FermiDisplay: "include a unit with at least 2 characters",
+    unit3PositiveMeasurementEstimate: "include a volume unit so the estimate can be interpreted",
+    eightCubeShapeMetrics: "give the shape a name with at least 2 characters",
+  }[question.dynamicAnswer];
+  return guidance
+    ? { validationGuidance: guidance }
+    : questionAnswerValidationCriteria(question);
+}
+
 function questionSetRequiredStateSatisfied(card, question) {
   if (question.requireAreaCheck && !parallelogramExploreAreaIsShown(card, question.id)) return false;
   if (question.requiredConstruction === "sourceNetFoldComplete") {
@@ -25306,8 +30778,7 @@ function questionSetQuestionIsCorrect(card, question) {
   return adjustmentSatisfied
     && parallelogramExploreIsUnique(card, question)
     && questionSetRequiredStateSatisfied(card, question)
-    && questionSetAnswerIsCorrect(card, question)
-    && questionSetReasoningEvaluation(card, question).correct;
+    && questionSetObjectiveAnswerIsCorrect(card, question);
 }
 
 function questionSetStatus(card, question) {
@@ -25328,6 +30799,11 @@ function questionSetStatus(card, question) {
   }
   const submitted = isTeachQuestionSubmitted(card, question.id);
   if (!submitted) return { className: "", text: question.optional ? "Optional" : "Not submitted" };
+  if (questionSetIsTextOnly(question)) {
+    return questionSetQuestionIsCorrect(card, question)
+      ? { className: "is-recorded", text: "Recorded" }
+      : { className: "", text: "No response" };
+  }
   if (questionSetQuestionIsCorrect(card, question)) return { className: "is-correct", text: question.estimate || question.recordResponse ? "Recorded" : "Correct" };
   return { className: "is-incorrect", text: "Revise" };
 }
@@ -25492,21 +30968,27 @@ function renderAllBasesAnyAreasFeedback(card, question) {
   } else if (baseCorrect && areaSubmitted && !questionSetAcceptedFieldMatch(card, question, "area")) {
     className = "is-incorrect";
     text = question.incorrectFeedback;
-  } else if (baseCorrect && areaSubmitted && !reasoning.answered) {
-    className = "is-incorrect";
-    text = freeTextFeedbackWithCriteria(
-      "The base and area answer are ready to check. Add the base-height calculation, then submit again.",
-      questionReasoningValidationCriteria(question)
-    );
   } else if (areaCorrect) {
     className = "is-correct";
     text = `${question.correctFeedback} Areas completed: ${progress.areaCorrectCount} of ${progress.areaRequiredCount}.`;
   } else {
     className = "is-incorrect";
-    text = appendFeedbackCriteria(question.incorrectFeedback, freeTextValidationCriteria(questionReasoningValidationCriteria(question)));
+    text = question.incorrectFeedback;
   }
 
-  return `<p class="practice-feedback teach-question-feedback ${className}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(text)}</p>`;
+  const reasoningAdvisory = question.reasoningPrompt && areaSubmitted
+    ? renderFreeTextAdvisory({
+      submitted: areaSubmitted,
+      evaluation: reasoning,
+      criteria: questionReasoningValidationCriteria(question),
+      label: "Reasoning",
+      attributes: `data-question-set-reasoning-advisory="${escapeHtml(question.id)}"`,
+    })
+    : "";
+  return `
+    <p class="practice-feedback teach-question-feedback ${className}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(text)}</p>
+    ${reasoningAdvisory}
+  `;
 }
 
 function renderQuestionSetFeedback(card, question) {
@@ -25521,31 +31003,24 @@ function renderQuestionSetFeedback(card, question) {
     return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(pyramidNetFeedbackText(card))}</p>`;
   }
   const submitted = isTeachQuestionSubmitted(card, question.id);
-  const answered = questionSetHasAnswer(card, question);
-  const answerCorrect = answered && questionSetAnswerIsCorrect(card, question);
+  const textOnly = questionSetIsTextOnly(question);
+  const answered = questionSetHasObjectiveAnswer(card, question);
+  const answerCorrect = answered && questionSetObjectiveAnswerIsCorrect(card, question);
   const reasoning = questionSetReasoningEvaluation(card, question);
-  const failedReasoningCriteria = question.reasoningPrompt
-    && !question.reasoningOptional
-    && !reasoning.correct
-    ? freeTextValidationCriteria(questionReasoningValidationCriteria(question))
-    : "";
+  const primaryTextEvaluation = questionSetPrimaryTextEvaluation(card, question);
   const adjustmentSatisfied = !question.requireAdjustment || parallelogramExploreWasAdjusted(card, question.id);
   const uniquenessSatisfied = parallelogramExploreIsUnique(card, question);
   const requiredStateSatisfied = questionSetRequiredStateSatisfied(card, question);
-  const correct = submitted && adjustmentSatisfied && uniquenessSatisfied && requiredStateSatisfied && answerCorrect && reasoning.correct;
-  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
+  const correct = submitted && adjustmentSatisfied && uniquenessSatisfied && requiredStateSatisfied && answerCorrect;
+  const feedbackClass = !submitted
+    ? ""
+    : textOnly
+      ? correct ? "is-recorded" : ""
+      : correct ? "is-correct" : "is-incorrect";
   const baseFeedbackText = !submitted
     ? `Submit ${question.label} when you are ready for feedback.`
     : !answered
-      ? question.responseType === "openResponse" && !question.answerOptional
-        ? freeTextFeedbackWithCriteria(
-          question.missingResponseFeedback || `Enter a response for ${question.label}, then submit again.`,
-          questionAnswerValidationCriteria(question)
-        )
-        : [
-          question.missingResponseFeedback || `Choose or enter an answer for ${question.label}, then submit again.`,
-          failedReasoningCriteria,
-        ].filter(Boolean).join(" ")
+      ? question.missingResponseFeedback || `Choose or enter an answer for ${question.label}, then submit again.`
       : !adjustmentSatisfied
         ? question.adjustmentFeedback || "Change the model before submitting this question."
         : !uniquenessSatisfied
@@ -25554,23 +31029,36 @@ function renderQuestionSetFeedback(card, question) {
         ? question.requireAreaCheck
           ? question.areaCheckFeedback || "Use Show Area to check this figure before submitting it."
           : question.requiredStateFeedback || "Complete the required workspace action before submitting this question."
-      : answerCorrect && question.reasoningPrompt && !question.reasoningOptional && !reasoning.answered
-        ? freeTextFeedbackWithCriteria(
-          question.reasoningRequiredFeedback || "Your answer is correct. Add your reasoning, then submit again.",
-          questionReasoningValidationCriteria(question)
-        )
-        : answerCorrect && question.reasoningPrompt && !question.reasoningOptional && !reasoning.correct
-          ? freeTextFeedbackWithCriteria(
-            question.reasoningRevisionFeedback || "Your answer is correct, but strengthen the explanation; it did not pass the app check.",
-            questionReasoningValidationCriteria(question)
-          )
-          : correct
-            ? questionSetResolvedFeedback(card, question, true)
-            : questionSetResolvedFeedback(card, question, false);
-  const feedbackText = submitted
-    ? appendFeedbackCriteria(baseFeedbackText, failedReasoningCriteria)
-    : baseFeedbackText;
-  return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+      : correct
+        ? textOnly
+          ? question.savedFeedback || "Response recorded."
+          : primaryTextEvaluation && !primaryTextEvaluation.correct
+            ? "The checkable parts of your answer are correct."
+            : questionSetResolvedFeedback(card, question, true)
+        : questionSetResolvedFeedback(card, question, false);
+  const primaryTextAdvisory = questionSetHasPrimaryTextCheck(question)
+    ? renderFreeTextAdvisory({
+      submitted,
+      evaluation: primaryTextEvaluation,
+      criteria: questionSetPrimaryTextCriteria(question),
+      label: "Written response",
+      attributes: `data-question-set-text-advisory="${escapeHtml(question.id)}"`,
+    })
+    : "";
+  const reasoningAdvisory = question.reasoningPrompt && !question.reasoningOptional
+    ? renderFreeTextAdvisory({
+      submitted,
+      evaluation: reasoning,
+      criteria: questionReasoningValidationCriteria(question),
+      label: "Reasoning",
+      attributes: `data-question-set-reasoning-advisory="${escapeHtml(question.id)}"`,
+    })
+    : "";
+  return `
+    <p class="practice-feedback teach-question-feedback ${feedbackClass}" data-question-set-feedback="${escapeHtml(question.id)}" aria-live="polite">${escapeHtml(baseFeedbackText)}</p>
+    ${primaryTextAdvisory}
+    ${reasoningAdvisory}
+  `;
 }
 
 function renderQuestionSetHint(card, question) {
@@ -25845,65 +31333,54 @@ function areaDefinitionEvaluation(value) {
 
 function renderAreaMeaningQuestionFeedback(card, questionId) {
   const submitted = isTeachQuestionSubmitted(card, questionId);
-  let correct = false;
+  let feedbackClass = "";
   let feedbackText = `Submit Question ${questionId === "drawings" ? "1" : "2"} when you are ready for feedback.`;
+  let advisory = "";
 
   if (submitted && questionId === "drawings") {
     const selected = areaMeaningDrawingSelections(card);
     const selectionsCorrect = areaMeaningDrawingsAreCorrect(card);
     const reasoning = areaMeaningDrawingReasoningEvaluation(card);
-    correct = selectionsCorrect && reasoning.correct;
+    feedbackClass = selectionsCorrect ? "is-correct" : "is-incorrect";
     if (!selected.length) {
       feedbackText = "Select at least one drawing, then submit Question 1 again.";
     } else {
       const explanation = "A and D can be counted using a consistent square unit. B also works because four of its small squares equal one large square. C does not work because its squares overlap and leave part of the region uncovered.";
       feedbackText = !selectionsCorrect
         ? `Not quite. The correct drawings are A, B, and D. ${explanation}`
-        : !reasoning.answered
-          ? freeTextFeedbackWithCriteria(
-            "Your selections A, B, and D are correct. Add an explanation of why the squares can be used, then submit again.",
-            { validationGuidance: card.freeTextValidationGuidance?.drawingReasoning }
-          )
-          : !reasoning.correct
-            ? freeTextFeedbackWithCriteria(
-              "Your selections A, B, and D are correct. Strengthen the explanation; it did not pass the app check.",
-              { validationGuidance: card.freeTextValidationGuidance?.drawingReasoning }
-            )
-            : `Correct. The drawings are A, B, and D. ${explanation}`;
+        : `Correct. The drawings are A, B, and D. ${explanation}`;
     }
+    advisory = renderFreeTextAdvisory({
+      submitted,
+      evaluation: reasoning,
+      criteria: { validationGuidance: card.freeTextValidationGuidance?.drawingReasoning },
+      label: "Reasoning",
+      attributes: 'data-area-meaning-advisory="drawings"',
+    });
   }
 
   if (submitted && questionId === "definition") {
     const evaluation = areaDefinitionEvaluation(getTeachCustomResponse(card).areaDefinition);
-    correct = evaluation.correct;
     const modelDefinition = "Area is the number of unit squares that cover a two-dimensional region without gaps or overlaps.";
     if (!evaluation.answered) {
-      feedbackText = freeTextFeedbackWithCriteria(
-        "Write your definition of area, then submit Question 2 again.",
-        { validationGuidance: card.freeTextValidationGuidance?.areaDefinition }
-      );
-    } else if (evaluation.correct) {
-      feedbackText = `Correct. ${modelDefinition}`;
+      feedbackText = "Write your definition of area, then submit Question 2 again.";
     } else {
-      feedbackText = freeTextFeedbackWithCriteria(
-        `Not quite. ${modelDefinition} Your definition still needs to include: ${evaluation.missing.join(", ")}.`,
-        { validationGuidance: card.freeTextValidationGuidance?.areaDefinition }
-      );
+      feedbackClass = "is-recorded";
+      feedbackText = `Response recorded. Compare it with this mathematical definition: ${modelDefinition}`;
     }
+    advisory = renderFreeTextAdvisory({
+      submitted,
+      evaluation,
+      criteria: { validationGuidance: card.freeTextValidationGuidance?.areaDefinition },
+      label: "Definition",
+      attributes: 'data-area-meaning-advisory="definition"',
+    });
   }
 
-  if (submitted && questionId === "drawings") {
-    const reasoning = areaMeaningDrawingReasoningEvaluation(card);
-    if (!reasoning.correct) {
-      feedbackText = appendFeedbackCriteria(
-        feedbackText,
-        freeTextValidationCriteria({ validationGuidance: card.freeTextValidationGuidance?.drawingReasoning })
-      );
-    }
-  }
-
-  const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
-  return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-teach-question-feedback="${questionId}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+  return `
+    <p class="practice-feedback teach-question-feedback ${feedbackClass}" data-teach-question-feedback="${questionId}" aria-live="polite">${escapeHtml(feedbackText)}</p>
+    ${advisory}
+  `;
 }
 
 function renderAreaMeaningQuestionHint(card, questionId) {
@@ -26011,8 +31488,7 @@ function gridFigureAreaReasoningEvaluation(card, figureId) {
 }
 
 function isGridFigureAreaCorrect(card, figureId) {
-  if (!isGridFigureAreaAnswerCorrect(card, figureId)) return false;
-  return gridFigureAreaReasoningEvaluation(card, figureId).correct;
+  return isGridFigureAreaAnswerCorrect(card, figureId);
 }
 
 function gridFigureAreaStatus(card, figureId) {
@@ -26110,33 +31586,30 @@ function renderGridFigureAreaFeedback(card, figure) {
   const reasoning = gridFigureAreaReasoningEvaluation(card, figure.id);
   const correct = submitted && answered && isGridFigureAreaCorrect(card, figure.id);
   const feedbackClass = submitted ? (correct ? "is-correct" : "is-incorrect") : "";
-  const reasoningRequiredFeedback = (card.reasoningRequiredFeedback || "Your area is correct. Add your reasoning, then submit Figure {figure} again.")
-    .split("{figure}").join(figure.id);
   const reasoningCriteria = {
     concepts: figure.reasoningConcepts,
     validationGuidance: figure.reasoningValidationGuidance || card.reasoningValidationGuidance,
   };
-  const failedReasoningCriteria = card.requireReasoning && !reasoning.correct
-    ? freeTextValidationCriteria(reasoningCriteria)
-    : "";
   const baseFeedbackText = !submitted
     ? `Submit Figure ${figure.id} when you are ready for feedback.`
     : !answered
       ? `Enter the area of Figure ${figure.id}, then submit again.`
-      : areaCorrect && card.requireReasoning && !reasoning.answered
-        ? freeTextFeedbackWithCriteria(reasoningRequiredFeedback, reasoningCriteria)
-      : areaCorrect && card.requireReasoning && !reasoning.correct
-        ? freeTextFeedbackWithCriteria(
-          figure.reasoningRevisionFeedback || reasoningRequiredFeedback,
-          reasoningCriteria
-        )
       : correct
         ? figure.correctFeedback
         : figure.incorrectFeedback;
-  const feedbackText = submitted
-    ? appendFeedbackCriteria(baseFeedbackText, failedReasoningCriteria)
-    : baseFeedbackText;
-  return `<p class="practice-feedback teach-question-feedback ${feedbackClass}" data-grid-area-feedback="${figure.id}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+  const reasoningAdvisory = card.requireReasoning
+    ? renderFreeTextAdvisory({
+      submitted,
+      evaluation: reasoning,
+      criteria: reasoningCriteria,
+      label: "Reasoning",
+      attributes: `data-grid-area-reasoning-advisory="${escapeHtml(figure.id)}"`,
+    })
+    : "";
+  return `
+    <p class="practice-feedback teach-question-feedback ${feedbackClass}" data-grid-area-feedback="${figure.id}" aria-live="polite">${escapeHtml(baseFeedbackText)}</p>
+    ${reasoningAdvisory}
+  `;
 }
 
 function renderGridFigureAreaHint(card, figure) {
@@ -26366,10 +31839,27 @@ function guidedFieldMatches(value, expected, field = {}) {
   return expectedValues.some((accepted) => answerMatches(value, accepted));
 }
 
+function guidedFreeTextFieldIds(card) {
+  const requirementIds = (card.guidedReasoningRequirements || []).map((requirement) => requirement.field);
+  return new Set([
+    ...requirementIds,
+    ...(card.guidedFields || []).filter((field) => field.type === "textarea").map((field) => field.id),
+  ]);
+}
+
+function guidedObjectiveFields(card) {
+  const freeTextIds = guidedFreeTextFieldIds(card);
+  return (card.guidedFields || []).filter((field) => !freeTextIds.has(field.id));
+}
+
 function hasGuidedFieldsResponse(card) {
   const response = getTeachCustomResponse(card);
   const workspaceReady = Object.entries(card.requiredWorkspaceState || {}).every(([field, expected]) => String(response[field] || "") === String(expected));
-  return workspaceReady && card.guidedFields.every((field) => field.optional || guidedFieldAnswered(card, field));
+  const objectiveFields = guidedObjectiveFields(card);
+  const responseReady = objectiveFields.length
+    ? objectiveFields.every((field) => field.optional || guidedFieldAnswered(card, field))
+    : (card.guidedFields || []).some((field) => guidedFieldAnswered(card, field));
+  return workspaceReady && responseReady;
 }
 
 function guidedReasoningIsStrong(card) {
@@ -26379,11 +31869,22 @@ function guidedReasoningIsStrong(card) {
   });
 }
 
+function guidedReasoningEvaluation(card) {
+  const requirements = card.guidedReasoningRequirements || [];
+  if (!requirements.length) return null;
+  const answered = requirements.every((requirement) => (
+    normalizeAnswer(guidedFieldValue(card, requirement.field)).length > 0
+  ));
+  return { answered, correct: answered && guidedReasoningIsStrong(card) };
+}
+
 function isGuidedFieldsCorrect(card) {
   if (!hasGuidedFieldsResponse(card)) return false;
   if (card.guidedOpenEnded) return true;
   const answers = guidedAnswerMap(card);
-  return guidedReasoningIsStrong(card) && Object.entries(answers).every(([fieldId, expected]) => {
+  const objectiveFieldIds = new Set(guidedObjectiveFields(card).map((field) => field.id));
+  return Object.entries(answers).every(([fieldId, expected]) => {
+    if (!objectiveFieldIds.has(fieldId)) return true;
     const field = card.guidedFields.find((entry) => entry.id === fieldId);
     return guidedFieldMatches(guidedFieldValue(card, fieldId), expected, field);
   });
@@ -26403,16 +31904,24 @@ function renderGuidedOptionalChallenge(card) {
   const challenge = card.optionalChallenge;
   if (!challenge) return "";
   const submitted = isTeachQuestionSubmitted(card, challenge.id);
-  const correct = submitted && guidedOptionalChallengeIsCorrect(card);
+  const value = normalizeAnswer(guidedFieldValue(card, challenge.field));
+  const evaluation = { answered: value.length > 0, correct: guidedOptionalChallengeIsCorrect(card) };
   const feedback = !submitted
     ? "Submit the optional challenge when you are ready for feedback."
-    : correct
-      ? challenge.correctFeedback
-      : freeTextFeedbackWithCriteria(challenge.incorrectFeedback, {
-        concepts: challenge.answerConcepts,
-        minimumLength: Number.isInteger(challenge.minLength) ? challenge.minLength : 1,
-        validationGuidance: challenge.validationGuidance,
-      });
+    : evaluation.answered
+      ? "Response recorded."
+      : "Enter a response before recording the optional challenge.";
+  const advisory = renderFreeTextAdvisory({
+    submitted,
+    evaluation,
+    criteria: {
+      concepts: challenge.answerConcepts,
+      minimumLength: Number.isInteger(challenge.minLength) ? challenge.minLength : 1,
+      validationGuidance: challenge.validationGuidance,
+    },
+    label: "Optional response",
+    attributes: `data-guided-optional-advisory="${escapeHtml(card.id)}"`,
+  });
   return `
     <section class="guided-optional-challenge" aria-labelledby="${card.id}-${challenge.id}-prompt">
       <p class="teach-question-number">Optional challenge</p>
@@ -26425,7 +31934,8 @@ function renderGuidedOptionalChallenge(card) {
         <button class="practice-submit" type="button" data-guided-optional-submit="${card.id}">Submit optional challenge</button>
         <button class="hint-button" type="button" data-guided-optional-hint="${card.id}">${isTeachQuestionHintVisible(card, challenge.id) ? "Hide hint" : "Show hint"}</button>
       </div>
-      <p class="practice-feedback teach-question-feedback ${submitted ? (correct ? "is-correct" : "is-incorrect") : ""}" data-guided-optional-feedback aria-live="polite">${escapeHtml(feedback)}</p>
+      <p class="practice-feedback teach-question-feedback ${submitted && evaluation.answered ? "is-recorded" : ""}" data-guided-optional-feedback aria-live="polite">${escapeHtml(feedback)}</p>
+      ${advisory}
       ${isTeachQuestionHintVisible(card, challenge.id) ? `<p class="practice-hints"><strong>Hint:</strong> ${escapeHtml(challenge.hint)}</p>` : ""}
     </section>
   `;
@@ -26896,15 +32406,13 @@ function hasTeachResponse(card) {
   if (card.responseType === "tangramCompose") {
     const response = getTeachCustomResponse(card);
     return normalizeAnswer(response.unitSquareArea).length > 0
-      && normalizeAnswer(response.compositionTarget).length > 0
-      && normalizeAnswer(response.compositionReasoning).length > 0;
+      && normalizeAnswer(response.compositionTarget).length > 0;
   }
   if (card.responseType === "tangramAreas") {
     const response = getTeachCustomResponse(card);
     return normalizeAnswer(response.smallTriangle).length > 0
       && normalizeAnswer(response.mediumTriangle).length > 0
-      && normalizeAnswer(response.largeTriangle).length > 0
-      && normalizeAnswer(response.triangleReasoning).length > 0;
+      && normalizeAnswer(response.largeTriangle).length > 0;
   }
   if (card.responseType === "quadrilateralDecompose") {
     const response = getTeachCustomResponse(card);
@@ -26913,8 +32421,7 @@ function hasTeachResponse(card) {
       .map((shape) => shape.id);
     const hasWorkingSegments = workingShapeIds.every((shapeId) => normalizeAnswer(quadrilateralSegmentValue(response, shapeId)).length > 0);
     return hasWorkingSegments
-      && quadrilateralWorkingValues(response).length > 0
-      && normalizeAnswer(response.observations).length > 0;
+      && quadrilateralWorkingValues(response).length > 0;
   }
   if (card.responseType === "trianglePairsCompose") {
     const response = getTeachCustomResponse(card);
@@ -26925,16 +32432,14 @@ function hasTeachResponse(card) {
     return trianglePairTestedValues(response).length === trianglePairDefinitions.length
       && hasPairObservations
       && normalizeAnswer(response.rectangleConclusion).length > 0
-      && normalizeAnswer(response.parallelogramConclusion).length > 0
-      && normalizeAnswer(response.trianglePairReasoning).length > 0;
+      && normalizeAnswer(response.parallelogramConclusion).length > 0;
   }
   if (card.responseType === "parallelogramExplore") {
     return hasParallelogramExploreResponse(card);
   }
   if (card.responseType === "triangleHeightMarks") {
     const response = getTeachCustomResponse(card);
-    return triangleHeightDiagrams.every((diagram) => normalizeAnswer(triangleHeightSegmentValue(response, diagram.id)).length > 0)
-      && normalizeAnswer(response.heightReasoning).length > 0;
+    return triangleHeightDiagrams.every((diagram) => normalizeAnswer(triangleHeightSegmentValue(response, diagram.id)).length > 0);
   }
   if (card.responseType === "prismBuild") {
     return hasPrismBuildResponse(card);
@@ -26944,8 +32449,7 @@ function hasTeachResponse(card) {
   }
   const value = getTeachValue(card);
   const hasValue = Array.isArray(value) ? value.length > 0 : normalizeAnswer(value).length > 0;
-  if (!hasValue) return false;
-  return !card.reasoningRequired || normalizeAnswer(state.teachReasoning[card.id] || "").length > 0;
+  return hasValue;
 }
 
 function isTeachSubmitted(card) {
@@ -26979,7 +32483,7 @@ function isTeachCorrect(card) {
       .sort();
     const selectionsCorrect = selected.length === expected.length && selected.every((value, index) => value === expected[index]);
     const workingSegmentsCorrect = expected.every((shapeId) => quadrilateralIsDiagonal(quadrilateralSegmentValue(response, shapeId)));
-    return selectionsCorrect && workingSegmentsCorrect && quadrilateralObservationsAreStrong(card);
+    return selectionsCorrect && workingSegmentsCorrect;
   }
   if (card.responseType === "trianglePairsCompose") {
     const response = getTeachCustomResponse(card);
@@ -26990,16 +32494,14 @@ function isTeachCorrect(card) {
     return trianglePairTestedValues(response).length === trianglePairDefinitions.length
       && observationsCorrect
       && response.rectangleConclusion === "some"
-      && response.parallelogramConclusion === "all"
-      && trianglePairReasoningIsStrong(response);
+      && response.parallelogramConclusion === "all";
   }
   if (card.responseType === "parallelogramExplore") {
     return isParallelogramExploreCorrect(card);
   }
   if (card.responseType === "triangleHeightMarks") {
     const response = getTeachCustomResponse(card);
-    return triangleHeightDiagrams.every((diagram) => triangleHeightIsCorrect(response, diagram))
-      && triangleHeightReasoningIsStrong(card);
+    return triangleHeightDiagrams.every((diagram) => triangleHeightIsCorrect(response, diagram));
   }
   if (card.responseType === "prismBuild") {
     return isPrismBuildCorrect(card);
@@ -27007,7 +32509,6 @@ function isTeachCorrect(card) {
   if (card.responseType === "guidedFields") {
     return isGuidedFieldsCorrect(card);
   }
-  if (!teachReasoningMeetsRequirements(card)) return false;
   return standardTeachAnswerIsCorrect(card);
 }
 
@@ -27142,23 +32643,49 @@ function guidedReasoningValidationCriteria(card) {
   };
 }
 
-function customRequiredFreeTextCriteria(card) {
+function teachUsesRecordedVerdict(card) {
+  return card.acceptAnyChoice
+    || card.responseType === "open"
+    || (card.responseType === "guidedFields" && guidedObjectiveFields(card).length === 0);
+}
+
+function renderCustomTeachFreeTextAdvisory(card, submitted) {
   const response = getTeachCustomResponse(card);
   let field = "";
-  let passes = true;
+  let value = "";
+  let passes = false;
+  let label = "Reasoning";
   if (card.responseType === "quadrilateralDecompose") {
     field = "observations";
+    value = response[field];
     passes = quadrilateralObservationsAreStrong(card);
   } else if (card.responseType === "trianglePairsCompose") {
     field = "trianglePairReasoning";
+    value = response[field];
     passes = trianglePairReasoningIsStrong(response);
   } else if (card.responseType === "triangleHeightMarks") {
     field = "heightReasoning";
+    value = response[field];
     passes = triangleHeightReasoningIsStrong(card);
+  } else if (card.responseType === "guidedFields") {
+    const evaluation = guidedReasoningEvaluation(card);
+    return evaluation
+      ? renderFreeTextAdvisory({
+        submitted,
+        evaluation,
+        criteria: guidedReasoningValidationCriteria(card),
+        label,
+        attributes: `data-teach-guided-advisory="${escapeHtml(card.id)}"`,
+      })
+      : "";
   }
-  if (!field || passes) return "";
-  return freeTextValidationCriteria({
-    validationGuidance: card.freeTextValidationGuidance?.[field],
+  if (!field) return "";
+  return renderFreeTextAdvisory({
+    submitted,
+    evaluation: { answered: normalizeAnswer(value).length > 0, correct: passes },
+    criteria: { validationGuidance: card.freeTextValidationGuidance?.[field] },
+    label,
+    attributes: `data-teach-custom-advisory="${escapeHtml(field)}"`,
   });
 }
 
@@ -27167,40 +32694,35 @@ function renderTeachFeedback(card) {
   const answered = hasTeachResponse(card);
   const hasVariant = hasRequiredTeachVariant(card);
   const correct = submitted && answered && isTeachCorrect(card);
-  const standardPrimaryAnswered = hasStandardTeachPrimaryResponse(card);
-  const standardPrimaryCorrect = standardPrimaryAnswered && standardTeachAnswerIsCorrect(card);
+  const recordedVerdict = teachUsesRecordedVerdict(card);
   const reasoning = teachReasoningEvaluation(card);
-  const genericReasoningCriteria = card.reasoningRequired && !reasoning.correct
-    ? freeTextValidationCriteria({
+  const reasoningCriteria = {
       concepts: card.reasoningConcepts,
       conceptsRequired: card.reasoningConceptsRequired,
       minimumLength: Number.isInteger(card.reasoningMinLength) ? card.reasoningMinLength : 1,
       validationGuidance: card.reasoningValidationGuidance,
-    })
-    : "";
-  const guidedCriteria = card.responseType === "guidedFields" && !guidedReasoningIsStrong(card)
-    ? freeTextValidationCriteria(guidedReasoningValidationCriteria(card))
-    : "";
-  const customCriteria = customRequiredFreeTextCriteria(card);
-  const failedFreeTextCriteria = genericReasoningCriteria || guidedCriteria || customCriteria;
-  const responseMissing = card.reasoningRequired && standardPrimaryAnswered ? false : !answered;
-  const feedbackClass = submitted
-    ? correct
-      ? card.acceptAnyChoice ? "is-recorded" : "is-correct"
-      : "is-incorrect"
-    : "";
+  };
+  const responseMissing = !answered;
+  const recordedFeedbackText = card.acceptAnyChoice
+    ? getTeachFeedbackText(card, true)
+    : card.recordedFeedback || "Response recorded.";
+  const feedbackClass = !submitted
+    ? ""
+    : recordedVerdict
+      ? answered ? "is-recorded" : ""
+      : correct ? "is-correct" : "is-incorrect";
   const missingResponseText = card.responseType === "trianglePairsCompose"
-    ? "Test and record each pair, choose both all/some/none conclusions, and explain one example before submitting again."
+    ? "Test and record each pair, then choose both all/some/none conclusions before submitting again."
     : card.responseType === "tilingDesign"
       ? "Place squares and dominoes on the grid before submitting the optional challenge."
     : card.responseType === "triangleFit"
       ? "Move the triangles from their starting positions into Figure D before submitting."
     : card.responseType === "quadrilateralDecompose"
-      ? "Draw decomposition segments for the quadrilaterals that work, choose the working labels, and explain what they have in common."
+      ? "Draw decomposition segments for the quadrilaterals that work and choose the working labels."
       : card.responseType === "parallelogramExplore"
-        ? "Adjust the parallelogram, use Show Area to check, enter the area, and explain your reasoning."
+        ? "Adjust the parallelogram, use Show Area to check, and enter the area."
         : card.responseType === "triangleHeightMarks"
-          ? "Draw one height segment for each diagram, explain what makes the segments heights, then submit again."
+          ? "Draw one height segment for each diagram, then submit again."
           : card.responseType === "prismBuild"
             ? "Complete the build choices and measurements, then submit again."
             : card.responseType === "guidedFields"
@@ -27212,29 +32734,26 @@ function renderTeachFeedback(card) {
       : "Submit when you are ready for feedback."
     : !hasVariant
       ? "Choose Pattern A or Pattern B first, then submit again."
-    : card.reasoningRequired && standardPrimaryCorrect && !reasoning.correct
-      ? freeTextFeedbackWithCriteria(
-        reasoning.answered
-          ? card.reasoningRevisionFeedback
-            || getTeachFeedbackText(card, false)
-            || "Your answer is correct, but the explanation did not pass the app check. Revise it and submit again."
-          : card.reasoningRequiredFeedback || "Your answer is correct. Add the required explanation, then submit again.",
-        {
-          concepts: card.reasoningConcepts,
-          conceptsRequired: card.reasoningConceptsRequired,
-          minimumLength: Number.isInteger(card.reasoningMinLength) ? card.reasoningMinLength : 1,
-          validationGuidance: card.reasoningValidationGuidance,
-        }
-      )
     : responseMissing
-      ? [missingResponseText, failedFreeTextCriteria].filter(Boolean).join(" ")
+      ? missingResponseText
       : correct
-        ? getTeachFeedbackText(card, true)
-        : [getTeachFeedbackText(card, false), failedFreeTextCriteria].filter(Boolean).join(" ");
-  const feedbackText = submitted
-    ? appendFeedbackCriteria(baseFeedbackText, failedFreeTextCriteria)
-    : baseFeedbackText;
-  return `<p class="practice-feedback teach-feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedbackText)}</p>`;
+        ? recordedVerdict ? recordedFeedbackText : getTeachFeedbackText(card, true)
+        : getTeachFeedbackText(card, false);
+  const standardReasoningAdvisory = card.reasoningRequired
+    ? renderFreeTextAdvisory({
+      submitted,
+      evaluation: reasoning,
+      criteria: reasoningCriteria,
+      label: "Reasoning",
+      attributes: `data-teach-reasoning-advisory="${escapeHtml(card.id)}"`,
+    })
+    : "";
+  const customAdvisory = renderCustomTeachFreeTextAdvisory(card, submitted);
+  return `
+    <p class="practice-feedback teach-feedback ${feedbackClass}" aria-live="polite">${escapeHtml(baseFeedbackText)}</p>
+    ${standardReasoningAdvisory}
+    ${customAdvisory}
+  `;
 }
 
 function renderTeachHint(card) {
@@ -27246,9 +32765,9 @@ function renderPracticeCard(item, index, lessonParts = []) {
   const isLessonGroup = lessonParts.length > 1;
   const hasVisualWorkspace = Boolean(item.visualModelData?.type);
   const attemptOnly = item.responseType === "annotationAttempt";
+  const textOnly = practiceUsesAdvisoryPrimaryText(item);
   const submitted = isPracticeSubmitted(item);
   const answered = hasPracticeResponse(item);
-  const primaryCorrect = submitted && isPracticePrimaryCorrect(item);
   const reasoning = practiceReasoningEvaluation(item);
   const correct = submitted && isPracticeCorrect(item);
   const hasSample = hasPracticeSample(item);
@@ -27258,39 +32777,59 @@ function renderPracticeCard(item, index, lessonParts = []) {
     ? "Hide sample"
     : sampleUnlocked
       ? "Show sample"
-      : item.responseType === "open"
+      : textOnly
         ? "Sample unlocks after response"
         : "Sample unlocks after correct";
   const sampleDisabled = sampleUnlocked ? "" : " disabled";
-  const feedbackClass = submitted ? (attemptOnly ? "is-recorded" : correct ? "is-correct" : "is-incorrect") : "";
-  const statusClass = submitted ? (attemptOnly ? "is-recorded" : correct ? "is-correct" : "is-incorrect") : "";
-  const reasoningCriteria = item.reasoningRequired && !reasoning.correct
-    ? freeTextValidationCriteria({
-      concepts: item.reasoningConcepts,
-      conceptRequirements: item.reasoningConceptRequirements,
-      conceptsRequired: item.reasoningConceptsRequired,
-      minimumLength: item.reasoningMinLength,
-      validationGuidance: item.reasoningValidationGuidance,
-    })
+  const feedbackClass = submitted
+    ? attemptOnly || textOnly
+      ? answered ? "is-recorded" : ""
+      : correct ? "is-correct" : "is-incorrect"
     : "";
+  const statusClass = submitted
+    ? attemptOnly || textOnly
+      ? answered ? "is-recorded" : ""
+      : correct ? "is-correct" : "is-incorrect"
+    : "";
+  const reasoningCriteria = {
+    concepts: item.reasoningConcepts,
+    conceptRequirements: item.reasoningConceptRequirements,
+    conceptsRequired: item.reasoningConceptsRequired,
+    minimumLength: item.reasoningMinLength,
+    validationGuidance: item.reasoningValidationGuidance,
+  };
   const baseFeedback = !submitted
     ? item.readyFeedback || "Submit when you are ready for feedback."
     : !answered
       ? item.missingFeedback || "Choose or enter an answer before submitting."
       : attemptOnly
         ? item.savedFeedback || "Attempt recorded. Compare your work with the model solution."
-      : item.responseType === "open"
-        ? item.savedFeedback || "Open response saved. Compare your reasoning with the sample response."
-        : primaryCorrect && item.reasoningRequired && !reasoning.answered
-          ? item.reasoningRequiredFeedback || "The answer is correct. Add the required explanation, then submit again."
-          : primaryCorrect && item.reasoningRequired && !reasoning.correct
-            ? item.reasoningRevisionFeedback || "The answer is correct, but the explanation did not pass the app check. Revise it and submit again."
+      : textOnly
+        ? item.savedFeedback || "Response recorded."
         : correct
           ? item.correctFeedback || "Correct."
           : practiceIncorrectFeedback(item);
-  const feedback = submitted && primaryCorrect && item.reasoningRequired && !reasoning.correct
-    ? appendFeedbackCriteria(baseFeedback, reasoningCriteria)
-    : baseFeedback;
+  const primaryTextAdvisory = item.responseType === "validatedText"
+    ? renderFreeTextAdvisory({
+      submitted,
+      evaluation: practicePrimaryTextEvaluation(item),
+      criteria: {
+        minimumLength: item.responseMinLength,
+        validationGuidance: item.responseValidationGuidance,
+      },
+      label: "Written response",
+      attributes: `data-practice-text-advisory="${escapeHtml(item.id)}"`,
+    })
+    : "";
+  const reasoningAdvisory = item.reasoningRequired
+    ? renderFreeTextAdvisory({
+      submitted,
+      evaluation: reasoning,
+      criteria: reasoningCriteria,
+      label: "Reasoning",
+      attributes: `data-practice-reasoning-advisory="${escapeHtml(item.id)}"`,
+    })
+    : "";
   const copy = isLessonGroup
     ? `
       <div class="practice-copy practice-lesson-copy">
@@ -27338,7 +32877,9 @@ function renderPracticeCard(item, index, lessonParts = []) {
             <button class="hint-button" type="button" data-practice-hint="${item.id}">${state.practiceHints[item.id] ? "Hide hint" : "Show hint"}</button>
             ${attemptOnly || !hasSample ? "" : `<button class="sample-button" type="button" data-practice-sample="${item.id}"${sampleDisabled}>${sampleLabel}</button>`}
           </div>
-          <p class="practice-feedback ${feedbackClass}" id="feedback-${item.id}" aria-live="polite">${escapeHtml(feedback)}</p>
+          <p class="practice-feedback ${feedbackClass}" id="feedback-${item.id}" aria-live="polite">${escapeHtml(baseFeedback)}</p>
+          ${primaryTextAdvisory}
+          ${reasoningAdvisory}
           ${state.practiceHints[item.id] ? `<p class="practice-hints"><strong>Hint:</strong> ${escapeHtml(item.hints.join(" "))}</p>` : ""}
           ${sampleVisible ? `<p class="practice-sample"><strong>Sample:</strong> ${escapeHtml(item.sampleAnswer)}</p>` : ""}
         </div>
@@ -27381,7 +32922,11 @@ function renderPracticeStats(unitNumber = state.activeUnit) {
   const unitBank = practiceBankForUnit(unitNumber);
   const ids = practiceDomIds(unitNumber);
   const attempted = unitBank.filter((item) => state.practiceSubmitted[item.id]).length;
-  const correct = unitBank.filter((item) => state.practiceSubmitted[item.id] && isPracticeCorrect(item)).length;
+  const correct = unitBank.filter((item) => (
+    state.practiceSubmitted[item.id]
+    && !practiceUsesAdvisoryPrimaryText(item)
+    && isPracticeCorrect(item)
+  )).length;
   setText(ids.answered, String(attempted));
   setText(ids.correct, String(correct));
   setText(ids.total, String(unitBank.length));
@@ -28736,6 +34281,171 @@ function bindEvents() {
         practiceBank.find((item) => item.id === interactedPracticeCard.dataset.practiceCard),
       );
     }
+    const unit3MoneyTapeButton = event.target.closest("[data-unit3-money-tape]");
+    if (unit3MoneyTapeButton) {
+      const card = teachCardById(unit3MoneyTapeButton.dataset.cardId);
+      const person = unit3MoneyTapeButton.dataset.person;
+      const action = unit3MoneyTapeButton.dataset.unit3MoneyTape;
+      if (!card || card.customVisual !== "unit3MoneyTapeBuilder" || !["elena", "diego"].includes(person)) return;
+      const field = person === "elena" ? "unit3L12ElenaBlocks" : "unit3L12DiegoBlocks";
+      const current = unit3MoneyTapeBlocks(card, person);
+      const next = action === "increase"
+        ? Math.min(10, current + 1)
+        : action === "decrease"
+          ? Math.max(0, current - 1)
+          : action === "reset"
+            ? 0
+            : current;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [field]: String(next),
+      };
+      renderTeachMe();
+      return;
+    }
+    const unit3StationButton = event.target.closest("[data-unit3-station-action]");
+    if (unit3StationButton) {
+      const card = teachCardById(unit3StationButton.dataset.cardId);
+      const action = unit3StationButton.dataset.unit3StationAction;
+      const value = unit3StationButton.dataset.value;
+      if (!card || card.customVisual !== "unit3MeasurementStations") return;
+      const response = { ...getTeachCustomResponse(card) };
+      let questionId = questionSetActiveId(card);
+      if (action === "box" && ["inches", "centimeters"].includes(value)) {
+        response.station1ActiveUnit = value;
+        response[value === "inches" ? "station1InchesViewed" : "station1CentimetersViewed"] = "yes";
+        questionId = "station-1";
+      } else if (action === "length" && ["meters", "feet"].includes(value)) {
+        response.station2ActiveUnit = value;
+        response[value === "meters" ? "station2MetersViewed" : "station2FeetViewed"] = "yes";
+        questionId = "station-2";
+      } else if (action === "water-pour" && ["quart", "liter"].includes(value)) {
+        if (value === "quart") {
+          response.station3QuartPours = String(Math.min(4, (Number(response.station3QuartPours) || 0) + 1));
+        } else {
+          const pours = Number(response.station3LiterPours) || 0;
+          if (pours < 3) response.station3LiterPours = String(pours + 1);
+          else response.station3LiterChecked = "yes";
+        }
+        questionId = "station-3";
+      } else if (action === "water-reset" && ["quart", "liter"].includes(value)) {
+        if (value === "quart") response.station3QuartPours = "0";
+        else {
+          response.station3LiterPours = "0";
+          response.station3LiterChecked = "";
+        }
+        questionId = "station-3";
+      } else if (action === "scale-object" && unit3StationScaleObjects.some((object) => object.id === value)) {
+        response.station4Object = value;
+        questionId = "station-4";
+      } else if (action === "scale-unit" && unit3StationScaleUnits.some((unit) => unit.id === value)) {
+        const object = unit3StationScaleObject(response.station4Object);
+        response.station4Unit = value;
+        response[unit3StationScaleViewedField(object.id, value)] = "yes";
+        questionId = "station-4";
+      } else if (action === "salt-target" && [20, 40, 50].includes(Number(value))) {
+        response.station5Target = String(Number(value));
+        questionId = "station-5";
+      } else if (["salt-add", "salt-reset", "salt-record"].includes(action)) {
+        const target = [20, 40, 50].includes(Number(response.station5Target)) ? Number(response.station5Target) : 20;
+        const amountField = `station5Amount_${target}`;
+        const amount = clampNumber(Number(response[amountField]) || 0, 0, target);
+        if (action === "salt-add") response[amountField] = String(Math.min(target, amount + 5));
+        if (action === "salt-reset") response[amountField] = "0";
+        if (action === "salt-record" && amount === target) response[`station5Record_${target}`] = String(target / 5);
+        questionId = "station-5";
+      } else {
+        return;
+      }
+      state.teachCustomResponses[card.id] = response;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit3MeasurementSelect = event.target.closest("[data-unit3-measure-select]");
+    if (unit3MeasurementSelect) {
+      const card = teachCardById(unit3MeasurementSelect.dataset.unit3MeasureSelect);
+      const stage = unit3MeasurementSelect.dataset.measureStage;
+      const cardId = unit3MeasurementSelect.dataset.measureCardId;
+      const validStage = stage === "units" || Boolean(unit3MeasurementObjectGroups[stage]);
+      if (!card || card.customVisual !== "unit3MeasurementCardSort" || !validStage || !cardId) return;
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        [unit3MeasurementSelectedField(stage)]: cardId,
+      };
+      renderTeachMe();
+      return;
+    }
+    const unit3MeasurementAssign = event.target.closest("[data-unit3-measure-assign]");
+    if (unit3MeasurementAssign) {
+      const card = teachCardById(unit3MeasurementAssign.dataset.unit3MeasureAssign);
+      const stage = unit3MeasurementAssign.dataset.measureStage;
+      const value = unit3MeasurementAssign.dataset.measureValue;
+      const response = card ? getTeachCustomResponse(card) : null;
+      const selectedId = response?.[unit3MeasurementSelectedField(stage)]
+        || (stage === "units" ? unit3MeasurementUnits[0]?.id : unit3MeasurementObjectGroups[stage]?.objects[0]?.id);
+      const questionId = stage === "units" ? "sort-units" : {
+        length: "match-length",
+        volume: "match-volume",
+        weight: "match-weight",
+      }[stage];
+      const validUnitValue = stage === "units"
+        ? ["length", "volume", "weight"].includes(value)
+        : Boolean(unit3MeasurementUnitById(value) && unit3MeasurementObjectGroups[stage]?.units.includes(value));
+      if (!card || card.customVisual !== "unit3MeasurementCardSort" || !selectedId || !questionId || !validUnitValue) return;
+      const field = stage === "units"
+        ? unit3MeasurementUnitField(selectedId)
+        : unit3MeasurementObjectField(selectedId);
+      state.teachCustomResponses[card.id] = {
+        ...response,
+        [field]: value,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit3MeasurementReset = event.target.closest("[data-unit3-measure-reset]");
+    if (unit3MeasurementReset) {
+      const card = teachCardById(unit3MeasurementReset.dataset.unit3MeasureReset);
+      const stage = unit3MeasurementReset.dataset.measureStage;
+      const group = unit3MeasurementObjectGroups[stage];
+      const questionId = stage === "units" ? "sort-units" : {
+        length: "match-length",
+        volume: "match-volume",
+        weight: "match-weight",
+      }[stage];
+      if (!card || card.customVisual !== "unit3MeasurementCardSort" || !questionId) return;
+      const nextResponse = { ...getTeachCustomResponse(card) };
+      if (stage === "units") {
+        unit3MeasurementUnits.forEach((unit) => delete nextResponse[unit3MeasurementUnitField(unit.id)]);
+      } else if (group) {
+        group.objects.forEach((object) => delete nextResponse[unit3MeasurementObjectField(object.id)]);
+      }
+      state.teachCustomResponses[card.id] = nextResponse;
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, questionId)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit3StringNext = event.target.closest("[data-unit3-string-next]");
+    if (unit3StringNext) {
+      const card = teachCardById(unit3StringNext.dataset.unit3StringNext);
+      if (!card || card.customVisual !== "unit3StringEstimate") return;
+      const current = unit3StringAssignment(card);
+      const currentIndex = unit3StringAssignments.findIndex((assignment) => assignment.id === current.id);
+      const next = unit3StringAssignments[(currentIndex + 1) % unit3StringAssignments.length];
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        stringAssignment: next.id,
+        stringEstimateCm: "0",
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "string-cut")] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
     const teachSourceAnnotationTool = event.target.closest("[data-teach-source-annotation-tool]");
     if (teachSourceAnnotationTool) {
       const target = teachSourceAnnotationTarget(
@@ -29908,6 +35618,51 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const unit3InfoRequestChoice = event.target.closest("[data-unit3-info-request-choice]");
+    if (unit3InfoRequestChoice) {
+      const id = unit3InfoRequestChoice.dataset.unit3InfoRequestChoice;
+      const questionId = unit3InfoRequestChoice.dataset.questionId;
+      const requestId = unit3InfoRequestChoice.dataset.requestId;
+      const card = teachCardById(id);
+      const roundId = unit3MusicInfoGapRoundId(questionId);
+      const request = unit3MusicInfoGapRequests[roundId]?.find((entry) => entry.id === requestId);
+      if (!card || card.customVisual !== "unit3MusicInfoGap" || !request) return;
+      state.teachCustomResponses[id] = {
+        ...getTeachCustomResponse(card),
+        [unit3MusicInfoGapField(questionId, "pending")]: requestId,
+      };
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
+    const unit3InfoRequestSubmit = event.target.closest("[data-unit3-info-request-submit]");
+    if (unit3InfoRequestSubmit) {
+      const id = unit3InfoRequestSubmit.dataset.unit3InfoRequestSubmit;
+      const questionId = unit3InfoRequestSubmit.dataset.questionId;
+      const card = teachCardById(id);
+      if (!card || card.customVisual !== "unit3MusicInfoGap") return;
+      const response = getTeachCustomResponse(card);
+      const roundId = unit3MusicInfoGapRoundId(questionId);
+      const requestId = response[unit3MusicInfoGapField(questionId, "pending")] || "";
+      const request = unit3MusicInfoGapRequests[roundId]?.find((entry) => entry.id === requestId);
+      let revealed = unit3MusicInfoGapRevealed(card, questionId);
+      let feedback = "Choose one specific request before asking the app partner.";
+      if (request?.generic) {
+        feedback = "That request is too broad. Ask for one specific price, amount, or percentage that will help solve the problem.";
+      } else if (request?.reveal) {
+        if (!revealed.includes(request.id)) revealed = [...revealed, request.id];
+        feedback = `The app partner shares: ${request.reveal}`;
+      }
+      state.teachCustomResponses[id] = {
+        ...response,
+        [unit3MusicInfoGapField(questionId, "revealed")]: revealed.join("|"),
+        [unit3MusicInfoGapField(questionId, "feedback")]: feedback,
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(id, questionId)] = false;
+      state.sourceModalItemId = null;
+      renderTeachMe();
+      return;
+    }
     const questionSetChoiceButton = event.target.closest("[data-question-set-choice]");
     if (questionSetChoiceButton) {
       const id = questionSetChoiceButton.dataset.questionSetChoice;
@@ -31035,6 +36790,26 @@ function bindEvents() {
   });
   document.addEventListener("input", (event) => {
     enforceTextareaValueLimit(event.target);
+    const unit3StringSlider = event.target.closest("[data-unit3-string-slider]");
+    if (unit3StringSlider) {
+      const card = teachCardById(unit3StringSlider.dataset.unit3StringSlider);
+      if (!card || card.customVisual !== "unit3StringEstimate") return;
+      const assignment = unit3StringAssignment(card);
+      const estimate = clampNumber(Number(unit3StringSlider.value), 0, assignment.workspaceMaxCentimeters);
+      state.teachCustomResponses[card.id] = {
+        ...getTeachCustomResponse(card),
+        stringEstimateCm: String(estimate),
+      };
+      state.teachQuestionSubmitted[teachQuestionStateKey(card.id, "string-cut")] = false;
+      state.sourceModalItemId = null;
+      const cardNode = unit3StringSlider.closest("[data-teach-card]");
+      const percent = unit3StringScalePercent(estimate, assignment);
+      const line = cardNode?.querySelector("[data-unit3-string-line]");
+      const cut = cardNode?.querySelector("[data-unit3-string-cut]");
+      if (line) line.style.width = `${percent}%`;
+      if (cut) cut.style.left = `${percent}%`;
+      return;
+    }
     const quadrilateralDimension = event.target.closest("[data-practice-quadrilateral-dimension]");
     if (quadrilateralDimension) {
       const item = practiceBank.find((entry) => entry.id === quadrilateralDimension.dataset.practiceQuadrilateralDimension);
@@ -31264,6 +37039,24 @@ function bindEvents() {
       state.teachResponses[id] = enforceTextareaValueLimit(teachInput);
       state.teachSubmitted[id] = false;
       state.sourceModalItemId = null;
+      return;
+    }
+    const choiceScratchInput = event.target.closest("[data-practice-choice-scratch]");
+    if (choiceScratchInput) {
+      const id = choiceScratchInput.dataset.practiceChoiceScratch;
+      const optionId = choiceScratchInput.dataset.optionId;
+      const item = practiceBank.find((entry) => entry.id === id);
+      const validOption = item?.choiceScratch?.enabled
+        && item.choices?.some((choice) => choice.id === optionId);
+      if (!validOption) return;
+      const configuredLimit = Number(item.choiceScratch.maxLength) || CHOICE_SCRATCH_MAX_LENGTH;
+      const maxLength = Math.min(CHOICE_SCRATCH_MAX_LENGTH, Math.max(1, configuredLimit));
+      const value = String(choiceScratchInput.value || "").slice(0, maxLength);
+      if (choiceScratchInput.value !== value) choiceScratchInput.value = value;
+      state.practiceChoiceScratch[id] = {
+        ...(state.practiceChoiceScratch[id] || {}),
+        [optionId]: value,
+      };
       return;
     }
     const input = event.target.closest("[data-practice-input]");

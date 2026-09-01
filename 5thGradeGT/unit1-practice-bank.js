@@ -18,7 +18,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "1",
     "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set/page-001.png",
     "skill": "Compare the area covered by different-size squares",
-    "activityForm": "single-choice visual comparison with optional reasoning",
+    "activityForm": "single-choice visual comparison with optional measurement annotation and reasoning",
     "prompt": "Which square - large, medium, or small - covers more of the plane? Explain your reasoning.",
     "responseType": "singleChoice",
     "choices": [
@@ -36,20 +36,36 @@ window.unit1PracticeBank = [
       }
     ],
     "answerKey": [
-      "medium"
+      "large"
     ],
     "reasoningPrompt": "Explain how you compared the total area covered by each size of square.",
     "reasoningRequired": false,
     "missingFeedback": "Choose the square size that covers the greatest total area.",
-    "correctFeedback": "Correct. Using a small square as 1 area unit, the 4 large squares cover 4 x 9 = 36 units, the 10 medium squares cover 10 x 4 = 40 units, and the 10 small squares cover 10 units. The medium squares cover the most area.",
+    "correctFeedback": "Correct. Using a small square as 1 area unit, the 5 large squares cover 5 x 9 = 45 units, the 10 medium squares cover 10 x 4 = 40 units, and the 10 small squares cover 10 x 1 = 10 units. The large squares cover the most area.",
     "incorrectFeedback": "Not quite. Compare total covered area, not just the size of one square. Count each size and express every square's area in the same small-square unit.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-01-square-cover-pattern.png",
-      "alt": "The exact source pattern containing four large white squares, ten medium green squares, and ten small yellow squares.",
+      "alt": "The exact source pattern containing five large white squares, ten medium green squares, and ten small yellow squares.",
       "naturalWidth": 700,
       "naturalHeight": 515,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationGrid": {
+        "originX": 45,
+        "originY": 26,
+        "cellX": 40.2,
+        "cellY": 40.2,
+        "columns": 15,
+        "rows": 11
+      },
+      "annotationTools": [
+        "line",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 515,
+      "annotationInstructions": "Use Line to compare side lengths or Square to trace and compare the three square sizes. Drag between aligned corners. These annotations are optional scratch work and do not affect your submitted answer."
     },
     "visualRules": {
       "status": "passes",
@@ -57,18 +73,18 @@ window.unit1PracticeBank = [
       "appActionTargets": 2,
       "unitOfAction": "one comparison choice and one available explanation field",
       "sourceObjects": [
-        "four large white squares",
+        "five large white squares",
         "ten medium green squares",
         "ten small yellow squares"
       ],
-      "notes": "Preserves source Problem 1 and uses a high-resolution visual-only crop of the exact square pattern. The explanation remains available but optional because the app does not reject mathematically valid prose it cannot reliably parse."
+      "notes": "Preserves source Problem 1 and uses a high-resolution visual-only crop of the exact square pattern. An optional line-and-square annotation layer is calibrated to the smallest-square lattice so students can compare side lengths and areas without changing the graded choice. The explanation remains available but optional because the app does not reject mathematically valid prose it cannot reliably parse."
     },
     "hints": [
       "Use the smallest square as one area unit.",
       "A medium square covers 4 small-square units, and a large square covers 9 small-square units."
     ],
-    "sampleAnswer": "The medium squares cover the most. The large squares cover 4 x 9 = 36 small-square units, the medium squares cover 10 x 4 = 40, and the small squares cover 10 x 1 = 10.",
-    "implementationNotes": "Directly adapted from Lesson 1 cumulative practice, Problem 1. The exact visual is cropped from the cited PDF; the source prompt is app-rendered text.",
+    "sampleAnswer": "The large squares cover the most. The 5 large squares cover 5 x 9 = 45 small-square units, the 10 medium squares cover 10 x 4 = 40, and the 10 small squares cover 10 x 1 = 10.",
+    "implementationNotes": "Directly adapted from Lesson 1 cumulative practice, Problem 1. The exact visual is cropped from the cited PDF; the source prompt is app-rendered text. Optional calibrated line and square annotations support measurement and comparison without affecting grading.",
     "source": "Cumulative Practice Problems/Grade6-1-1-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -811,7 +827,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5",
     "previewPath": "_rendered-previews/Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set/page-003.png",
     "skill": "Explain how to find the area of an irregular rectilinear region",
-    "activityForm": "structured multi-select explanation with optional elaboration",
+    "activityForm": "structured multi-select explanation with optional elaboration and source-aligned annotation scratchpad",
     "prompt": "A student said, ‘We cannot find the area of this shaded region because the shape has many different measurements, instead of just a length and a width that we could multiply.’ Which methods explain why the student's statement is incorrect? Select all that apply.",
     "responseType": "multiSelect",
     "choices": [
@@ -842,12 +858,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The shaded region can be decomposed into rectangles and added, or enclosed in a 60-by-30 rectangle so the unshaded rectangles can be subtracted. Area does not require the entire outline to be one rectangle.",
     "incorrectFeedback": "Not quite. A valid method must account for every shaded part exactly once. Look for both an addition strategy using smaller rectangles and a subtraction strategy using the 60-by-30 enclosing rectangle.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-02-irregular-area-measurements.png",
       "alt": "The exact source shaded rectilinear region with measurements 60, 30, 35, 15, and 10.",
       "naturalWidth": 365,
       "naturalHeight": 205,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 205,
+      "annotationGrid": {
+        "originX": 28,
+        "originY": 27,
+        "cellX": 23.75,
+        "cellY": 23.6667,
+        "columns": 12,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use Line to split the shaded region into rectangles, or Rectangle to trace the 60-by-30 enclosure. Marks snap to 5-unit points and are optional scratch work; they do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -859,14 +891,14 @@ window.unit1PracticeBank = [
         "all source side measurements",
         "60-by-30 enclosing dimensions"
       ],
-      "notes": "Uses an exact visual-only source crop. The source's open explanation is converted to meaningfully validated method choices, with optional free text for further explanation rather than fragile required prose matching."
+      "notes": "Uses an exact visual-only source crop with an optional annotation layer calibrated to the figure's 5-unit measurement lattice. Students can draw decomposition lines or an enclosing rectangle without changing the graded method choices. The source's open explanation is converted to meaningfully validated method choices, with optional free text for further explanation rather than fragile required prose matching."
     },
     "hints": [
       "The figure can be split along horizontal or vertical edges to make rectangles.",
       "The 60 and 30 labels describe a rectangle that encloses the entire shaded region."
     ],
     "sampleAnswer": "The statement is incorrect because the region can be decomposed into rectangles and their areas added. Another valid method is to subtract the missing rectangles from a 60-by-30 enclosing rectangle.",
-    "implementationNotes": "Directly adapts Lesson 2 cumulative practice, Problem 5, preserving the exact source figure while giving the explanation a reliable structured response path.",
+    "implementationNotes": "Directly adapts Lesson 2 cumulative practice, Problem 5, preserving the exact source figure while giving the explanation a reliable structured response path and an optional, ungraded source-aligned annotation scratchpad.",
     "source": "Cumulative Practice Problems/Grade6-1-2-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -889,7 +921,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "1A",
     "routePart": "problem-1a",
     "skill": "Find the area of stepped region A",
-    "activityForm": "numeric area response with optional reasoning",
+    "activityForm": "numeric area response with optional reasoning and source-grid annotation scratchpad",
     "prompt": "Find the area of shaded region A. Show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -901,12 +933,29 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. Decompose the step into rectangles with areas 2 x 5 = 10, 2 x 4 = 8, and 2 x 2 = 4. Their total is 10 + 8 + 4 = 22 square units.",
     "incorrectFeedback": "Not quite. Split the stepped region into non-overlapping rectangles, find each rectangle's area, and add the areas.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-shaded-region-1a.png",
       "alt": "Exact source Figure A: a stepped shaded region on a square grid.",
       "naturalWidth": 530,
       "naturalHeight": 500,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 430,
+      "annotationGrid": {
+        "originX": 26,
+        "originY": 18,
+        "cellX": 57.75,
+        "cellY": 57.75,
+        "columns": 8,
+        "rows": 8
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Draw lines along the exact source grid to split the stepped region into rectangles. Rectangle and Square can also outline pieces. These marks are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -918,14 +967,14 @@ window.unit1PracticeBank = [
         "unit square grid",
         "stepped shaded boundary"
       ],
-      "notes": "Uses an exact visual-only crop of Figure A. The app checks the area independently and keeps free-form reasoning optional because it cannot reliably validate every correct decomposition."
+      "notes": "Uses an exact visual-only crop of Figure A with optional line, rectangle, and square annotations calibrated to the visible unit grid. The app checks the area independently and keeps both annotations and free-form reasoning optional because it cannot reliably validate every correct decomposition."
     },
     "hints": [
       "Try splitting the shape at each inside corner.",
       "One decomposition makes rectangles measuring 2 by 5, 2 by 4, and 2 by 2."
     ],
     "sampleAnswer": "2 x 5 + 2 x 4 + 2 x 2 = 10 + 8 + 4 = 22 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 1A, using the exact source grid figure and an independently checked answer.",
+    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 1A, using the exact source grid figure, an optional source-aligned annotation scratchpad, and an independently checked answer.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -948,7 +997,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "1B",
     "routePart": "problem-1b",
     "skill": "Find the area of frame region B",
-    "activityForm": "numeric area response with optional reasoning",
+    "activityForm": "numeric area response with optional reasoning and source-grid annotation scratchpad",
     "prompt": "Find the area of shaded region B. Show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -960,12 +1009,29 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The outside square has area 6 x 6 = 36 square units. The two 2-by-2 openings have total area 8 square units, so the shaded area is 36 - 8 = 28 square units.",
     "incorrectFeedback": "Not quite. Find the area of the 6-by-6 outside square, then subtract both 2-by-2 openings.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-shaded-region-1b.png",
       "alt": "Exact source Figure B: a shaded 6-by-6 square with two unshaded 2-by-2 square openings.",
       "naturalWidth": 530,
       "naturalHeight": 500,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 430,
+      "annotationGrid": {
+        "originX": 39,
+        "originY": 18,
+        "cellX": 57.625,
+        "cellY": 57.75,
+        "columns": 8,
+        "rows": 8
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "rectangle",
+      "annotationInstructions": "Use Rectangle or Square to trace the outside region and the two openings, or add grid-aligned planning lines. These marks are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -977,14 +1043,14 @@ window.unit1PracticeBank = [
         "6-by-6 square grid",
         "two 2-by-2 openings"
       ],
-      "notes": "Uses an exact visual-only crop. The source-requested reasoning remains available without imposing fragile prose validation."
+      "notes": "Uses an exact visual-only crop with optional Rectangle, Square, and Line marks for tracing the outside region, openings, or a subtraction plan."
     },
     "hints": [
       "Count the side length of the outside square on the grid.",
       "Subtract the area of both white squares."
     ],
     "sampleAnswer": "6 x 6 - 2 x (2 x 2) = 36 - 8 = 28 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 1B.",
+    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 1B, including an optional source-aligned annotation scratchpad.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1007,7 +1073,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "1C",
     "routePart": "problem-1c",
     "skill": "Find the area of house-shaped region C",
-    "activityForm": "numeric area response with optional reasoning",
+    "activityForm": "numeric area response with optional reasoning and source-grid annotation scratchpad",
     "prompt": "Find the area of shaded region C. Show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -1019,12 +1085,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The 6-by-2 rectangle has area 12. The roof is two triangles, each with base 3 and height 2, so together they have area 6. The total is 18 square units.",
     "incorrectFeedback": "Not quite. Decompose the figure into the rectangular lower part and the two triangular roof halves.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-shaded-region-1c.png",
       "alt": "Exact source Figure C: a house-shaped shaded region on a square grid.",
       "naturalWidth": 540,
       "naturalHeight": 500,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 430,
+      "annotationGrid": {
+        "originX": 52,
+        "originY": 18,
+        "cellX": 57.75,
+        "cellY": 57.75,
+        "columns": 8,
+        "rows": 8
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Draw a horizontal line where the roof meets the rectangle, then add another line from the roof peak if that helps. These source-grid marks are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -1036,14 +1118,14 @@ window.unit1PracticeBank = [
         "6-by-2 rectangular lower region",
         "two triangular roof halves"
       ],
-      "notes": "Uses an exact visual-only crop and checks the area independently of optional free-form reasoning."
+      "notes": "Uses an exact visual-only crop with optional source-grid lines and rectangles for separating the lower rectangle and roof triangles. The app checks the area independently of annotations and optional free-form reasoning."
     },
     "hints": [
       "Split the shape along the horizontal line where the roof begins.",
       "The roof can be divided into two triangles with base 3 and height 2."
     ],
     "sampleAnswer": "6 x 2 + 2 x (1/2 x 3 x 2) = 12 + 6 = 18 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 1C.",
+    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 1C, including an optional source-aligned annotation scratchpad.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1066,7 +1148,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "2A",
     "routePart": "problem-2a",
     "skill": "Find the area of L-shaped region A",
-    "activityForm": "numeric area response with optional reasoning",
+    "activityForm": "numeric area response with optional reasoning and source-aligned annotation scratchpad",
     "prompt": "Find the area of shaded region A in square centimeters. Show or explain your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -1078,12 +1160,29 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. One method is 6 x 4 + 2 x 2 = 24 + 4 = 28 square centimeters. Equivalently, subtract the 4-by-2 missing corner from a 6-by-6 square.",
     "incorrectFeedback": "Not quite. Decompose the L-shape into a 6-by-4 rectangle and a 2-by-2 square, or subtract the missing corner from a 6-by-6 square.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-shaded-region-2a.png",
       "alt": "Exact source Figure A: a 6-centimeter by 6-centimeter L-shaped region with two 2-centimeter labels.",
       "naturalWidth": 600,
       "naturalHeight": 520,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 430,
+      "annotationGrid": {
+        "originX": 213,
+        "originY": 111,
+        "cellX": 47.5,
+        "cellY": 47.5,
+        "columns": 6,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Draw a line from the inside corner to decompose the L-shape, or outline an enclosing rectangle and missing piece. These source-aligned marks are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -1095,14 +1194,14 @@ window.unit1PracticeBank = [
         "6 cm outside dimensions",
         "two 2 cm step dimensions"
       ],
-      "notes": "Uses an exact visual-only crop with every source dimension and right-angle marker intact."
+      "notes": "Uses an exact visual-only crop with every source dimension and right-angle marker intact, plus optional marks calibrated to the source's 2-centimeter measurement steps."
     },
     "hints": [
       "Draw an imaginary horizontal line from the inside corner.",
       "The pieces can be a 6-by-4 rectangle and a 2-by-2 square."
     ],
     "sampleAnswer": "6 x 4 + 2 x 2 = 24 + 4 = 28 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 2A.",
+    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 2A, with an optional source-aligned annotation scratchpad for decomposition or subtraction planning.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1125,7 +1224,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "2B",
     "routePart": "problem-2b",
     "skill": "Find the area around a rotated opening",
-    "activityForm": "numeric area response with optional reasoning",
+    "activityForm": "numeric area response with optional reasoning and source-aligned annotation scratchpad",
     "prompt": "Find the area of shaded region B in square centimeters. Show or explain your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -1137,12 +1236,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The outside rectangle has area 8 x 5 = 40 square centimeters. The rotated 3-by-2 opening has area 6 square centimeters, so the shaded area is 40 - 6 = 34 square centimeters.",
     "incorrectFeedback": "Not quite. Rotation does not change the opening's area. Subtract the area of the 3-by-2 opening from the 8-by-5 rectangle.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-shaded-region-2b.png",
       "alt": "Exact source Figure B: an 8-centimeter by 5-centimeter shaded rectangle with a rotated 3-centimeter by 2-centimeter rectangular opening.",
       "naturalWidth": 650,
       "naturalHeight": 520,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 430,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 65,
+        "rows": 52
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "erase"
+      ],
+      "defaultAnnotationTool": "rectangle",
+      "annotationInstructions": "Outline the outside rectangle or the rotated opening, or add planning lines directly over the exact source figure. These optional marks do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -1154,14 +1269,14 @@ window.unit1PracticeBank = [
         "8 cm by 5 cm outside rectangle",
         "rotated 3 cm by 2 cm opening"
       ],
-      "notes": "Uses an exact visual-only crop. The app does not redraw or alter the rotated opening."
+      "notes": "Uses an exact visual-only crop without redrawing the rotated opening and adds optional source-coordinate annotations for outlining or planning."
     },
     "hints": [
       "Find the area of the outside rectangle first.",
       "The 3-by-2 opening still has area 6 even though it is rotated."
     ],
     "sampleAnswer": "8 x 5 - 3 x 2 = 40 - 6 = 34 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 2B.",
+    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 2B, with an optional source-aligned annotation scratchpad.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1184,19 +1299,35 @@ window.unit1PracticeBank = [
     "practicePartLabel": "2C",
     "routePart": "problem-2c",
     "skill": "Find area by subtracting a missing piece",
-    "activityForm": "missing-piece area",
+    "activityForm": "missing-piece area with source-aligned annotation scratchpad",
     "prompt": "Find the area of shaded region C. The outside rectangle is 10 cm by 15 cm, and the inside opening is 6 cm by 9 cm.",
     "responseType": "number",
     "answerKey": [
       "96"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-frame-diagram.png",
       "alt": "Source Figure C: a 10 cm by 15 cm shaded rectangle with a 6 cm by 9 cm rectangular opening and right-angle markers.",
       "naturalWidth": 700,
       "naturalHeight": 940,
-      "displayVariant": "compactPortrait"
+      "displayVariant": "compactPortrait",
+      "displayMaxHeight": 390,
+      "annotationGrid": {
+        "originX": 197,
+        "originY": 83,
+        "cellX": 47.2,
+        "cellY": 47.2,
+        "columns": 10,
+        "rows": 15
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "erase"
+      ],
+      "defaultAnnotationTool": "rectangle",
+      "annotationInstructions": "Trace the 10-by-15 outside rectangle and the 6-by-9 opening, or add decomposition lines on the source measurement grid. These marks are optional scratch work and do not affect grading."
     },
     "reasoningPrompt": "Show or explain your reasoning.",
     "reasoningRequired": true,
@@ -1237,14 +1368,14 @@ window.unit1PracticeBank = [
         "Figure C outside 10 cm by 15 cm rectangle",
         "inside 6 cm by 9 cm rectangular opening"
       ],
-      "notes": "Uses cumulative-practice Problem 2C and an exact visual-only crop that preserves the dimensions, opening, and right-angle markers."
+      "notes": "Uses cumulative-practice Problem 2C and an exact portrait crop that preserves the dimensions, opening, and right-angle markers, with optional measurement-aligned annotations."
     },
     "hints": [
       "Find the area of the 10 by 15 outside rectangle.",
       "Subtract the 6 by 9 rectangular opening."
     ],
     "sampleAnswer": "10 × 15 - 6 × 9 = 150 - 54 = 96 square centimeters.",
-    "implementationNotes": "Rebuilt from Lesson 3 cumulative practice, Problem 2C, with an exact source-derived Figure C crop.",
+    "implementationNotes": "Rebuilt from Lesson 3 cumulative practice, Problem 2C, with an exact source-derived Figure C crop, preserved portrait sizing, and an optional annotation scratchpad.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1267,7 +1398,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "2D",
     "routePart": "problem-2d",
     "skill": "Find the area of triangular region D",
-    "activityForm": "numeric area response with optional reasoning",
+    "activityForm": "numeric area response with optional reasoning and source-aligned annotation scratchpad",
     "prompt": "Find the area of shaded region D in square centimeters. Show or explain your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -1279,12 +1410,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The base is 8 + 8 = 16 centimeters and the perpendicular height is 5 centimeters. The area is 1/2 x 16 x 5 = 40 square centimeters.",
     "incorrectFeedback": "Not quite. Combine the two 8-centimeter base segments, then use one-half times base times perpendicular height.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-shaded-region-2d.png",
       "alt": "Exact source Figure D: a triangle with two 8-centimeter base segments and a perpendicular height of 5 centimeters.",
       "naturalWidth": 900,
       "naturalHeight": 520,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 430,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 90,
+        "rows": 52
+      },
+      "annotationTools": [
+        "line",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines or squares to plan an area strategy on the exact source triangle. These scratch-work marks do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -1297,14 +1444,14 @@ window.unit1PracticeBank = [
         "5 cm perpendicular height",
         "right-angle marker"
       ],
-      "notes": "Uses an exact visual-only crop preserving the split base, dashed height, and right-angle marker."
+      "notes": "Uses an exact visual-only crop preserving the split base, dashed height, and right-angle marker, with optional neutral line and square annotations drawn in source coordinates."
     },
     "hints": [
       "The entire base is made of both labeled 8-centimeter segments.",
       "Use one-half times base times height."
     ],
     "sampleAnswer": "1/2 x (8 + 8) x 5 = 40 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 2D.",
+    "implementationNotes": "Adds full coverage for Lesson 3 cumulative practice, Problem 2D, with optional source-aligned line and square annotations.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1327,7 +1474,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3",
     "routePart": "problem-3",
     "skill": "Compare regions after moving area",
-    "activityForm": "single-choice visual reasoning",
+    "activityForm": "single-choice visual reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Two plots of land have very different shapes. Noah says that both plots have the same area. Do you agree with Noah? Explain your reasoning.",
     "responseType": "singleChoice",
     "choices": [
@@ -1344,11 +1491,28 @@ window.unit1PracticeBank = [
       "agree"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-03-equal-land-plots-diagram.png",
       "alt": "The exact source diagrams of rectangular Plot A and Plot B with matching triangular protrusion and indentation.",
       "naturalWidth": 760,
-      "naturalHeight": 610
+      "naturalHeight": 610,
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 520,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 76,
+        "rows": 61
+      },
+      "annotationTools": [
+        "line",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines or squares to compare the plots or plan how the matching triangular piece could move. These scratch-work marks do not affect grading."
     },
     "reasoningPrompt": "Explain how the shapes support your answer.",
     "reasoningRequired": true,
@@ -1402,14 +1566,14 @@ window.unit1PracticeBank = [
         "green rectangular plot A",
         "yellow plot B with congruent triangular protrusion and indentation"
       ],
-      "notes": "Uses cumulative-practice Problem 3 and a high-resolution visual-only crop that preserves the exact two source plots."
+      "notes": "Uses cumulative-practice Problem 3 and a high-resolution visual-only crop that preserves the exact two source plots, with optional neutral line and square annotations for planning the rearrangement."
     },
     "hints": [
       "Compare the triangular point on the left of Plot B with the triangular indentation on the right.",
       "Imagine cutting off one triangle and moving it into the matching space."
     ],
     "sampleAnswer": "Yes. Move the left triangular protrusion into the same-size triangular indentation on the right. Plot B then forms the same rectangle as Plot A, so their areas are equal.",
-    "implementationNotes": "Rebuilt from Lesson 3 cumulative practice, Problem 3, with an exact source-derived Plot A and Plot B crop.",
+    "implementationNotes": "Rebuilt from Lesson 3 cumulative practice, Problem 3, with an exact source-derived Plot A and Plot B crop plus optional, ungraded annotation scratch work.",
     "source": "Cumulative Practice Problems/Grade6-1-3-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -1905,7 +2069,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "2b",
     "routePart": "problem-2b",
     "skill": "Find parallelogram area from a grid",
-    "activityForm": "numeric area with optional reasoning",
+    "activityForm": "numeric area with optional reasoning and source-grid annotation scratchpad",
     "prompt": "What is the area of the parallelogram? Explain your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -1917,11 +2081,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The horizontal base is 9 units and the perpendicular height is 5 units, so the area is 9 x 5 = 45 square units.",
     "incorrectFeedback": "Not quite. Count the horizontal base and the perpendicular height on the source grid, then multiply them.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-04-parallelogram-rearrange-source.png",
       "alt": "The exact source parallelogram on a square grid.",
       "naturalWidth": 1200,
-      "naturalHeight": 600
+      "naturalHeight": 600,
+      "annotationGrid": {
+        "originX": 172,
+        "originY": 40,
+        "cellX": 75.5,
+        "cellY": 75.5,
+        "columns": 13,
+        "rows": 7
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 460,
+      "annotationInstructions": "Use Line to mark a base or perpendicular height. Use Rectangle or Square to outline a decomposition or rearranged region. These annotations are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -1931,14 +2112,14 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "source parallelogram on a unit grid"
       ],
-      "notes": "The exact visual-only source crop preserves the countable base and height; reasoning remains available but does not use brittle keyword grading."
+      "notes": "The exact visual-only source crop preserves the countable base and height. An optional annotation layer is calibrated to the printed unit grid so students can mark a base, height, or decomposition without changing the graded area answer; reasoning remains available but does not use brittle keyword grading."
     },
     "hints": [
       "The bottom horizontal base is 9 units.",
       "The perpendicular distance between the horizontal sides is 5 units."
     ],
     "sampleAnswer": "The parallelogram rearranges into a 9-by-5 rectangle, so its area is 45 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 2b.",
+    "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 2b, with an optional annotation layer calibrated to the exact printed grid.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -1961,7 +2142,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3",
     "routePart": "problem-3",
     "skill": "Choose the corresponding height for area",
-    "activityForm": "numeric area",
+    "activityForm": "numeric area with optional calibrated annotation scratchpad",
     "prompt": "Find the area of the parallelogram in square centimeters.",
     "responseType": "number",
     "answerKey": [
@@ -1971,11 +2152,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The 10-centimeter base and its 3-centimeter perpendicular height give 10 x 3 = 30 square centimeters. The 3.2-centimeter slanted side is not the corresponding height.",
     "incorrectFeedback": "Not quite. Use the 10-centimeter base and the perpendicular 3-centimeter height, not the 3.2-centimeter slanted side.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-04-area-dimensions-source.png",
       "alt": "The exact source parallelogram labeled with base 10 centimeters, perpendicular height 3 centimeters, and slanted side 3.2 centimeters.",
       "naturalWidth": 1500,
-      "naturalHeight": 520
+      "naturalHeight": 520,
+      "annotationGrid": {
+        "originX": 45,
+        "originY": 38,
+        "cellX": 78,
+        "cellY": 78,
+        "columns": 18,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 360,
+      "annotationInstructions": "Use Line to trace a usable base or perpendicular height. Rectangle and Square can outline a related area model. The invisible annotation lattice is scaled to 1 centimeter; these marks are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -1987,14 +2185,14 @@ window.unit1PracticeBank = [
         "3-centimeter perpendicular height",
         "3.2-centimeter slanted side"
       ],
-      "notes": "Uses an exact visual-only source crop so the right-angle marker and distinction between height and slanted side remain intact."
+      "notes": "Uses an exact visual-only source crop so the right-angle marker and distinction between height and slanted side remain intact. The optional annotation lattice uses the source's one-centimeter scale without adding a visible grid or changing the graded numeric answer."
     },
     "hints": [
       "Area uses a base and its perpendicular height.",
       "The dashed 3-centimeter segment meets the 10-centimeter base at a right angle."
     ],
     "sampleAnswer": "10 x 3 = 30 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 3.",
+    "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 3, with optional source-scaled line and area-model annotations.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -2017,7 +2215,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "4",
     "routePart": "problem-4",
     "skill": "Explain why a quadrilateral is not a parallelogram",
-    "activityForm": "validated mathematical explanation",
+    "activityForm": "validated mathematical explanation with optional source-grid annotation scratchpad",
     "prompt": "Explain why this quadrilateral is not a parallelogram.",
     "responseType": "validatedText",
     "responseValidator": "quadrilateralNotParallelogram",
@@ -2027,11 +2225,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. Its top and bottom sides are parallel, but its two slanted opposite sides have different slopes and are not parallel.",
     "incorrectFeedback": "Revise the explanation so it explicitly says that one pair of opposite sides, the two slanted sides, is not parallel or has different slopes.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-04-not-parallelogram-source.png",
       "alt": "The exact source quadrilateral on a square grid, with parallel horizontal sides and nonparallel slanted sides.",
       "naturalWidth": 1500,
-      "naturalHeight": 560
+      "naturalHeight": 560,
+      "annotationGrid": {
+        "originX": 43,
+        "originY": 58,
+        "cellX": 75.56,
+        "cellY": 75.5,
+        "columns": 19,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 380,
+      "annotationInstructions": "Use Line to extend or compare opposite sides on the exact source grid. Rectangle and Square are available for additional construction. These annotations are optional scratch work and do not affect the response verdict."
     },
     "visualRules": {
       "status": "passes",
@@ -2042,14 +2257,14 @@ window.unit1PracticeBank = [
         "source quadrilateral on a square grid",
         "two pairs of opposite sides"
       ],
-      "notes": "The exact grid is preserved. Validation accepts equivalent language about nonparallel opposite sides, unequal slopes, or only one parallel pair, and the visible label states the passing criterion."
+      "notes": "The exact grid is preserved and an optional annotation layer lets students extend or compare opposite sides without changing the response verdict. Validation accepts equivalent language about nonparallel opposite sides, unequal slopes, or only one parallel pair, and the visible label states the passing criterion."
     },
     "hints": [
       "A parallelogram needs two pairs of opposite parallel sides.",
       "Compare the slopes of the left and right slanted sides."
     ],
     "sampleAnswer": "The horizontal sides are parallel, but the two slanted opposite sides have different slopes, so they are not parallel.",
-    "implementationNotes": "Adds source-faithful explanation coverage for Lesson 4 cumulative practice, Problem 4.",
+    "implementationNotes": "Adds source-faithful explanation coverage for Lesson 4 cumulative practice, Problem 4, with optional grid-calibrated side-comparison annotations.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -2072,7 +2287,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5a",
     "routePart": "problem-5a",
     "skill": "Find polygon area by decomposition",
-    "activityForm": "numeric area with optional reasoning",
+    "activityForm": "numeric area with optional reasoning and source-grid annotation scratchpad",
     "prompt": "Find the area of the left shaded shape in square units. Show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -2084,12 +2299,29 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The shaded region can be decomposed into a central 2-by-2 square and four right triangles, each with area 2, for a total of 12 square units.",
     "incorrectFeedback": "Not quite. Use the grid to separate the center square from the four congruent triangular arms.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-04-shape-area-5a.png",
       "alt": "The exact left shaded polygon from source Problem 5 on a square grid.",
       "naturalWidth": 670,
       "naturalHeight": 650,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationGrid": {
+        "originX": 61,
+        "originY": 45,
+        "cellX": 74.5,
+        "cellY": 74.75,
+        "columns": 8,
+        "rows": 8
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 500,
+      "annotationInstructions": "Use Line to split the shaded region into pieces. Rectangle or Square can outline the center or an enclosing region. These annotations are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2100,14 +2332,14 @@ window.unit1PracticeBank = [
         "left shaded polygon",
         "unit grid"
       ],
-      "notes": "Uses an exact visual-only crop at natural resolution and leaves the source-requested reasoning available without brittle keyword validation."
+      "notes": "Uses an exact visual-only crop at natural resolution with optional annotations calibrated to the printed unit grid. Students can mark a decomposition or enclosing region without changing the graded area answer, and the source-requested reasoning remains available without brittle keyword validation."
     },
     "hints": [
       "The center is a 2-by-2 square.",
       "Each arm is a right triangle with base 2 and height 2."
     ],
     "sampleAnswer": "The center has area 4 and the four triangles have area 2 each, so the total is 4 + 8 = 12 square units.",
-    "implementationNotes": "Adds full coverage for the left figure in Lesson 4 cumulative practice, Problem 5.",
+    "implementationNotes": "Adds full coverage for the left figure in Lesson 4 cumulative practice, Problem 5, with optional grid-calibrated decomposition annotations.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -2130,7 +2362,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5b",
     "routePart": "problem-5b",
     "skill": "Find polygon area by decomposition",
-    "activityForm": "numeric area with optional reasoning",
+    "activityForm": "numeric area with optional reasoning and source-grid annotation scratchpad",
     "prompt": "Find the area of the right shaded shape in square units. Show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -2142,12 +2374,29 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. Splitting at the vertical segment gives a left triangle with area 4 and a right triangle with area 15, for 19 square units total.",
     "incorrectFeedback": "Not quite. Split the shape at its vertical segment and find the area of the triangle on each side.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-04-shape-area-5b.png",
       "alt": "The exact right shaded polygon from source Problem 5 on a square grid.",
       "naturalWidth": 930,
       "naturalHeight": 650,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationGrid": {
+        "originX": 82,
+        "originY": 44,
+        "cellX": 74.545,
+        "cellY": 74.75,
+        "columns": 11,
+        "rows": 8
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "displayMaxHeight": 500,
+      "annotationInstructions": "Use Line to split the shaded region into simpler figures. Rectangle or Square can outline a related area model. These annotations are optional scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2158,14 +2407,14 @@ window.unit1PracticeBank = [
         "right shaded polygon",
         "unit grid"
       ],
-      "notes": "Uses an exact visual-only crop at natural resolution and preserves the independent area-and-reasoning action for the second source figure."
+      "notes": "Uses an exact visual-only crop at natural resolution with optional annotations calibrated to the printed unit grid. Students can mark decomposition lines without changing the graded area answer, and the independent area-and-reasoning action for the second source figure is preserved."
     },
     "hints": [
       "The vertical segment divides the region into two triangles.",
       "The left triangle has base 2 and height 4; the right has base 6 and height 5."
     ],
     "sampleAnswer": "The left triangle has area 4 and the right triangle has area 15, so the total area is 19 square units.",
-    "implementationNotes": "Adds full coverage for the right figure in Lesson 4 cumulative practice, Problem 5.",
+    "implementationNotes": "Adds full coverage for the right figure in Lesson 4 cumulative practice, Problem 5, with optional grid-calibrated decomposition annotations.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -2201,7 +2450,10 @@ window.unit1PracticeBank = [
     "visualModelData": {
       "type": "rectangleDimensions",
       "widthLabel": "5 in",
-      "heightLabel": "1/3 in"
+      "heightLabel": "1/3 in",
+      "gridColumns": 15,
+      "gridRows": 1,
+      "gridUnitLabel": "1/3 inch"
     },
     "visualRules": {
       "status": "passes",
@@ -2211,13 +2463,12 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "side lengths 5 inches and 1/3 inch"
       ],
-      "notes": "The source subproblem is text-only; the app diagram only restates its two given side lengths."
+      "notes": "The source subproblem is text-only. The app scaffold preserves the exact 5-to-1/3 side ratio on a 15-by-1 square grid; it does not add a computed area."
     },
     "hints": [
       "Area of a rectangle is length times width.",
       "Five groups of one-third make five-thirds."
     ],
-    "sampleAnswer": "5 x 1/3 = 5/3 = 1 2/3 square inches.",
     "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 6a.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -2254,7 +2505,10 @@ window.unit1PracticeBank = [
     "visualModelData": {
       "type": "rectangleDimensions",
       "widthLabel": "5 in",
-      "heightLabel": "4/3 in"
+      "heightLabel": "4/3 in",
+      "gridColumns": 15,
+      "gridRows": 4,
+      "gridUnitLabel": "1/3 inch"
     },
     "visualRules": {
       "status": "passes",
@@ -2264,13 +2518,12 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "side lengths 5 inches and 4/3 inches"
       ],
-      "notes": "The source subproblem is text-only; the app diagram only restates its two given side lengths."
+      "notes": "The source subproblem is text-only. The app scaffold preserves the exact 5-to-4/3 side ratio on a 15-by-4 square grid; it does not add a computed area."
     },
     "hints": [
       "Area of a rectangle is length times width.",
       "Multiply the whole number by the numerator, then keep the denominator."
     ],
-    "sampleAnswer": "5 x 4/3 = 20/3 = 6 2/3 square inches.",
     "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 6b.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -2307,7 +2560,10 @@ window.unit1PracticeBank = [
     "visualModelData": {
       "type": "rectangleDimensions",
       "widthLabel": "5/2 in",
-      "heightLabel": "4/3 in"
+      "heightLabel": "4/3 in",
+      "gridColumns": 15,
+      "gridRows": 8,
+      "gridUnitLabel": "1/6 inch"
     },
     "visualRules": {
       "status": "passes",
@@ -2317,13 +2573,12 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "side lengths 5/2 inches and 4/3 inches"
       ],
-      "notes": "The source subproblem is text-only; the app diagram only restates its two given side lengths."
+      "notes": "The source subproblem is text-only. The app scaffold preserves the exact 5/2-to-4/3 side ratio on a 15-by-8 square grid; it does not add a computed area."
     },
     "hints": [
       "Area of a rectangle is length times width.",
       "Simplify 20/6 by dividing numerator and denominator by 2."
     ],
-    "sampleAnswer": "5/2 x 4/3 = 20/6 = 10/3 = 3 1/3 square inches.",
     "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 6c.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -2359,7 +2614,10 @@ window.unit1PracticeBank = [
     "visualModelData": {
       "type": "rectangleDimensions",
       "widthLabel": "7/6 in",
-      "heightLabel": "6/7 in"
+      "heightLabel": "6/7 in",
+      "gridColumns": 49,
+      "gridRows": 36,
+      "gridUnitLabel": "1/42 inch"
     },
     "visualRules": {
       "status": "passes",
@@ -2369,13 +2627,12 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "side lengths 7/6 inch and 6/7 inch"
       ],
-      "notes": "The source subproblem is text-only; the app diagram only restates its two given side lengths."
+      "notes": "The source subproblem is text-only. The app scaffold preserves the exact 7/6-to-6/7 side ratio on a 49-by-36 square grid; it does not add a computed area."
     },
     "hints": [
       "Area of a rectangle is length times width.",
       "Cancel the matching factors 7 and 6."
     ],
-    "sampleAnswer": "7/6 x 6/7 = 1 square inch.",
     "implementationNotes": "Adds full coverage for Lesson 4 cumulative practice, Problem 6d.",
     "source": "Cumulative Practice Problems/Grade6-1-4-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -2452,7 +2709,6 @@ window.unit1PracticeBank = [
       "A height must be perpendicular to the selected base or the line containing that base.",
       "A slanted side is not automatically a height."
     ],
-    "sampleAnswer": "A, C, and D show heights perpendicular to the chosen base or its extension. B labels a slanted side, so it is not a corresponding height.",
     "implementationNotes": "Directly adapted from Lesson 5 cumulative practice, problem 1. The exact A-D source diagram is rendered from the PDF as a visual-only crop; the prompt and response controls remain app text.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.1"
   },
@@ -2521,7 +2777,6 @@ window.unit1PracticeBank = [
       "Because base b is horizontal, its corresponding height must be vertical.",
       "Connect the bottom base line to the opposite horizontal side at a right angle."
     ],
-    "sampleAnswer": "A vertical segment between the line containing base b and the opposite horizontal side is a corresponding height.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 2, as a required source-aligned drawing.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.1"
   },
@@ -2545,7 +2800,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3a",
     "routePart": "problem-3a",
     "skill": "Find the area of source parallelogram A",
-    "activityForm": "numeric grid area",
+    "activityForm": "numeric grid area with optional source-grid annotation",
     "prompt": "Find the area of parallelogram A in square units.",
     "responseType": "number",
     "answerKey": [
@@ -2555,11 +2810,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. 4 x 2 = 8 square units.",
     "incorrectFeedback": "Not quite. Count a base and its perpendicular height on the square grid, then multiply them.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-05-grid-areas-source.png",
       "alt": "The exact source square grid containing parallelograms A, B, and C for Problem 3.",
       "naturalWidth": 1850,
-      "naturalHeight": 520
+      "naturalHeight": 520,
+      "displayMaxHeight": 360,
+      "annotationGrid": {
+        "originX": 55,
+        "originY": 50,
+        "cellX": 77.43,
+        "cellY": 77.5,
+        "columns": 23,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares on the exact source grid to mark a base, height, or decomposition. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2570,14 +2842,13 @@ window.unit1PracticeBank = [
         "source parallelogram A",
         "square grid"
       ],
-      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently."
+      "notes": "Keeps all three exact source figures visible for comparison and adds optional annotation snapped to the printed square grid while checking this lettered part independently."
     },
     "hints": [
       "A parallelogram's area is base times corresponding height.",
       "Use grid intervals, not the length of a slanted side, for the perpendicular height."
     ],
-    "sampleAnswer": "4 x 2 = 8 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 3a.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 3a, with optional source-grid annotation that does not affect grading.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -2600,7 +2871,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3b",
     "routePart": "problem-3b",
     "skill": "Find the area of source parallelogram B",
-    "activityForm": "numeric grid area",
+    "activityForm": "numeric grid area with optional source-grid annotation",
     "prompt": "Find the area of parallelogram B in square units.",
     "responseType": "number",
     "answerKey": [
@@ -2610,11 +2881,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. 5 x 2 = 10 square units.",
     "incorrectFeedback": "Not quite. Count a base and its perpendicular height on the square grid, then multiply them.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-05-grid-areas-source.png",
       "alt": "The exact source square grid containing parallelograms A, B, and C for Problem 3.",
       "naturalWidth": 1850,
-      "naturalHeight": 520
+      "naturalHeight": 520,
+      "displayMaxHeight": 360,
+      "annotationGrid": {
+        "originX": 55,
+        "originY": 50,
+        "cellX": 77.43,
+        "cellY": 77.5,
+        "columns": 23,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares on the exact source grid to mark a base, height, or decomposition. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2625,14 +2913,13 @@ window.unit1PracticeBank = [
         "source parallelogram B",
         "square grid"
       ],
-      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently."
+      "notes": "Keeps all three exact source figures visible for comparison and adds optional annotation snapped to the printed square grid while checking this lettered part independently."
     },
     "hints": [
       "A parallelogram's area is base times corresponding height.",
       "Use grid intervals, not the length of a slanted side, for the perpendicular height."
     ],
-    "sampleAnswer": "5 x 2 = 10 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 3b.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 3b, with optional source-grid annotation that does not affect grading.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -2655,7 +2942,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3c",
     "routePart": "problem-3c",
     "skill": "Find the area of source parallelogram C",
-    "activityForm": "numeric grid area",
+    "activityForm": "numeric grid area with optional source-grid annotation",
     "prompt": "Find the area of parallelogram C in square units.",
     "responseType": "number",
     "answerKey": [
@@ -2665,11 +2952,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. Using the vertical side as base 2 and the horizontal corresponding height 4 gives 2 x 4 = 8 square units.",
     "incorrectFeedback": "Not quite. Count a base and its perpendicular height on the square grid, then multiply them.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-05-grid-areas-source.png",
       "alt": "The exact source square grid containing parallelograms A, B, and C for Problem 3.",
       "naturalWidth": 1850,
-      "naturalHeight": 520
+      "naturalHeight": 520,
+      "displayMaxHeight": 360,
+      "annotationGrid": {
+        "originX": 55,
+        "originY": 50,
+        "cellX": 77.43,
+        "cellY": 77.5,
+        "columns": 23,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares on the exact source grid to mark a base, height, or decomposition. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2680,14 +2984,13 @@ window.unit1PracticeBank = [
         "source parallelogram C",
         "square grid"
       ],
-      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently."
+      "notes": "Keeps all three exact source figures visible for comparison and adds optional annotation snapped to the printed square grid while checking this lettered part independently."
     },
     "hints": [
       "A parallelogram's area is base times corresponding height.",
       "Use grid intervals, not the length of a slanted side, for the perpendicular height."
     ],
-    "sampleAnswer": "Using the vertical side as base 2 and the horizontal corresponding height 4 gives 2 x 4 = 8 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 3c.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 3c, with optional source-grid annotation that does not affect grading.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -2760,7 +3063,6 @@ window.unit1PracticeBank = [
       "A corresponding height is perpendicular to the chosen base.",
       "The 4.8-unit segment corresponds to a different side."
     ],
-    "sampleAnswer": "4 units.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 4.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.2"
   },
@@ -2784,7 +3086,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5a",
     "routePart": "problem-5a",
     "skill": "Find the area of source parallelogram A",
-    "activityForm": "numeric area",
+    "activityForm": "numeric area with optional diagram annotation",
     "prompt": "Find the area of parallelogram A.",
     "responseType": "number",
     "answerKey": [
@@ -2794,12 +3096,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. 9 x 4 = 36 square centimeters.",
     "incorrectFeedback": "Not quite. Multiply a base by its corresponding perpendicular height.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-05-formula-area-5a.png",
       "alt": "The exact source diagram for parallelogram A in Problem 5.",
       "naturalWidth": 700,
       "naturalHeight": 620,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 500,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 20,
+        "columns": 35,
+        "rows": 31
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark useful measurements or a decomposition on the source diagram. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2810,14 +3128,13 @@ window.unit1PracticeBank = [
         "source parallelogram A",
         "given base and height labels"
       ],
-      "notes": "Uses a visual-only crop containing only this source figure; all response text remains app-rendered."
+      "notes": "Uses a visual-only crop containing only this source figure and adds optional annotation on a fine invisible square lattice; all response text remains app-rendered."
     },
     "hints": [
       "Area of a parallelogram is base times corresponding height.",
       "Do not substitute a slanted side for the perpendicular height."
     ],
-    "sampleAnswer": "9 x 4 = 36 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 5a.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 5a, with optional ungraded diagram annotation.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -2840,7 +3157,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5b",
     "routePart": "problem-5b",
     "skill": "Find the area of source parallelogram B",
-    "activityForm": "numeric area",
+    "activityForm": "numeric area with optional diagram annotation",
     "prompt": "Find the area of parallelogram B.",
     "responseType": "number",
     "answerKey": [
@@ -2850,12 +3167,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The perpendicular height is 4 cm, so 5 x 4 = 20 square centimeters; the slanted 5 cm side is not the height for the horizontal base.",
     "incorrectFeedback": "Not quite. Multiply a base by its corresponding perpendicular height.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-05-formula-area-5b.png",
       "alt": "The exact source diagram for parallelogram B in Problem 5.",
       "naturalWidth": 560,
       "naturalHeight": 620,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 500,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 20,
+        "columns": 28,
+        "rows": 31
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark useful measurements or a decomposition on the source diagram. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2866,14 +3199,13 @@ window.unit1PracticeBank = [
         "source parallelogram B",
         "given base and height labels"
       ],
-      "notes": "Uses a visual-only crop containing only this source figure; all response text remains app-rendered."
+      "notes": "Uses a visual-only crop containing only this source figure and adds optional annotation on a fine invisible square lattice; all response text remains app-rendered."
     },
     "hints": [
       "Area of a parallelogram is base times corresponding height.",
       "Do not substitute a slanted side for the perpendicular height."
     ],
-    "sampleAnswer": "The perpendicular height is 4 cm, so 5 x 4 = 20 square centimeters; the slanted 5 cm side is not the height for the horizontal base.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 5b.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 5b, with optional ungraded diagram annotation.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -2896,7 +3228,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5c",
     "routePart": "problem-5c",
     "skill": "Find the area of source parallelogram C",
-    "activityForm": "symbolic area expression",
+    "activityForm": "symbolic area expression with optional diagram annotation",
     "prompt": "Find the area of parallelogram C.",
     "responseType": "shortAnswer",
     "answerKey": [
@@ -2916,12 +3248,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. Using base b and corresponding height h, the area is b x h, or bh.",
     "incorrectFeedback": "Not quite. Multiply a base by its corresponding perpendicular height.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-05-formula-area-5c.png",
       "alt": "The exact source diagram for parallelogram C in Problem 5.",
       "naturalWidth": 760,
       "naturalHeight": 700,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 500,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 20,
+        "columns": 38,
+        "rows": 35
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark useful measurements or a decomposition on the source diagram. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -2932,14 +3280,13 @@ window.unit1PracticeBank = [
         "source parallelogram C",
         "given base and height labels"
       ],
-      "notes": "Uses a visual-only crop containing only this source figure; all response text remains app-rendered."
+      "notes": "Uses a visual-only crop containing only this source figure and adds optional annotation on a fine invisible square lattice; all response text remains app-rendered."
     },
     "hints": [
       "Area of a parallelogram is base times corresponding height.",
       "Write the product using the labels b and h."
     ],
-    "sampleAnswer": "Using base b and corresponding height h, the area is b x h, or bh.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 5c.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 5c, with optional ungraded diagram annotation.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -2999,7 +3346,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A parallelogram is a four-sided figure with two pairs of parallel opposite sides."
     ],
-    "sampleAnswer": "Disagree. A parallelogram is a quadrilateral, so it has 4 sides.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 6a.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -3060,7 +3406,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A parallelogram is a four-sided figure with two pairs of parallel opposite sides."
     ],
-    "sampleAnswer": "Agree. Both pairs of opposite sides of every parallelogram are parallel.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 6b.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -3121,7 +3466,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A parallelogram is a four-sided figure with two pairs of parallel opposite sides."
     ],
-    "sampleAnswer": "Disagree. A parallelogram must have 2 pairs of parallel sides; one pair is not enough.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 6c.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -3182,7 +3526,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A parallelogram is a four-sided figure with two pairs of parallel opposite sides."
     ],
-    "sampleAnswer": "Disagree. Opposite sides are equal in length, but all four sides do not have to be equal.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 6d.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -3243,7 +3586,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A parallelogram is a four-sided figure with two pairs of parallel opposite sides."
     ],
-    "sampleAnswer": "Disagree. Opposite angles are equal, but adjacent angles do not have to be equal.",
     "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 6e.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
@@ -3267,7 +3609,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "7a",
     "routePart": "problem-7a",
     "skill": "Find the area of six equal triangles",
-    "activityForm": "numeric fractional area",
+    "activityForm": "numeric fractional area with optional subdivision annotation",
     "prompt": "A 1-square-meter square is split into 9 identical squares, and each small square is split into 2 identical triangles. What is the area, in square meters, of 6 triangles?",
     "responseType": "number",
     "answerKey": [
@@ -3277,7 +3619,27 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The square contains 18 equal triangles, so 6 triangles cover 6/18 = 1/3 square meter.",
     "incorrectFeedback": "Not quite. First find how many equal triangles make the whole 1-square-meter square, then take the fraction represented by 6 triangles.",
     "visualModelData": {
-      "type": "triangleSubdivision"
+      "type": "annotatableSourceVisual",
+      "imagePath": "assets/practice/triangle-subdivision.svg",
+      "alt": "One square meter divided into nine equal squares, with each small square divided diagonally into two equal triangles.",
+      "naturalWidth": 430,
+      "naturalHeight": 330,
+      "displayMaxHeight": 460,
+      "annotationGrid": {
+        "originX": 88,
+        "originY": 26,
+        "cellSize": 82,
+        "columns": 3,
+        "rows": 3
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to group, outline, or compare equal triangles in the subdivision. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3289,14 +3651,13 @@ window.unit1PracticeBank = [
         "9 identical squares",
         "2 triangles per small square"
       ],
-      "notes": "The source explicitly suggests drawing a diagram; the app supplies that same 3-by-3 subdivision without labeling the answer."
+      "notes": "The source explicitly suggests drawing a diagram; the app supplies that same 3-by-3 subdivision without labeling the answer and adds optional annotation snapped to its square cells."
     },
     "hints": [
       "Nine squares split into two triangles each make 18 equal triangles.",
       "Write 6 out of 18 as a fraction and simplify."
     ],
-    "sampleAnswer": "6/18 = 1/3 square meter.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 7a.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 7a, with optional ungraded subdivision annotation.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -3319,7 +3680,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "7b",
     "routePart": "problem-7b",
     "skill": "Scale an equal-triangle area model",
-    "activityForm": "numeric triangle count",
+    "activityForm": "numeric triangle count with optional subdivision annotation",
     "prompt": "Using the same equal triangles, how many triangles are needed to compose a region that is 1 1/2 square meters?",
     "responseType": "number",
     "answerKey": [
@@ -3329,7 +3690,27 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. One square meter uses 18 triangles, and one half square meter uses 9 more, for 27 triangles.",
     "incorrectFeedback": "Not quite. Scale the 18 triangles in one square meter by 1 1/2.",
     "visualModelData": {
-      "type": "triangleSubdivision"
+      "type": "annotatableSourceVisual",
+      "imagePath": "assets/practice/triangle-subdivision.svg",
+      "alt": "One square meter divided into nine equal squares, with each small square divided diagonally into two equal triangles.",
+      "naturalWidth": 430,
+      "naturalHeight": 330,
+      "displayMaxHeight": 460,
+      "annotationGrid": {
+        "originX": 88,
+        "originY": 26,
+        "cellSize": 82,
+        "columns": 3,
+        "rows": 3
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to group, outline, or compare equal triangles in the subdivision. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3341,14 +3722,13 @@ window.unit1PracticeBank = [
         "18 equal triangles",
         "1 1/2 square meters"
       ],
-      "notes": "Reuses the source's equal-triangle area model while checking Problem 7b independently."
+      "notes": "Reuses the source's equal-triangle area model with optional annotation snapped to its square cells while checking Problem 7b independently."
     },
     "hints": [
       "One square meter contains 18 triangles.",
       "Half of 18 is 9."
     ],
-    "sampleAnswer": "18 + 9 = 27 triangles.",
-    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 7b.",
+    "implementationNotes": "Adds full coverage for Lesson 5 cumulative practice, Problem 7b, with optional ungraded subdivision annotation.",
     "source": "Cumulative Practice Problems/Grade6-1-5-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -3371,7 +3751,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "1",
     "routePart": "problem-1",
     "skill": "Compare parallelogram areas on a grid",
-    "activityForm": "multi-select grid comparison",
+    "activityForm": "multi-select grid comparison with optional annotation",
     "prompt": "Which three parallelograms have the same area as each other?",
     "responseType": "multiSelect",
     "choices": [
@@ -3401,11 +3781,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. A, B, and D each have area 15 square units. C is a 4-by-4 rectangle with area 16 square units.",
     "incorrectFeedback": "Not quite. For each figure, choose a convenient base, count its perpendicular height on the grid, and compare the products.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-equal-area-parallelograms.png",
       "alt": "The exact source square grid with parallelograms A, B, C, and D.",
       "naturalWidth": 1050,
-      "naturalHeight": 760
+      "naturalHeight": 760,
+      "displayMaxHeight": 520,
+      "annotationGrid": {
+        "originX": 28,
+        "originY": 23,
+        "cellX": 52.37,
+        "cellY": 52.31,
+        "columns": 19,
+        "rows": 13
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares on the exact source grid to mark bases, heights, or equal-area decompositions. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3419,14 +3816,13 @@ window.unit1PracticeBank = [
         "Parallelogram D",
         "square grid"
       ],
-      "notes": "Uses the exact visual-only source crop so every countable base and perpendicular height stays aligned to the grid."
+      "notes": "Uses the exact visual-only source crop so every countable base and perpendicular height stays aligned to the grid, with optional ungraded annotation snapped to that printed grid."
     },
     "hints": [
       "Area is base times perpendicular height.",
       "Do not compare slanted side lengths."
     ],
-    "sampleAnswer": "A, B, and D each have area 15 square units; C has area 16 square units.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 1.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 1, with optional source-grid annotation and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -3449,7 +3845,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "2",
     "routePart": "problem-2",
     "skill": "Compare base-height products",
-    "activityForm": "single-choice decimal products",
+    "activityForm": "single-choice decimal products with optional per-choice scratch notes",
     "prompt": "Which pair of base and height produces the greatest area? All measurements are in centimeters.",
     "responseType": "singleChoice",
     "choices": [
@@ -3470,11 +3866,17 @@ window.unit1PracticeBank = [
         "label": "D. b = 10, h = 1.4"
       }
     ],
+    "choiceScratch": {
+      "enabled": true,
+      "label": "Scratch calculation (optional)",
+      "placeholder": "Write any notes",
+      "maxLength": 100
+    },
     "answerKey": [
       "B"
     ],
     "missingFeedback": "Choose one base-height pair before submitting.",
-    "correctFeedback": "Correct. Option B produces 0.8 x 20 = 16 square centimeters, greater than 14, 13.5, and 14.",
+    "correctFeedback": "Correct. Option B produces 0.8 × 20 = 16 square centimeters, greater than 14, 13.5, and 14.",
     "incorrectFeedback": "Not quite. Multiply each base by its corresponding height and compare all four products.",
     "visualModelData": {
       "type": "baseHeightPairs",
@@ -3509,14 +3911,13 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "four source base-height pairs"
       ],
-      "notes": "The source problem is text-only. The app comparison board repeats the four given pairs without calculating or highlighting the greatest product."
+      "notes": "The source problem is text-only. The app comparison board repeats the four given pairs without calculating or highlighting the greatest product. Each choice has an optional 100-character scratch-note field that accepts arbitrary text and never affects grading."
     },
     "hints": [
-      "Area of a parallelogram is b x h.",
+      "Area of a parallelogram is b × h.",
       "Compute all four products before deciding."
     ],
-    "sampleAnswer": "B, because 0.8 x 20 = 16 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 2.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 2, with optional persistent per-choice scratch notes and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -3539,7 +3940,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3a",
     "routePart": "problem-3a",
     "skill": "Find the missing length in source parallelogram A",
-    "activityForm": "numeric missing dimension",
+    "activityForm": "numeric missing dimension with optional annotation",
     "prompt": "Parallelogram A has area 10 square units. Find its missing length labeled with a question mark.",
     "responseType": "number",
     "answerKey": [
@@ -3547,13 +3948,29 @@ window.unit1PracticeBank = [
     ],
     "missingFeedback": "Enter the missing length for parallelogram A.",
     "correctFeedback": "Correct. 10 divided by the 5-unit base is 2 units.",
-    "incorrectFeedback": "Not quite. Use area = base x corresponding height and divide the area by the known dimension.",
+    "incorrectFeedback": "Not quite. Use area = base × corresponding height and divide the area by the known dimension.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-missing-lengths-source.png",
       "alt": "The exact source diagrams A, B, and C with areas, known measurements, and missing lengths.",
       "naturalWidth": 1380,
-      "naturalHeight": 660
+      "naturalHeight": 660,
+      "displayMaxHeight": 420,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 20,
+        "columns": 69,
+        "rows": 33
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a known base, its corresponding height, or a division plan on the exact source diagrams. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3565,14 +3982,13 @@ window.unit1PracticeBank = [
         "given area",
         "known corresponding dimension"
       ],
-      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently."
+      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently and provides optional ungraded annotation on a fine source-coordinate lattice."
     },
     "hints": [
       "Divide the given area by the known base or corresponding height.",
       "Use a perpendicular height, not an unrelated segment."
     ],
-    "sampleAnswer": "2 units. 10 divided by the 5-unit base is 2 units.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 3a.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 3a, with optional source-diagram annotation and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -3595,7 +4011,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3b",
     "routePart": "problem-3b",
     "skill": "Find the missing length in source parallelogram B",
-    "activityForm": "numeric missing dimension",
+    "activityForm": "numeric missing dimension with optional annotation",
     "prompt": "Parallelogram B has area 21 square units. Find its missing length labeled with a question mark.",
     "responseType": "number",
     "answerKey": [
@@ -3603,13 +4019,29 @@ window.unit1PracticeBank = [
     ],
     "missingFeedback": "Enter the missing length for parallelogram B.",
     "correctFeedback": "Correct. 21 divided by the 7-unit height is 3 units.",
-    "incorrectFeedback": "Not quite. Use area = base x corresponding height and divide the area by the known dimension.",
+    "incorrectFeedback": "Not quite. Use area = base × corresponding height and divide the area by the known dimension.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-missing-lengths-source.png",
       "alt": "The exact source diagrams A, B, and C with areas, known measurements, and missing lengths.",
       "naturalWidth": 1380,
-      "naturalHeight": 660
+      "naturalHeight": 660,
+      "displayMaxHeight": 420,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 20,
+        "columns": 69,
+        "rows": 33
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a known base, its corresponding height, or a division plan on the exact source diagrams. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3621,14 +4053,13 @@ window.unit1PracticeBank = [
         "given area",
         "known corresponding dimension"
       ],
-      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently."
+      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently and provides optional ungraded annotation on a fine source-coordinate lattice."
     },
     "hints": [
       "Divide the given area by the known base or corresponding height.",
       "Use a perpendicular height, not an unrelated segment."
     ],
-    "sampleAnswer": "3 units. 21 divided by the 7-unit height is 3 units.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 3b.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 3b, with optional source-diagram annotation and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -3651,7 +4082,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "3c",
     "routePart": "problem-3c",
     "skill": "Find the missing length in source parallelogram C",
-    "activityForm": "numeric missing dimension",
+    "activityForm": "numeric missing dimension with optional annotation",
     "prompt": "Parallelogram C has area 25 square units. Find its missing length labeled with a question mark.",
     "responseType": "number",
     "answerKey": [
@@ -3659,13 +4090,29 @@ window.unit1PracticeBank = [
     ],
     "missingFeedback": "Enter the missing length for parallelogram C.",
     "correctFeedback": "Correct. 25 divided by the 5-unit corresponding height is 5 units; the 2.5-unit segment is not the corresponding height for that base.",
-    "incorrectFeedback": "Not quite. Use area = base x corresponding height and divide the area by the known dimension.",
+    "incorrectFeedback": "Not quite. Use area = base × corresponding height and divide the area by the known dimension.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-missing-lengths-source.png",
       "alt": "The exact source diagrams A, B, and C with areas, known measurements, and missing lengths.",
       "naturalWidth": 1380,
-      "naturalHeight": 660
+      "naturalHeight": 660,
+      "displayMaxHeight": 420,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 20,
+        "columns": 69,
+        "rows": 33
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a known base, its corresponding height, or a division plan on the exact source diagrams. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3677,14 +4124,13 @@ window.unit1PracticeBank = [
         "given area",
         "known corresponding dimension"
       ],
-      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently."
+      "notes": "Keeps all three exact source figures visible for comparison while checking this lettered part independently and provides optional ungraded annotation on a fine source-coordinate lattice."
     },
     "hints": [
       "Divide the given area by the known base or corresponding height.",
       "Use a perpendicular height, not an unrelated segment."
     ],
-    "sampleAnswer": "5 units. 25 divided by the 5-unit corresponding height is 5 units; the 2.5-unit segment is not the corresponding height for that base.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 3c.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 3c, with optional source-diagram annotation and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -3741,8 +4187,7 @@ window.unit1PracticeBank = [
       "Use the corresponding height, not a slanted side.",
       "86 × 55 can be found as 86 × 50 plus 86 × 5."
     ],
-    "sampleAnswer": "86 × 55 = 4,730, so the face has area 4,730 square meters.",
-    "implementationNotes": "Directly adapted from Lesson 6 cumulative practice, Problem 4, with a new high-resolution render of the exact source photograph in the workspace.",
+    "implementationNotes": "Directly adapted from Lesson 6 cumulative practice, Problem 4, with a high-resolution render of the exact source photograph and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -3765,7 +4210,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5",
     "routePart": "problem-5",
     "skill": "Identify possible corresponding height segments",
-    "activityForm": "multi-select geometry",
+    "activityForm": "multi-select geometry with optional annotation",
     "prompt": "Select all segments that could represent a corresponding height if side m is the base.",
     "responseType": "multiSelect",
     "choices": [
@@ -3807,12 +4252,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. Segments e, f, and j are perpendicular to the horizontal base m and each connects a vertex on one base to the line containing the opposite base. Segment k is parallel to them but does not meet the parallelogram at either endpoint.",
     "incorrectFeedback": "Not quite. A corresponding height for base m must be perpendicular to m and connect a vertex on one base to the line containing the opposite base; an isolated parallel segment is not enough.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-corresponding-heights-source.png",
       "alt": "The exact source parallelogram with base m and candidate segments e, f, g, h, j, k, and n.",
       "naturalWidth": 690,
       "naturalHeight": 390,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 390,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 10,
+        "columns": 69,
+        "rows": 39
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to trace side m, compare perpendicular segments, or test a possible corresponding height. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3824,14 +4285,13 @@ window.unit1PracticeBank = [
         "segments e, f, g, h, j, k, and n",
         "right-angle markers"
       ],
-      "notes": "Uses the exact visual-only source crop so endpoint placement and right-angle markers remain available for the classification."
+      "notes": "Uses the exact visual-only source crop so endpoint placement and right-angle markers remain available for the classification, with optional ungraded annotation on a fine source-coordinate lattice."
     },
     "hints": [
       "Because m is horizontal, its corresponding heights are vertical.",
       "A valid height segment must connect the parallelogram to the opposite base line, possibly using an extension."
     ],
-    "sampleAnswer": "e, f, and j.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 5.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 5, with optional source-diagram annotation and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -3854,7 +4314,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "6",
     "routePart": "problem-6",
     "skill": "Find a shaded area by subtracting corner triangles",
-    "activityForm": "numeric area with optional reasoning",
+    "activityForm": "numeric area with optional reasoning and annotation",
     "prompt": "Find the area of the shaded region. All measurements are in centimeters.",
     "responseType": "number",
     "answerKey": [
@@ -3866,12 +4326,28 @@ window.unit1PracticeBank = [
     "correctFeedback": "Correct. The outer rectangle is 14 by 10, with area 140. The four corner right triangles have total area 6 + 24 + 6 + 24 = 60, so the shaded area is 80 square centimeters.",
     "incorrectFeedback": "Not quite. Find the 14-by-10 outer rectangle, then subtract the four right-triangle corner areas.",
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-shaded-region-source.png",
       "alt": "The exact source shaded parallelogram inside a rectangle, with outer side segments labeled 2, 12, 4, and 6.",
       "naturalWidth": 700,
       "naturalHeight": 650,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "displayMaxHeight": 520,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 10,
+        "columns": 70,
+        "rows": 65
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to outline the outer rectangle, separate corner triangles, or plan a subtraction strategy. Your marks are scratch work and do not affect grading."
     },
     "visualRules": {
       "status": "passes",
@@ -3884,14 +4360,13 @@ window.unit1PracticeBank = [
         "four corner right triangles",
         "all source measurements"
       ],
-      "notes": "Uses the exact visual-only source crop. The source-requested reasoning remains available but optional because the numeric area can be graded reliably without brittle prose matching."
+      "notes": "Uses the exact visual-only source crop with optional ungraded annotation for decomposition. The source-requested reasoning remains available but optional because the numeric area can be graded reliably without brittle prose matching."
     },
     "hints": [
       "Combine 2 and 12 to get the outer width, and 6 and 4 to get the outer height.",
       "Subtract the four corner right triangles from the outer rectangle."
     ],
-    "sampleAnswer": "14 x 10 - (6 + 24 + 6 + 24) = 80 square centimeters.",
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 6.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 6, with optional source-diagram annotation and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -3940,7 +4415,6 @@ window.unit1PracticeBank = [
       "Use base × height.",
       "12 × 1.5 is the same as 12 × 1 + 12 × 0.5."
     ],
-    "sampleAnswer": "12 × 1.5 = 18, so the area is 18 square meters.",
     "implementationNotes": "Directly adapted from Lesson 13 cumulative practice, problem 5a.",
     "source": "Cumulative Practice Problems/Grade6-1-13-Lesson-curated-practice-problem-set.pdf p.3",
     "practiceLessonGroup": "lesson-13-practice",
@@ -3995,7 +4469,6 @@ window.unit1PracticeBank = [
       "Area = base × height.",
       "Ask: what number times 4 is 28?"
     ],
-    "sampleAnswer": "base × 4 = 28, so the base is 7 feet.",
     "implementationNotes": "Directly adapted from Lesson 13 cumulative practice, problem 5c.",
     "source": "Cumulative Practice Problems/Grade6-1-13-Lesson-curated-practice-problem-set.pdf p.3",
     "practiceLessonGroup": "lesson-13-practice",
@@ -4043,12 +4516,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Explain how the grid supports your answer.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-07-equal-area-parts-source.png",
       "alt": "The exact source quadrilateral on a square grid, divided by a vertical dashed line into a triangle and a rectangle.",
       "naturalWidth": 720,
       "naturalHeight": 500,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationGrid": {
+        "originX": 60,
+        "originY": 33,
+        "cellX": 74,
+        "cellY": 74,
+        "columns": 8,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares on the exact source grid to count or compare the two areas. Your marks are scratch work and do not affect grading."
     },
     "missingFeedback": "Choose whether the two parts have the same area.",
     "correctFeedback": "Correct. The rectangle is 2 by 4, so its area is 8 square units. The triangle is half of a 4-by-4 square, so its area is also 8 square units.",
@@ -4056,7 +4545,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Count the rectangle's base and height, then place the triangle inside a 4-by-4 square."
     ],
-    "sampleAnswer": "Yes. The rectangle has area 2 x 4 = 8, and the triangle has area 1/2 x 4 x 4 = 8 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4067,9 +4555,9 @@ window.unit1PracticeBank = [
         "source quadrilateral",
         "source dashed partition"
       ],
-      "notes": "Uses a visual-only crop of the exact source diagram. The optional explanation is not rejected because multiple concise grid arguments are valid."
+      "notes": "Uses an immutable crop of the exact source diagram with calibrated optional grid annotation. The optional explanation and scratch marks do not affect grading, and no sample repeats the worked correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 1a.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 1a with source-aligned optional annotation and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -4111,12 +4599,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Describe the two resulting shapes.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-07-equal-area-parts-source.png",
       "alt": "The exact source quadrilateral on a square grid, divided by a vertical dashed line into a triangle and a rectangle.",
       "naturalWidth": 720,
       "naturalHeight": 500,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationGrid": {
+        "originX": 60,
+        "originY": 33,
+        "cellX": 74,
+        "cellY": 74,
+        "columns": 8,
+        "rows": 6
+      },
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares on the exact source grid to compare the two resulting outlines or areas. Your marks are scratch work and do not affect grading."
     },
     "missingFeedback": "Choose whether the two parts are identical shapes.",
     "correctFeedback": "Correct. Equal area does not make the parts identical: one part is a triangle and the other is a rectangle.",
@@ -4124,7 +4628,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Identical shapes must have the same outline after a move, turn, or flip."
     ],
-    "sampleAnswer": "No. One part is a triangle and the other is a rectangle, so they are not identical even though both have area 8.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4135,9 +4638,9 @@ window.unit1PracticeBank = [
         "source quadrilateral",
         "source dashed partition"
       ],
-      "notes": "Keeps Problem 1b independent from the equal-area decision in 1a while reusing the same exact source evidence."
+      "notes": "Keeps Problem 1b independent from the equal-area decision in 1a while reusing the same exact source evidence and calibrated optional annotation. No sample repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 1b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 1b with source-aligned optional annotation and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -4202,8 +4705,7 @@ window.unit1PracticeBank = [
     "hints": [
       "Test more than one matching side. After each join, trace the outside boundary and check both pairs of opposite sides."
     ],
-    "sampleAnswer": "Yes. Rotate one copy 180 degrees and join the triangles along a leg. The resulting quadrilateral has two pairs of opposite parallel sides and unequal adjacent side lengths, so it is a non-square parallelogram.",
-    "implementationNotes": "Rebuilt from Lesson 7 cumulative practice, Problem 2, with two draggable, rotatable source-traced triangles, complete-edge snapping, a separate Yes/No response, and optional reasoning.",
+    "implementationNotes": "Rebuilt from Lesson 7 cumulative practice, Problem 2, with two draggable, rotatable source-traced triangles, complete-edge snapping, a separate Yes/No response, optional reasoning, and no sample that repeats the correct feedback.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -4251,11 +4753,24 @@ window.unit1PracticeBank = [
       "c"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-07-three-compositions-source.png",
       "alt": "The exact source yellow triangle and candidate parallelograms A, B, C, and D on square grids.",
       "naturalWidth": 1710,
-      "naturalHeight": 590
+      "naturalHeight": 590,
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 10,
+        "columns": 171,
+        "rows": 59
+      },
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks like tracing-paper strokes to compare the source triangle's side directions and lengths with candidates A-D. Your marks are scratch work and do not affect grading."
     },
     "missingFeedback": "Choose the parallelogram that cannot be composed from two copies of the source triangle.",
     "correctFeedback": "Correct. The three side lengths of the source triangle give three possible complete-side joins. A, B, and D match those outcomes; C does not.",
@@ -4263,7 +4778,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A triangle has three sides, so there are three materially different complete-side joins to test."
     ],
-    "sampleAnswer": "C cannot be formed. A, B, and D correspond to joining the copies along one of the triangle's three sides.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4274,9 +4788,9 @@ window.unit1PracticeBank = [
         "candidate parallelograms A-D",
         "square grids"
       ],
-      "notes": "Uses one exact visual-only crop containing all source evidence. The answer was checked against the source teacher solution."
+      "notes": "Uses one immutable crop containing all source evidence plus optional natural-pixel line annotation that serves the source's tracing-paper suggestion. The answer was checked against the source teacher solution, and no sample repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 3.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 3 with optional source-aligned tracing marks and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -4310,6 +4824,8 @@ window.unit1PracticeBank = [
       "rows": 8,
       "allowVertexEditing": true,
       "showCalculatedArea": false,
+      "retainInactiveDrawings": true,
+      "retainCompletedDrawingsOnly": true,
       "classificationChoices": [
         {
           "id": "parallelogram",
@@ -4336,7 +4852,6 @@ window.unit1PracticeBank = [
       "Every parallelogram is divided into two identical triangles by either diagonal.",
       "Try a rectangle, then make at least one slanted parallelogram."
     ],
-    "sampleAnswer": "Examples include a rectangle, a square, and a slanted parallelogram. A diagonal cuts each one into two identical triangles.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 6,
@@ -4348,9 +4863,9 @@ window.unit1PracticeBank = [
         "three cut lines",
         "three shape names"
       ],
-      "notes": "Problems 4a and 4b are intentionally combined because each classification describes the student's own corresponding drawing. Each drawing is still independently selected, classified, and checked."
+      "notes": "Problems 4a and 4b are intentionally combined because each classification describes the student's own corresponding drawing. Each drawing is still independently selected, classified, and checked. Every other completed drawing remains on the same grid as a labeled, non-editable reference with its diagonal cut, so the student can compare all three outlines in either switching direction. Its construction workspace replaces a generic annotation layer, and no sample repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problems 4a-4b as one coherent construction-and-classification part.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problems 4a-4b as one coherent construction-and-classification part with persistent completed-drawing references and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -4388,7 +4903,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = base x corresponding height. Divide when a dimension is missing."
     ],
-    "sampleAnswer": "9 x 2/3 = 6 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4397,9 +4911,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "text-only parallelogram measurements"
       ],
-      "notes": "Keeps the source values and response action without adding an answer-bearing diagram."
+      "notes": "Keeps the source values and response action without adding an answer-bearing diagram or a sample that repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5a.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5a without a redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4439,7 +4953,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = base x corresponding height. Divide when a dimension is missing."
     ],
-    "sampleAnswer": "12 divided by 9 = 4/3 units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4448,9 +4961,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "text-only parallelogram measurements"
       ],
-      "notes": "Keeps the source values and response action without adding an answer-bearing diagram."
+      "notes": "Keeps the source values and response action without adding an answer-bearing diagram or a sample that repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5b without a redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4488,7 +5001,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = base x corresponding height. Divide when a dimension is missing."
     ],
-    "sampleAnswer": "7 divided by 1/4 = 28 units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4497,9 +5009,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "text-only parallelogram measurements"
       ],
-      "notes": "Keeps the source values and response action without adding an answer-bearing diagram."
+      "notes": "Keeps the source values and response action without adding an answer-bearing diagram or a sample that repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5c.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5c without a redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4564,12 +5076,25 @@ window.unit1PracticeBank = [
       "h"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-07-base-n-heights-source.png",
       "alt": "The exact source parallelogram with side n and candidate segments e, f, g, h, m, j, and k.",
       "naturalWidth": 810,
       "naturalHeight": 570,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellSize": 10,
+        "columns": 81,
+        "rows": 57
+      },
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks to test segments perpendicular to side n or compare the labeled candidates. Your marks are scratch work and do not affect grading."
     },
     "missingFeedback": "Select every segment that could be a height corresponding to base n.",
     "correctFeedback": "Correct. Segments g and h are perpendicular to side n and connect a vertex on one n-side to the line containing the opposite n-side.",
@@ -4577,7 +5102,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use the right-angle marks. The height for base n is not vertical in this drawing."
     ],
-    "sampleAnswer": "Segments g and h.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -4589,9 +5113,9 @@ window.unit1PracticeBank = [
         "candidate segments e-k",
         "right-angle markers"
       ],
-      "notes": "Uses a visual-only crop of the exact source geometry and preserves all eight answer options."
+      "notes": "Uses an immutable crop of the exact source geometry, preserves all eight answer options, and adds optional natural-pixel line annotation for testing perpendicular heights. No sample repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 6.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 6 with optional source-aligned line annotation and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4616,7 +5140,7 @@ window.unit1PracticeBank = [
     "previewPath": "_rendered-previews/Family Support Materials/Family-Support-Materials/page-008.png",
     "sourcePreviewMode": "afterSubmit",
     "skill": "Calculate area of a triangle",
-    "activityForm": "numeric area",
+    "activityForm": "numeric area with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the blue triangle shown on the grid. Use the labeled lengths and the grid to reason.",
     "responseType": "number",
     "answerKey": [
@@ -4625,11 +5149,27 @@ window.unit1PracticeBank = [
       "15/2"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-08-grid-triangle-source.png",
       "alt": "The exact source grid triangle with two sides labeled 5 and an unlabeled perpendicular height that can be inferred from the grid.",
       "naturalWidth": 890,
-      "naturalHeight": 500
+      "naturalHeight": 500,
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 89,
+        "rows": 50
+      }
     },
     "reasoningPrompt": "Show or explain your reasoning.",
     "visualRules": {
@@ -4641,14 +5181,14 @@ window.unit1PracticeBank = [
         "grid triangle with two sides labeled 5",
         "perpendicular height inferred from the grid"
       ],
-      "notes": "The rendered source page contains solution text, so the source modal is locked until after a correct auto-graded response. The card uses an exact visual-only crop and does not label the inferred height before the sample."
+      "notes": "The rendered source page contains solution text, so the source modal is locked until after a correct auto-graded response. The card uses an exact visual-only crop and does not label the inferred height before the sample. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
     "hints": [
       "A triangle is half of a related parallelogram.",
       "Use one labeled side as a base, then count grid squares to find the perpendicular height."
     ],
     "sampleAnswer": "Use the horizontal side as base 5. The grid shows a perpendicular height of 3, so 1/2 × 5 × 3 = 7.5 square units.",
-    "implementationNotes": "Uses an exact visual-only crop from Family Support Materials page 8 and preserves the source's inferred-height action.",
+    "implementationNotes": "Uses an exact visual-only crop from Family Support Materials page 8 and preserves the source's inferred-height action. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning. The retained sample adds a worked base-height explanation that is not present in the card's generic correct feedback.",
     "source": "Family Support Materials/Family Support Materials.pdf p.8"
   },
   {
@@ -4765,7 +5305,6 @@ window.unit1PracticeBank = [
       "A related parallelogram has twice the triangle's area.",
       "Use the base and height visible in the diagram."
     ],
-    "sampleAnswer": "Diego rearranges pieces of the triangle into a parallelogram, so the triangle's area matches that parallelogram. Jada uses two congruent copies to make a parallelogram, so the triangle is half of that parallelogram's area.",
     "implementationNotes": "Rebuilt from Lesson 8 cumulative practice, Problem 1, with exact source-derived strategy visuals and independently graded questions for parts a and b.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.1"
   },
@@ -4790,7 +5329,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 2,
     "routePart": "problem-2a",
     "skill": "Find triangle area from a square grid",
-    "activityForm": "numeric source-diagram area calculation with optional reasoning",
+    "activityForm": "numeric source-diagram area calculation with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the source triangle in square units. Explain or show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -4799,12 +5338,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Explain or show how the grid gives the base, height, or a valid decomposition.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-08-triangle-area-2a.png",
       "alt": "The exact source square-grid triangle for Problem 2a.",
       "naturalWidth": 660,
       "naturalHeight": 540,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 21,
+        "originY": 25,
+        "cellX": 74,
+        "cellY": 74.17,
+        "columns": 8,
+        "rows": 6
+      }
     },
     "missingFeedback": "Enter the triangle's area before submitting.",
     "correctFeedback": "Correct. The triangle has base 6 and perpendicular height 4, so its area is 1/2 x 6 x 4 = 12 square units.",
@@ -4812,7 +5367,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use 1/2 x base x corresponding height, or decompose and rearrange the triangle."
     ],
-    "sampleAnswer": "1/2 x 6 x 4 = 12 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -4822,9 +5376,9 @@ window.unit1PracticeBank = [
         "source square grid",
         "source triangle 2a"
       ],
-      "notes": "Uses an exact visual-only crop. The explanation remains available but optional because the source permits many valid decompositions that a narrow prose validator could reject."
+      "notes": "Uses an exact visual-only crop. The explanation remains available but optional because the source permits many valid decompositions that a narrow prose validator could reject. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 2a.",
+    "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 2a. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -4848,7 +5402,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 3,
     "routePart": "problem-2b",
     "skill": "Find triangle area from a square grid",
-    "activityForm": "numeric source-diagram area calculation with optional reasoning",
+    "activityForm": "numeric source-diagram area calculation with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the source triangle in square units. Explain or show your reasoning.",
     "responseType": "number",
     "answerKey": [
@@ -4857,12 +5411,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Explain or show how the grid gives the base, height, or a valid decomposition.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-08-triangle-area-2b.png",
       "alt": "The exact source square-grid triangle for Problem 2b.",
       "naturalWidth": 760,
       "naturalHeight": 500,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 31,
+        "originY": 25,
+        "cellX": 76,
+        "cellY": 76,
+        "columns": 9,
+        "rows": 5
+      }
     },
     "missingFeedback": "Enter the triangle's area before submitting.",
     "correctFeedback": "Correct. The horizontal base is 4 and its perpendicular height is 3, so the area is 1/2 x 4 x 3 = 6 square units.",
@@ -4870,7 +5440,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use 1/2 x base x corresponding height, or decompose and rearrange the triangle."
     ],
-    "sampleAnswer": "1/2 x 4 x 3 = 6 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -4880,9 +5449,9 @@ window.unit1PracticeBank = [
         "source square grid",
         "source triangle 2b"
       ],
-      "notes": "Uses an exact visual-only crop. The explanation remains available but optional because the source permits many valid decompositions that a narrow prose validator could reject."
+      "notes": "Uses an exact visual-only crop. The explanation remains available but optional because the source permits many valid decompositions that a narrow prose validator could reject. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 2b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 2b. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -4906,7 +5475,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 4,
     "routePart": "problem-3",
     "skill": "Compare triangle areas using base and height",
-    "activityForm": "single-choice source-diagram comparison with optional reasoning",
+    "activityForm": "single-choice source-diagram comparison with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Which of the three source triangles has the greatest area?",
     "responseType": "singleChoice",
     "choices": [
@@ -4933,11 +5502,27 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Explain how the grid supports your comparison.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-08-greatest-area-source.png",
       "alt": "The exact source square grid with triangles A, B, and C.",
       "naturalWidth": 1650,
-      "naturalHeight": 850
+      "naturalHeight": 850,
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 165,
+        "rows": 85
+      }
     },
     "missingFeedback": "Choose the triangle with the greatest area, or choose that all three are equal.",
     "correctFeedback": "Correct. Each triangle has a 5-unit base and a corresponding height of 4 units, so each area is 1/2 x 5 x 4 = 10 square units.",
@@ -4945,7 +5530,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A triangle's slant does not change the area when its base and corresponding height stay the same."
     ],
-    "sampleAnswer": "All three have area 10 square units because each has base 5 and corresponding height 4.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -4955,9 +5539,9 @@ window.unit1PracticeBank = [
         "source triangles A-C",
         "shared square grid"
       ],
-      "notes": "Keeps all three source triangles visible together and does not add answer-bearing base or height labels."
+      "notes": "Keeps all three source triangles visible together and does not add answer-bearing base or height labels. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 3.",
+    "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 3. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5041,7 +5625,13 @@ window.unit1PracticeBank = [
       ],
       "direction": "Select a copy, drag or use arrow keys to move it, and use quarter turns as needed. Join one pair of complete matching sides.",
       "alt": "Two movable, rotatable copies of source Triangle D.",
-      "sourceNote": "The triangle outline is traced from source Triangle D; the second piece is its identical copy."
+      "sourceNote": "The triangle outline is traced from source Triangle D; the second piece is its identical copy.",
+      "referenceCompositionItemIds": [
+        "u1-practice-lesson8-compose-d",
+        "u1-practice-lesson8-compose-e",
+        "u1-practice-lesson8-compose-f"
+      ],
+      "referenceCompositionLabel": "Triangle D composition"
     },
     "missingFeedback": "Compose the two copies along one complete matching side before submitting.",
     "correctFeedback": "Correct. Two identical triangles joined along a complete matching side form a parallelogram, with the shared edge as its diagonal.",
@@ -5049,7 +5639,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A 180-degree turn places a copy on the opposite side of a matching edge."
     ],
-    "sampleAnswer": "A valid construction places the copy of Triangle D on the opposite side of one full edge, forming a parallelogram.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5060,7 +5649,7 @@ window.unit1PracticeBank = [
         "one identical copy",
         "one completed parallelogram"
       ],
-      "notes": "Recreates the source drawing action with two movable, rotatable copies and complete-edge snapping; it grades the required construction rather than inventing a choice."
+      "notes": "Recreates the source drawing action with two movable, rotatable copies and complete-edge snapping; completed D, E, and F compositions remain visible as non-editable references when the student switches parts."
     },
     "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 4, Triangle D.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.3"
@@ -5146,7 +5735,13 @@ window.unit1PracticeBank = [
       ],
       "direction": "Select a copy, drag or use arrow keys to move it, and use quarter turns as needed. Join one pair of complete matching sides.",
       "alt": "Two movable, rotatable copies of source Triangle E.",
-      "sourceNote": "The triangle outline is traced from source Triangle E; the second piece is its identical copy."
+      "sourceNote": "The triangle outline is traced from source Triangle E; the second piece is its identical copy.",
+      "referenceCompositionItemIds": [
+        "u1-practice-lesson8-compose-d",
+        "u1-practice-lesson8-compose-e",
+        "u1-practice-lesson8-compose-f"
+      ],
+      "referenceCompositionLabel": "Triangle E composition"
     },
     "missingFeedback": "Compose the two copies along one complete matching side before submitting.",
     "correctFeedback": "Correct. Two identical triangles joined along a complete matching side form a parallelogram, with the shared edge as its diagonal.",
@@ -5154,7 +5749,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A 180-degree turn places a copy on the opposite side of a matching edge."
     ],
-    "sampleAnswer": "A valid construction places the copy of Triangle E on the opposite side of one full edge, forming a parallelogram.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5165,7 +5759,7 @@ window.unit1PracticeBank = [
         "one identical copy",
         "one completed parallelogram"
       ],
-      "notes": "Recreates the source drawing action with two movable, rotatable copies and complete-edge snapping; it grades the required construction rather than inventing a choice."
+      "notes": "Recreates the source drawing action with two movable, rotatable copies and complete-edge snapping; completed D, E, and F compositions remain visible as non-editable references when the student switches parts."
     },
     "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 4, Triangle E.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.3"
@@ -5251,7 +5845,13 @@ window.unit1PracticeBank = [
       ],
       "direction": "Select a copy, drag or use arrow keys to move it, and use quarter turns as needed. Join one pair of complete matching sides.",
       "alt": "Two movable, rotatable copies of source Triangle F.",
-      "sourceNote": "The triangle outline is traced from source Triangle F; the second piece is its identical copy."
+      "sourceNote": "The triangle outline is traced from source Triangle F; the second piece is its identical copy.",
+      "referenceCompositionItemIds": [
+        "u1-practice-lesson8-compose-d",
+        "u1-practice-lesson8-compose-e",
+        "u1-practice-lesson8-compose-f"
+      ],
+      "referenceCompositionLabel": "Triangle F composition"
     },
     "missingFeedback": "Compose the two copies along one complete matching side before submitting.",
     "correctFeedback": "Correct. Two identical triangles joined along a complete matching side form a parallelogram, with the shared edge as its diagonal.",
@@ -5259,7 +5859,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A 180-degree turn places a copy on the opposite side of a matching edge."
     ],
-    "sampleAnswer": "A valid construction places the copy of Triangle F on the opposite side of one full edge, forming a parallelogram.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5270,7 +5869,7 @@ window.unit1PracticeBank = [
         "one identical copy",
         "one completed parallelogram"
       ],
-      "notes": "Recreates the source drawing action with two movable, rotatable copies and complete-edge snapping; it grades the required construction rather than inventing a choice."
+      "notes": "Recreates the source drawing action with two movable, rotatable copies and complete-edge snapping; completed D, E, and F compositions remain visible as non-editable references when the student switches parts."
     },
     "implementationNotes": "Full-coverage implementation of Lesson 8 Practice Problem 4, Triangle F.",
     "source": "Cumulative Practice Problems/Grade6-1-8-Lesson-curated-practice-problem-set.pdf p.3"
@@ -5311,7 +5910,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = base x corresponding height. Divide when a dimension is missing."
     ],
-    "sampleAnswer": "3.5 x 2 = 7 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5363,7 +5961,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = base x corresponding height. Divide when a dimension is missing."
     ],
-    "sampleAnswer": "1.8 divided by 3 = 0.6 unit.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5415,7 +6012,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = base x corresponding height. Divide when a dimension is missing."
     ],
-    "sampleAnswer": "20.4 divided by 4 = 5.1 units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5450,7 +6046,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 1,
     "routePart": "problem-1",
     "skill": "Identify corresponding triangle heights",
-    "activityForm": "multi-select exact-source height comparison",
+    "activityForm": "multi-select exact-source height comparison with optional source-aligned annotation scratchpad",
     "prompt": "Select every drawing in which height h is correctly identified for the given base b.",
     "responseType": "multiSelect",
     "choices": [
@@ -5486,11 +6082,25 @@ window.unit1PracticeBank = [
       "f"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-correct-heights-source.png",
       "alt": "The exact six source triangles A-F, each with a base b and a proposed corresponding height h.",
       "naturalWidth": 900,
-      "naturalHeight": 620
+      "naturalHeight": 620,
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks to test a base, a perpendicular height, or an extension on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 90,
+        "rows": 62
+      }
     },
     "missingFeedback": "Select every drawing whose h is perpendicular to the line containing b and reaches the opposite vertex.",
     "correctFeedback": "Correct. A, B, D, and F show perpendicular distances from the opposite vertex to the line containing base b. C is not perpendicular to b, and E does not use the opposite vertex.",
@@ -5498,7 +6108,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A height can be inside or outside a triangle, but it must be perpendicular to the chosen base's line."
     ],
-    "sampleAnswer": "A, B, D, and F.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5510,9 +6119,9 @@ window.unit1PracticeBank = [
         "proposed heights h",
         "right-angle marks"
       ],
-      "notes": "Uses one unclipped visual-only crop so all six source comparisons remain visible together; no answer-bearing labels are added."
+      "notes": "Uses one unclipped visual-only crop so all six source comparisons remain visible together; no answer-bearing labels are added. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 1.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 1. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -5536,7 +6145,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 2,
     "routePart": "problem-2a-a",
     "skill": "Find the area of source Triangle A",
-    "activityForm": "independently graded numeric triangle-area response",
+    "activityForm": "independently graded numeric triangle-area response with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of source Triangle A in square units.",
     "responseType": "number",
     "answerKey": [
@@ -5545,11 +6154,27 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show how the labeled base and corresponding height give the area.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-three-triangle-areas-source.png",
       "alt": "The exact source grid containing Triangles A, B, and C with base b and corresponding height h labeled.",
       "naturalWidth": 1200,
-      "naturalHeight": 390
+      "naturalHeight": 390,
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 120,
+        "rows": 39
+      }
     },
     "missingFeedback": "Enter the area of Triangle A.",
     "correctFeedback": "Correct. The base is 4 units and the corresponding height is 6 units, so 1/2 x 4 x 6 = 12 square units.",
@@ -5557,7 +6182,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = 1/2 x base x corresponding height."
     ],
-    "sampleAnswer": "The base is 4 units and the corresponding height is 6 units, so 1/2 x 4 x 6 = 12 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5568,9 +6192,9 @@ window.unit1PracticeBank = [
         "source Triangles A-C",
         "labels b and h"
       ],
-      "notes": "Keeps all three source triangles visible for comparison while grading this triangle's required response independently."
+      "notes": "Keeps all three source triangles visible for comparison while grading this triangle's required response independently. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2a, Triangle A.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2a, Triangle A. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5594,7 +6218,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 3,
     "routePart": "problem-2a-b",
     "skill": "Find the area of source Triangle B",
-    "activityForm": "independently graded numeric triangle-area response",
+    "activityForm": "independently graded numeric triangle-area response with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of source Triangle B in square units.",
     "responseType": "number",
     "answerKey": [
@@ -5603,11 +6227,27 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show how the labeled base and corresponding height give the area.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-three-triangle-areas-source.png",
       "alt": "The exact source grid containing Triangles A, B, and C with base b and corresponding height h labeled.",
       "naturalWidth": 1200,
-      "naturalHeight": 390
+      "naturalHeight": 390,
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 120,
+        "rows": 39
+      }
     },
     "missingFeedback": "Enter the area of Triangle B.",
     "correctFeedback": "Correct. The base is 8 units and the corresponding height is 4 units, so 1/2 x 8 x 4 = 16 square units.",
@@ -5615,7 +6255,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = 1/2 x base x corresponding height."
     ],
-    "sampleAnswer": "The base is 8 units and the corresponding height is 4 units, so 1/2 x 8 x 4 = 16 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5626,9 +6265,9 @@ window.unit1PracticeBank = [
         "source Triangles A-C",
         "labels b and h"
       ],
-      "notes": "Keeps all three source triangles visible for comparison while grading this triangle's required response independently."
+      "notes": "Keeps all three source triangles visible for comparison while grading this triangle's required response independently. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2a, Triangle B.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2a, Triangle B. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5652,7 +6291,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 4,
     "routePart": "problem-2a-c",
     "skill": "Find the area of source Triangle C",
-    "activityForm": "independently graded numeric triangle-area response",
+    "activityForm": "independently graded numeric triangle-area response with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of source Triangle C in square units.",
     "responseType": "number",
     "answerKey": [
@@ -5661,11 +6300,27 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show how the labeled base and corresponding height give the area.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-three-triangle-areas-source.png",
       "alt": "The exact source grid containing Triangles A, B, and C with base b and corresponding height h labeled.",
       "naturalWidth": 1200,
-      "naturalHeight": 390
+      "naturalHeight": 390,
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 120,
+        "rows": 39
+      }
     },
     "missingFeedback": "Enter the area of Triangle C.",
     "correctFeedback": "Correct. The base is 8 units and the corresponding height is 3 units, so 1/2 x 8 x 3 = 12 square units.",
@@ -5673,7 +6328,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use area = 1/2 x base x corresponding height."
     ],
-    "sampleAnswer": "The base is 8 units and the corresponding height is 3 units, so 1/2 x 8 x 3 = 12 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5684,9 +6338,9 @@ window.unit1PracticeBank = [
         "source Triangles A-C",
         "labels b and h"
       ],
-      "notes": "Keeps all three source triangles visible for comparison while grading this triangle's required response independently."
+      "notes": "Keeps all three source triangles visible for comparison while grading this triangle's required response independently. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2a, Triangle C.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2a, Triangle C. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5710,7 +6364,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 5,
     "routePart": "problem-2b",
     "skill": "Relate triangle area to base and corresponding height",
-    "activityForm": "single-choice formula relationship with optional reasoning",
+    "activityForm": "single-choice formula relationship with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "How is a triangle's area related to its base and corresponding height?",
     "responseType": "singleChoice",
     "choices": [
@@ -5733,11 +6387,27 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: explain why the factor 1/2 is needed.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-three-triangle-areas-source.png",
       "alt": "The exact source grid containing three triangles with base b and corresponding height h labeled.",
       "naturalWidth": 1200,
-      "naturalHeight": 390
+      "naturalHeight": 390,
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 120,
+        "rows": 39
+      }
     },
     "missingFeedback": "Choose the relationship between triangle area, base, and corresponding height.",
     "correctFeedback": "Correct. A triangle is half of a related parallelogram with the same base and corresponding height, so its area is 1/2 x base x height.",
@@ -5745,7 +6415,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Compare one triangle with a related parallelogram made from two copies."
     ],
-    "sampleAnswer": "Area = 1/2 x base x corresponding height.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5755,9 +6424,9 @@ window.unit1PracticeBank = [
         "same source Triangles A-C",
         "base and corresponding height labels"
       ],
-      "notes": "Turns the source's open generalization into a directly gradable conceptual choice without changing the mathematical claim."
+      "notes": "Turns the source's open generalization into a directly gradable conceptual choice without changing the mathematical claim. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 2b. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5781,7 +6450,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 6,
     "routePart": "problem-3a",
     "skill": "Name a corresponding height for base d",
-    "activityForm": "independently graded source-label identification",
+    "activityForm": "independently graded source-label identification with optional source-aligned annotation scratchpad",
     "prompt": "Which labeled segment is a corresponding height when side d is used as the base?",
     "responseType": "singleChoice",
     "choices": [
@@ -5806,12 +6475,26 @@ window.unit1PracticeBank = [
       "g"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-right-triangle-heights-source.png",
       "alt": "The exact source right triangle with sides d, e, and f and exterior perpendicular segment g.",
       "naturalWidth": 500,
       "naturalHeight": 250,
-      "displayVariant": "compactWide"
+      "displayVariant": "compactWide",
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks to test a base, a perpendicular height, or an extension on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 50,
+        "rows": 25
+      }
     },
     "missingFeedback": "Choose a corresponding height for base d.",
     "correctFeedback": "Correct. For base d, the perpendicular from the opposite vertex is segment g.",
@@ -5819,7 +6502,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The right-angle marks show perpendicular segments."
     ],
-    "sampleAnswer": "Segment g",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5831,9 +6513,9 @@ window.unit1PracticeBank = [
         "segment g",
         "right-angle marks"
       ],
-      "notes": "Keeps the full source figure visible for every independently graded base-height pairing."
+      "notes": "Keeps the full source figure visible for every independently graded base-height pairing. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 3 for base d.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 3 for base d. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5857,7 +6539,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 7,
     "routePart": "problem-3b",
     "skill": "Name a corresponding height for base e",
-    "activityForm": "independently graded source-label identification",
+    "activityForm": "independently graded source-label identification with optional source-aligned annotation scratchpad",
     "prompt": "Which labeled segment is a corresponding height when side e is used as the base?",
     "responseType": "singleChoice",
     "choices": [
@@ -5882,12 +6564,26 @@ window.unit1PracticeBank = [
       "f"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-right-triangle-heights-source.png",
       "alt": "The exact source right triangle with sides d, e, and f and exterior perpendicular segment g.",
       "naturalWidth": 500,
       "naturalHeight": 250,
-      "displayVariant": "compactWide"
+      "displayVariant": "compactWide",
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks to test a base, a perpendicular height, or an extension on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 50,
+        "rows": 25
+      }
     },
     "missingFeedback": "Choose a corresponding height for base e.",
     "correctFeedback": "Correct. Sides e and f meet at a right angle, so side f is a corresponding height for base e.",
@@ -5895,7 +6591,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The right-angle marks show perpendicular segments."
     ],
-    "sampleAnswer": "Side f",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5907,9 +6602,9 @@ window.unit1PracticeBank = [
         "segment g",
         "right-angle marks"
       ],
-      "notes": "Keeps the full source figure visible for every independently graded base-height pairing."
+      "notes": "Keeps the full source figure visible for every independently graded base-height pairing. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 3 for base e.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 3 for base e. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -5933,7 +6628,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 8,
     "routePart": "problem-3c",
     "skill": "Name a corresponding height for base f",
-    "activityForm": "independently graded source-label identification",
+    "activityForm": "independently graded source-label identification with optional source-aligned annotation scratchpad",
     "prompt": "Which labeled segment is a corresponding height when side f is used as the base?",
     "responseType": "singleChoice",
     "choices": [
@@ -5958,12 +6653,26 @@ window.unit1PracticeBank = [
       "e"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-right-triangle-heights-source.png",
       "alt": "The exact source right triangle with sides d, e, and f and exterior perpendicular segment g.",
       "naturalWidth": 500,
       "naturalHeight": 250,
-      "displayVariant": "compactWide"
+      "displayVariant": "compactWide",
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks to test a base, a perpendicular height, or an extension on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 50,
+        "rows": 25
+      }
     },
     "missingFeedback": "Choose a corresponding height for base f.",
     "correctFeedback": "Correct. Sides e and f meet at a right angle, so side e is a corresponding height for base f.",
@@ -5971,7 +6680,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The right-angle marks show perpendicular segments."
     ],
-    "sampleAnswer": "Side e",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -5983,9 +6691,9 @@ window.unit1PracticeBank = [
         "segment g",
         "right-angle marks"
       ],
-      "notes": "Keeps the full source figure visible for every independently graded base-height pairing."
+      "notes": "Keeps the full source figure visible for every independently graded base-height pairing. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 3 for base f.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 3 for base f. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -6008,7 +6716,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 9,
     "routePart": "problem-4",
     "skill": "Apply the triangle area formula",
-    "activityForm": "numeric area",
+    "activityForm": "numeric area with optional source-aligned annotation scratchpad",
     "sourceItem": "Problem 4",
     "prompt": "Find the area of the shaded triangle in square units. Show your reasoning.",
     "responseType": "number",
@@ -6016,12 +6724,28 @@ window.unit1PracticeBank = [
       "18"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-shaded-triangle-source.png",
       "alt": "The exact source diagram of a shaded triangle inside a 6-by-6 rectangle, with the right side split into lengths 2 and 4.",
       "naturalWidth": 540,
       "naturalHeight": 630,
-      "displayVariant": "compactPortrait"
+      "displayVariant": "compactPortrait",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 54,
+        "rows": 63
+      }
     },
     "reasoningPrompt": "Show or explain your reasoning.",
     "reasoningRequired": true,
@@ -6043,14 +6767,13 @@ window.unit1PracticeBank = [
         "shaded triangle",
         "split right side labeled 2 and 4"
       ],
-      "notes": "Uses an exact visual-only crop of source Problem 4, preserves the split 2-and-4 side labels, does not reveal the formula in the visual, and validates the source-required reasoning."
+      "notes": "Uses an exact visual-only crop of source Problem 4, preserves the split 2-and-4 side labels, does not reveal the formula in the visual, and validates the source-required reasoning. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
     "hints": [
       "Use 1/2 × base × height.",
       "Half of 6 × 6 is half of 36."
     ],
-    "sampleAnswer": "1/2 × 6 × 6 = 18 square units.",
-    "implementationNotes": "Rebuilt from Lesson 9 cumulative practice, Problem 4, with the exact source diagram and required, transparent reasoning validation.",
+    "implementationNotes": "Rebuilt from Lesson 9 cumulative practice, Problem 4, with the exact source diagram and required, transparent reasoning validation. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -6118,7 +6841,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The diagonal is a side of both triangles. The opposite sides of a parallelogram have equal lengths."
     ],
-    "sampleAnswer": "B, C, and E.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -6155,7 +6877,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 11,
     "routePart": "problem-6a",
     "skill": "Bound an octagon's area",
-    "activityForm": "yes-no estimate decision with optional reasoning",
+    "activityForm": "yes-no estimate decision with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Lin says the octagon's area must be less than 100 square inches. Do you agree?",
     "responseType": "singleChoice",
     "choices": [
@@ -6174,12 +6896,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: explain how the enclosing square supports your decision.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-octagon-source.png",
       "alt": "The exact source octagon inside a 10-inch square, with side partitions 3, 4, 3 inches in both directions.",
       "naturalWidth": 520,
       "naturalHeight": 520,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 52,
+        "rows": 52
+      }
     },
     "missingFeedback": "Choose whether the octagon must have area less than 100 square inches.",
     "correctFeedback": "Correct. The octagon lies inside a 10-by-10 square and omits four nonzero corner triangles, so its area is less than 100 square inches.",
@@ -6187,7 +6925,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The three horizontal parts total 10 inches, and the three vertical parts also total 10 inches."
     ],
-    "sampleAnswer": "Yes. It fits inside a 10-by-10 square but does not include the four corner triangles.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -6198,9 +6935,9 @@ window.unit1PracticeBank = [
         "10-by-10 enclosing square",
         "3-4-3 dimension partitions"
       ],
-      "notes": "The decision is graded directly; the source-requested explanation remains available but optional because multiple valid bounds and decompositions exist."
+      "notes": "The decision is graded directly; the source-requested explanation remains available but optional because multiple valid bounds and decompositions exist. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 6a.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 6a. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -6224,7 +6961,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 12,
     "routePart": "problem-6b",
     "skill": "Find an octagon's exact area by subtraction",
-    "activityForm": "numeric exact-area response with optional reasoning",
+    "activityForm": "numeric exact-area response with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the exact area of the octagon in square inches.",
     "responseType": "number",
     "answerKey": [
@@ -6233,12 +6970,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show how you subtract the four corner triangles from the enclosing square.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-09-octagon-source.png",
       "alt": "The exact source octagon inside a 10-inch square, with side partitions 3, 4, 3 inches in both directions.",
       "naturalWidth": 520,
       "naturalHeight": 520,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 52,
+        "rows": 52
+      }
     },
     "missingFeedback": "Enter the exact area of the octagon.",
     "correctFeedback": "Correct. The enclosing square has area 100. The four 3-by-3 corner right triangles have total area 4 x 4.5 = 18, so the octagon's area is 100 - 18 = 82 square inches.",
@@ -6246,7 +6999,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Each removed corner triangle has area 1/2 x 3 x 3."
     ],
-    "sampleAnswer": "100 - 4 x (1/2 x 3 x 3) = 82 square inches.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -6257,9 +7009,9 @@ window.unit1PracticeBank = [
         "10-by-10 enclosing square",
         "four 3-by-3 corner triangles"
       ],
-      "notes": "The exact numeric response is graded; the source-requested reasoning remains available without brittle prose validation."
+      "notes": "The exact numeric response is graded; the source-requested reasoning remains available without brittle prose validation. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 6b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 9 Practice Problem 6b. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-9-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -6471,7 +7223,6 @@ window.unit1PracticeBank = [
       "A height must be perpendicular to the selected base.",
       "The segment may need to meet an extension of the base line."
     ],
-    "sampleAnswer": "For each triangle, draw a segment from the opposite vertex perpendicular to the line containing base b. For an obtuse triangle, that perpendicular segment may land outside the triangle.",
     "implementationNotes": "Rebuilt from Lesson 10 cumulative practice, Problem 1, with an exact source crop, persistent multi-line construction scratchpads, distinct selected-segment overlays, and independent feedback for all three drawing targets.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.1"
   },
@@ -6496,7 +7247,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 2,
     "routePart": "problem-2",
     "skill": "Identify triangles with a specified area",
-    "activityForm": "multi-select source-figure comparison with optional reasoning",
+    "activityForm": "multi-select source-figure comparison with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Select every triangle that has an area of 8 square units.",
     "responseType": "multiSelect",
     "choices": [
@@ -6530,12 +7281,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: explain how a base-height pair proves the area of each selected triangle.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-10-area-eight-triangles-source.png",
       "alt": "The exact source grid with triangles A through E.",
       "naturalWidth": 855,
       "naturalHeight": 540,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 9.94186,
+        "cellY": 10,
+        "columns": 86,
+        "rows": 54
+      }
     },
     "missingFeedback": "Select every triangle that has area 8 square units.",
     "correctFeedback": "Correct. A, B, and D each have a base-height pair of 4 and 4, so each area is 1/2 x 4 x 4 = 8. E has base 8 and height 2, so its area is also 8. Triangle C has base 3 and height 5, so its area is 7.5.",
@@ -6543,7 +7310,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A slanted side length is not automatically a height; use a perpendicular grid distance."
     ],
-    "sampleAnswer": "A, B, D, and E.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -6553,9 +7319,9 @@ window.unit1PracticeBank = [
         "exact source triangles A-E",
         "unaltered square grid"
       ],
-      "notes": "Uses a visual-only crop from the cited source page and grades the complete selection directly. Reasoning is available but optional to avoid rejecting alternate valid base-height explanations."
+      "notes": "Uses a visual-only crop from the cited source page and grades the complete selection directly. Reasoning is available but optional to avoid rejecting alternate valid base-height explanations. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 2.",
+    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 2. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -6579,7 +7345,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 3,
     "routePart": "problem-3",
     "skill": "Find triangle area from a convenient base",
-    "activityForm": "numeric exact-area response with optional reasoning",
+    "activityForm": "numeric exact-area response with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the triangle in square units.",
     "responseType": "number",
     "answerKey": [
@@ -6588,12 +7354,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: identify a convenient base and its corresponding height.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-10-triangle-area-source.png",
       "alt": "The exact source triangle on a square grid.",
       "naturalWidth": 290,
       "naturalHeight": 380,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 29,
+        "rows": 38
+      }
     },
     "missingFeedback": "Enter the triangle's area in square units.",
     "correctFeedback": "Correct. The vertical side is a base of 6 units, and the perpendicular horizontal distance to the opposite vertex is 4 units. The area is 1/2 x 6 x 4 = 12 square units.",
@@ -6601,7 +7383,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The vertical side is 6 units long, and its corresponding height is horizontal."
     ],
-    "sampleAnswer": "1/2 x 6 x 4 = 12 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -6611,9 +7392,9 @@ window.unit1PracticeBank = [
         "exact source triangle",
         "unaltered square grid"
       ],
-      "notes": "The exact source diagram is preserved; the numeric answer is graded and the source-requested reasoning remains available without brittle prose validation."
+      "notes": "The exact source diagram is preserved; the numeric answer is graded and the source-requested reasoning remains available without brittle prose validation. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 3.",
+    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 3. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -6637,7 +7418,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 4,
     "routePart": "problem-4",
     "skill": "Match a triangle base with its corresponding height",
-    "activityForm": "single-choice base-height decision",
+    "activityForm": "single-choice base-height decision with optional source-aligned annotation scratchpad",
     "prompt": "Can side d be used as the base of this triangle? If so, which labeled length is its corresponding height?",
     "responseType": "singleChoice",
     "choices": [
@@ -6662,12 +7443,26 @@ window.unit1PracticeBank = [
       "yes-g"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-10-base-d-height-g-source.png",
       "alt": "The exact source right triangle labeled d, e, and f, with an exterior perpendicular length g.",
       "naturalWidth": 640,
       "naturalHeight": 330,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional line marks to test a base, a perpendicular height, or an extension on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 64,
+        "rows": 33
+      }
     },
     "missingFeedback": "Choose whether d can be a base and identify its corresponding height.",
     "correctFeedback": "Correct. Any side can be chosen as a base. The corresponding height must be perpendicular to the line containing that base, so length g is the height for base d.",
@@ -6675,7 +7470,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A corresponding height can lie outside the triangle."
     ],
-    "sampleAnswer": "Yes. Length g is perpendicular to the line containing d, so g is the corresponding height.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -6686,9 +7480,9 @@ window.unit1PracticeBank = [
         "labels d, e, f, and g",
         "right-angle markers"
       ],
-      "notes": "The answer control keeps the source's dependent yes/no and height-identification decision together so no partial answer is accepted."
+      "notes": "The answer control keeps the source's dependent yes/no and height-identification decision together so no partial answer is accepted. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 4.",
+    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 4. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -6712,7 +7506,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 5,
     "routePart": "problem-5",
     "skill": "Find the area of a composite polygon on a grid",
-    "activityForm": "numeric composite-area response with optional reasoning",
+    "activityForm": "numeric composite-area response with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the shaded shape in square units.",
     "responseType": "number",
     "answerKey": [
@@ -6721,12 +7515,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: explain how you decomposed or enclosed the shaded shape.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-10-bowtie-area-source.png",
       "alt": "The exact source yellow bowtie-shaped polygon on a square grid.",
       "naturalWidth": 450,
       "naturalHeight": 370,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 45,
+        "rows": 37
+      }
     },
     "missingFeedback": "Enter the shaded shape's area in square units.",
     "correctFeedback": "Correct. The shape can be decomposed into four triangles whose areas total 18 square units.",
@@ -6734,7 +7544,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A vertical split through the center creates manageable triangles on both sides."
     ],
-    "sampleAnswer": "The four triangular regions have areas 6, 3, 3, and 6 square units, for a total of 18.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -6744,9 +7553,9 @@ window.unit1PracticeBank = [
         "exact shaded source polygon",
         "unaltered square grid"
       ],
-      "notes": "Uses a visual-only crop from the source; the graded numeric response is independent of the student's chosen valid decomposition."
+      "notes": "Uses a visual-only crop from the source; the graded numeric response is independent of the student's chosen valid decomposition. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 5.",
+    "implementationNotes": "Full-coverage implementation of Lesson 10 Practice Problem 5. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -6803,7 +7612,7 @@ window.unit1PracticeBank = [
       ],
       "notes": "The app replaces the paper grid with an equivalent local constructor. It checks that each drawing is a parallelogram, the drawings are not congruent copies under movement or reflection, each entered base-height product matches its drawing's grid area, and both areas are equal. Whichever drawing is active, the other created drawing remains visible as a non-editable reference on the shared grid with its entered base and height."
     },
-    "implementationNotes": "Full-coverage interactive implementation of Lesson 10 Practice Problem 6. Retains the inactive drawing and its dimensions whenever the student switches between drawings for direct comparison.",
+    "implementationNotes": "Full-coverage interactive implementation of Lesson 10 Practice Problem 6. Retains the inactive drawing and its dimensions whenever the student switches between drawings for direct comparison. The retained sample provides a concrete alternate pair of valid equal-area constructions for comparison with the student's drawings.",
     "source": "Cumulative Practice Problems/Grade6-1-10-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -6852,7 +7661,6 @@ window.unit1PracticeBank = [
       "Area = 1/2 × base × height.",
       "1/2 × 8 is 4, so 4 × height = 32."
     ],
-    "sampleAnswer": "32 = 1/2 × 8 × h, so 32 = 4h and h = 8 millimeters.",
     "implementationNotes": "Directly adapted from Lesson 13 cumulative practice, problem 5d.",
     "source": "Cumulative Practice Problems/Grade6-1-13-Lesson-curated-practice-problem-set.pdf p.3",
     "practiceLessonGroup": "lesson-13-practice",
@@ -6929,7 +7737,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Check closed, straight-sided, and two-dimensional as three separate conditions."
     ],
-    "sampleAnswer": "Figures A and C.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -7117,7 +7924,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Trace the boundary in one direction and alternate between outward and inward corners."
     ],
-    "sampleAnswer": "12 edges and 12 vertices.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 14,
@@ -7152,7 +7958,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 3,
     "routePart": "problem-3",
     "skill": "Find trapezoid area by decomposition or enclosure",
-    "activityForm": "numeric exact-area response with optional strategy",
+    "activityForm": "numeric exact-area response with optional strategy with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the trapezoid in square units.",
     "responseType": "number",
     "answerKey": [
@@ -7161,12 +7967,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: explain or show your strategy.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-11-trapezoid-source.png",
       "alt": "The exact source trapezoid on a square grid.",
       "naturalWidth": 560,
       "naturalHeight": 290,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 56,
+        "rows": 29
+      }
     },
     "missingFeedback": "Enter the trapezoid's area in square units.",
     "correctFeedback": "Correct. The enclosing 8-by-3 rectangle has area 24. The two missing right triangles each have area 3, so the trapezoid has area 24 - 6 = 18 square units.",
@@ -7174,7 +7996,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Each missing corner triangle has base 2 and height 3."
     ],
-    "sampleAnswer": "8 x 3 - 2 x (1/2 x 2 x 3) = 18 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -7184,9 +8005,9 @@ window.unit1PracticeBank = [
         "exact source trapezoid",
         "unaltered square grid"
       ],
-      "notes": "Uses a visual-only source crop; numeric grading accepts any valid strategy while preserving an optional explanation field."
+      "notes": "Uses a visual-only source crop; numeric grading accepts any valid strategy while preserving an optional explanation field. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 11 Practice Problem 3.",
+    "implementationNotes": "Full-coverage implementation of Lesson 11 Practice Problem 3. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-11-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -7210,7 +8031,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 4,
     "routePart": "problem-4",
     "skill": "Find one hexagon area using two decompositions",
-    "activityForm": "two independently graded named-method area calculations",
+    "activityForm": "two independently graded named-method area calculations with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the regular hexagon using both Lin's and Andre's decompositions.",
     "responseType": "areaStrategyPair",
     "strategyTargetArea": 93.6,
@@ -7234,12 +8055,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show the calculations for both decompositions.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-11-hexagon-methods-source.png",
       "alt": "The exact source hexagon diagrams for Lin's six-triangle method and Andre's rectangle-plus-two-triangles method.",
       "naturalWidth": 1100,
       "naturalHeight": 420,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 110,
+        "rows": 42
+      }
     },
     "missingFeedback": "Enter and check the area found by both named methods.",
     "correctFeedback": "Correct. Both decompositions account for the same hexagon and give 93.6 square inches.",
@@ -7258,9 +8095,9 @@ window.unit1PracticeBank = [
         "Andre's exact source decomposition",
         "all source dimensions"
       ],
-      "notes": "The source's two required calculations are not collapsed; each method has its own numeric input and feedback while the shared explanation remains optional."
+      "notes": "The source's two required calculations are not collapsed; each method has its own numeric input and feedback while the shared explanation remains optional. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 11 Practice Problem 4.",
+    "implementationNotes": "Full-coverage implementation of Lesson 11 Practice Problem 4. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning. The retained sample shows the two distinct source-named computations rather than merely repeating the final area.",
     "source": "Cumulative Practice Problems/Grade6-1-11-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -7341,7 +8178,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The easiest base is the horizontal side; its corresponding height is vertical."
     ],
-    "sampleAnswer": "Use the 11-unit top side as base b and the 2-unit vertical segment to the opposite vertex as height h.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -7377,7 +8213,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 6,
     "routePart": "problem-5b",
     "skill": "Use a base and corresponding height to find triangle area",
-    "activityForm": "numeric exact-area response with optional reasoning",
+    "activityForm": "numeric exact-area response with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the triangle in square units.",
     "responseType": "number",
     "answerKey": [
@@ -7386,12 +8222,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show how the base and corresponding height determine the area.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-11-base-height-triangle-source.png",
       "alt": "The exact source triangle on a square grid.",
       "naturalWidth": 740,
       "naturalHeight": 265,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 9.814815,
+        "columns": 74,
+        "rows": 27
+      }
     },
     "missingFeedback": "Enter the triangle's area in square units.",
     "correctFeedback": "Correct. The top base is 11 units and its corresponding height is 2 units, so the area is 1/2 x 11 x 2 = 11 square units.",
@@ -7399,7 +8251,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The horizontal base is 11 units and the corresponding height is 2 units."
     ],
-    "sampleAnswer": "1/2 x 11 x 2 = 11 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -7408,9 +8259,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "same exact source triangle and grid as Problem 5a"
       ],
-      "notes": "The calculation is independently routed after the drawing subpart and uses the same unaltered source evidence."
+      "notes": "The calculation is independently routed after the drawing subpart and uses the same unaltered source evidence. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 11 Practice Problem 5b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 11 Practice Problem 5b. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-11-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -7467,7 +8318,7 @@ window.unit1PracticeBank = [
       ],
       "notes": "The local grid constructor checks each triangle's shoelace area, its entered base-height calculation, the target area of 8, and non-congruence with already submitted drawings. Every other created triangle remains visible as a labeled, non-editable reference with its entered base and height whenever the student switches drawings."
     },
-    "implementationNotes": "Full-coverage interactive implementation of Lesson 11 Practice Problem 6. Retains all inactive triangles and their dimensions on the shared grid so the student can compare the three constructions in either switching direction.",
+    "implementationNotes": "Full-coverage interactive implementation of Lesson 11 Practice Problem 6. Retains all inactive triangles and their dimensions on the shared grid so the student can compare the three constructions in either switching direction. The retained sample provides alternate valid triangle constructions for comparison with the student's three drawings.",
     "source": "Cumulative Practice Problems/Grade6-1-11-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -7521,7 +8372,7 @@ window.unit1PracticeBank = [
       "Add the areas of all pieces."
     ],
     "sampleAnswer": "8 + 2 + 8 = 18 square units.",
-    "implementationNotes": "Uses the exact Polygon B decomposition visual from Unit 1 Family Support Materials page 10; the answer-bearing full page remains locked until correct.",
+    "implementationNotes": "Uses the exact Polygon B decomposition visual from Unit 1 Family Support Materials page 10; the answer-bearing full page remains locked until correct. The retained sample supplies the worked addition that is not present in generic correct feedback.",
     "source": "Family Support Materials/Family Support Materials.pdf p.10"
   },
   {
@@ -7617,7 +8468,6 @@ window.unit1PracticeBank = [
       "Try enclosing the figure in a rectangle and subtracting unshaded triangles.",
       "You can also decompose the pinwheel into triangles and rectangles."
     ],
-    "sampleAnswer": "One way is to decompose or enclose the grid figure; the shaded area is 40 square units.",
     "implementationNotes": "Rebuilt from Lesson 11.4 with the exact source grid visual, a calibrated ungraded annotation overlay, and transparent validation for the required written reasoning.",
     "source": "Student Task Statements/Grade6-1-11-Lesson-student-task-statements.pdf p.4"
   },
@@ -7686,7 +8536,6 @@ window.unit1PracticeBank = [
       "Surface area covers the outside faces.",
       "Cubic units measure volume, not surface area."
     ],
-    "sampleAnswer": "Surface area is the amount of area covering all outside faces, measured in square units.",
     "implementationNotes": "Directly adapted from Lesson 12 cumulative practice, Problem 2, with the exact trunk photograph shown in the card workspace.",
     "source": "Cumulative Practice Problems/Grade6-1-12-Lesson-curated-practice-problem-set.pdf p.1",
     "sourceItem": "Problem 2",
@@ -7747,7 +8596,6 @@ window.unit1PracticeBank = [
       "A rectangular prism has 3 pairs of equal faces.",
       "Add 2(8 × 2), 2(8 × 12), and 2(2 × 12)."
     ],
-    "sampleAnswer": "2(8 × 2) + 2(8 × 12) + 2(2 × 12) = 32 + 192 + 48 = 272 square inches.",
     "implementationNotes": "Directly adapted from Lesson 15 cumulative-practice Problem 2. The optional scratchpad supplies six loose source-dimension faces with drag, keyboard movement, rotation, and reset controls. It does not validate overlap, connectivity, or fold topology; only the numeric surface-area answer is graded.",
     "source": "Cumulative Practice Problems/Grade6-1-15-Lesson-curated-practice-problem-set.pdf p.1",
     "practiceLessonGroup": "lesson-15-practice",
@@ -7810,7 +8658,6 @@ window.unit1PracticeBank = [
       "A prism has two congruent bases.",
       "Surface area is measured in square units."
     ],
-    "sampleAnswer": "Jada forgot to divide 3 x 4 by 2. Each triangular face has area 6 square centimeters.",
     "implementationNotes": "Full-coverage implementation of Lesson 15 Practice Problem 1b using two independently checked conceptual choices instead of brittle prose validation.",
     "source": "Cumulative Practice Problems/Grade6-1-15-Lesson-curated-practice-problem-set.pdf p.1",
     "practiceLessonGroup": "lesson-15-practice",
@@ -7947,7 +8794,6 @@ window.unit1PracticeBank = [
       "The two congruent triangles are the bases.",
       "The rectangles connect the matching triangle edges."
     ],
-    "sampleAnswer": "It assembles into a triangular prism. The two congruent triangles form the bases, and the three rectangles form the side faces.",
     "implementationNotes": "Full-coverage implementation of Lesson 14 Practice Problem 2a with independent classification and reasoning feedback.",
     "source": "Cumulative Practice Problems/Grade6-1-14-Lesson-curated-practice-problem-set.pdf p.1",
     "practiceLessonGroup": "lesson-14-practice",
@@ -8092,7 +8938,6 @@ window.unit1PracticeBank = [
       "Square units measure two-dimensional area.",
       "Cubic units measure volume, and linear units measure length."
     ],
-    "sampleAnswer": "Surface area of a tissue box: square centimeters. Soil in a planter box: cubic feet. Area of a parking lot: square meters. Length of a soccer field: yards. Volume of a fish tank: cubic inches.",
     "implementationNotes": "Directly adapted from Lesson 16 cumulative practice, problem 1.",
     "source": "Cumulative Practice Problems/Grade6-1-16-Lesson-curated-practice-problem-set.pdf p.1",
     "sourceItem": "Problem 1",
@@ -8195,7 +9040,6 @@ window.unit1PracticeBank = [
       "Volume counts cubic units inside.",
       "Surface area counts exposed square units outside."
     ],
-    "sampleAnswer": "Both volumes are 6 cubic inches and both prisms have 6 faces. Prism A has surface area 22 and Prism B has surface area 26, so B has greater surface area.",
     "implementationNotes": "Directly adapted from Lesson 17 cumulative practice, problem 5. Because the source is text-only, the supplemental prism diagram is generated from the stated dimensions with a shared unit scale and common foreshortened depth projection.",
     "source": "Cumulative Practice Problems/Grade6-1-17-Lesson-curated-practice-problem-set.pdf p.2",
     "practiceLessonGroup": "lesson-17-practice",
@@ -8322,7 +9166,6 @@ window.unit1PracticeBank = [
       "A perfect square can be written as n × n.",
       "Check whether each number has a whole-number square root."
     ],
-    "sampleAnswer": "16, 25, 100, 144, 225, and 10,000 are perfect squares because they can be written as a whole number times itself.",
     "implementationNotes": "Directly adapted from Lesson 17 cumulative-practice Problem 2a-b with transparent validation of the required perfect-square reasoning.",
     "source": "Cumulative Practice Problems/Grade6-1-17-Lesson-curated-practice-problem-set.pdf p.1",
     "practiceLessonGroup": "lesson-17-practice",
@@ -8452,7 +9295,6 @@ window.unit1PracticeBank = [
       "A perfect cube can be written as n × n × n.",
       "Check whether each number has a whole-number cube root."
     ],
-    "sampleAnswer": "1, 8, 27, 64, and 125 are perfect cubes because they can be written as a whole number multiplied by itself three times.",
     "implementationNotes": "Directly adapted from Lesson 17 cumulative-practice Problem 3a-b with transparent validation of the required perfect-cube definition.",
     "source": "Cumulative Practice Problems/Grade6-1-17-Lesson-curated-practice-problem-set.pdf p.1",
     "practiceLessonGroup": "lesson-17-practice",
@@ -8506,7 +9348,6 @@ window.unit1PracticeBank = [
       "A cube net has six equal squares joined along complete edges.",
       "Each square face has area x²; volume uses three factors of x."
     ],
-    "sampleAnswer": "A valid net uses six connected squares. The surface area is 6x² square centimeters, and the volume is x³ cubic centimeters.",
     "implementationNotes": "Rebuilt from Lesson 18 cumulative-practice Problem 3a-c with a non-metric cube-net placement board, direct x cm face labels, and mathematical-equivalence checks that accept powers, multiplication symbols, *, and the word times.",
     "source": "Cumulative Practice Problems/Grade6-1-18-Lesson-curated-practice-problem-set.pdf p.1",
     "practiceLessonGroup": "lesson-18-practice",
@@ -8584,7 +9425,7 @@ window.unit1PracticeBank = [
       "List the floor and every matching pair of roof, wall, or end panels before adding their areas."
     ],
     "sampleAnswer": "A complete response shows a floor-fitting tent, identifies the choices that shaped the design, calculates each set of congruent fabric panels, and adds those areas for a square-foot estimate.",
-    "implementationNotes": "Rebuilt from all of Activity 19.1 (Student Task Statements pages 1-4) as an interactive constrained design with a dynamically validated panel-area worksheet.",
+    "implementationNotes": "Rebuilt from all of Activity 19.1 (Student Task Statements pages 1-4) as an interactive constrained design with a dynamically validated panel-area worksheet. The retained sample is a model open response for comparing completeness, not a duplicate numeric answer.",
     "source": "Student Task Statements/Grade6-1-19-Lesson-student-task-statements.pdf p.1",
     "practiceLessonGroup": "lesson-19-practice",
     "practiceLessonTitle": "Designing a Tent",
@@ -8651,7 +9492,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A prism is named for its pair of congruent, parallel bases."
     ],
-    "sampleAnswer": "Triangular prism.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -8708,7 +9548,6 @@ window.unit1PracticeBank = [
     "hints": [
       "20 + 16 + 12 + 6 + 6"
     ],
-    "sampleAnswer": "20 + 16 + 12 + 6 + 6 = 60 square centimeters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -8766,7 +9605,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The stack is two cubes deep, with columns of heights 1, 2, and 3."
     ],
-    "sampleAnswer": "36 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -8839,7 +9677,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The two removed cubes contribute 8 outside faces, and 2 covered faces below become exposed."
     ],
-    "sampleAnswer": "The surface area decreases by 6 square units, from 36 to 30.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -8889,7 +9726,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Cube volume is edge x edge x edge."
     ],
-    "sampleAnswer": "8 x 8 x 8 = 512 cubic inches.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -8938,7 +9774,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Multiply the numerators and denominators of three factors of 1/3."
     ],
-    "sampleAnswer": "(1/3)^3 = 1/27 cubic centimeter.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -8987,7 +9822,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Think of the cube root of 8."
     ],
-    "sampleAnswer": "2 x 2 x 2 = 8, so the edge length is 2 feet.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -9044,7 +9878,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Which solid has six congruent square faces?"
     ],
-    "sampleAnswer": "A cube.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -9100,7 +9933,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Surface area: six copies of 61 x 61. Volume: 61 x 61 x 61."
     ],
-    "sampleAnswer": "Surface area: 6 * 61^2. Volume: 61^3.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9174,7 +10006,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A face joined to a 2-unit edge must have a matching 2-unit edge."
     ],
-    "sampleAnswer": "The top and bottom attached faces need to be 2 by 1, not 1 by 1.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -9225,7 +10056,12 @@ window.unit1PracticeBank = [
       "subject": "2-by-2-by-1 rectangular prism",
       "unit": "units",
       "optional": false,
-      "freeform": false
+      "freeform": false,
+      "referenceNetItemIds": [
+        "u1-practice-lesson18-corrected-net-one",
+        "u1-practice-lesson18-corrected-net-two"
+      ],
+      "referenceNetLabel": "Net 1"
     },
     "missingFeedback": "Build and submit one valid six-face net for the 2-by-2-by-1 rectangular prism.",
     "correctFeedback": "Correct. The net has two 2-by-2 square faces and four 2-by-1 rectangular faces, and it folds onto six different prism faces.",
@@ -9243,9 +10079,9 @@ window.unit1PracticeBank = [
         "intended 2-by-2-by-1 prism dimensions",
         "six required faces"
       ],
-      "notes": "The app restores the source drawing action and validates face inventory, matching shared edges, connectivity, and fold topology."
+      "notes": "The app restores the source drawing action and validates face inventory, matching shared edges, connectivity, and fold topology. A completed second net remains visible when the student returns to this part."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 18 Practice Problem 4b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 18 Practice Problem 4b. The retained sample describes a valid face arrangement for comparison with the student's own net.",
     "source": "Cumulative Practice Problems/Grade6-1-18-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -9285,7 +10121,12 @@ window.unit1PracticeBank = [
       "unit": "units",
       "optional": false,
       "freeform": false,
-      "differentFromItemId": "u1-practice-lesson18-corrected-net-one"
+      "differentFromItemId": "u1-practice-lesson18-corrected-net-one",
+      "referenceNetItemIds": [
+        "u1-practice-lesson18-corrected-net-one",
+        "u1-practice-lesson18-corrected-net-two"
+      ],
+      "referenceNetLabel": "Net 2"
     },
     "missingFeedback": "Complete the first net, then build and submit a different valid net for the same prism.",
     "correctFeedback": "Correct. This valid 2-by-2-by-1 prism net has a different face-connection arrangement from the first net.",
@@ -9303,9 +10144,9 @@ window.unit1PracticeBank = [
         "same intended 2-by-2-by-1 prism dimensions",
         "source request for another net"
       ],
-      "notes": "The validator treats translations, rotations, and reflections as the same net and requires a different face-connection arrangement."
+      "notes": "The validator treats translations, rotations, and reflections as the same net and requires a different face-connection arrangement. The completed first net remains visible as a non-editable comparison while the student builds the second."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 18 Practice Problem 4c.",
+    "implementationNotes": "Full-coverage implementation of Lesson 18 Practice Problem 4c. The retained sample describes a distinct valid face-connection arrangement for comparison with the student's own net.",
     "source": "Cumulative Practice Problems/Grade6-1-18-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -9396,7 +10237,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A dashed edge can be hidden and still be straight; a curved surface is what rules out Figure A."
     ],
-    "sampleAnswer": "A is not a polyhedron because it has a curved surface. B is a polyhedron because all of its faces are flat polygons.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9496,7 +10336,6 @@ window.unit1PracticeBank = [
     "hints": [
       "You cannot add 288 square inches directly to 8 square feet."
     ],
-    "sampleAnswer": "No. Elena mixed units. The surface area is 2 + 8 = 10 square feet.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9556,7 +10395,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Multiply the three 2-centimeter edge lengths."
     ],
-    "sampleAnswer": "2 x 2 x 2 = 8 cubic centimeters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9608,7 +10446,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Area of a square is side x side."
     ],
-    "sampleAnswer": "4 x 4 = 16 square centimeters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9660,7 +10497,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The side length is the positive square root of 49."
     ],
-    "sampleAnswer": "7 x 7 = 49, so the side length is 7 meters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9712,7 +10548,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Volume of a cube is edge x edge x edge."
     ],
-    "sampleAnswer": "3 x 3 x 3 = 27 cubic inches.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9770,7 +10605,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The two triangles are the solid's bases."
     ],
-    "sampleAnswer": "Triangular prism.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -9854,7 +10688,6 @@ window.unit1PracticeBank = [
       "Each rectangle uses the prism length and one side of the triangular base.",
       "Triangle area needs a base and its corresponding perpendicular height."
     ],
-    "sampleAnswer": "Measure the prism length, all three side lengths of the triangular base, and a perpendicular height for one chosen triangle base.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 6,
@@ -9915,7 +10748,6 @@ window.unit1PracticeBank = [
       "The triangular base has base 1.2 meters and perpendicular height 0.8 meter.",
       "The three rectangle widths are the triangle's side lengths: 1, 1, and 1.2 meters."
     ],
-    "sampleAnswer": "2(1/2 x 1.2 x 0.8) + 1.2(1 + 1 + 1.2) = 0.96 + 3.84 = 4.8 square meters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -9971,7 +10803,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Volume counts unit cubes, including cubes whose faces touch."
     ],
-    "sampleAnswer": "4 cubic units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -10028,7 +10859,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The outside is four strips of 4 unit squares plus a top and a bottom."
     ],
-    "sampleAnswer": "4 x 4 + 2 x 1 = 18 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -10127,7 +10957,6 @@ window.unit1PracticeBank = [
     "hints": [
       "For a 1-by-1-by-n prism, surface area is 4n + 2."
     ],
-    "sampleAnswer": "False. The new volume is 8 cubic units, but the new surface area is 4 x 8 + 2 = 34 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -10200,7 +11029,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Figures B and C each contain 6 cubes."
     ],
-    "sampleAnswer": "Figures B and C.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -10274,7 +11102,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Compare Figure A with another figure made from 6 cubes."
     ],
-    "sampleAnswer": "Figures A and B, or Figures A and C.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -10344,7 +11171,7 @@ window.unit1PracticeBank = [
       ],
       "notes": "The app validates five distinct ordered corners, rejects crossed sides, and computes the exact grid area internally instead of requiring brittle prose labels. After the fifth corner closes the pentagon, each numbered vertex remains grid-snapped, draggable, and keyboard-movable. The computed area stays hidden because finding it is the student's work; submission reports only whether the area-32 target was met."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 16 Practice Problem 4 using a generalized source-faithful polygon constructor with opt-in completed-vertex editing.",
+    "implementationNotes": "Full-coverage implementation of Lesson 16 Practice Problem 4 using a generalized source-faithful polygon constructor with opt-in completed-vertex editing. The retained sample provides an alternate valid pentagon and a decomposition not shown by the correctness feedback.",
     "source": "Cumulative Practice Problems/Grade6-1-16-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -10393,7 +11220,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A rectangular prism has three pairs of congruent opposite faces."
     ],
-    "sampleAnswer": "A valid net uses two 10-by-5 rectangles, two 10-by-2 rectangles, and two 5-by-2 rectangles joined along matching edges.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -10452,7 +11278,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Use 2(lw + lh + wh)."
     ],
-    "sampleAnswer": "2(10 x 5) + 2(10 x 2) + 2(5 x 2) = 160 square centimeters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -10710,7 +11535,6 @@ window.unit1PracticeBank = [
       "Opposite edges of each rectangular face have the same length.",
       "Follow each 10-by-5, 10-by-4, or 5-by-4 face around its perimeter."
     ],
-    "sampleAnswer": "Every long horizontal edge is 10; the remaining edge lengths alternate between 5 and 4 according to each rectangular face.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 19,
@@ -10920,7 +11744,6 @@ window.unit1PracticeBank = [
       "The center face is the 10-by-4 base.",
       "Every outside edge of a triangular face runs from a base vertex to the apex and has length 13."
     ],
-    "sampleAnswer": "Label the center rectangle 10, 4, 10, 4 and label every outside triangle edge 13.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 12,
@@ -10995,7 +11818,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A pyramid has one base and triangular side faces."
     ],
-    "sampleAnswer": "Square pyramid.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -11031,7 +11853,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 10,
     "routePart": "problem-5b",
     "skill": "Find surface area from a gridded net",
-    "activityForm": "numeric exact-source surface-area calculation",
+    "activityForm": "numeric exact-source surface-area calculation with optional source-aligned annotation scratchpad",
     "prompt": "What is the surface area of the figure? One grid square is 1 square unit.",
     "responseType": "number",
     "answerKey": [
@@ -11040,12 +11862,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show how the square and four triangle areas combine.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-15-square-pyramid-net-source.png",
       "alt": "The exact source net with one central square face and four triangular faces on a complete unit grid.",
       "naturalWidth": 520,
       "naturalHeight": 520,
-      "displayVariant": "compactSquare"
+      "displayVariant": "compactSquare",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to outline and group the square base and triangular faces on the exact source net. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10,
+        "columns": 52,
+        "rows": 52
+      }
     },
     "missingFeedback": "Enter the surface area in square units.",
     "correctFeedback": "Correct. The 4-by-4 square has area 16, and each of the four triangles has area 1/2 x 4 x 5 = 10. The total is 16 + 40 = 56 square units.",
@@ -11053,7 +11891,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The central square has area 16, and the four triangles are congruent."
     ],
-    "sampleAnswer": "4 x 4 + 4(1/2 x 4 x 5) = 16 + 40 = 56 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11063,9 +11900,9 @@ window.unit1PracticeBank = [
         "exact source square-pyramid net",
         "complete unit grid"
       ],
-      "notes": "Every measurement is inferred from the preserved source grid; no dimensions are invented or omitted."
+      "notes": "Every measurement is inferred from the preserved source grid; no dimensions are invented or omitted. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 15 Practice Problem 5b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 15 Practice Problem 5b. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-15-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -11128,7 +11965,6 @@ window.unit1PracticeBank = [
       "The dimensions are 4 by 4 by 2.",
       "Add the areas of two 4-by-4 faces and four 4-by-2 faces."
     ],
-    "sampleAnswer": "2(4 x 4) + 4(4 x 2) = 64 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 4,
@@ -11198,7 +12034,6 @@ window.unit1PracticeBank = [
       "Figure A has 5 cubes and 4 face-to-face joins.",
       "Figure B is a 2-by-2-by-1 prism."
     ],
-    "sampleAnswer": "Figure A: 22 square units. Figure B: 16 square units. Figure A is greater.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 1,
@@ -11254,7 +12089,6 @@ window.unit1PracticeBank = [
     "hints": [
       "List all three pairs of congruent faces before adding their areas."
     ],
-    "sampleAnswer": "2(6 x 4) + 2(6 x 2) + 2(4 x 2) = 88 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11304,7 +12138,14 @@ window.unit1PracticeBank = [
       "requiredTriangleType": "right",
       "requireDimensions": false,
       "allowVertexEditing": true,
-      "showCalculatedArea": false
+      "showCalculatedArea": false,
+      "referenceDrawingItemIds": [
+        "u1-practice-lesson12-draw-right-triangle",
+        "u1-practice-lesson12-draw-acute-triangle",
+        "u1-practice-lesson12-draw-obtuse-triangle"
+      ],
+      "referenceDrawingLabel": "Right triangle",
+      "referenceDrawingMarker": "R"
     },
     "missingFeedback": "Draw and check one right triangle with area 6 square units.",
     "correctFeedback": "Correct. The drawing is a right triangle with area 6 square units.",
@@ -11322,9 +12163,9 @@ window.unit1PracticeBank = [
         "source-equivalent blank square grid",
         "one student-created right triangle"
       ],
-      "notes": "The grid constructor checks the polygon area and angle classification without adding a base-height response that the source did not request."
+      "notes": "The grid constructor checks the polygon area and angle classification without adding a base-height response that the source did not request. Correct right, acute, and obtuse drawings remain together on the same grid as labeled non-editable references."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 5a.",
+    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 5a. The retained sample provides one coordinate example for comparison with the student's valid construction.",
     "source": "Cumulative Practice Problems/Grade6-1-12-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -11363,7 +12204,14 @@ window.unit1PracticeBank = [
       "requiredTriangleType": "acute",
       "requireDimensions": false,
       "allowVertexEditing": true,
-      "showCalculatedArea": false
+      "showCalculatedArea": false,
+      "referenceDrawingItemIds": [
+        "u1-practice-lesson12-draw-right-triangle",
+        "u1-practice-lesson12-draw-acute-triangle",
+        "u1-practice-lesson12-draw-obtuse-triangle"
+      ],
+      "referenceDrawingLabel": "Acute triangle",
+      "referenceDrawingMarker": "A"
     },
     "missingFeedback": "Draw and check one acute triangle with area 6 square units.",
     "correctFeedback": "Correct. The drawing is an acute triangle with area 6 square units.",
@@ -11381,9 +12229,9 @@ window.unit1PracticeBank = [
         "source-equivalent blank square grid",
         "one student-created acute triangle"
       ],
-      "notes": "The grid constructor checks the polygon area and angle classification without adding a base-height response that the source did not request."
+      "notes": "The grid constructor checks the polygon area and angle classification without adding a base-height response that the source did not request. Correct right, acute, and obtuse drawings remain together on the same grid as labeled non-editable references."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 5b.",
+    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 5b. The retained sample provides one coordinate example for comparison with the student's valid construction.",
     "source": "Cumulative Practice Problems/Grade6-1-12-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -11422,7 +12270,14 @@ window.unit1PracticeBank = [
       "requiredTriangleType": "obtuse",
       "requireDimensions": false,
       "allowVertexEditing": true,
-      "showCalculatedArea": false
+      "showCalculatedArea": false,
+      "referenceDrawingItemIds": [
+        "u1-practice-lesson12-draw-right-triangle",
+        "u1-practice-lesson12-draw-acute-triangle",
+        "u1-practice-lesson12-draw-obtuse-triangle"
+      ],
+      "referenceDrawingLabel": "Obtuse triangle",
+      "referenceDrawingMarker": "O"
     },
     "missingFeedback": "Draw and check one obtuse triangle with area 6 square units.",
     "correctFeedback": "Correct. The drawing is an obtuse triangle with area 6 square units.",
@@ -11440,9 +12295,9 @@ window.unit1PracticeBank = [
         "source-equivalent blank square grid",
         "one student-created obtuse triangle"
       ],
-      "notes": "The grid constructor checks the polygon area and angle classification without adding a base-height response that the source did not request."
+      "notes": "The grid constructor checks the polygon area and angle classification without adding a base-height response that the source did not request. Correct right, acute, and obtuse drawings remain together on the same grid as labeled non-editable references."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 5c.",
+    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 5c. The retained sample provides one coordinate example for comparison with the student's valid construction.",
     "source": "Cumulative Practice Problems/Grade6-1-12-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -11466,7 +12321,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 8,
     "routePart": "problem-6",
     "skill": "Find the area of triangle MOQ",
-    "activityForm": "numeric exact-source grid area with optional reasoning",
+    "activityForm": "numeric exact-source grid area with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of triangle MOQ in square units.",
     "responseType": "number",
     "answerKey": [
@@ -11476,12 +12331,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show or explain your reasoning.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-12-triangle-moq-source.png",
       "alt": "The exact source triangle MOQ inside rectangle MNPQ on a square grid.",
       "naturalWidth": 586,
       "naturalHeight": 403,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 9.932203,
+        "cellY": 10.075,
+        "columns": 59,
+        "rows": 40
+      }
     },
     "missingFeedback": "Enter the area of triangle MOQ.",
     "correctFeedback": "Correct. Using grid coordinates M=(0,5), Q=(5,0), and O=(10,2), or subtracting the three outside triangles from the 10-by-5 rectangle, gives 17.5 square units.",
@@ -11489,7 +12360,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The surrounding rectangle has area 50 square units."
     ],
-    "sampleAnswer": "50 - 12.5 - 5 - 15 = 17.5 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11499,9 +12369,9 @@ window.unit1PracticeBank = [
         "exact source triangle MOQ",
         "labeled 10-by-5 rectangle and square grid"
       ],
-      "notes": "Uses a visual-only crop retaining every source label and grid line; reasoning remains available without brittle prose grading."
+      "notes": "Uses a visual-only crop retaining every source label and grid line; reasoning remains available without brittle prose grading. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 6.",
+    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 6. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-12-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -11525,7 +12395,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 9,
     "routePart": "problem-7",
     "skill": "Find the area of a concave grid shape",
-    "activityForm": "numeric exact-source grid area with optional reasoning",
+    "activityForm": "numeric exact-source grid area with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the green shape in square units.",
     "responseType": "number",
     "answerKey": [
@@ -11534,12 +12404,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show or explain your reasoning.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-12-green-chevron-source.png",
       "alt": "The exact source green concave shape on a square grid.",
       "naturalWidth": 595,
       "naturalHeight": 368,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 9.916667,
+        "cellY": 9.945946,
+        "columns": 60,
+        "rows": 37
+      }
     },
     "missingFeedback": "Enter the area of the green shape.",
     "correctFeedback": "Correct. Split the shape at the inward vertex into two congruent triangles. Each has base 5 and height 3, so the total area is 2 x (1/2 x 5 x 3) = 15 square units.",
@@ -11547,7 +12433,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The shape can be split into two triangles, each with base 5 and height 3."
     ],
-    "sampleAnswer": "2 x (1/2 x 5 x 3) = 15 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11557,9 +12442,9 @@ window.unit1PracticeBank = [
         "exact source concave green polygon",
         "unaltered square grid"
       ],
-      "notes": "Uses a visual-only source crop and checks the area independently of optional free-form reasoning."
+      "notes": "Uses a visual-only source crop and checks the area independently of optional free-form reasoning. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 7.",
+    "implementationNotes": "Full-coverage implementation of Lesson 12 Practice Problem 7. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-12-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -11647,7 +12532,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Label the six squares in order along the bent strip, then track the first and last faces."
     ],
-    "sampleAnswer": "No. Two end squares fold onto the same cube face and overlap.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11704,7 +12588,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The triangular bases are 3-4-5 right triangles, and the prism length is 5."
     ],
-    "sampleAnswer": "2(1/2 x 3 x 4) + 5 x 3 + 5 x 4 + 5 x 5 = 72 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11805,7 +12688,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A net may look different when flat and still contain the same connected faces."
     ],
-    "sampleAnswer": "Yes. Each net has the same two congruent triangles and three matching rectangles.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -11920,7 +12802,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A prism has two congruent parallel bases; a pyramid has one base and faces meeting at an apex."
     ],
-    "sampleAnswer": "a both; b both; c neither; d A; e B; f B; g both; h A.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 8,
@@ -11997,7 +12878,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Look for the word square."
     ],
-    "sampleAnswer": "A, E, and F.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 6,
@@ -12032,7 +12912,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 7,
     "routePart": "problem-6",
     "skill": "Find a concave polygon area on a square grid",
-    "activityForm": "numeric exact-source grid area with optional reasoning",
+    "activityForm": "numeric exact-source grid area with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the polygon in square units.",
     "responseType": "number",
     "answerKey": [
@@ -12041,7 +12921,7 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show or explain your reasoning.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-14-crown-polygon-source.png",
       "alt": "The exact source crown-shaped polygon on a complete square grid.",
       "naturalWidth": 400,
@@ -12049,8 +12929,20 @@ window.unit1PracticeBank = [
       "displayVariant": "compactLandscape",
       "annotationTools": [
         "line",
-        "rectangle"
-      ]
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 9.821429,
+        "columns": 40,
+        "rows": 28
+      }
     },
     "missingFeedback": "Enter the polygon's area in square units.",
     "correctFeedback": "Correct. One decomposition gives a 6-by-3 rectangle of area 18, a central triangle of area 9, and two side triangles of area 3 each: 18 + 9 + 3 + 3 = 33 square units.",
@@ -12058,7 +12950,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The bottom rectangle is 6 units wide and 3 units high."
     ],
-    "sampleAnswer": "18 + 9 + 3 + 3 = 33 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -12068,9 +12959,9 @@ window.unit1PracticeBank = [
         "exact source concave polygon",
         "complete source square grid"
       ],
-      "notes": "The exact grid is preserved and optional line/rectangle annotations support decomposition without changing the graded answer."
+      "notes": "The exact grid is preserved and optional line/rectangle annotations support decomposition without changing the graded answer. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 14 Practice Problem 6.",
+    "implementationNotes": "Full-coverage implementation of Lesson 14 Practice Problem 6. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-14-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -12138,7 +13029,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Check each solid for a curved surface."
     ],
-    "sampleAnswer": "Figures A, B, and D.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 5,
@@ -12241,7 +13131,6 @@ window.unit1PracticeBank = [
     "hints": [
       "Trace the two matching end faces."
     ],
-    "sampleAnswer": "It is an octagonal prism because its octagonal bases are congruent and parallel.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -12368,7 +13257,6 @@ window.unit1PracticeBank = [
     "hints": [
       "For an n-gonal prism: faces = n + 2, edges = 3n, and vertices = 2n."
     ],
-    "sampleAnswer": "10 faces, 24 edges, and 16 vertices.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 3,
@@ -12468,7 +13356,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The name of a prism comes from the shape of its two bases."
     ],
-    "sampleAnswer": "No. A square prism has two square bases and four rectangular side faces.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -12503,7 +13390,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 5,
     "routePart": "problem-4",
     "skill": "Explain equal triangle areas using corresponding base and height",
-    "activityForm": "three independently checked source-triangle explanations",
+    "activityForm": "three independently checked source-triangle explanations with optional source-aligned annotation scratchpad",
     "prompt": "Explain why each source triangle has an area of 9 square units.",
     "responseType": "groupedChoice",
     "choiceGroups": [
@@ -12580,12 +13467,28 @@ window.unit1PracticeBank = [
       "triangleC:base6Height3"
     ],
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-13-area-nine-triangles-source.png",
       "alt": "The exact source grid triangles A, B, and C, each with base 6 and corresponding height 3.",
       "naturalWidth": 1050,
       "naturalHeight": 413,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to mark a base, corresponding height, enclosing region, or decomposition on the exact source visual. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10,
+        "cellY": 10.073171,
+        "columns": 105,
+        "rows": 41
+      }
     },
     "readyFeedback": "Submit an area explanation for each source triangle.",
     "missingFeedback": "Answer and submit the explanation for all three triangles.",
@@ -12594,7 +13497,6 @@ window.unit1PracticeBank = [
     "hints": [
       "A base does not need to be horizontal, but its height must be perpendicular to its line."
     ],
-    "sampleAnswer": "For each triangle, 1/2 x 6 x 3 = 9 square units.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 3,
@@ -12604,9 +13506,9 @@ window.unit1PracticeBank = [
         "exact source grid triangles A, B, and C",
         "complete source grid"
       ],
-      "notes": "The visual-only crop retains the complete grid and all three triangles while the app renders the explanation choices."
+      "notes": "The visual-only crop retains the complete grid and all three triangles while the app renders the explanation choices. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 13 Practice Problem 4.",
+    "implementationNotes": "Full-coverage implementation of Lesson 13 Practice Problem 4. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-13-Lesson-curated-practice-problem-set.pdf p.2"
   },
   {
@@ -12644,7 +13546,6 @@ window.unit1PracticeBank = [
     "hints": [
       "16 x 1/8 = 2."
     ],
-    "sampleAnswer": "1/2 x 16 x 1/8 = 1 square inch.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -12680,7 +13581,7 @@ window.unit1PracticeBank = [
     "practicePartOrder": 10,
     "routePart": "problem-6",
     "skill": "Find a shaded area by subtracting an opening",
-    "activityForm": "numeric exact-source composite area with optional reasoning",
+    "activityForm": "numeric exact-source composite area with optional reasoning with optional source-aligned annotation scratchpad",
     "prompt": "Find the area of the shaded region in square centimeters.",
     "responseType": "number",
     "answerKey": [
@@ -12689,12 +13590,28 @@ window.unit1PracticeBank = [
     "reasoningPrompt": "Optional: show or explain your reasoning.",
     "reasoningRequired": false,
     "visualModelData": {
-      "type": "sourceVisual",
+      "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-13-shaded-triangle-door-source.png",
       "alt": "The exact source shaded triangular region with a 2-centimeter square opening.",
       "naturalWidth": 902,
       "naturalHeight": 390,
-      "displayVariant": "compactLandscape"
+      "displayVariant": "compactLandscape",
+      "annotationTools": [
+        "line",
+        "rectangle",
+        "square",
+        "erase"
+      ],
+      "defaultAnnotationTool": "line",
+      "annotationInstructions": "Use optional lines, rectangles, or squares to split, enclose, or group parts of the exact source figure while planning an area calculation. These marks are scratch work and do not affect grading.",
+      "annotationGrid": {
+        "originX": 0,
+        "originY": 0,
+        "cellX": 10.022222,
+        "cellY": 10,
+        "columns": 90,
+        "rows": 39
+      }
     },
     "missingFeedback": "Enter the area of the shaded region.",
     "correctFeedback": "Correct. The large triangle has base 14 cm and total height 5 cm, so its area is 35 square centimeters. Subtract the 2-by-2 opening: 35 - 4 = 31 square centimeters.",
@@ -12702,7 +13619,6 @@ window.unit1PracticeBank = [
     "hints": [
       "The outside triangle has base 14 cm and height 5 cm."
     ],
-    "sampleAnswer": "1/2 x 14 x 5 - 2 x 2 = 35 - 4 = 31 square centimeters.",
     "visualRules": {
       "status": "passes",
       "sourceActionTargets": 2,
@@ -12713,9 +13629,9 @@ window.unit1PracticeBank = [
         "2-by-2 square opening",
         "all source dimension labels"
       ],
-      "notes": "The visual-only crop preserves every needed measurement and no source prompt or footer text."
+      "notes": "The visual-only crop preserves every needed measurement and no source prompt or footer text. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 13 Practice Problem 6.",
+    "implementationNotes": "Full-coverage implementation of Lesson 13 Practice Problem 6. The exact displayed source visual includes an optional, ungraded source-coordinate annotation scratchpad for measurement or decomposition planning.",
     "source": "Cumulative Practice Problems/Grade6-1-13-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -12886,7 +13802,7 @@ window.unit1PracticeBank = [
       ],
       "notes": "The app replaces unavailable partners with two controlled, same-capacity comparison designs while preserving the student's own 19.1 work and every mathematical comparison requested in 19.2."
     },
-    "implementationNotes": "Full-coverage implementation of Activity 19.2 with a persistent 19.1 design and dynamic same-capacity comparisons.",
+    "implementationNotes": "Full-coverage implementation of Activity 19.2 with a persistent 19.1 design and dynamic same-capacity comparisons. The retained sample is a model comparison explanation for an open-response component with many valid wordings.",
     "source": "Student Task Statements/Grade6-1-19-Lesson-student-task-statements.pdf p.4"
   }
 ];

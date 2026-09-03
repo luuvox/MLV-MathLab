@@ -23,7 +23,7 @@ const appUnitRoutes = {
     view: "unit3",
     lessonCount: 17,
     builtTeachLessons: Array.from({ length: 17 }, (_, index) => index + 1),
-    builtPracticeLessons: [1],
+    builtPracticeLessons: Array.from({ length: 16 }, (_, index) => index + 1),
     practiceAvailable: true,
     deckId: "unit3TeachLessonDeck",
     navId: "unit3LessonNav",
@@ -199,6 +199,7 @@ let practiceQuadrilateralVertexPointer = null;
 let decomposePointer = null;
 let pyramidNetPointer = null;
 let baseHeightChallengePointer = null;
+let rectangleScalingPointer = null;
 let rectangularPrismNetPointer = null;
 
 const sourceModalBounds = {
@@ -966,6 +967,7 @@ const unit1TeachCards = [
     cropPath: null,
     visualAlt: "A source-faithful interactive parallelogram with a labeled base, corresponding height, and slanted side.",
     customVisual: "questionSetVisual",
+    retainCompletedParallelogramFigures: true,
     responseType: "questionSet",
     questions: [
       {
@@ -1054,6 +1056,13 @@ const unit1TeachCards = [
         visualDisplayMaxWidth: 610,
         visualAlt: "Source Parallelograms A through D, including B with side lengths 15 cm and 10 cm and an 8 cm corresponding height for the 15 cm side.",
         visualDirections: "Use Parallelogram B's known base-height pair to determine the height for its other base.",
+        annotation: {
+          label: "Parallelogram B planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 0, y: 0, width: 1570, height: 1580 },
+          grid: { originX: 0, originY: 0, cellX: 10, cellY: 10, columns: 157, rows: 158 },
+        },
         reasoningPrompt: "Explain how the two base-height pairs give the same area.",
         reasoningConcepts: [["15", "8"], ["120", "10"]],
         hint: "First find B's area from 15 x 8. Then divide that area by the 10 cm base.",
@@ -1067,6 +1076,15 @@ const unit1TeachCards = [
         responseType: "openResponse",
         inputLabel: "Why the given areas are equal",
         placeholder: "Explain with base-height products",
+        annotation: {
+          label: "Equal-area parallelogram planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          naturalWidth: 760,
+          naturalHeight: 330,
+          bounds: { x: 20, y: 20, width: 720, height: 280 },
+          grid: { originX: 20, originY: 20, cellSize: 20, columns: 36, rows: 14 },
+        },
         minLength: 12,
         answerConceptRequirements: [
           [["6", "4"], ["3", "8"], ["base", "height"]],
@@ -1085,17 +1103,18 @@ const unit1TeachCards = [
         dynamicAnswer: "parallelogramPairEqualArea",
         visualType: "parallelogramPair",
         shapeIds: ["L", "R"],
-        shapeLabels: { L: "Left parallelogram", R: "Right parallelogram" },
+        shapeLabels: { L: "New left parallelogram", R: "New right parallelogram" },
         pairDefaults: {
           L: { base: 6, height: 4, shift: -1 },
           R: { base: 3, height: 8, shift: 3 },
         },
+        retainOriginalPair: true,
         pairShiftMin: -4,
         pairShiftMax: 4,
         requireBothChanged: true,
         rejectInitialShapes: true,
         unlockedAfterQuestionId: "equal-example",
-        visualDirections: "The workspace starts with the given source pair. Change both shapes to make a new, non-identical equal-area pair.",
+        visualDirections: "The dashed outlines keep the original 6-by-4 and 3-by-8 parallelograms visible. Change both solid shapes to make a new, non-identical equal-area pair.",
         missingResponseFeedback: "Change both source parallelograms, explain the new base-height products, then submit again.",
         reasoningPrompt: "Explain how the two new base-height products prove the areas are equal.",
         reasoningConcepts: [["base", "height"], ["product", "equal"], ["same", "area"]],
@@ -1105,9 +1124,8 @@ const unit1TeachCards = [
       },
       {
         id: "print-areas",
-        label: "Optional: PDF A-D",
-        optional: true,
-        prompt: "Printable source variant: find the area of each Parallelogram A-D and show the base-height reasoning for all four.",
+        label: "Parallelograms A-D",
+        prompt: "Find the area of each Parallelogram A-D and show the base-height reasoning for all four.",
         fields: [
           { id: "A", label: "Area A (square centimeters)", responseType: "number", placeholder: "Type area" },
           { id: "B", label: "Area B (square centimeters)", responseType: "number", placeholder: "Type area" },
@@ -1121,6 +1139,13 @@ const unit1TeachCards = [
         visualDisplayMaxWidth: 610,
         visualAlt: "Printable source Parallelograms A through D with labeled measurements and a square grid.",
         visualDirections: "Use a side and its perpendicular corresponding height for each source figure.",
+        annotation: {
+          label: "Parallelogram A-D planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 0, y: 0, width: 1570, height: 1580 },
+          grid: { originX: 0, originY: 0, cellX: 10, cellY: 10, columns: 157, rows: 158 },
+        },
         reasoningPrompt: "Record a base-height calculation for A, B, C, and D.",
         reasoningConceptRequirements: [
           [["10", "6"], ["60"]],
@@ -1134,9 +1159,8 @@ const unit1TeachCards = [
       },
       {
         id: "print-pair-20",
-        label: "Optional: PDF P-Q",
-        optional: true,
-        prompt: "Printable source variant: construct two different non-rectangular parallelograms P and Q that each have area 20 square units.",
+        label: "Construct P-Q",
+        prompt: "Construct two different non-rectangular parallelograms P and Q that each have area 20 square units.",
         responseType: "construction",
         dynamicAnswer: "parallelogramPairArea20",
         visualType: "parallelogramPair",
@@ -1172,6 +1196,13 @@ const unit1TeachCards = [
         visualDisplayMaxWidth: 610,
         visualAlt: "Source green parallelogram composed of four identical shaded parallelograms around an unshaded parallelogram, labeled 5, 3, and 2.4 inches.",
         visualDirections: "The shaded region is composed of four identical parallelograms. All lengths are in inches.",
+        annotation: {
+          label: "Unshaded parallelogram planning",
+          tools: ["line", "rectangle", "erase"],
+          defaultTool: "line",
+          bounds: { x: 0, y: 0, width: 940, height: 550 },
+          grid: { originX: 0, originY: 0, cellX: 10, cellY: 10, columns: 94, rows: 55 },
+        },
         reasoningPrompt: "Explain how the known base-height pair and the whole figure determine the middle area.",
         reasoningConcepts: [["51.2", "48"], ["2", "1.6"], ["5", "2.4"]],
         hint: "One shaded parallelogram has area 5 x 2.4 = 12. You can compare the four shaded areas with the area of the whole outer parallelogram.",
@@ -3319,7 +3350,7 @@ const unit1TeachAdditionalCards = [
     activityOrder: 2.5,
     activityTitle: "5.2: Are You Ready for More?",
     sourceContext: "Optional digital source extension",
-    sourceDirections: "Experiment with the movable points. Keep the dashed height perpendicular to base b while you make each requested parallelogram.",
+    sourceDirections: "Experiment with the movable points. Keep every parallelogram vertex on a grid intersection and keep the dashed height perpendicular to base b while you make each requested parallelogram.",
     pdfPage: 2,
     pdfPages: [2, 3],
     cropPath: null,
@@ -3335,7 +3366,7 @@ const unit1TeachAdditionalCards = [
         dynamicAnswer: "baseHeightChallenge",
         challenge: "height-location",
         visualType: "baseHeightChallenge",
-        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        model: { base: 6, height: 4, slant: -2, rotation: 90, heightPosition: 0.5 },
         constructionNote: "Move the height handle to a different position, then submit this construction.",
         missingResponseFeedback: "Move at least one green handle or control before submitting this construction.",
         hint: "Slide the height along base b. It should stay perpendicular even when its location changes.",
@@ -3350,10 +3381,10 @@ const unit1TeachAdditionalCards = [
         dynamicAnswer: "baseHeightChallenge",
         challenge: "horizontal-sides",
         visualType: "baseHeightChallenge",
-        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        model: { base: 6, height: 4, slant: -2, rotation: 90, heightPosition: 0.5 },
         constructionNote: "Turn the parallelogram until one pair of opposite sides is horizontal, then submit.",
         missingResponseFeedback: "Rotate or adjust the parallelogram before submitting this construction.",
-        hint: "Use Rotate left until base b and its opposite side run straight across the grid.",
+        hint: "Use Rotate left once so base b and its opposite side run straight across the grid.",
         correctFeedback: "Correct. Base b and the opposite side are horizontal and parallel.",
         incorrectFeedback: "Keep turning the parallelogram until base b and its opposite side are horizontal.",
       },
@@ -3365,7 +3396,7 @@ const unit1TeachAdditionalCards = [
         dynamicAnswer: "baseHeightChallenge",
         challenge: "tall-skinny",
         visualType: "baseHeightChallenge",
-        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        model: { base: 6, height: 4, slant: -2, rotation: 90, heightPosition: 0.5 },
         constructionNote: "Change the base and height so the perpendicular height is at least twice the base, then submit.",
         missingResponseFeedback: "Change the base or height before submitting this construction.",
         hint: "Make h at least twice as large as b, such as b = 3 and h = 6.",
@@ -3380,7 +3411,7 @@ const unit1TeachAdditionalCards = [
         dynamicAnswer: "baseHeightChallenge",
         challenge: "rectangle",
         visualType: "baseHeightChallenge",
-        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        model: { base: 6, height: 4, slant: -2, rotation: 90, heightPosition: 0.5 },
         constructionNote: "Move the upper vertex handle until the side next to base b is perpendicular to b, then submit.",
         missingResponseFeedback: "Change the slant before submitting this construction.",
         hint: "A rectangle has no sideways shift between its lower and upper bases.",
@@ -3395,7 +3426,7 @@ const unit1TeachAdditionalCards = [
         dynamicAnswer: "baseHeightChallenge",
         challenge: "five-by-three",
         visualType: "baseHeightChallenge",
-        model: { base: 6, height: 4, slant: 2, rotation: 20, heightPosition: 0.5 },
+        model: { base: 6, height: 4, slant: -2, rotation: 90, heightPosition: 0.5 },
         constructionNote: "Set b to 5 and h to 3, keep a nonzero sideways shift, then submit.",
         missingResponseFeedback: "Change the dimensions before submitting this construction.",
         hint: "Set the base and height labels first, then make sure the upper base is shifted sideways.",
@@ -3529,6 +3560,9 @@ const unit1TeachAdditionalCards = [
         id: "height-scaling",
         label: "Optional: height changes",
         optional: true,
+        visualType: "rectangleScalingLab",
+        scalingMode: "height",
+        sourceDirections: "Draw one rectangle, then compare it with rectangles whose heights are 2 and 3 times as large while the base stays unchanged. Use the pattern to reason about a height 100 times as large.",
         prompt: "What happens to the area if the height doubles, triples, or becomes 100 times as large while the base stays unchanged?",
         fields: [
           { id: "double", label: "Height doubles: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
@@ -3548,6 +3582,9 @@ const unit1TeachAdditionalCards = [
         id: "both-scaling",
         label: "Optional: both change",
         optional: true,
+        visualType: "rectangleScalingLab",
+        scalingMode: "both",
+        sourceDirections: "Draw one rectangle, then compare it with rectangles whose bases and heights are 2 and 3 times as large. Use the pattern to reason about both dimensions becoming 100 times as large.",
         prompt: "What happens to the area if both the base and height double, triple, or become 100 times as large?",
         fields: [
           { id: "double", label: "Both double: area is...", responseType: "shortAnswer", placeholder: "Type scale factor" },
@@ -14306,6 +14343,23 @@ function parallelogramExploreStrategy(card, questionId) {
   return ["decompose", "enclose"].includes(value) ? value : "none";
 }
 
+function parallelogramExploreReferenceFigures(card, activeQuestionId) {
+  if (!card.retainCompletedParallelogramFigures) return [];
+  return (card.questions || [])
+    .filter((question) => question.visualType === "parallelogramExplore")
+    .map((question, index) => ({ question, index }))
+    .filter(({ question }) => (
+      question.id !== activeQuestionId
+      && isTeachQuestionSubmitted(card, question.id)
+      && questionSetQuestionIsCorrect(card, question)
+    ))
+    .map(({ question, index }) => ({
+      question,
+      shape: parallelogramExploreShape(card, question.id),
+      styleIndex: index + 1,
+    }));
+}
+
 function renderParallelogramRangeField(card, questionId, field, label, min, max) {
   const value = parallelogramExploreValue(card, questionId, field);
   return `
@@ -14330,16 +14384,21 @@ function renderParallelogramExploreWorkspace(card) {
   const modelQuestion = parallelogramExploreQuestion(card, activeQuestionId);
   if (!modelQuestion) return "";
   const shape = parallelogramExploreShape(card, modelQuestion.id);
+  const referenceFigures = parallelogramExploreReferenceFigures(card, modelQuestion.id);
   const strategy = parallelogramExploreStrategy(card, modelQuestion.id);
   const sourceAreaMode = Boolean(modelQuestion.model?.sourceAreaMode);
   const showArea = Boolean(modelQuestion.showAreaCheck && parallelogramExploreAreaIsShown(card, modelQuestion.id));
   const cell = 28;
   const baseY = 280;
   const leftX = 160;
-  const topY = baseY - shape.height * cell;
-  const topLeftX = leftX + shape.slant * cell;
-  const topRightX = topLeftX + shape.base * cell;
-  const bottomRightX = leftX + shape.base * cell;
+  const geometryForShape = (candidate) => {
+    const topY = baseY - candidate.height * cell;
+    const topLeftX = leftX + candidate.slant * cell;
+    const topRightX = topLeftX + candidate.base * cell;
+    const bottomRightX = leftX + candidate.base * cell;
+    return { topY, topLeftX, topRightX, bottomRightX };
+  };
+  const { topY, topLeftX, topRightX, bottomRightX } = geometryForShape(shape);
   const heightX = sourceAreaMode
     ? topRightX
     : topLeftX + Math.max(1, Math.min(shape.base - 1, Math.round(shape.base / 2))) * cell;
@@ -14367,6 +14426,29 @@ function renderParallelogramExploreWorkspace(card) {
         ? "The rectangle and triangle tools show an enclosure with two extra corner regions."
         : "Choose a polygon tool to visualize a source strategy without revealing the area.";
   const sideLabel = String(modelQuestion.model?.sideLabel || "");
+  const referencePolygons = referenceFigures.map((reference) => {
+    const geometry = geometryForShape(reference.shape);
+    return `
+      <polygon
+        class="parallelogram-completed-reference is-reference-${reference.styleIndex}"
+        data-parallelogram-reference-question="${escapeHtml(reference.question.id)}"
+        points="${leftX},${baseY} ${geometry.bottomRightX},${baseY} ${geometry.topRightX},${geometry.topY} ${geometry.topLeftX},${geometry.topY}"
+        aria-hidden="true"
+      ></polygon>
+    `;
+  }).join("");
+  const referenceSummary = referenceFigures.length ? `
+    <div class="parallelogram-completed-reference-summary" aria-label="Correctly completed comparison figures">
+      <strong class="parallelogram-completed-reference-heading">Completed figures</strong>
+      ${referenceFigures.map((reference) => `
+        <span class="parallelogram-completed-reference-item" data-parallelogram-reference-summary="${escapeHtml(reference.question.id)}">
+          <span class="parallelogram-completed-reference-swatch is-reference-${reference.styleIndex}" aria-hidden="true"></span>
+          <strong>${escapeHtml(reference.question.label)}</strong>
+          <span>b ${reference.shape.base}, h ${reference.shape.height}, shift ${reference.shape.slant}</span>
+        </span>
+      `).join("")}
+    </div>
+  ` : "";
   return `
     <section class="parallelogram-explore-workspace" aria-label="Interactive parallelogram area applet recreation">
       ${sourceAreaMode ? "" : `
@@ -14375,6 +14457,7 @@ function renderParallelogramExploreWorkspace(card) {
           <button class="page-chip ${strategy === "enclose" ? "is-active" : ""}" type="button" data-parallelogram-strategy="${card.id}" data-question-id="${modelQuestion.id}" data-strategy-id="enclose" aria-pressed="${strategy === "enclose"}">Enclose and subtract</button>
         </div>
       `}
+      ${referenceSummary}
       <svg class="parallelogram-explore-stage" viewBox="0 0 760 340" role="img" aria-label="${escapeHtml(card.visualAlt)}">
         <rect x="1" y="1" width="758" height="338" class="parallelogram-explore-board"></rect>
         ${sourceAreaMode ? "" : `<g aria-hidden="true">${gridLines(20, 28, 25, 9, 28)}</g>`}
@@ -14383,6 +14466,7 @@ function renderParallelogramExploreWorkspace(card) {
           class="parallelogram-explore-shape ${sourceAreaMode ? "is-source" : ""}"
           points="${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}"
         ></polygon>
+        ${referencePolygons}
         ${decompositionOverlay}
         <line class="parallelogram-height-line ${sourceAreaMode ? "is-source" : ""}" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
         <path class="parallelogram-right-angle ${sourceAreaMode ? "is-source" : ""}" d="M ${heightX} ${baseY - 15} L ${heightX + 15} ${baseY - 15} L ${heightX + 15} ${baseY}"></path>
@@ -14411,7 +14495,315 @@ function renderParallelogramExploreWorkspace(card) {
   `;
 }
 
-const baseHeightChallengeStage = { width: 760, height: 440, cell: 30 };
+const rectangleScalingStage = {
+  width: 760,
+  height: 420,
+  gridX: 145,
+  gridY: 45,
+  columns: 12,
+  rows: 9,
+  cell: 36,
+};
+
+const rectangleScalingLimits = {
+  base: [2, 4],
+  height: [2, 3],
+};
+
+function rectangleScalingLimit(field) {
+  return rectangleScalingLimits[field] || rectangleScalingLimits.base;
+}
+
+function rectangleScalingModel(card) {
+  const response = getTeachCustomResponse(card);
+  const factor = Number(response.rectangleScalingFactor);
+  return {
+    base: clampNumber(Math.round(Number(response.rectangleScalingBase) || 4), ...rectangleScalingLimits.base),
+    height: clampNumber(Math.round(Number(response.rectangleScalingHeight) || 3), ...rectangleScalingLimits.height),
+    factor: [1, 2, 3].includes(factor) ? factor : 1,
+  };
+}
+
+function setRectangleScalingModel(card, updates) {
+  const model = { ...rectangleScalingModel(card), ...updates };
+  state.teachCustomResponses[card.id] = {
+    ...getTeachCustomResponse(card),
+    rectangleScalingBase: String(clampNumber(Math.round(model.base), ...rectangleScalingLimits.base)),
+    rectangleScalingHeight: String(clampNumber(Math.round(model.height), ...rectangleScalingLimits.height)),
+    rectangleScalingFactor: String([1, 2, 3].includes(Number(model.factor)) ? Number(model.factor) : 1),
+  };
+  state.sourceModalItemId = null;
+}
+
+function resetRectangleScalingModel(card) {
+  setRectangleScalingModel(card, { base: 4, height: 3, factor: 1 });
+}
+
+function rectangleScalingOriginalGeometry(model) {
+  const { gridX, gridY, rows, cell } = rectangleScalingStage;
+  const bottom = gridY + rows * cell;
+  return {
+    x: gridX,
+    y: bottom - model.height * cell,
+    width: model.base * cell,
+    height: model.height * cell,
+    bottom,
+    handleX: gridX + model.base * cell,
+    handleY: bottom - model.height * cell,
+  };
+}
+
+function rectangleScalingDimensionSummary(question, model) {
+  if (model.factor === 1) return "Choose 2x or 3x to compare a changed rectangle.";
+  if (question.scalingMode === "both") {
+    return `Changed dimensions: b = ${model.base} x ${model.factor}; h = ${model.height} x ${model.factor}.`;
+  }
+  return `Changed dimensions: b = ${model.base} (unchanged); h = ${model.height} x ${model.factor}.`;
+}
+
+function rectangleScalingChangedGeometry(question, model) {
+  const { gridX, gridY, rows, cell } = rectangleScalingStage;
+  const bottom = gridY + rows * cell;
+  const baseFactor = question.scalingMode === "both" ? model.factor : 1;
+  const changedBase = model.base * baseFactor;
+  const changedHeight = model.height * model.factor;
+  return {
+    x: gridX,
+    y: bottom - changedHeight * cell,
+    width: changedBase * cell,
+    height: changedHeight * cell,
+    bottom,
+  };
+}
+
+function renderRectangleScalingStandardGrid(card, question, model) {
+  const original = rectangleScalingOriginalGeometry(model);
+  const changed = rectangleScalingChangedGeometry(question, model);
+  const gridWidth = rectangleScalingStage.columns * rectangleScalingStage.cell;
+  const gridHeight = rectangleScalingStage.rows * rectangleScalingStage.cell;
+  const comparison = model.factor === 1 ? "" : `
+    <rect
+      data-rectangle-scaling-changed
+      x="${changed.x}"
+      y="${changed.y}"
+      width="${changed.width}"
+      height="${changed.height}"
+      class="rectangle-scaling-changed"
+    ></rect>
+  `;
+  const legend = model.factor === 1 ? `
+    <text x="380" y="28" text-anchor="middle" class="rectangle-scaling-panel-title">Original rectangle on one shared grid</text>
+  ` : `
+    <g class="rectangle-scaling-legend" aria-hidden="true">
+      <line x1="250" y1="24" x2="286" y2="24" class="rectangle-scaling-original-outline-key"></line>
+      <text x="296" y="29" class="rectangle-scaling-key-label">original</text>
+      <rect x="394" y="15" width="36" height="18" class="rectangle-scaling-legend-scaled"></rect>
+      <text x="440" y="29" class="rectangle-scaling-key-label">scaled on the same grid</text>
+    </g>
+  `;
+  return `
+    <g data-rectangle-scaling-shared-grid="true" data-rectangle-scaling-proportional="true">
+      ${legend}
+      <rect
+        data-rectangle-scaling-grid-frame
+        x="${rectangleScalingStage.gridX}"
+        y="${rectangleScalingStage.gridY}"
+        width="${gridWidth}"
+        height="${gridHeight}"
+        class="rectangle-scaling-grid-frame"
+      ></rect>
+      ${comparison}
+      <g aria-hidden="true">${gridLines(
+        rectangleScalingStage.gridX,
+        rectangleScalingStage.gridY,
+        rectangleScalingStage.columns,
+        rectangleScalingStage.rows,
+        rectangleScalingStage.cell,
+      )}</g>
+      <rect
+        data-rectangle-scaling-original
+        x="${original.x}"
+        y="${original.y}"
+        width="${original.width}"
+        height="${original.height}"
+        class="${model.factor === 1 ? "rectangle-scaling-original" : "rectangle-scaling-original-outline"}"
+      ></rect>
+      <g
+        class="rectangle-scaling-handle"
+        data-rectangle-scaling-handle="${card.id}"
+        data-question-id="${escapeHtml(question.id)}"
+        role="button"
+        tabindex="0"
+        aria-label="Drag the top-right corner. Current base ${model.base} and height ${model.height}. Use arrow keys to adjust."
+      >
+        <circle class="rectangle-scaling-handle-hit" cx="${original.handleX}" cy="${original.handleY}" r="22"></circle>
+        <circle class="rectangle-scaling-handle-dot" cx="${original.handleX}" cy="${original.handleY}" r="9"></circle>
+      </g>
+      <text x="380" y="402" text-anchor="middle" class="rectangle-scaling-grid-caption">Each small grid square is 1 unit by 1 unit.</text>
+    </g>
+  `;
+}
+
+function renderRectangleScalingDimensionControl(card, field, label, value, min, max) {
+  return `
+    <div class="rectangle-scaling-stepper" role="group" aria-label="Change ${escapeHtml(label)}">
+      <span>${escapeHtml(label)}</span>
+      <button class="hint-button" type="button" data-rectangle-scaling-step="${card.id}" data-scaling-field="${field}" data-scaling-delta="-1" aria-label="Decrease ${escapeHtml(label)}" ${value <= min ? "disabled" : ""}>-</button>
+      <output data-rectangle-scaling-output="${field}">${value}</output>
+      <button class="hint-button" type="button" data-rectangle-scaling-step="${card.id}" data-scaling-field="${field}" data-scaling-delta="1" aria-label="Increase ${escapeHtml(label)}" ${value >= max ? "disabled" : ""}>+</button>
+    </div>
+  `;
+}
+
+function renderRectangleScalingWorkspace(card, question) {
+  if (!question || question.visualType !== "rectangleScalingLab") return "";
+  const model = rectangleScalingModel(card);
+  const modeDirections = question.scalingMode === "both"
+    ? "Then scale both its base and height to test the 2x and 3x cases."
+    : "Then keep its base fixed and scale only its height to test the 2x and 3x cases.";
+  return `
+    <section class="rectangle-scaling-workspace" data-rectangle-scaling-lab="${card.id}" data-scaling-mode="${escapeHtml(question.scalingMode)}">
+      <div class="rectangle-scaling-heading">
+        <p><strong>Draw an original rectangle.</strong> Drag its green corner or use the base and height controls. ${escapeHtml(modeDirections)}</p>
+        <div class="rectangle-scaling-factor-buttons" role="group" aria-label="Scale case to compare">
+          ${[1, 2, 3].map((factor) => `
+            <button
+              class="choice-button rectangle-scaling-factor ${model.factor === factor ? "is-selected" : ""}"
+              type="button"
+              data-rectangle-scaling-factor="${card.id}"
+              data-scaling-factor="${factor}"
+              aria-pressed="${model.factor === factor}"
+            >${factor === 1 ? "Original" : `${factor}x`}</button>
+          `).join("")}
+        </div>
+      </div>
+      <svg
+        class="rectangle-scaling-stage"
+        viewBox="0 0 ${rectangleScalingStage.width} ${rectangleScalingStage.height}"
+        data-rectangle-scaling-stage="${card.id}"
+        data-question-id="${escapeHtml(question.id)}"
+        data-grid-x="${rectangleScalingStage.gridX}"
+        data-grid-bottom="${rectangleScalingStage.gridY + rectangleScalingStage.rows * rectangleScalingStage.cell}"
+        data-grid-cell="${rectangleScalingStage.cell}"
+        role="img"
+        aria-label="Draw and compare an original rectangle as its ${question.scalingMode === "both" ? "base and height change" : "height changes while its base stays fixed"}."
+      >
+        <rect x="1" y="1" width="758" height="418" class="rectangle-scaling-board"></rect>
+        ${renderRectangleScalingStandardGrid(card, question, model)}
+      </svg>
+      <div class="rectangle-scaling-controls">
+        ${renderRectangleScalingDimensionControl(card, "base", "Base b", model.base, ...rectangleScalingLimits.base)}
+        ${renderRectangleScalingDimensionControl(card, "height", "Height h", model.height, ...rectangleScalingLimits.height)}
+        <button class="hint-button rectangle-scaling-reset" type="button" data-rectangle-scaling-reset="${card.id}">Reset rectangle</button>
+      </div>
+      <div class="rectangle-scaling-status" aria-live="polite">
+        <span data-rectangle-scaling-original-summary>Original dimensions: b = ${model.base}; h = ${model.height}.</span>
+        <span data-rectangle-scaling-changed-summary>${escapeHtml(rectangleScalingDimensionSummary(question, model))}</span>
+      </div>
+      <p class="rectangle-scaling-note">Both figures use the same grid and starting corner. Use b x h and the visible 2x and 3x cases to extend the pattern to 100x, then record your conclusion.</p>
+    </section>
+  `;
+}
+
+function updateRectangleScalingDom(card, question) {
+  const stage = document.querySelector(`[data-rectangle-scaling-stage="${card.id}"][data-question-id="${question.id}"]`);
+  if (!stage) return;
+  const model = rectangleScalingModel(card);
+  const geometry = rectangleScalingOriginalGeometry(model);
+  const changedGeometry = rectangleScalingChangedGeometry(question, model);
+  const original = stage.querySelector("[data-rectangle-scaling-original]");
+  if (original) {
+    original.setAttribute("x", String(geometry.x));
+    original.setAttribute("y", String(geometry.y));
+    original.setAttribute("width", String(geometry.width));
+    original.setAttribute("height", String(geometry.height));
+  }
+  const changed = stage.querySelector("[data-rectangle-scaling-changed]");
+  if (changed) {
+    changed.setAttribute("x", String(changedGeometry.x));
+    changed.setAttribute("y", String(changedGeometry.y));
+    changed.setAttribute("width", String(changedGeometry.width));
+    changed.setAttribute("height", String(changedGeometry.height));
+  }
+  const handle = stage.querySelector("[data-rectangle-scaling-handle]");
+  if (handle) {
+    handle.querySelectorAll("circle").forEach((circle) => {
+      circle.setAttribute("cx", String(geometry.handleX));
+      circle.setAttribute("cy", String(geometry.handleY));
+    });
+    handle.setAttribute("aria-label", `Drag the top-right corner. Current base ${model.base} and height ${model.height}. Use arrow keys to adjust.`);
+  }
+  const workspace = stage.closest("[data-rectangle-scaling-lab]");
+  workspace?.querySelectorAll("[data-rectangle-scaling-output]").forEach((output) => {
+    output.textContent = String(model[output.dataset.rectangleScalingOutput]);
+  });
+  const originalSummary = workspace?.querySelector("[data-rectangle-scaling-original-summary]");
+  if (originalSummary) originalSummary.textContent = `Original dimensions: b = ${model.base}; h = ${model.height}.`;
+  const changedSummary = workspace?.querySelector("[data-rectangle-scaling-changed-summary]");
+  if (changedSummary) changedSummary.textContent = rectangleScalingDimensionSummary(question, model);
+}
+
+function startRectangleScalingPointer(event) {
+  const handle = event.target.closest("[data-rectangle-scaling-handle]");
+  if (!handle) return false;
+  const card = teachCardById(handle.dataset.rectangleScalingHandle);
+  const question = card ? questionSetDefinition(card, handle.dataset.questionId) : null;
+  const stage = handle.closest("[data-rectangle-scaling-stage]");
+  if (!stage || !card || question?.visualType !== "rectangleScalingLab") return false;
+  rectangleScalingPointer = {
+    pointerId: event.pointerId ?? "mouse",
+    cardId: card.id,
+    questionId: question.id,
+  };
+  if (event.pointerId !== undefined) handle.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+  event.stopPropagation();
+  return true;
+}
+
+function updateRectangleScalingPointer(event) {
+  if (!rectangleScalingPointer || (event.pointerId ?? "mouse") !== rectangleScalingPointer.pointerId) return false;
+  const card = teachCardById(rectangleScalingPointer.cardId);
+  const question = card ? questionSetDefinition(card, rectangleScalingPointer.questionId) : null;
+  const stage = document.querySelector(`[data-rectangle-scaling-stage="${rectangleScalingPointer.cardId}"][data-question-id="${rectangleScalingPointer.questionId}"]`);
+  if (!card || question?.visualType !== "rectangleScalingLab" || !stage) return false;
+  const point = tangramSvgPoint(stage, event);
+  const bottom = rectangleScalingStage.gridY + rectangleScalingStage.rows * rectangleScalingStage.cell;
+  const base = clampNumber(
+    Math.round((point.x - rectangleScalingStage.gridX) / rectangleScalingStage.cell),
+    ...rectangleScalingLimits.base,
+  );
+  const height = clampNumber(
+    Math.round((bottom - point.y) / rectangleScalingStage.cell),
+    ...rectangleScalingLimits.height,
+  );
+  setRectangleScalingModel(card, { base, height });
+  updateRectangleScalingDom(card, question);
+  event.preventDefault();
+  return true;
+}
+
+function endRectangleScalingPointer(event) {
+  if (!rectangleScalingPointer || (event.pointerId ?? "mouse") !== rectangleScalingPointer.pointerId) return false;
+  rectangleScalingPointer = null;
+  renderTeachMe();
+  return true;
+}
+
+const baseHeightChallengeStage = {
+  width: 760,
+  height: 440,
+  gridX: 20,
+  gridY: 10,
+  columns: 24,
+  rows: 14,
+  cell: 30,
+};
+
+function baseHeightChallengeQuarterTurn(value) {
+  const snapped = Math.round((Number(value) || 0) / 90) * 90;
+  return ((snapped % 360) + 360) % 360;
+}
 
 function baseHeightChallengeField(questionId, field) {
   return `baseHeight_${questionId}_${field}`;
@@ -14428,7 +14820,7 @@ function baseHeightChallengeShape(card, question) {
     base: clampNumber(Math.round(baseHeightChallengeValue(card, question, "base")), 3, 8),
     height: clampNumber(Math.round(baseHeightChallengeValue(card, question, "height")), 2, 7),
     slant: clampNumber(Math.round(baseHeightChallengeValue(card, question, "slant")), -3, 3),
-    rotation: clampNumber(Math.round(baseHeightChallengeValue(card, question, "rotation") / 5) * 5, -60, 60),
+    rotation: baseHeightChallengeQuarterTurn(baseHeightChallengeValue(card, question, "rotation")),
     heightPosition: clampNumber(Math.round(baseHeightChallengeValue(card, question, "heightPosition") * 10) / 10, 0.1, 0.9),
   };
 }
@@ -14443,7 +14835,7 @@ function baseHeightChallengeIsCorrect(card, question) {
   if (question.challenge === "height-location") {
     return Math.abs(shape.heightPosition - Number(question.model?.heightPosition || 0.5)) >= 0.2;
   }
-  if (question.challenge === "horizontal-sides") return shape.rotation === 0;
+  if (question.challenge === "horizontal-sides") return shape.rotation % 180 === 0;
   if (question.challenge === "tall-skinny") return shape.height >= shape.base * 2;
   if (question.challenge === "rectangle") return shape.slant === 0;
   if (question.challenge === "five-by-three") return shape.base === 5 && shape.height === 3 && shape.slant !== 0;
@@ -14484,33 +14876,57 @@ function rotateBaseHeightPoint(point, center, degrees) {
 
 function baseHeightChallengeGeometry(card, question) {
   const shape = baseHeightChallengeShape(card, question);
-  const { cell, width, height } = baseHeightChallengeStage;
-  const localCenter = {
-    x: (shape.base + shape.slant) * cell / 2,
-    y: -shape.height * cell / 2,
-  };
-  const stageCenter = { x: width / 2, y: height / 2 + 8 };
-  const transform = (point) => {
-    const translated = {
-      x: point.x - localCenter.x + stageCenter.x,
-      y: point.y - localCenter.y + stageCenter.y,
-    };
-    return rotateBaseHeightPoint(translated, stageCenter, shape.rotation);
-  };
+  const {
+    cell,
+    gridX,
+    gridY,
+    columns,
+    rows,
+  } = baseHeightChallengeStage;
   const baseLength = shape.base * cell;
   const topOffset = shape.slant * cell;
   const heightLength = shape.height * cell;
   const heightX = shape.heightPosition * baseLength;
-  const p0 = transform({ x: 0, y: 0 });
-  const p1 = transform({ x: baseLength, y: 0 });
-  const p2 = transform({ x: baseLength + topOffset, y: -heightLength });
-  const p3 = transform({ x: topOffset, y: -heightLength });
+  const localPoints = [
+    { x: 0, y: 0 },
+    { x: baseLength, y: 0 },
+    { x: baseLength + topOffset, y: -heightLength },
+    { x: topOffset, y: -heightLength },
+  ];
+  const localSupportPoints = [
+    { x: -cell, y: 0 },
+    { x: baseLength + cell, y: 0 },
+    { x: topOffset - cell, y: -heightLength },
+    { x: topOffset + baseLength + cell, y: -heightLength },
+  ];
+  const rotate = (point) => rotateBaseHeightPoint(point, { x: 0, y: 0 }, shape.rotation);
+  const rotatedBoundsPoints = [...localPoints, ...localSupportPoints].map(rotate);
+  const bounds = rotatedBoundsPoints.reduce((result, point) => ({
+    minX: Math.min(result.minX, point.x),
+    maxX: Math.max(result.maxX, point.x),
+    minY: Math.min(result.minY, point.y),
+    maxY: Math.max(result.maxY, point.y),
+  }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+  const gridCenter = {
+    x: gridX + columns * cell / 2,
+    y: gridY + rows * cell / 2,
+  };
+  const boundsCenter = {
+    x: (bounds.minX + bounds.maxX) / 2,
+    y: (bounds.minY + bounds.maxY) / 2,
+  };
+  const anchor = {
+    x: gridX + Math.round((gridCenter.x - boundsCenter.x - gridX) / cell) * cell,
+    y: gridY + Math.round((gridCenter.y - boundsCenter.y - gridY) / cell) * cell,
+  };
+  const transform = (point) => {
+    const rotated = rotate(point);
+    return { x: anchor.x + rotated.x, y: anchor.y + rotated.y };
+  };
+  const [p0, p1, p2, p3] = localPoints.map(transform);
   const heightBottom = transform({ x: heightX, y: 0 });
   const heightTop = transform({ x: heightX, y: -heightLength });
-  const supportStart = transform({ x: -45, y: 0 });
-  const supportEnd = transform({ x: baseLength + 45, y: 0 });
-  const oppositeStart = transform({ x: topOffset - 45, y: -heightLength });
-  const oppositeEnd = transform({ x: topOffset + baseLength + 45, y: -heightLength });
+  const [supportStart, supportEnd, oppositeStart, oppositeEnd] = localSupportPoints.map(transform);
   const rightAngle = [
     transform({ x: heightX, y: -14 }),
     transform({ x: heightX + 14, y: -14 }),
@@ -14520,7 +14936,7 @@ function baseHeightChallengeGeometry(card, question) {
   const heightLabel = transform({ x: heightX + 20, y: -heightLength / 2 });
   return {
     shape,
-    stageCenter,
+    anchor,
     points: [p0, p1, p2, p3],
     heightBottom,
     heightTop,
@@ -14580,17 +14996,26 @@ function renderBaseHeightChallengeWorkspace(card) {
   `;
   return `
     <section class="base-height-challenge-workspace" aria-label="Interactive base and height applet recreation">
-      <p class="base-height-challenge-directions">Drag the green points or use the controls. The dashed segment h stays perpendicular to base b.</p>
+      <p class="base-height-challenge-directions">Drag the green points or use the controls. Solid vertices stay on grid intersections, and the dashed segment h stays perpendicular to base b.</p>
       <svg
         class="base-height-challenge-stage"
         viewBox="0 0 ${baseHeightChallengeStage.width} ${baseHeightChallengeStage.height}"
         data-base-height-stage="${card.id}"
         data-question-id="${escapeHtml(question.id)}"
+        data-grid-x="${baseHeightChallengeStage.gridX}"
+        data-grid-y="${baseHeightChallengeStage.gridY}"
+        data-grid-cell="${baseHeightChallengeStage.cell}"
         role="img"
         aria-label="${escapeHtml(card.visualAlt)}"
       >
         <rect class="base-height-challenge-board" x="1" y="1" width="758" height="438"></rect>
-        <g aria-hidden="true">${gridLines(20, 20, 36, 20, 20)}</g>
+        <g aria-hidden="true">${gridLines(
+          baseHeightChallengeStage.gridX,
+          baseHeightChallengeStage.gridY,
+          baseHeightChallengeStage.columns,
+          baseHeightChallengeStage.rows,
+          baseHeightChallengeStage.cell,
+        )}</g>
         <line data-base-height-support="base" class="base-height-support-line" x1="${geometry.supportStart.x.toFixed(1)}" y1="${geometry.supportStart.y.toFixed(1)}" x2="${geometry.supportEnd.x.toFixed(1)}" y2="${geometry.supportEnd.y.toFixed(1)}"></line>
         <line data-base-height-support="opposite" class="base-height-support-line" x1="${geometry.oppositeStart.x.toFixed(1)}" y1="${geometry.oppositeStart.y.toFixed(1)}" x2="${geometry.oppositeEnd.x.toFixed(1)}" y2="${geometry.oppositeEnd.y.toFixed(1)}"></line>
         <polygon data-base-height-shape class="base-height-challenge-shape" points="${svgPointList(geometry.points)}"></polygon>
@@ -14609,9 +15034,9 @@ function renderBaseHeightChallengeWorkspace(card) {
         ${renderBaseHeightChallengeRange(card, question, "heightPosition", "Height location (%)", 10, 90, Math.round(shape.heightPosition * 100))}
       </div>
       <div class="base-height-challenge-actions">
-        <button class="hint-button" type="button" data-base-height-rotate="${card.id}" data-question-id="${escapeHtml(question.id)}" data-rotation-delta="-5">Rotate left</button>
+        <button class="hint-button" type="button" data-base-height-rotate="${card.id}" data-question-id="${escapeHtml(question.id)}" data-rotation-delta="-90">Rotate left</button>
         <output class="base-height-rotation-output" aria-live="polite">Orientation ${shape.rotation}&deg;</output>
-        <button class="hint-button" type="button" data-base-height-rotate="${card.id}" data-question-id="${escapeHtml(question.id)}" data-rotation-delta="5">Rotate right</button>
+        <button class="hint-button" type="button" data-base-height-rotate="${card.id}" data-question-id="${escapeHtml(question.id)}" data-rotation-delta="90">Rotate right</button>
         <button class="hint-button" type="button" data-base-height-reset="${card.id}" data-question-id="${escapeHtml(question.id)}">Reset</button>
       </div>
     </section>
@@ -16136,7 +16561,7 @@ function getPracticeValue(item) {
   if (item.responseType === "rectangleTiling") {
     return getPracticeRectangleTilingWorkspace(item);
   }
-  if (["matching", "groupedChoice", "fieldSet", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item.responseType)) {
+  if (["matching", "groupedChoice", "fieldSet", "advisoryFieldSet", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item.responseType)) {
     return state.practiceResponses[item.id] || {};
   }
   return state.practiceResponses[item.id] || "";
@@ -16553,7 +16978,7 @@ function practiceReasoningEvaluation(item) {
 }
 
 function practiceUsesAdvisoryPrimaryText(item) {
-  return item.responseType === "open" || item.responseType === "validatedText";
+  return ["open", "validatedText", "advisoryFieldSet"].includes(item.responseType);
 }
 
 function practicePrimaryTextEvaluation(item) {
@@ -16571,6 +16996,10 @@ function isPracticeCorrect(item) {
 
 function hasPracticeResponse(item) {
   const answer = getPracticeValue(item);
+  if (item.responseType === "advisoryFieldSet") {
+    return (item.fields || []).length > 0
+      && (item.fields || []).every((field) => normalizeAnswer(answer[field.id]).length > 0);
+  }
   if (item.responseType === "netEdgeLabeling") {
     return Object.keys(answer.labels).length > 0;
   }
@@ -16596,7 +17025,7 @@ function practiceIncorrectFeedback(item) {
     return item.annotationRequiredFeedback
       || `Complete the required source drawing marks. ${annotationResult.matched} of ${annotationResult.required} are in the expected locations.`;
   }
-  if (item.responseType === "fieldSet") {
+  if (["fieldSet", "advisoryFieldSet"].includes(item.responseType)) {
     const missingFields = practiceFieldSetMissingFields(item);
     if (missingFields.length) {
       return item.missingFeedback
@@ -19764,6 +20193,7 @@ function renderPracticeRatioDiagram(item) {
         ${rows.map((row) => {
           const storedValue = row.fieldId ? parseMathNumber(practiceWorkspaceFieldValue(item, row.fieldId)) : null;
           const count = Math.max(0, Math.min(Number(row.maximum) || 40, Number.isFinite(storedValue) ? Math.round(storedValue) : Number(row.value) || 0));
+          const totalUnits = Math.max(count, Number(row.totalUnits) || count);
           const editable = Boolean(row.fieldId);
           const batchSize = Number(row.batchSize) || 0;
           return `
@@ -19779,8 +20209,8 @@ function renderPracticeRatioDiagram(item) {
                   <button type="button" data-practice-ratio-step="${item.id}" data-field-id="${escapeHtml(row.fieldId)}" data-delta="1" aria-label="Add one ${escapeHtml(row.label)}" ${count >= (Number(row.maximum) || 40) ? "disabled" : ""}>+</button>
                 </div>
               ` : `<span class="practice-ratio-given-count">${count}</span>`}
-              <div class="practice-ratio-units" aria-label="${count} ${escapeHtml(row.label)}">
-                ${Array.from({ length: count }, (_, index) => `<span class="practice-ratio-unit${batchSize && index > 0 && index % batchSize === 0 ? " starts-batch" : ""}" aria-hidden="true"></span>`).join("")}
+              <div class="practice-ratio-units" aria-label="${count} of ${totalUnits} ${escapeHtml(row.label)} units selected">
+                ${Array.from({ length: totalUnits }, (_, index) => `<span class="practice-ratio-unit${index >= count ? " is-empty" : ""}${batchSize && index > 0 && index % batchSize === 0 ? " starts-batch" : ""}" aria-hidden="true"></span>`).join("")}
               </div>
             </div>
           `;
@@ -19966,6 +20396,55 @@ function practiceVisual(item) {
     `;
   }
   if (data.type === "baseHeightRelationship") {
+    const baseUnits = Number(data.baseUnits);
+    const heightUnits = Number(data.heightUnits);
+    if (Number.isFinite(baseUnits) && baseUnits > 0 && Number.isFinite(heightUnits) && heightUnits > 0) {
+      const viewWidth = 720;
+      const viewHeight = 260;
+      const unitScale = Math.min(560 / baseUnits, 150 / heightUnits);
+      const basePixels = baseUnits * unitScale;
+      const heightPixels = heightUnits * unitScale;
+      const slantPixels = Math.min(44, Math.max(10, heightPixels * 0.45));
+      const left = (viewWidth - basePixels - slantPixels) / 2;
+      const centerY = 112;
+      const top = centerY - heightPixels / 2;
+      const bottom = centerY + heightPixels / 2;
+      const heightX = left + basePixels;
+      const dimensionY = bottom + 25;
+      const markerSize = Math.min(13, Math.max(2, heightPixels * 0.35));
+      const baseLabel = data.baseLabel || "base";
+      const heightLabel = data.heightLabel || "height";
+      const alt = data.alt || `A proportional parallelogram with ${baseLabel} and corresponding ${heightLabel}.`;
+      return `
+        <section class="practice-base-height-reminder is-proportional" aria-label="Area relationship for a parallelogram">
+          <svg
+            viewBox="0 0 ${viewWidth} ${viewHeight}"
+            role="img"
+            aria-label="${escapeHtml(alt)}"
+            data-practice-proportional-parallelogram="${escapeHtml(item.id)}"
+            data-base-units="${baseUnits}"
+            data-height-units="${heightUnits}"
+            data-unit-scale="${unitScale}"
+            data-base-pixels="${basePixels}"
+            data-height-pixels="${heightPixels}"
+          >
+            <text x="${viewWidth / 2}" y="31" text-anchor="middle" class="practice-base-height-formula">Area = base x corresponding height</text>
+            <polygon
+              points="${left},${bottom} ${left + basePixels},${bottom} ${left + basePixels + slantPixels},${top} ${left + slantPixels},${top}"
+              class="practice-base-height-proportional-shape"
+            ></polygon>
+            <line x1="${heightX}" y1="${bottom}" x2="${heightX}" y2="${top}" class="practice-base-height-proportional-height"></line>
+            <path d="M ${heightX} ${bottom} L ${heightX - markerSize} ${bottom} L ${heightX - markerSize} ${bottom - markerSize}" class="practice-base-height-proportional-right-angle"></path>
+            <text x="${heightX}" y="${Math.max(54, top - 12)}" text-anchor="end" class="practice-base-height-proportional-label">${escapeHtml(heightLabel)}</text>
+            <line x1="${left}" y1="${dimensionY}" x2="${left + basePixels}" y2="${dimensionY}" class="practice-base-height-proportional-measure"></line>
+            <line x1="${left}" y1="${dimensionY - 6}" x2="${left}" y2="${dimensionY + 6}" class="practice-base-height-proportional-measure"></line>
+            <line x1="${left + basePixels}" y1="${dimensionY - 6}" x2="${left + basePixels}" y2="${dimensionY + 6}" class="practice-base-height-proportional-measure"></line>
+            <text x="${left + basePixels / 2}" y="${dimensionY + 28}" text-anchor="middle" class="practice-base-height-proportional-label">${escapeHtml(baseLabel)}</text>
+            ${data.areaLabel ? `<text x="${viewWidth / 2}" y="238" text-anchor="middle" class="practice-base-height-area-label">${escapeHtml(data.areaLabel)}</text>` : ""}
+          </svg>
+        </section>
+      `;
+    }
     return `
       <section class="practice-base-height-reminder" aria-label="Area relationship for a parallelogram">
         <svg viewBox="0 0 720 330" role="img" aria-label="A slanted parallelogram with a horizontal base and perpendicular height">
@@ -20611,11 +21090,12 @@ function renderPracticeFieldSet(item) {
   const values = getPracticeValue(item);
   const fields = Array.isArray(item.fields) ? item.fields : [];
   const fieldsById = new Map(fields.map((field) => [field.id, field]));
+  const visibleFields = fields.filter((field) => !field.workspaceOnly);
   const configuredGroups = Array.isArray(item.fieldSetGroups) && item.fieldSetGroups.length
     ? item.fieldSetGroups
     : [{
       label: item.fieldSetLabel || "Complete every field",
-      fieldIds: fields.map((field) => field.id),
+      fieldIds: visibleFields.map((field) => field.id),
       joiner: item.fieldSetJoiner,
     }];
   const groups = configuredGroups.map((group) => ({
@@ -20705,7 +21185,7 @@ function renderAnswerControl(item) {
       ${reasoning}
     `;
   }
-  if (item.responseType === "fieldSet") {
+  if (["fieldSet", "advisoryFieldSet"].includes(item.responseType)) {
     if (item.fieldSetDisplay === "workspaceOnly") {
       const missing = practiceFieldSetMissingFields(item);
       return `
@@ -26598,21 +27078,38 @@ function renderPolygonClassificationVisual(card) {
   `;
 }
 
-function renderParallelogramEqualExampleVisual() {
+function renderParallelogramEqualExampleVisual(card, question) {
   const handles = [
     [100, 260], [220, 260], [200, 180], [80, 180],
     [460, 260], [520, 260], [580, 100], [520, 100],
   ].map(([cx, cy]) => `<circle class="parallelogram-source-handle" cx="${cx}" cy="${cy}" r="6"></circle>`).join("");
+  const baseSvg = `
+    <svg class="practice-source-visual-image parallelogram-equal-example-base" viewBox="0 0 760 330" role="img" aria-label="Two source parallelograms on a square grid. The left has base 6 and height 4; the right has base 3 and height 8.">
+      <rect x="1" y="1" width="758" height="328" class="parallelogram-explore-board"></rect>
+      <g aria-hidden="true">${gridLines(20, 20, 36, 14, 20)}</g>
+      <polygon class="parallelogram-source-example is-left" points="100,260 220,260 200,180 80,180"></polygon>
+      <polygon class="parallelogram-source-example is-right" points="460,260 520,260 580,100 520,100"></polygon>
+      ${handles}
+    </svg>
+  `;
+  const annotationTarget = teachSourceAnnotationTarget(card?.id, question?.id);
+  if (annotationTarget) {
+    return `
+      <figure class="teach-visual-frame parallelogram-equal-example teach-source-annotation-visual">
+        <figcaption>Count a horizontal base and its perpendicular height for each given parallelogram.</figcaption>
+        ${renderTeachSourceAnnotationToolbar(annotationTarget)}
+        <div class="practice-source-annotation-canvas teach-source-annotation-canvas" style="--practice-annotation-max-width: 760px; aspect-ratio: 760 / 330;">
+          ${baseSvg}
+          ${renderTeachSourceAnnotationBoard(annotationTarget)}
+        </div>
+        ${renderTeachSourceAnnotationFooter(annotationTarget)}
+      </figure>
+    `;
+  }
   return `
     <figure class="teach-visual-frame parallelogram-equal-example">
       <figcaption>Count a horizontal base and its perpendicular height for each given parallelogram.</figcaption>
-      <svg viewBox="0 0 760 330" role="img" aria-label="Two source parallelograms on a square grid. The left has base 6 and height 4; the right has base 3 and height 8.">
-        <rect x="1" y="1" width="758" height="328" class="parallelogram-explore-board"></rect>
-        <g aria-hidden="true">${gridLines(20, 20, 36, 14, 20)}</g>
-        <polygon class="parallelogram-source-example is-left" points="100,260 220,260 200,180 80,180"></polygon>
-        <polygon class="parallelogram-source-example is-right" points="460,260 520,260 580,100 520,100"></polygon>
-        ${handles}
-      </svg>
+      ${baseSvg}
     </figure>
   `;
 }
@@ -26621,8 +27118,9 @@ function renderQuestionSetVisual(card) {
   const question = questionSetDefinition(card, questionSetActiveId(card));
   if (question?.visualType === "tangram") return renderTangramWorkspace(card);
   if (question?.visualType === "parallelogramExplore") return renderParallelogramExploreWorkspace(card);
+  if (question?.visualType === "rectangleScalingLab") return renderRectangleScalingWorkspace(card, question);
   if (question?.visualType === "baseHeightChallenge") return renderBaseHeightChallengeWorkspace(card);
-  if (question?.visualType === "parallelogramEqualExample") return renderParallelogramEqualExampleVisual();
+  if (question?.visualType === "parallelogramEqualExample") return renderParallelogramEqualExampleVisual(card, question);
   if (question?.visualType === "parallelogramPair") return renderParallelogramPairWorkspace(card, question);
   if (question?.visualType === "cabinetDimensions") return renderCabinetDimensionsVisual(question);
   if (question?.visualType === "cabinetRow") return renderCabinetRowVisual(question);
@@ -29469,42 +29967,103 @@ function renderParallelogramPairRange(card, question, shapeId, field, label) {
   `;
 }
 
-function renderParallelogramPairShape(card, question, shapeId, originX, positionClass) {
-  const base = parallelogramPairValue(card, question, shapeId, "base");
-  const height = parallelogramPairValue(card, question, shapeId, "height");
-  const shift = parallelogramPairValue(card, question, shapeId, "shift");
-  const shapeLabel = question.shapeLabels?.[shapeId] || `Parallelogram ${shapeId}`;
-  const cell = 20;
-  const baseY = 265;
-  const topY = baseY - height * cell;
+const parallelogramPairGrid = {
+  x: 20,
+  y: 40,
+  columns: 36,
+  rows: 12,
+  cell: 20,
+  baseY: 260,
+  shapeOrigins: [100, 440],
+};
+
+function parallelogramPairGeometry(values, originX) {
+  const { cell, baseY } = parallelogramPairGrid;
   const leftX = originX;
-  const topLeftX = leftX + shift * 12;
-  const bottomRightX = leftX + base * cell;
-  const topRightX = topLeftX + base * cell;
-  const heightX = topLeftX + Math.min(base - 1, 2) * cell;
+  const bottomRightX = leftX + values.base * cell;
+  const topY = baseY - values.height * cell;
+  const topLeftX = leftX + values.shift * cell;
+  const topRightX = topLeftX + values.base * cell;
+  const heightX = topLeftX + Math.min(values.base - 1, 2) * cell;
+  return {
+    leftX,
+    bottomRightX,
+    topY,
+    topLeftX,
+    topRightX,
+    heightX,
+    points: `${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}`,
+  };
+}
+
+function parallelogramPairValues(card, question, shapeId) {
+  return {
+    base: parallelogramPairValue(card, question, shapeId, "base"),
+    height: parallelogramPairValue(card, question, shapeId, "height"),
+    shift: parallelogramPairValue(card, question, shapeId, "shift"),
+  };
+}
+
+function renderParallelogramPairShape(card, question, shapeId, originX, positionClass) {
+  const values = parallelogramPairValues(card, question, shapeId);
+  const { base, height } = values;
+  const shapeLabel = question.shapeLabels?.[shapeId] || `Parallelogram ${shapeId}`;
+  const { cell, baseY } = parallelogramPairGrid;
+  const geometry = parallelogramPairGeometry(values, originX);
   return `
     <g class="parallelogram-pair-shape ${positionClass}" data-pair-shape="${escapeHtml(shapeId)}">
-      <text class="parallelogram-pair-name" x="${originX + 110}" y="34" text-anchor="middle">${escapeHtml(shapeLabel)}</text>
-      <polygon points="${leftX},${baseY} ${bottomRightX},${baseY} ${topRightX},${topY} ${topLeftX},${topY}"></polygon>
-      <line class="parallelogram-height-line" x1="${heightX}" y1="${topY}" x2="${heightX}" y2="${baseY}"></line>
-      <path class="parallelogram-right-angle" d="M ${heightX} ${baseY - 13} L ${heightX + 13} ${baseY - 13} L ${heightX + 13} ${baseY}"></path>
-      <text class="parallelogram-pair-measure" x="${leftX + base * cell / 2}" y="278" text-anchor="middle">base ${base}</text>
-      <text class="parallelogram-pair-measure" x="${heightX + 10}" y="${topY + height * cell / 2}" text-anchor="start">height ${height}</text>
+      <text class="parallelogram-pair-name" x="${originX + 110}" y="28" text-anchor="middle">${escapeHtml(shapeLabel)}</text>
+      <polygon points="${geometry.points}"></polygon>
+      <line class="parallelogram-height-line" x1="${geometry.heightX}" y1="${geometry.topY}" x2="${geometry.heightX}" y2="${baseY}"></line>
+      <path class="parallelogram-right-angle" d="M ${geometry.heightX} ${baseY - 13} L ${geometry.heightX + 13} ${baseY - 13} L ${geometry.heightX + 13} ${baseY}"></path>
+      <text class="parallelogram-pair-measure" x="${geometry.leftX + base * cell / 2}" y="287" text-anchor="middle">base ${base}</text>
+      <text class="parallelogram-pair-measure" x="${geometry.heightX + 10}" y="${geometry.topY + height * cell / 2}" text-anchor="start">height ${height}</text>
     </g>
   `;
 }
 
+function renderParallelogramPairReferences(question, shapeIds) {
+  if (!question.retainOriginalPair) return "";
+  return shapeIds.map((shapeId, index) => {
+    const values = {
+      base: parallelogramPairDefault(question, shapeId, "base"),
+      height: parallelogramPairDefault(question, shapeId, "height"),
+      shift: parallelogramPairDefault(question, shapeId, "shift"),
+    };
+    const geometry = parallelogramPairGeometry(values, parallelogramPairGrid.shapeOrigins[index]);
+    return `
+      <polygon
+        class="parallelogram-pair-source-reference ${index === 0 ? "is-left" : "is-right"}"
+        data-pair-reference-shape="${escapeHtml(shapeId)}"
+        data-pair-reference-base="${values.base}"
+        data-pair-reference-height="${values.height}"
+        points="${geometry.points}"
+        aria-hidden="true"
+      ></polygon>
+    `;
+  }).join("");
+}
+
 function renderParallelogramPairWorkspace(card, question) {
   const shapeIds = parallelogramPairShapeIds(question);
+  const { x, y, columns, rows, cell, shapeOrigins } = parallelogramPairGrid;
+  const originalPairSummary = shapeIds.map((shapeId, index) => (
+    `original ${index === 0 ? "left" : "right"} b = ${parallelogramPairDefault(question, shapeId, "base")}, h = ${parallelogramPairDefault(question, shapeId, "height")}`
+  )).join("; ");
+  const originalReferenceNote = question.retainOriginalPair
+    ? `<p class="parallelogram-pair-reference-note"><span aria-hidden="true"></span>Dashed references: ${escapeHtml(originalPairSummary)}.</p>`
+    : "";
   return `
     <figure class="teach-visual-frame parallelogram-pair-workspace">
       <figcaption>${escapeHtml(question.visualDirections)}</figcaption>
-      <svg class="parallelogram-pair-stage" viewBox="0 0 760 300" role="img" aria-label="Two adjustable parallelograms on square grids.">
-        <rect x="1" y="1" width="758" height="298" class="parallelogram-explore-board"></rect>
-        <g aria-hidden="true">${gridLines(20, 10, 36, 14, 20)}</g>
-        ${renderParallelogramPairShape(card, question, shapeIds[0], 75, "is-left")}
-        ${renderParallelogramPairShape(card, question, shapeIds[1], 430, "is-right")}
+      <svg class="parallelogram-pair-stage" viewBox="0 0 760 305" role="img" aria-label="Two adjustable parallelograms aligned to a square grid${question.retainOriginalPair ? `, with dashed outlines showing the ${escapeHtml(originalPairSummary)}` : ""}.">
+        <rect x="1" y="1" width="758" height="303" class="parallelogram-explore-board"></rect>
+        <g aria-hidden="true">${gridLines(x, y, columns, rows, cell)}</g>
+        ${renderParallelogramPairShape(card, question, shapeIds[0], shapeOrigins[0], "is-left")}
+        ${renderParallelogramPairShape(card, question, shapeIds[1], shapeOrigins[1], "is-right")}
+        ${renderParallelogramPairReferences(question, shapeIds)}
       </svg>
+      ${originalReferenceNote}
       <div class="parallelogram-pair-controls">
         ${shapeIds.map((shapeId) => `
           <fieldset>
@@ -29522,6 +30081,10 @@ function renderParallelogramPairWorkspace(card, question) {
 function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lessonNumber }) {
   const visualContent = renderTeachVisualContent(card);
   const isLessonSummary = card.responseType === "lessonSummary";
+  const activeQuestion = card.responseType === "questionSet"
+    ? questionSetDefinition(card, questionSetActiveId(card))
+    : null;
+  const sourceDirections = activeQuestion?.sourceDirections ?? card.sourceDirections ?? "";
   const usesIndependentSubmission = card.responseType === "areaMeaning"
     || card.responseType === "gridFigureAreas"
     || card.responseType === "questionSet";
@@ -29541,8 +30104,8 @@ function renderTeachCard(card, group = { cards: [card], lessonNumber: card.lesso
         ${card.activityTitle ? `<p class="teach-activity-title">${escapeHtml(card.activityTitle)}</p>` : ""}
         ${card.sourceContext ? `<p class="teach-source-context">${escapeHtml(card.sourceContext)}</p>` : ""}
       </div>
-      <div class="teach-card-body ${card.sourceDirections ? "has-visual-directions" : ""} ${isLessonSummary ? "is-lesson-summary" : ""}">
-        ${card.sourceDirections ? `<p class="teach-visual-directions">${escapeHtml(card.sourceDirections)}</p>` : ""}
+      <div class="teach-card-body ${sourceDirections ? "has-visual-directions" : ""} ${isLessonSummary ? "is-lesson-summary" : ""}">
+        ${sourceDirections ? `<p class="teach-visual-directions">${escapeHtml(sourceDirections)}</p>` : ""}
         <div class="teach-workspace">
           ${visualContent}
         </div>
@@ -32764,6 +33327,7 @@ function renderTeachHint(card) {
 function renderPracticeCard(item, index, lessonParts = []) {
   const isLessonGroup = lessonParts.length > 1;
   const hasVisualWorkspace = Boolean(item.visualModelData?.type);
+  const plainVisualWorkspace = item.visualModelData?.showGrid === false;
   const attemptOnly = item.responseType === "annotationAttempt";
   const textOnly = practiceUsesAdvisoryPrimaryText(item);
   const submitted = isPracticeSubmitted(item);
@@ -32867,7 +33431,7 @@ function renderPracticeCard(item, index, lessonParts = []) {
       <div class="practice-work ${hasVisualWorkspace ? "" : "is-text-only"}" ${isLessonGroup ? `id="practice-part-panel-${escapeHtml(item.practiceLessonGroup)}" role="tabpanel" aria-labelledby="practice-part-tab-${item.id}"` : ""}>
         ${hasVisualWorkspace ? `
           <div class="practice-visual">
-            <div class="practice-model">${practiceVisual(item)}</div>
+            <div class="practice-model ${plainVisualWorkspace ? "is-plain" : ""}">${practiceVisual(item)}</div>
           </div>
         ` : ""}
         <div class="answer-panel">
@@ -34164,6 +34728,7 @@ function bindEvents() {
     if (startTeachSourceAnnotationPointer(event)) return;
     if (startPracticeHeightAnnotationPointer(event)) return;
     if (startPracticeSourceAnnotationPointer(event)) return;
+    if (startRectangleScalingPointer(event)) return;
     if (startBaseHeightChallengePointer(event)) return;
     if (startPyramidNetPointer(event)) return;
     if (startRectangularPrismNetPointer(event)) return;
@@ -34188,6 +34753,7 @@ function bindEvents() {
     if (updateTeachSourceAnnotationPointer(event)) return;
     if (updatePracticeHeightAnnotationPointer(event)) return;
     if (updatePracticeSourceAnnotationPointer(event)) return;
+    if (updateRectangleScalingPointer(event)) return;
     if (updateBaseHeightChallengePointer(event)) return;
     if (updatePyramidNetPointer(event)) return;
     if (updateRectangularPrismNetPointer(event)) return;
@@ -34204,6 +34770,7 @@ function bindEvents() {
     if (endTeachSourceAnnotationPointer(event)) return;
     if (endPracticeHeightAnnotationPointer(event)) return;
     if (endPracticeSourceAnnotationPointer(event)) return;
+    if (endRectangleScalingPointer(event)) return;
     if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
     if (endRectangularPrismNetPointer(event)) return;
@@ -34220,6 +34787,7 @@ function bindEvents() {
     if (cancelTeachSourceAnnotationPointer(event)) return;
     if (cancelPracticeHeightAnnotationPointer(event)) return;
     if (cancelPracticeSourceAnnotationPointer(event)) return;
+    if (endRectangleScalingPointer(event)) return;
     if (endBaseHeightChallengePointer(event)) return;
     if (endPyramidNetPointer(event)) return;
     if (endRectangularPrismNetPointer(event)) return;
@@ -35393,6 +35961,38 @@ function bindEvents() {
       renderTeachMe();
       return;
     }
+    const rectangleScalingFactorButton = event.target.closest("[data-rectangle-scaling-factor]");
+    if (rectangleScalingFactorButton) {
+      const card = teachCardById(rectangleScalingFactorButton.dataset.rectangleScalingFactor);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      const factor = Number(rectangleScalingFactorButton.dataset.scalingFactor);
+      if (!card || question?.visualType !== "rectangleScalingLab" || ![1, 2, 3].includes(factor)) return;
+      setRectangleScalingModel(card, { factor });
+      renderTeachMe();
+      return;
+    }
+    const rectangleScalingStepButton = event.target.closest("[data-rectangle-scaling-step]");
+    if (rectangleScalingStepButton) {
+      const card = teachCardById(rectangleScalingStepButton.dataset.rectangleScalingStep);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      const field = rectangleScalingStepButton.dataset.scalingField;
+      const delta = Number(rectangleScalingStepButton.dataset.scalingDelta);
+      if (!card || question?.visualType !== "rectangleScalingLab" || !["base", "height"].includes(field) || ![-1, 1].includes(delta)) return;
+      const model = rectangleScalingModel(card);
+      const limits = rectangleScalingLimit(field);
+      setRectangleScalingModel(card, { [field]: clampNumber(model[field] + delta, limits[0], limits[1]) });
+      renderTeachMe();
+      return;
+    }
+    const rectangleScalingResetButton = event.target.closest("[data-rectangle-scaling-reset]");
+    if (rectangleScalingResetButton) {
+      const card = teachCardById(rectangleScalingResetButton.dataset.rectangleScalingReset);
+      const question = card ? questionSetDefinition(card, questionSetActiveId(card)) : null;
+      if (!card || question?.visualType !== "rectangleScalingLab") return;
+      resetRectangleScalingModel(card);
+      renderTeachMe();
+      return;
+    }
     const baseHeightRotateButton = event.target.closest("[data-base-height-rotate]");
     if (baseHeightRotateButton) {
       const card = teachCardById(baseHeightRotateButton.dataset.baseHeightRotate);
@@ -35400,7 +36000,7 @@ function bindEvents() {
       if (!card || question?.dynamicAnswer !== "baseHeightChallenge") return;
       const shape = baseHeightChallengeShape(card, question);
       const delta = Number(baseHeightRotateButton.dataset.rotationDelta) || 0;
-      setBaseHeightChallengeValues(card, question, { rotation: clampNumber(shape.rotation + delta, -60, 60) });
+      setBaseHeightChallengeValues(card, question, { rotation: baseHeightChallengeQuarterTurn(shape.rotation + delta) });
       renderTeachMe();
       return;
     }
@@ -37063,9 +37663,9 @@ function bindEvents() {
     if (!input) return;
     const id = input.dataset.practiceInput;
     const item = practiceBank.find((entry) => entry.id === id);
-    if (["fieldSet", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item?.responseType)) {
+    if (["fieldSet", "advisoryFieldSet", "cubeNetExpressions", "tentDesignEstimate", "areaStrategyPair", "areaComparison"].includes(item?.responseType)) {
       const field = input.dataset.practiceField;
-      const permittedFields = item.responseType === "fieldSet"
+      const permittedFields = ["fieldSet", "advisoryFieldSet"].includes(item.responseType)
         ? (item.fields || []).map((entry) => entry.id)
         : item.responseType === "cubeNetExpressions"
         ? ["surfaceArea", "volume"]
@@ -37379,6 +37979,22 @@ function bindEvents() {
       const dy = event.key === "ArrowUp" ? -distance : event.key === "ArrowDown" ? distance : 0;
       movePracticeCompositionPiece(itemId, dx, dy);
       event.preventDefault();
+      return;
+    }
+    const rectangleScalingHandle = event.target.closest?.("[data-rectangle-scaling-handle]");
+    if (rectangleScalingHandle && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      const card = teachCardById(rectangleScalingHandle.dataset.rectangleScalingHandle);
+      const question = card ? questionSetDefinition(card, rectangleScalingHandle.dataset.questionId) : null;
+      if (!card || question?.visualType !== "rectangleScalingLab") return;
+      const model = rectangleScalingModel(card);
+      const updates = {};
+      if (event.key === "ArrowLeft") updates.base = clampNumber(model.base - 1, ...rectangleScalingLimits.base);
+      if (event.key === "ArrowRight") updates.base = clampNumber(model.base + 1, ...rectangleScalingLimits.base);
+      if (event.key === "ArrowUp") updates.height = clampNumber(model.height + 1, ...rectangleScalingLimits.height);
+      if (event.key === "ArrowDown") updates.height = clampNumber(model.height - 1, ...rectangleScalingLimits.height);
+      setRectangleScalingModel(card, updates);
+      event.preventDefault();
+      renderTeachMe();
       return;
     }
     const baseHeightHandle = event.target.closest?.("[data-base-height-handle]");

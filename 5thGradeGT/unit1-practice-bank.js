@@ -115,7 +115,9 @@ window.unit1PracticeBank = [
       "columns": 16,
       "rows": 10,
       "allowVertexEditing": true,
-      "showCalculatedArea": false
+      "showCalculatedArea": false,
+      "retainInactiveDrawings": true,
+      "retainCompletedDrawingsOnly": true
     },
     "missingFeedback": "Complete and check all three quadrilateral drawings.",
     "correctFeedback": "Correct. All three drawings are different simple quadrilaterals, and each has area 12 square units.",
@@ -3751,7 +3753,7 @@ window.unit1PracticeBank = [
     "practicePartLabel": "1",
     "routePart": "problem-1",
     "skill": "Compare parallelogram areas on a grid",
-    "activityForm": "multi-select grid comparison with optional annotation",
+    "activityForm": "multi-select grid comparison with optional annotation and per-choice scratch calculations",
     "prompt": "Which three parallelograms have the same area as each other?",
     "responseType": "multiSelect",
     "choices": [
@@ -3772,6 +3774,12 @@ window.unit1PracticeBank = [
         "label": "D"
       }
     ],
+    "choiceScratch": {
+      "enabled": true,
+      "label": "Scratch calculation (optional)",
+      "placeholder": "Write any notes",
+      "maxLength": 100
+    },
     "answerKey": [
       "A",
       "B",
@@ -3816,13 +3824,13 @@ window.unit1PracticeBank = [
         "Parallelogram D",
         "square grid"
       ],
-      "notes": "Uses the exact visual-only source crop so every countable base and perpendicular height stays aligned to the grid, with optional ungraded annotation snapped to that printed grid."
+      "notes": "Uses the exact visual-only source crop so every countable base and perpendicular height stays aligned to the grid, with optional ungraded annotation snapped to that printed grid. Each A-D choice also has a persistent 100-character scratch-calculation field that accepts arbitrary text and never affects selection or grading."
     },
     "hints": [
       "Area is base times perpendicular height.",
       "Do not compare slanted side lengths."
     ],
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 1, with optional source-grid annotation and no redundant answer sample.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 1, with optional source-grid annotation, persistent ungraded scratch calculations beside choices A-D, and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.1"
   },
   {
@@ -4246,11 +4254,12 @@ window.unit1PracticeBank = [
     "answerKey": [
       "e",
       "f",
-      "j"
+      "j",
+      "k"
     ],
     "missingFeedback": "Select at least one segment before submitting.",
-    "correctFeedback": "Correct. Segments e, f, and j are perpendicular to the horizontal base m and each connects a vertex on one base to the line containing the opposite base. Segment k is parallel to them but does not meet the parallelogram at either endpoint.",
-    "incorrectFeedback": "Not quite. A corresponding height for base m must be perpendicular to m and connect a vertex on one base to the line containing the opposite base; an isolated parallel segment is not enough.",
+    "correctFeedback": "Correct. Segments e, f, j, and k are perpendicular to base m and span the distance between the parallel lines containing m and the opposite side. Segments g and h are perpendicular to side n instead, and n is a side of the parallelogram.",
+    "incorrectFeedback": "Not quite. Because m is horizontal, look for every vertical segment that spans the distance between the parallel lines containing m and the opposite side. A segment can represent that height even when it is drawn outside the parallelogram.",
     "visualModelData": {
       "type": "annotatableSourceVisual",
       "imagePath": "artifacts/unit 1/_practice-crops/lesson-06-corresponding-heights-source.png",
@@ -4285,13 +4294,13 @@ window.unit1PracticeBank = [
         "segments e, f, g, h, j, k, and n",
         "right-angle markers"
       ],
-      "notes": "Uses the exact visual-only source crop so endpoint placement and right-angle markers remain available for the classification, with optional ungraded annotation on a fine source-coordinate lattice."
+      "notes": "Uses the exact visual-only source crop so endpoint placement and right-angle markers remain available for the classification, with optional ungraded annotation on a fine source-coordinate lattice. The complete accepted set e, f, j, and k is verified against the official teacher solution; k represents the same perpendicular distance even though it is outside the parallelogram."
     },
     "hints": [
       "Because m is horizontal, its corresponding heights are vertical.",
-      "A valid height segment must connect the parallelogram to the opposite base line, possibly using an extension."
+      "A valid height spans the perpendicular distance between the parallel lines containing base m and the opposite side, and it may be drawn outside the parallelogram."
     ],
-    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 5, with optional source-diagram annotation and no redundant answer sample.",
+    "implementationNotes": "Adds full coverage for Lesson 6 cumulative practice, Problem 5, with the official select-all answer set e, f, j, and k, optional source-diagram annotation, and no redundant answer sample.",
     "source": "Cumulative Practice Problems/Grade6-1-6-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4888,14 +4897,20 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5a",
     "routePart": "problem-5a",
     "skill": "Use area = base x corresponding height",
-    "activityForm": "numeric area or missing-dimension calculation",
+    "activityForm": "numeric area calculation with a proportional app-provided parallelogram",
     "prompt": "A parallelogram has base 9 units and corresponding height 2/3 unit. What is its area?",
     "responseType": "number",
     "answerKey": [
       "6"
     ],
     "visualModelData": {
-      "type": "baseHeightRelationship"
+      "type": "baseHeightRelationship",
+      "showGrid": false,
+      "baseUnits": 9,
+      "heightUnits": 0.6666666666666666,
+      "baseLabel": "base 9 units",
+      "heightLabel": "height 2/3 unit",
+      "alt": "A large, grid-free proportional parallelogram with base 9 units and corresponding height 2/3 unit."
     },
     "missingFeedback": "Enter the missing value before submitting.",
     "correctFeedback": "Correct. 9 x 2/3 = 6 square units.",
@@ -4911,9 +4926,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "text-only parallelogram measurements"
       ],
-      "notes": "Keeps the source values and response action without adding an answer-bearing diagram or a sample that repeats the correct feedback."
+      "notes": "The source item is text-only. The app adds a large, plain-background parallelogram whose base and perpendicular height use one scale, so its 9-to-2/3 proportion is exact. Only the two given dimensions are labeled, and no sample repeats the correct feedback."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5a without a redundant sample.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5a with a large grid-free 9-by-2/3 proportional scaffold and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4936,8 +4951,8 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5b",
     "routePart": "problem-5b",
     "skill": "Use area = base x corresponding height",
-    "activityForm": "numeric area or missing-dimension calculation",
     "prompt": "A parallelogram has base 9 units and area 12 square units. What is the corresponding height?",
+    "activityForm": "numeric missing-height calculation with a proportional app-provided parallelogram",
     "responseType": "number",
     "answerKey": [
       "4/3",
@@ -4945,7 +4960,14 @@ window.unit1PracticeBank = [
       "1.3333333333333333"
     ],
     "visualModelData": {
-      "type": "baseHeightRelationship"
+      "type": "baseHeightRelationship",
+      "showGrid": false,
+      "baseUnits": 9,
+      "heightUnits": 1.3333333333333333,
+      "baseLabel": "base 9 units",
+      "heightLabel": "height ?",
+      "areaLabel": "Area: 12 square units",
+      "alt": "A large, grid-free proportional parallelogram with base 9 units, area 12 square units, and an unknown corresponding height."
     },
     "missingFeedback": "Enter the missing value before submitting.",
     "correctFeedback": "Correct. The height is 12 divided by 9, or 4/3 units.",
@@ -4961,9 +4983,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "text-only parallelogram measurements"
       ],
-      "notes": "Keeps the source values and response action without adding an answer-bearing diagram or a sample that repeats the correct feedback."
+      "notes": "The source item is text-only. The app adds a large, plain-background parallelogram whose hidden geometric height is 12 divided by 9, preserving the exact 9-to-4/3 proportion without displaying the missing height. The visual labels only the given base and area."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5b without a redundant sample.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5b with a large grid-free proportional scaffold that keeps the missing height unlabeled and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
@@ -4986,14 +5008,21 @@ window.unit1PracticeBank = [
     "practicePartLabel": "5c",
     "routePart": "problem-5c",
     "skill": "Use area = base x corresponding height",
-    "activityForm": "numeric area or missing-dimension calculation",
     "prompt": "A parallelogram has area 7 square units and a corresponding height of 1/4 unit. What is the base?",
+    "activityForm": "numeric missing-base calculation with a proportional app-provided parallelogram",
     "responseType": "number",
     "answerKey": [
       "28"
     ],
     "visualModelData": {
-      "type": "baseHeightRelationship"
+      "type": "baseHeightRelationship",
+      "showGrid": false,
+      "baseUnits": 28,
+      "heightUnits": 0.25,
+      "baseLabel": "base ?",
+      "heightLabel": "height 1/4 unit",
+      "areaLabel": "Area: 7 square units",
+      "alt": "A large, grid-free proportional parallelogram with area 7 square units, corresponding height 1/4 unit, and an unknown base."
     },
     "missingFeedback": "Enter the missing value before submitting.",
     "correctFeedback": "Correct. The base is 7 divided by 1/4, or 28 units.",
@@ -5009,9 +5038,9 @@ window.unit1PracticeBank = [
       "sourceObjects": [
         "text-only parallelogram measurements"
       ],
-      "notes": "Keeps the source values and response action without adding an answer-bearing diagram or a sample that repeats the correct feedback."
+      "notes": "The source item is text-only. The app adds a large, plain-background parallelogram whose hidden geometric base is 7 divided by 1/4, preserving the exact 28-to-1/4 proportion without displaying the missing base. Its intentionally very shallow appearance is mathematically faithful."
     },
-    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5c without a redundant sample.",
+    "implementationNotes": "Full-coverage implementation of Lesson 7 Practice Problem 5c with a large grid-free proportional scaffold that keeps the missing base unlabeled and no redundant sample.",
     "source": "Cumulative Practice Problems/Grade6-1-7-Lesson-curated-practice-problem-set.pdf p.3"
   },
   {
